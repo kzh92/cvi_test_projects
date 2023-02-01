@@ -1167,12 +1167,14 @@ int my_create_empty_file(const char* path, int file_size)
 */
 int rootfs_is_activated()
 {
-    int ret = 0;
-#ifdef __RTK_OS__
-    fr_ReadFileData(MY_PATH_ACTD, 0, &ret, sizeof(ret));
-    dbug_printf("[%s] ret=%d\n", __func__, ret);
-#endif //__RTK_OS__
-    return (ret == 0 ? 2: 1);
+    //kkk
+//     int ret = 0;
+// #ifdef __RTK_OS__
+//     fr_ReadFileData(MY_PATH_ACTD, 0, &ret, sizeof(ret));
+//     dbug_printf("[%s] ret=%d\n", __func__, ret);
+// #endif //__RTK_OS__
+//     return (ret == 0 ? 2: 1);
+    return 1;
 }
 
 int rootfs_set_activated()

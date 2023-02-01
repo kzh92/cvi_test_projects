@@ -250,8 +250,6 @@
 #define USE_LCD             0
 
 #define my_debug printf
-//#define dbug_printf my_printf
-//#define dbug_printf(...)
 
 #ifdef USE_DEBUG
 

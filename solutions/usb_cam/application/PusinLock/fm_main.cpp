@@ -709,75 +709,26 @@ int main0(int argc, char** argv)
 
     DriverInit();
 
+    dbug_line;
+
     message_queue_init(&g_worker, sizeof(MSG), MAX_MSG_NUM);
+    dbug_line;
 
     if (CreateSharedLCD())
     {        
         my_printf("Cannot create shared mem.\n");
-        g_xCS.x.bBaudRateMode = Baud_Rate_115200;
-        UART_Create();
-
-        //my_usleep(100*1000); // message_queue_init전에 기억기를 창조하면서 오유가 나오는 문제가 있어서 지연을 줌
-#if (FM_PROTOCOL == FM_EASEN)
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_MEM_ERROR);
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_FINISH);
-#elif (FM_PROTOCOL == FM_DESMAN)
-        g_pSenseTask->Send_Msg(SenseLockTask::Get_Note(NID_UNKNOWNERROR));
-#endif
         ReleaseAll();
         DriverRelease();
 
         return RET_POWEROFF;
     }
+    dbug_line;
 
-#ifndef __RTK_OS__
-    while(Now() - g_rAppStartTime < 1000)
-    {
-        if (g_pxSharedMem != NULL && g_pxSharedMem->iData0 == 1)
-            break;
-
-        my_usleep(10*1000);
-    }
-
-    if (g_pxSharedMem == NULL || g_pxSharedMem->iData0 == 0)
-    {
-        my_printf("insmod drivers failed\n");
-        g_xCS.x.bBaudRateMode = Baud_Rate_115200;
-        UART_Create();
-
-        //my_usleep(100*1000); // message_queue_init전에 기억기를 창조하면서 오유가 나오는 문제가 있어서 지연을 줌
-#if (FM_PROTOCOL == FM_EASEN)
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_MEM_ERROR);
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_FINISH);
-#elif (FM_PROTOCOL == FM_DESMAN)
-        g_pSenseTask->Send_Msg(SenseLockTask::Get_Note(NID_UNKNOWNERROR));
-#endif
-        ReleaseAll();
-        DriverRelease();
-
-        return RET_POWEROFF;
-    }
-#endif // ! __RTK_OS__
-
-    int _ret = ReadCommonSettings();
-    if(_ret < 0)
-    {
-        g_xCS.x.bBaudRateMode = Baud_Rate_115200;
-        UART_Create();
-
-        my_usleep(100*1000); // message_queue_init전에 기억기를 창조하면서 오유가 나오는 문제가 있어서 지연을 줌
-#if (FM_PROTOCOL == FM_EASEN)
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_I2C_ERROR);
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_FINISH);
-#elif (FM_PROTOCOL == FM_DESMAN)
-        g_pSenseTask->Send_Msg(SenseLockTask::Get_Note(NID_UNKNOWNERROR));
-#endif
-        ReleaseAll();
-        DriverRelease();
-        return RET_POWEROFF;
-    }
+    ReadCommonSettings();
+    dbug_line;
 
     ResetEngineParams();
+    dbug_line;
 
 #if 1
     ProcessInsmod(NULL);
@@ -785,6 +736,7 @@ int main0(int argc, char** argv)
     my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 4096, MYTHREAD_PRIORITY_MEDIUM);
     //feTaskCustomFunction_arg1((void*)ProcessInsmod, NULL);
 #endif
+    my_printf("%s:%d\n", __FILE__, __LINE__);
 
 #if (USE_VDBTASK)
     StartClrCam();
