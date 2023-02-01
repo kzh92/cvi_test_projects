@@ -266,6 +266,7 @@ int I2C_Read8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
 
 int I2C_Read8(int iFile, int iAddr, unsigned char* pbData, int iLen)
 {
+    return 0;
     int ret = 0;
     for (int i = 0; i < 3; i ++)
     {
@@ -275,8 +276,8 @@ int I2C_Read8(int iFile, int iAddr, unsigned char* pbData, int iLen)
         my_printf("[%s]retry %d, addr=%08x, len=%d\n", __func__, i, iAddr, iLen);
         my_usleep(10*1000);
     }
-    if (ret < 0)
-        exit(0);//power off
+    // if (ret < 0)
+    //     exit(0);//power off
     return ret;
 }
 /**
@@ -383,6 +384,7 @@ int I2C_Write8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
 
 int I2C_Write8(int iFile, int iAddr, unsigned char* pbData, int iLen)
 {
+    return 0;
     unsigned char _buf[WORD_SIZE*2];
     int read_len = iLen;
     if ((int)sizeof(_buf) < read_len)
@@ -404,7 +406,7 @@ int I2C_Write8(int iFile, int iAddr, unsigned char* pbData, int iLen)
         my_usleep(10*1000);
     }
 
-    exit(0);//power off
+    // exit(0);//power off
     return -1;
 }
 

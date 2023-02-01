@@ -1399,7 +1399,7 @@ int CheckBackupDB()
     }
     if(real_file_len != FILESIZE)
     {
-        dbug_printf("[%s] file length mismatch %d, %d\n", real_file_len, FILESIZE);
+        dbug_printf("[%s] file length mismatch %d, %d\n", __func__, real_file_len, FILESIZE);
         my_create_empty_file(BACKUP_USERINFO_DAT, FILESIZE);
     }
 #endif  // ! __RTK_OS__

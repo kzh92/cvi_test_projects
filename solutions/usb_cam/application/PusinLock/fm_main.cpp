@@ -736,7 +736,6 @@ int main0(int argc, char** argv)
     my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 4096, MYTHREAD_PRIORITY_MEDIUM);
     //feTaskCustomFunction_arg1((void*)ProcessInsmod, NULL);
 #endif
-    my_printf("%s:%d\n", __FILE__, __LINE__);
 
 #if (USE_VDBTASK)
     StartClrCam();
@@ -803,73 +802,6 @@ int main0(int argc, char** argv)
         int iIsFirst = 0;
         int iOldUsbHost = g_xCS.x.bUsbHost || g_xCS.x.bOtaMode;
         iIsFirst = rootfs_is_first();
-#if (ROOTFS_BAK)
-        if (iIsFirst == 2)
-        {
-            my_printf("reset kernel flag.\n");
-#if (FM_PROTOCOL == FM_EASEN)
-            g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_FINISH);
-#elif (FM_PROTOCOL == FM_DESMAN)
-            g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN, MR_SUCCESS));
-#endif
-
-            StopCamSurface();
-
-            g_xROKLog.bMapStatus = 0xAA;
-            UpdateROKLogs();
-
-            //turn off IR led.
-            //to avoid confusing with the starting and ending blink of USB upgrade
-            GPIO_fast_setvalue(IR_LED, 0);
-
-            ReleaseAll();
-            DriverRelease();
-#ifndef LIB_TEST
-            EngineMapRelease();
-#endif
-            return RET_POWEROFF;
-        }
-
-        if (iIsFirst && get_cur_rootfs_part() == RFS_PART0)
-        {
-            g_xROKLog.bKernelCounter = MAX_ROOTFS_FAIL_COUNT;
-            g_xROKLog.bKernelFlag = 0x55;
-            UpdateROKLogs();
-
-            //turn off IR led.
-            //to avoid confusing with the starting and ending blink of USB upgrade
-            GPIO_fast_setvalue(IR_LED, 0);
-
-            DriverRelease();
-            my_printf("booted on the first partition.\n");
-            return RET_REBOOT;
-        }
-
-        if(iIsFirst == 1)
-        {
-#if (FM_PROTOCOL == FM_EASEN)
-            if(iUpgradeFlag == 0)
-                g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_BUSY);
-#endif
-
-            //g_pWatchTask = new WatchTask;
-            g_pWatchTask->Start(0);
-
-            if(iUpgradeFlag == 0)
-            {
-                ResetPermanenceSettings();
-                ResetROKLogs();
-                M24C64_FactoryReset();
-            }
-
-            do_backup_rootfs();
-
-            g_pWatchTask->Stop();
-            // delete g_pWatchTask;
-            // g_pWatchTask = NULL;
-        }
-
-#else // ROOTFS_BAK
         if(iIsFirst == 1)
         {
 #if (FM_PROTOCOL == FM_EASEN)
@@ -886,7 +818,6 @@ int main0(int argc, char** argv)
 
             rootfs_set_first_flag();
         }
-#endif // ROOTFS_BAK
 
         ///partition를 map하고 공장설정, 일반설정정보를 읽는다.
         if (try_mount_dbfs() == 1)
@@ -2830,7 +2761,7 @@ int ProcessSenseFace(int iCmd)
                     strncpy(pxMetaInfo->szName, (char*)g_xSS.msg_enroll_itg_data.user_name, N_MAX_NAME_LEN - 1);
                     pxMetaInfo->fPrivilege = g_xSS.iRegsterAuth;
 
-                    dbug_printf("Endroll Face: ID=%d, Privilege=%d, Name: %s, Len=%d\n", 
+                    dbug_printf("Endroll Face: ID=%d, Privilege=%d, Name: %s, Len=%ld\n", 
                         pxMetaInfo->iID, pxMetaInfo->fPrivilege, pxMetaInfo->szName, strlen(pxMetaInfo->szName));
                     if (pxFeatInfo == NULL)
                     {
@@ -3136,7 +3067,7 @@ int MsgProcFM(MSG* pMsg)
     if(pMsg->type != MSG_FM)
         return -1;
 
-    dbug_printf("msg: %d, %f\n", pMsg->data1, Now());
+    dbug_printf("msg: %ld, %f\n", pMsg->data1, Now());
     if(pMsg->data1 == FM_CMD_ACTIVATE)
     {
         char* pbActData = (char*)pMsg->data2;

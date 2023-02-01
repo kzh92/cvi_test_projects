@@ -4,6 +4,7 @@
 #include "appdef.h"
 #include "engine_inner_param.h"
 #include <pthread.h>
+#include <stdio.h>
 
 #define SHMKEY              0x123321
 #define SHMKEY_LCD          0x123322
@@ -175,7 +176,7 @@ void*           my_calloc_real_debug(unsigned int nmemb, unsigned int n_size, co
 void            my_free_real(void* pPtr);
 void            my_free_real_debug(void* pPtr, const char*, int);
 void            my_usleep(int nUsec);
-void            my_printf(const char * format, ...);
+// void            my_printf(const char * format, ...);
 void            LOG_PRINT(const char * format, ...);
 myfdesc_ptr     my_open(const char *szpath, unsigned int nflag, unsigned int nmode);
 int             my_close(myfdesc_ptr _fd);
@@ -243,6 +244,7 @@ int my_munmap(void*, int);
 int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 #endif
+#define my_printf printf
 #define dbug_printf my_printf
 // #define dbug_printf(...)
 #define dbug_line dbug_printf("[%s] %s:%d, %0.3f\n", __func__, __FILE__, __LINE__, Now())

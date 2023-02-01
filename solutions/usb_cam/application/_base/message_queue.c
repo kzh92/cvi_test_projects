@@ -85,7 +85,7 @@ void message_queue_write(struct message_queue *queue, void *message) {
 	my_list_node* node = my_malloc(sizeof(my_list_node));
 	if (node == NULL)
 	{
-		my_printf("[%s] failed to malloc node, %d.\n", __func__, sizeof(my_list_node));
+		my_printf("[%s] failed to malloc node, %ld.\n", __func__, sizeof(my_list_node));
 		return;
 	}
 	memset(node, 0, sizeof(*node));

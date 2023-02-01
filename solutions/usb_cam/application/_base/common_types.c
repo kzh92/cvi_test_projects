@@ -685,17 +685,17 @@ void my_usleep(int nUsec)
     aos_msleep((unsigned int)nUsec);
 }
 
-void my_printf(const char * format, ...)
-{
-    my_mutex_lock(g_MyPrintfLock);
-    char buf[1024] = {0};
-    va_list args;
-    va_start (args, format);
-    vsnprintf(buf, 1023, format, args);
-    va_end (args);
-    printf("%s", buf);
-    my_mutex_unlock(g_MyPrintfLock);
-}
+// void my_printf(const char * format, ...)
+// {
+//     my_mutex_lock(g_MyPrintfLock);
+//     char buf[1024] = {0};
+//     va_list args;
+//     va_start (args, format);
+//     vsnprintf(buf, 1023, format, args);
+//     va_end (args);
+//     printf("%s", buf);
+//     my_mutex_unlock(g_MyPrintfLock);
+// }
 
 void LOG_PRINT(const char * format, ...)
 {
@@ -713,7 +713,7 @@ void LOG_PRINT(const char * format, ...)
 
 float Now(void)
 {
-    return aos_now();
+    return (1.0* aos_now_ms());
 }
 
 float GetMonoTime(void)
@@ -1011,6 +1011,7 @@ int my_i2c_read8(myi2cdesc_ptr ptr, unsigned char addr, unsigned char* buf, unsi
 */
 int rootfs_is_first()
 {
+    return 0; //kkk
 #ifndef __RTK_OS__
     int ret = 0;
 #if (NFS_DEBUG_EN)
