@@ -43,7 +43,7 @@ int _decodeFaceLicense(char* szLicense, CustomSerialNumberInfo& vInfo)
 	// unsigned char* vProductCode;
 	unsigned char* vLicense;
 	VMProtectProductInfo	pi;
-	unsigned int nLicenseLen = 0;
+	size_t nLicenseLen = 0;
 
 	vModule = (unsigned char*)g_module_FL;
 	vPublic = b64_decode_ex(g_public_FL, strlen(g_public_FL), &pi.nPrivateSize);

@@ -388,7 +388,7 @@ int	dbm_LoadPersonDB()
     else
         g_iUserdbAddr = USERDB_START_ADDR + USERDB_SIZE;
 
-    real_file_len = my_flash_read(g_iUserdbAddr, FILESIZE, (unsigned int)g_xDB, FILESIZE);
+    real_file_len = my_flash_read(g_iUserdbAddr, FILESIZE, g_xDB, FILESIZE);
 
     if (real_file_len != FILESIZE)
     {
@@ -1104,28 +1104,28 @@ int dbm_FlushUserDB(int nUserID, int nFlushData)
     {
         if (nUserID == -1)
         {
-            my_flash_write(USERDB_START_ADDR, (unsigned int)g_xDB, FILESIZE);
+            my_flash_write(USERDB_START_ADDR, g_xDB, FILESIZE);
             //backup
-            my_flash_write(USERDB_START_ADDR + USERDB_SIZE, (unsigned int)g_xDB, FILESIZE);
+            my_flash_write(USERDB_START_ADDR + USERDB_SIZE, g_xDB, FILESIZE);
         }
         else
         {
             if (nFlushData & DB_FLUSH_FLAG_DATA)
             {
                 my_flash_write(USERDB_START_ADDR + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
-                    ((unsigned int)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
+                    ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
             }
             if (nFlushData & DB_FLUSH_FLAG_BIT)
-                my_flash_write(USERDB_START_ADDR, (unsigned int)g_xDB->aiValid, sizeof(g_xDB->aiValid));
+                my_flash_write(USERDB_START_ADDR, g_xDB->aiValid, sizeof(g_xDB->aiValid));
             //backup
             if (nFlushData & DB_FLUSH_FLAG_BACKUP)
             {
                 my_flash_write(USERDB_START_ADDR + USERDB_SIZE + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
-                    ((unsigned int)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
+                    ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
             }
             if (nFlushData & DB_FLUSH_FLAG_BACKUP_BIT)
             {
-                my_flash_write(USERDB_START_ADDR + USERDB_SIZE, (unsigned int)g_xDB->aiValid, sizeof(g_xDB->aiValid));
+                my_flash_write(USERDB_START_ADDR + USERDB_SIZE, g_xDB->aiValid, sizeof(g_xDB->aiValid));
             }
         }
         LOG_PRINT("[%s] write end, %0.3f\n", __func__, Now());

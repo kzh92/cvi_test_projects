@@ -3,6 +3,8 @@
 
 #include "appdef.h"
 #include "engine_inner_param.h"
+#include <pthread.h>
+
 #define SHMKEY              0x123321
 #define SHMKEY_LCD          0x123322
 
@@ -55,7 +57,7 @@ typedef struct _tagSHARED_MEM
 } SHARED_MEM;
 
 #ifdef __RTK_OS__
-typedef void* myfdesc_ptr;
+typedef int* myfdesc_ptr;
 #define is_myfdesc_ptr_valid(a) ((a) != NULL)
 #define my_thread_exit(ret)
 #else // __RTK_OS__
@@ -63,8 +65,8 @@ typedef int myfdesc_ptr;
 #define is_myfdesc_ptr_valid(a) ((a) > 0)
 #define my_thread_exit(ret) pthread_exit(ret)
 #endif // __RTK_OS__
-typedef void* mymutex_ptr;
-typedef void* mythread_ptr;
+typedef pthread_mutex_t* mymutex_ptr;
+typedef pthread_t* mythread_ptr;
 typedef void* myi2cdesc_ptr;
 
 #define MYTHREAD_PRIORITY_VERY_LOW      80
@@ -227,11 +229,11 @@ int             fr_ReadAppLog(const char* filename, unsigned int u32_offset, voi
 int             fr_WriteAppLog(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 int             fr_WriteUSBScanEnableState(void);
 //read, write flash pages
-unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, unsigned int u32_address, unsigned int u32_size);
-unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, unsigned int u32_address, unsigned int u32_size);
-unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, unsigned int u32_address, unsigned int u32_size);
+unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
+unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
+unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
 unsigned int my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size);
-unsigned int my_flash_write(unsigned int u32_bytes_offset, unsigned int u32_address, unsigned int u32_size);
+unsigned int my_flash_write(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
 int             my_memstat();
 
 int my_msync(void*, int);

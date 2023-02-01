@@ -1,14 +1,5 @@
 #include "cam_base.h"
 #include "common_types.h"
-#include "mi_sys.h"
-#include "mi_vpe.h"
-#include "mi_vif.h"
-#include "mi_sensor.h"
-#include "st_common.h"
-#include "st_vif.h"
-#include "st_vpe.h"
-#include "mi_venc.h"
-#include "mi_sensor_datatype.h"
 // #include <stdio.h>
 // #include <stdlib.h>
 #include <string.h>
@@ -31,12 +22,15 @@
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t g_i2c1_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 mymutex_ptr g_cam_init_mutex = NULL;
+
 #if (USE_VDBTASK)
 static int iActiveIRCam = -1;
 mymutex_ptr g_clrBufLocker = 0;
 #endif // USE_VDBTASK
 mymutex_ptr g_camBufLock = 0;
+// static int g_cam_inited[3] = {0};
 
+#if 0
 #define RED_BOLD "\x1b[;31;1m"
 #define GRN_BOLD "\x1b[;32;1m"
 #define BLU_BOLD "\x1b[;34;1m"
@@ -64,6 +58,7 @@ mymutex_ptr g_camBufLock = 0;
         my_mi_use_unlock();\
         return 1;\
     }
+#endif
 
 int wait_camera_ready(int id)
 {
@@ -113,50 +108,11 @@ int wait_camera_ready(int id)
     return 0;
 }
 
-typedef struct ST_Stream_Attr_s
-{
-    MI_BOOL    bEnable;
-    MI_U32     u32Pipe;
-
-    MI_U32     u32SnrPad;
-
-    MI_U32     u32VifDev;
-    MI_U32     u32VifChn;
-    MI_U32     u32VifOutputPort;
-
-    MI_U32     u32VpeChn;
-    MI_U32     u32VpeOutputPort;
-    MI_SYS_PixelFormat_e eVpeOutputPorPixelFormat;
-
-    MI_U32     u32DivpChn;
-    MI_U32     u32DivpOutputPort;
-    MI_SYS_PixelFormat_e eDivpOutputPortPixelFormat;
-
-    MI_U32         u32VencChn;
-    MI_VENC_ModType_e eType;
-
-    MI_U32    u32Width;
-    MI_U32    u32Height;
-
-    MI_U32*    Reserve;
-
-}ST_Stream_Attr_T;
-
-typedef struct _SnrInfo_t
-{
-    MI_U32 idx;
-    MI_U16 u16SnrW;
-    MI_U16 u16SnrH;
-    MI_U32 u32SnrMaxFps;
-    MI_U32 u32SnrMinFps;
-} SnrInfo_t;
-
-static int g_cam_inited[3] = {0};
-
 #if (! USE_VDBTASK)
 
 int camera_init(int id, int width, int height)
 {
+#if 0
     my_mi_use_lock();
     if (g_cam_inited[id] != 0)
     {
@@ -377,10 +333,13 @@ err_snr:
     STCHECKRESULT(MI_SNR_Disable(ePADId));
     my_mi_use_unlock();
     return -1;
+#endif
+    return 0;
 }
 
 int camera_release(int id)
 {
+#if 0
     my_mi_use_lock();
     if (!g_cam_inited[id])
     {
@@ -430,7 +389,11 @@ int camera_release(int id)
     g_cam_inited[id] = 0;
     my_mi_use_unlock();
     return MI_SUCCESS;
+#endif
+    return 0;
 }
+
+#if 0
 
 #if (USE_SSD210)
 #define I2C_ADDR_MIPI0_CAMERA 0x34
@@ -505,50 +468,51 @@ int camera_mipi1_get_regval(unsigned char regaddr)
     }
     return szBuf[0];
 }
-
+#endif
 int camera_set_regval(int id, unsigned char regaddr, unsigned char regval)
 {
-    int ret = -1;
-    if(id == MIPI_0_CAM)
-        return camera_mipi0_set_regval(regaddr, regval);
-    else if(id == MIPI_1_CAM)
-        return camera_mipi1_set_regval(regaddr, regval);
+    // int ret = -1;
+    // if(id == MIPI_0_CAM)
+    //     return camera_mipi0_set_regval(regaddr, regval);
+    // else if(id == MIPI_1_CAM)
+    //     return camera_mipi1_set_regval(regaddr, regval);
 
-    return ret;
+    // return ret;
+    return 0;
 }
 
 int camera_get_regval(int id, unsigned char regaddr)
 {
-    if(id == MIPI_0_CAM)
-        return camera_mipi0_get_regval(regaddr);
-    else if(id == MIPI_1_CAM)
-        return camera_mipi1_get_regval(regaddr);
+    // if(id == MIPI_0_CAM)
+    //     return camera_mipi0_get_regval(regaddr);
+    // else if(id == MIPI_1_CAM)
+    //     return camera_mipi1_get_regval(regaddr);
     return 0;
 }
 
 int camera_set_exp_byreg(int id, int value)
 {
-    camera_set_regval(id, 0x01, (unsigned char)(value & 0xFF));
-    camera_set_regval(id, 0x02, (unsigned char)((value >> 8) & 0x0F));
-    //my_usleep(1000);
+    // camera_set_regval(id, 0x01, (unsigned char)(value & 0xFF));
+    // camera_set_regval(id, 0x02, (unsigned char)((value >> 8) & 0x0F));
+    // //my_usleep(1000);
 
-    dbug_printf("Set ExP: %d, %d\n", id, value);
+    // dbug_printf("Set ExP: %d, %d\n", id, value);
 
     return 0;
 }
-
 int camera_get_exp_byreg(int id)
 {
-    int value = 0;
-    value = camera_get_regval(id, 0x01) & 0xFF;
-    value = value | ((camera_get_regval(id, 0x02) << 8) & 0xFF00);
-    return value;
+    // int value = 0;
+    // value = camera_get_regval(id, 0x01) & 0xFF;
+    // value = value | ((camera_get_regval(id, 0x02) << 8) & 0xFF00);
+    // return value;
+    return 0;
 }
 
 int camera_set_gain_byreg(int id, int value)
 {
-    camera_set_regval(id, 0x00, value);
-    dbug_printf("Set Gain: %d, %d\n", id, value);
+    // camera_set_regval(id, 0x00, value);
+    // dbug_printf("Set Gain: %d, %d\n", id, value);
     return 0;
 }
 

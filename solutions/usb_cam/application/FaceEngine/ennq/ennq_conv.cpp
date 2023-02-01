@@ -4263,8 +4263,8 @@ namespace ENNQ
 
 			const signed char* img = data_in + p * size_in; // bottom_blob.channel(p);
 
-			float scale = mem_scale[p];
-			float bias = mem_bias[p];
+			// float scale = mem_scale[p];
+			// float bias = mem_bias[p];
 
 			const signed char* r0 = img;
 			const signed char* r1 = img + w;
@@ -4436,8 +4436,8 @@ namespace ENNQ
 
 			const signed char* img = data_in + p * size_in; // bottom_blob.channel(p);
 
-			float scale = mem_scale[p];
-			float bias = mem_bias[p];
+			// float scale = mem_scale[p];
+			// float bias = mem_bias[p];
 
 			const signed char* r0 = img;
 			const signed char* r1 = img + w;

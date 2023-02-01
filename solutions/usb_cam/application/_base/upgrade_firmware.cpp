@@ -43,7 +43,7 @@ void doUpgradeFirmware()
     unsigned int iErrorFlag = 0;
 
     buf = my_malloc(rtos_len);
-    read_len = my_flash_read(NEW_RTOS_ADDR, rtos_len, (unsigned int)buf, rtos_len);
+    read_len = my_flash_read(NEW_RTOS_ADDR, rtos_len, buf, rtos_len);
     if (read_len == rtos_len)
     {
         memcpy((unsigned char *)&header, (unsigned char *)buf, sizeof(stRtosEasenHeader));
@@ -57,7 +57,7 @@ void doUpgradeFirmware()
             write_len = my_flash_erase(RTOS_START_ADDR, rtos_len);
             if (write_len != rtos_len)
                 iErrorFlag = 1;
-            write_len = my_flash_write_pages(RTOS_START_ADDR, (unsigned int)buf, rtos_len);
+            write_len = my_flash_write_pages(RTOS_START_ADDR, buf, rtos_len);
             if (write_len != rtos_len)
                 iErrorFlag = 1;
         }

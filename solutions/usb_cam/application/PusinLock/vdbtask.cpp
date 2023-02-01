@@ -3,21 +3,15 @@
 #include "drv_gpio.h"
 #include "appdef.h"
 #include "shared.h"
-// #include "msg.h"
 #include "DBManager.h"
-// #include "msg.h"
 #include "engineparam.h"
 #include "ImageProcessing.h"
 #include "FaceRetrievalSystem.h"
 #include "settings.h"
 #include "camerasurface.h"
 #include "senselockmessage.h"
-// #include "removebackground.h"
-// #include "countbase.h"
 #include "faceengine.h"
-// #include "i2cbase.h"
 #include "jpge.h"
-// #include "shared.h"
 #include "check_camera_pattern.h"
 #include "sn.h"
 #if (USE_WIFI_MODULE)
@@ -26,8 +20,6 @@
 #include "jiwei_base.h"
 #include "soundbase.h"
 #endif // USE_WIFI_MODULE
-
-#include "mi_sys.h"
 
 // #include <unistd.h>
 // #include <stdlib.h>

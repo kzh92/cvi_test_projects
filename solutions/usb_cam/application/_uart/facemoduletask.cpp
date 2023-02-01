@@ -480,7 +480,7 @@ void FaceModuleTask::run()
                         {
                             SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
 
-                            SendGlobalMsg(MSG_FM, xRecvCmd.bType, (int)pbActData, 0);
+                            SendGlobalMsg(MSG_FM, xRecvCmd.bType, (long)pbActData, 0);
                         }
                     }
                     else
@@ -762,7 +762,7 @@ void FaceModuleTask::run()
                                     LOG_PRINT("Recv Feat Data!\n");
                                     SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
 
-                                    SendGlobalMsg(MSG_FM, xRecvCmd.bType, (int)pbFeatData, iLen);
+                                    SendGlobalMsg(MSG_FM, xRecvCmd.bType, (long)pbFeatData, iLen);
                                 }
                             }
                         }

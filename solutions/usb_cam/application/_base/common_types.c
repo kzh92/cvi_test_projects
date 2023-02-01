@@ -1,20 +1,23 @@
 #include "common_types.h"
 #include "drv_gpio.h"
 
-// #include <unistd.h>
-// #include <stdio.h>
+#include <stdio.h>
+#include <unistd.h>
 // #include <stdlib.h>
 // #include <errno.h>
 #include <string.h>
 #include <stdarg.h>
-#include <cam_os_wrapper.h>
-#include <cam_fs_wrapper.h>
-#include "mi_sys.h"
-#include "mi_common_datatype.h"
-#include "cam_drv_i2c.h" //i2c
-#include "mem_backtrace.h"
-#include "drv_mspi.h"
-#include "padmux.h"
+// #include <cam_os_wrapper.h>
+// #include <cam_fs_wrapper.h>
+// #include "mi_sys.h"
+// #include "mi_common_datatype.h"
+// #include "cam_drv_i2c.h" //i2c
+// #include "mem_backtrace.h"
+// #include "drv_mspi.h"
+// #include "padmux.h"
+#include <malloc.h>
+#include <aos/kernel.h>
+#include <fcntl.h>
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
@@ -66,10 +69,6 @@ int bSetKernelFlag = 1;
 // };
 
 //prebuilt functions
-extern U32 MDRV_FLASH_read(U32 u32_bytes_offset, U32 u32_limit, U32 u32_address, U32 u32_size);
-extern U32 MDRV_FLASH_write_pages(U32 u32_bytes_offset, U32 U32_address, U32 u32_size);
-extern U32 MDRV_FLASH_write_parts(U32 u32_bytes_offset, U32 u32_limit, U32 u32_address, U32 u32_size);
-extern U32 MDRV_FLASH_erase(U32 u32_bytes_offset, U32 u32_size);
 
 #ifdef UPGRADE_MODE
 int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
@@ -171,7 +170,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     return -1;
 
 off_read_file:
-    read_len = my_flash_read(file_offset + u32_offset, u32_length, (unsigned int)buf, u32_length);
+    read_len = my_flash_read(file_offset + u32_offset, u32_length, buf, u32_length);
     return read_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -346,7 +345,7 @@ int my_spi_read(unsigned char* rx, int len)
     else
         return -1;
 }
-#endif
+#endif // USE_WIFI_MODULE
 
 void CreateSharedMem()
 {
@@ -643,47 +642,47 @@ int get_rootfs_checksum(const char *dev_path, unsigned int* n_checksum_ptr)
 
 void* my_malloc_real(unsigned int nSize)
 {
-    return CamOsMemAlloc(nSize);
+    return malloc(nSize);
 }
 
 void* my_malloc_real_debug(unsigned int nSize, const char* strFile, int nLine)
 {
-    void* ptrRet = CamOsMemAlloc(nSize);
+    void* ptrRet = malloc(nSize);
     my_printf("[%s] %p, %d, %s:%d\n", __func__, ptrRet, nSize, strFile, nLine);
     return ptrRet;
 }
 
 void* my_calloc_real(unsigned int nmemb, unsigned int n_size)
 {
-    return CamOsMemCalloc(nmemb, n_size);
+    return calloc(nmemb, n_size);
 }
 
 void* my_calloc_real_debug(unsigned int nmemb, unsigned int n_size, const char* strFile, int nLine)
 {
-    void* ptrRet = CamOsMemCalloc(nmemb, n_size);
+    void* ptrRet = calloc(nmemb, n_size);
     my_printf("[%s] %p, %d, %s:%d\n", __func__, ptrRet, nmemb * n_size, strFile, nLine);
     return ptrRet;
 }
 
 void* my_realloc(void* pPtr, unsigned int nSize)
 {
-    return CamOsMemRealloc(pPtr, nSize);
+    return realloc(pPtr, nSize);
 }
 
 void my_free_real(void* pPtr)
 {
-    CamOsMemRelease(pPtr);
+    free(pPtr);
 }
 
 void my_free_real_debug(void* pPtr, const char* strFile, int nLine)
 {
     my_printf("[%s] %p, %s:%d\n", __func__, pPtr, strFile, nLine);
-    CamOsMemRelease(pPtr);
+    free(pPtr);
 }
 
 void my_usleep(int nUsec)
 {
-    CamOsUsSleep((unsigned int)nUsec);
+    aos_msleep((unsigned int)nUsec);
 }
 
 void my_printf(const char * format, ...)
@@ -694,7 +693,7 @@ void my_printf(const char * format, ...)
     va_start (args, format);
     vsnprintf(buf, 1023, format, args);
     va_end (args);
-    CamOsPrintf(KERN_ERR "%s", buf);
+    printf("%s", buf);
     my_mutex_unlock(g_MyPrintfLock);
 }
 
@@ -714,42 +713,37 @@ void LOG_PRINT(const char * format, ...)
 
 float Now(void)
 {
-    return GetMonoTime();
+    return aos_now();
 }
 
 float GetMonoTime(void)
 {
-#if 0
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec*1000.f + ts.tv_nsec/1000000.f;
-#else
-    CamOsTimespec_t s;
-    CamOsGetMonotonicTime(&s);
-    return s.nSec*1000.f + s.nNanoSec/1000000.f;
-#endif
     return 0;
 }
 
 myfdesc_ptr my_open(const char *szpath, unsigned int nflag, unsigned int nmode)
 {
-    myfdesc_ptr _fdptr;
-    if (CamFsOpen(&_fdptr, szpath, nflag, nmode))
-        return NULL;
+    int* fd = (int*)my_malloc(sizeof(int));
+    *fd = open(szpath, nflag);
+    if (*fd > -1)
+        return fd;
     else
-        return _fdptr;
+    {
+        my_free(fd);
+        return NULL;
+    }
 }
 
 int my_close(myfdesc_ptr _fd)
 {
-    return CamFsClose(_fd);
+    return close(*_fd);
 }
 
 int my_read(myfdesc_ptr fd, void *buf, unsigned int count)
 {
     dbug_printf("[%s] buf=%p, count=%d\n",
         __func__, buf, count);
-    return CamFsRead(fd, buf, count);
+    return read(*fd, buf, count);
 }
 
 int my_read_ext(myfdesc_ptr fd, void *buf, unsigned int count)
@@ -770,20 +764,20 @@ int my_read_ext(myfdesc_ptr fd, void *buf, unsigned int count)
 
 int my_write(myfdesc_ptr fd, const void *buf, unsigned int count)
 {
-    return CamFsWrite(fd, buf, count);
+    return write(*fd, buf, count);
 }
 
 int my_seek(myfdesc_ptr fd, unsigned int offset, unsigned int whence)
 {
-    return CamFsSeek(fd, offset, whence);
+    return lseek(*fd, offset, whence);
 }
 
 mymutex_ptr my_mutex_init()
 {
-    CamOsMutex_t* mt = (CamOsMutex_t*)my_malloc(sizeof(CamOsMutex_t));
+    pthread_mutex_t* mt = (pthread_mutex_t*)my_malloc(sizeof(pthread_mutex_t));
     if (mt == NULL)
         return NULL;
-    if (CamOsMutexInit(mt))
+    if (pthread_mutex_init(mt, NULL))
     {
         my_free(mt);
         return NULL;
@@ -795,7 +789,7 @@ void my_mutex_destroy(mymutex_ptr mtx)
 {
     if (mtx == NULL)
         return;
-    CamOsMutexDestroy((CamOsMutex_t*)mtx);
+    pthread_mutex_destroy(mtx);
     my_free(mtx);
 }
 
@@ -803,14 +797,14 @@ void my_mutex_lock_real(mymutex_ptr mtx)
 {
     if (mtx == NULL)
         return;
-    CamOsMutexLock((CamOsMutex_t*)mtx);
+    pthread_mutex_lock(mtx);
 }
 
 void my_mutex_unlock_real(mymutex_ptr mtx)
 {
     if (mtx == NULL)
         return;
-    CamOsMutexUnlock((CamOsMutex_t*)mtx);
+    pthread_mutex_unlock(mtx);
 }
 
 void my_mutex_lock_real_debug(mymutex_ptr mtx, const char* str_file, int n_line)
@@ -818,7 +812,7 @@ void my_mutex_lock_real_debug(mymutex_ptr mtx, const char* str_file, int n_line)
     if (mtx == NULL)
         return;
     my_printf("[%s] %p, %s:%d\n", __func__, mtx, str_file, n_line);
-    CamOsMutexLock((CamOsMutex_t*)mtx);
+    pthread_mutex_lock(mtx);
 }
 
 void my_mutex_unlock_real_debug(mymutex_ptr mtx, const char* str_file, int n_line)
@@ -826,35 +820,27 @@ void my_mutex_unlock_real_debug(mymutex_ptr mtx, const char* str_file, int n_lin
     if (mtx == NULL)
         return;
     my_printf("[%s] %p, %s:%d\n", __func__, mtx, str_file, n_line);
-    CamOsMutexUnlock((CamOsMutex_t*)mtx);
+    pthread_mutex_unlock(mtx);
 }
 
 int my_thread_create(mythread_ptr *thread, void *attr, void *(*start_routine) (void *), void *arg)
 {
     if (thread == NULL)
         return -1;
-    CamOsThread* pThread = my_malloc(sizeof(CamOsThread));
+    pthread_t* pThread = my_malloc(sizeof(pthread_t));
     *thread = NULL;
     if (pThread == NULL)
         return -2;
     memset(pThread, 0, sizeof(*pThread));
-    CamOsThreadAttrb_t threadUVCAttr_0 = {.nPriority = 0,.szName = "mydyn_thread",.nStackSize = 16384};
-    if (attr != NULL)
+    //if (attr != NULL)
     {
-        if (CamOsThreadCreate(pThread, attr, start_routine, arg))
+        if (pthread_create(pThread, attr, start_routine, arg))
         {
             my_free(pThread);
             return -3;
         }
     }
-    else
-    {
-        if (CamOsThreadCreate(pThread, &threadUVCAttr_0, start_routine, arg))
-        {
-            my_free(pThread);
-            return -4;
-        }
-    }
+
     *thread = pThread;
     return 0;
 }
@@ -863,26 +849,17 @@ int my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine
 {
     if (thread == NULL)
         return -1;
-    CamOsThread* pThread = my_malloc(sizeof(CamOsThread));
+    pthread_t* pThread = my_malloc(sizeof(pthread_t));
     *thread = NULL;
     if (pThread == NULL)
         return -2;
     memset(pThread, 0, sizeof(*pThread));
-    CamOsThreadAttrb_t threadUVCAttr_0 = {.nPriority = priority,.szName = thd_name,.nStackSize = stack_size};
-    if (attr != NULL)
+    //if (attr != NULL)
     {
-        if (CamOsThreadCreate(pThread, attr, start_routine, arg))
+        if (pthread_create(pThread, attr, start_routine, arg))
         {
             my_free(pThread);
             return -3;
-        }
-    }
-    else
-    {
-        if (CamOsThreadCreate(pThread, &threadUVCAttr_0, start_routine, arg))
-        {
-            my_free(pThread);
-            return -4;
         }
     }
     *thread = pThread;
@@ -893,7 +870,7 @@ int my_thread_join(mythread_ptr *thread)
 {
     if (thread == NULL)
         return -1;
-    return CamOsThreadJoin(*((CamOsThread*)*thread));
+    return pthread_join(*thread, NULL);
 }
 
 int my_sync()
@@ -913,7 +890,8 @@ int my_mount(const char *source, const char *target,
 int my_umount(const char *target)
 {
     //todo
-    return CamFsUnmount(target);
+    //return CamFsUnmount(target);
+    return 0;
 }
 
 int mount_db1()
@@ -928,66 +906,67 @@ int umount_db1()
 
 int my_mount_userdb()
 {
-#ifndef MMAP_MODE
-    my_printf("[%s] start\n", __func__);
-    return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "USERDB1", "/mnt/db");
-#else // !MMAP_MODE
+// #ifndef MMAP_MODE
+//     my_printf("[%s] start\n", __func__);
+//     return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "USERDB1", "/mnt/db");
+// #else // !MMAP_MODE
     return 0;
-#endif // !MMAP_MODE
+// #endif // !MMAP_MODE
 }
 
 int my_mount_userdb_backup()
 {
-#ifndef MMAP_MODE
-    return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "USERDB2", "/mnt/backup");
-#else // !MMAP_MODE
+// #ifndef MMAP_MODE
+//     return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "USERDB2", "/mnt/backup");
+// #else // !MMAP_MODE
     return 0;
-#endif // !MMAP_MODE
+// #endif // !MMAP_MODE
 }
 
 int my_mount_misc()
 {
-    return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "MISC", "/mnt/MISC");
+    // return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "MISC", "/mnt/MISC");
+    return 0;
 }
 
 unsigned long long my_get_chip_id()
 {
-    MI_U64 u64Uuid = 0;
+    // MI_U64 u64Uuid = 0;
 
-    MI_S32 s32Ret = MI_ERR_SYS_FAILED;
+    // MI_S32 s32Ret = MI_ERR_SYS_FAILED;
 
-    s32Ret = MI_SYS_ReadUuid (&u64Uuid);
+    // s32Ret = MI_SYS_ReadUuid (&u64Uuid);
 
-    if(!s32Ret)
-    {
-        dbug_printf("uuid: %llx\n",u64Uuid);
-    }
-    return u64Uuid;
+    // if(!s32Ret)
+    // {
+    //     dbug_printf("uuid: %llx\n",u64Uuid);
+    // }
+    // return u64Uuid;
+    return 0;
 }
 
 int my_print_callstack()
 {
-    CamOsCallStack();
     return 0;
 }
 
 int my_i2c_open(int num, myi2cdesc_ptr* pptr)
 {
-    tI2cHandle* p_handle = NULL;
-    p_handle = my_malloc(sizeof(tI2cHandle));
-    if (p_handle == NULL)
-        return -1;
+    // tI2cHandle* p_handle = NULL;
+    // p_handle = my_malloc(sizeof(tI2cHandle));
+    // if (p_handle == NULL)
+    //     return -1;
 
-    p_handle->nPortNum = -1;
-    p_handle->pAdapter = NULL;
-    CamI2cOpen(p_handle, num);
-    *pptr = (void*)p_handle;
+    // p_handle->nPortNum = -1;
+    // p_handle->pAdapter = NULL;
+    // CamI2cOpen(p_handle, num);
+    // *pptr = (void*)p_handle;
     return 0;
 }
 
 int my_i2c_close(myi2cdesc_ptr ptr)
 {
-    CamI2cClose((tI2cHandle*)ptr);
+    // CamI2cClose((tI2cHandle*)ptr);
     my_free(ptr);
     return 0;
 }
@@ -995,31 +974,33 @@ int my_i2c_close(myi2cdesc_ptr ptr)
 int my_i2c_write8(myi2cdesc_ptr ptr, unsigned char addr, unsigned char* buf, unsigned int len)
 {
     //no need to use mutex
-    tI2cMsg msg;
-    if (len == 0)
-        return -1;
-    //read data
-    msg.addr = addr;
-    msg.flags = 0;
-    msg.buf = buf;
-    msg.len = len;
-    CamI2cTransfer((tI2cHandle*)ptr, &msg, 1);
-    return (int)len;
+    // tI2cMsg msg;
+    // if (len == 0)
+    //     return -1;
+    // //read data
+    // msg.addr = addr;
+    // msg.flags = 0;
+    // msg.buf = buf;
+    // msg.len = len;
+    // CamI2cTransfer((tI2cHandle*)ptr, &msg, 1);
+    // return (int)len;
+    return 0;
 }
 
 int my_i2c_read8(myi2cdesc_ptr ptr, unsigned char addr, unsigned char* buf, unsigned int len)
 {
     //no need to use mutex
-    tI2cMsg msg;
-    if (len == 0)
-        return -1;
-    //read data
-    msg.addr = addr;
-    msg.flags = I2C_M_RD;
-    msg.buf = buf;
-    msg.len = len;
-    CamI2cTransfer((tI2cHandle*)ptr, &msg, 1);
-    return (int)len;
+    // tI2cMsg msg;
+    // if (len == 0)
+    //     return -1;
+    // //read data
+    // msg.addr = addr;
+    // msg.flags = I2C_M_RD;
+    // msg.buf = buf;
+    // msg.len = len;
+    // CamI2cTransfer((tI2cHandle*)ptr, &msg, 1);
+    // return (int)len;
+    return 0;
 }
 
 #define MY_PATH_FIRST_FLAG  "/mnt/MISC/first.bin"
@@ -1203,7 +1184,7 @@ int rootfs_set_activated()
     return 0;
 }
 
-unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, unsigned int u32_address, unsigned int u32_size)
+unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size)
 {
     int ret = -1;
 #if 1
@@ -1219,7 +1200,8 @@ unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit
         else
             read_len = buf_len;
         my_mutex_lock(g_FlashReadWriteLock);
-        read_len = MDRV_FLASH_read(u32_bytes_offset + i, read_len, u32_address + i, read_len);
+        //read_len = MDRV_FLASH_read(u32_bytes_offset + i, read_len, u32_address + i, read_len);
+
         my_mutex_unlock(g_FlashReadWriteLock);
         if (read_len <= 0)
             break;
@@ -1237,34 +1219,40 @@ unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit
     return ret;
 }
 
-unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, unsigned int u32_address, unsigned int u32_size)
+unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size)
 {
-    U32 ret;
-    my_mutex_lock(g_FlashReadWriteLock);
-    ret = MDRV_FLASH_write_pages(u32_bytes_offset, u32_address, u32_size);
-    my_mutex_unlock(g_FlashReadWriteLock);
-    return ret;
+    // U32 ret;
+    // my_mutex_lock(g_FlashReadWriteLock);
+    // // ret = MDRV_FLASH_write_pages(u32_bytes_offset, u32_address, u32_size);
+    // ret = 0;
+    // my_mutex_unlock(g_FlashReadWriteLock);
+    // return ret;
+    return 0;
 }
 
-unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, unsigned int u32_address, unsigned int u32_size)
+unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size)
 {
-    U32 ret;
-    my_mutex_lock(g_FlashReadWriteLock);
-    ret = MDRV_FLASH_write_parts(u32_bytes_offset, u32_limit, u32_address, u32_size);
-    my_mutex_unlock(g_FlashReadWriteLock);
-    return ret;
+    // U32 ret;
+    // my_mutex_lock(g_FlashReadWriteLock);
+    // // ret = MDRV_FLASH_write_parts(u32_bytes_offset, u32_limit, u32_address, u32_size);
+    // ret = 0;
+    // my_mutex_unlock(g_FlashReadWriteLock);
+    // return ret;
+    return 0;
 }
 
 unsigned int my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size)
 {
-    U32 ret;
-    my_mutex_lock(g_FlashReadWriteLock);
-    ret = MDRV_FLASH_erase(u32_bytes_offset, u32_size);
-    my_mutex_unlock(g_FlashReadWriteLock);
-    return ret;
+    // U32 ret;
+    // my_mutex_lock(g_FlashReadWriteLock);
+    // // ret = MDRV_FLASH_erase(u32_bytes_offset, u32_size);
+    // ret = 0;
+    // my_mutex_unlock(g_FlashReadWriteLock);
+    // return ret;
+    return 0;
 }
 
-unsigned int my_flash_write(unsigned int u32_bytes_offset, unsigned int u32_address, unsigned int u32_size)
+unsigned int my_flash_write(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size)
 {
     const int flash_page_size = 4*1024;
     unsigned int start_off = u32_bytes_offset - (u32_bytes_offset % flash_page_size);
@@ -1274,7 +1262,7 @@ unsigned int my_flash_write(unsigned int u32_bytes_offset, unsigned int u32_addr
     unsigned int write_len;
     unsigned int write_off;
     unsigned int total_len = 0;
-    LOG_PRINT("[%s] %08x, %08x, %d, p=%d, s=%08x, e=%08x\n", __func__, 
+    LOG_PRINT("[%s] %08x, %08x, %p, p=%d, s=%08x, e=%08x\n", __func__, 
         u32_bytes_offset, u32_address, u32_size, 
         page_count, start_off, end_off);
     _tmp_buf = (unsigned char*)my_malloc(flash_page_size);
@@ -1282,7 +1270,7 @@ unsigned int my_flash_write(unsigned int u32_bytes_offset, unsigned int u32_addr
         return 0;
     for (; start_off < end_off; start_off += flash_page_size)
     {
-        my_flash_read(start_off, flash_page_size, (unsigned int)_tmp_buf, flash_page_size);
+        my_flash_read(start_off, flash_page_size, _tmp_buf, flash_page_size);
         write_len = flash_page_size;
         write_off = 0;
         if (start_off + flash_page_size > u32_bytes_offset + u32_size)
@@ -1296,7 +1284,7 @@ unsigned int my_flash_write(unsigned int u32_bytes_offset, unsigned int u32_addr
         {
             memcpy(_tmp_buf + write_off, (void*)(u32_address + total_len), write_len);
             my_flash_erase(start_off, flash_page_size);
-            my_flash_write_parts(start_off, flash_page_size, (unsigned int)_tmp_buf, flash_page_size);
+            my_flash_write_parts(start_off, flash_page_size, _tmp_buf, flash_page_size);
         }
         total_len += write_len;
     }
@@ -1320,13 +1308,13 @@ int my_munmap(void* addr, int len)
     return 0;
 }
 
-extern void RtkDumpMemoryStatus(rtk_MemStatusLv_e level);
+// extern void RtkDumpMemoryStatus(rtk_MemStatusLv_e level);
 int my_memstat()
 {
     my_printf("[%s] 1\n", __func__);
-    CamOsDirectMemStat();
-    my_printf("[%s] 2\n", __func__);
-    RtkDumpMemoryStatus(RTK_MEM_STATUS_HEAP_USAGE | RTK_MEM_STATUS_POOL_USAGE);
+    // CamOsDirectMemStat();
+    // my_printf("[%s] 2\n", __func__);
+    // RtkDumpMemoryStatus(RTK_MEM_STATUS_HEAP_USAGE | RTK_MEM_STATUS_POOL_USAGE);
     return 0;
 }
 
@@ -1338,7 +1326,7 @@ int fr_InitAppLog()
 
     memset(wBuf, 0, sizeof(wBuf));
 
-    write_len = my_flash_write(file_offset, (unsigned int)wBuf, APPLOG_LEN);
+    write_len = my_flash_write(file_offset, wBuf, APPLOG_LEN);
     return write_len;
 }
 
@@ -1348,7 +1336,7 @@ int fr_GetAppLogLen()
     int file_offset = 0;
     unsigned char buf[APPLOG_SIZE_LEN];
     file_offset = APPLOG_START_ADDR;
-    read_len = my_flash_read(file_offset, APPLOG_SIZE_LEN, (unsigned int)buf, APPLOG_SIZE_LEN);
+    read_len = my_flash_read(file_offset, APPLOG_SIZE_LEN, buf, APPLOG_SIZE_LEN);
     if (read_len != sizeof(buf))
         return 0;
 
@@ -1370,7 +1358,7 @@ int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* buf, unsi
     return -1;
 
 off_read_file:
-    read_len = my_flash_read(file_offset + u32_offset, u32_length, (unsigned int)buf, u32_length);
+    read_len = my_flash_read(file_offset + u32_offset, u32_length, buf, u32_length);
     return read_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -1429,7 +1417,7 @@ int fr_WriteAppLog(const char* filename, unsigned int u32_offset, void* buf, uns
     return -1;
 
 off_write_file:
-    write_len = my_flash_write(file_offset + u32_offset, (unsigned int)wBuf, APPLOG_LEN);
+    write_len = my_flash_write(file_offset + u32_offset, wBuf, APPLOG_LEN);
     return write_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -1450,7 +1438,7 @@ int fr_WriteUSBScanEnableState()
     int write_len = -1;
     unsigned char buf[UPGRADER_INFO_SIZE * 2];
 
-    my_flash_read(UPGRADER_INFO_ADDR, sizeof(buf), (unsigned int)buf, sizeof(buf));
+    my_flash_read(UPGRADER_INFO_ADDR, sizeof(buf), buf, sizeof(buf));
     
     buf[UPGRADER_INFO_SIZE] = 0x7E;
     buf[UPGRADER_INFO_SIZE + 1] = 0x55;
@@ -1463,7 +1451,7 @@ int fr_WriteUSBScanEnableState()
     return -1;
 
 off_write_file:
-    write_len = my_flash_write(UPGRADER_INFO_ADDR, (unsigned int)buf, sizeof(buf));
+    write_len = my_flash_write(UPGRADER_INFO_ADDR, buf, sizeof(buf));
     return write_len;
 #else // MY_DICT_FLASH
     int ret = -1;

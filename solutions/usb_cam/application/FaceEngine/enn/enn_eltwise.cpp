@@ -195,12 +195,18 @@ namespace ENN
 					float va = *ptr2++;
 					float vb = *ptr2++;
 
-					if (v0 < v6) v0 = v6; *outptr0++ = v0;
-					if (v1 < v7) v1 = v7; *outptr1++ = v1;
-					if (v2 < v8) v2 = v8; *outptr2++ = v2;
-					if (v3 < v9) v3 = v9; *outptr3++ = v3;
-					if (v4 < va) v4 = va; *outptr4++ = v4;
-					if (v5 < vb) v5 = vb; *outptr5++ = v5;
+					if (v0 < v6) v0 = v6;
+					*outptr0++ = v0;
+					if (v1 < v7) v1 = v7;
+					*outptr1++ = v1;
+					if (v2 < v8) v2 = v8;
+					*outptr2++ = v2;
+					if (v3 < v9) v3 = v9;
+					*outptr3++ = v3;
+					if (v4 < va) v4 = va;
+					*outptr4++ = v4;
+					if (v5 < vb) v5 = vb;
+					*outptr5++ = v5;
 				}
 #endif
 			}

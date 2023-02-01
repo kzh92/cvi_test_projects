@@ -813,12 +813,12 @@ void* dbPartRestore(void*)
 
         if (len > copy_size)
         {
-            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.iDBformatCount * copy_size, copy_size, (unsigned int)pbData, copy_size) != copy_size)
+            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.iDBformatCount * copy_size, copy_size, pbData, copy_size) != copy_size)
             {
                 fail_count++;
                 continue;
             }
-            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.iDBformatCount * copy_size, (unsigned int)pbData, copy_size) != copy_size)
+            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.iDBformatCount * copy_size, pbData, copy_size) != copy_size)
             {
                 fail_count++;
                 continue;
@@ -827,12 +827,12 @@ void* dbPartRestore(void*)
         }
         else
         {
-            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.iDBformatCount * copy_size, len, (unsigned int)pbData, len) != len)
+            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.iDBformatCount * copy_size, len, pbData, len) != len)
             {
                 fail_count++;
                 continue;
             }
-            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.iDBformatCount * copy_size, (unsigned int)pbData, len) != len)
+            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.iDBformatCount * copy_size, pbData, len) != len)
             {
                 fail_count++;
                 continue;

@@ -33,12 +33,9 @@ enum TOUCH_TYPE
 typedef struct _tagMSG
 {
     int type;
-    int data1;
-    int data2;
-    int data3;
-    int touchType;
-    int posX;
-    int posY;
+    long data1;
+    long data2;
+    long data3;
 } MSG;
 
 #define MAX_MSG_NUM 100
@@ -46,7 +43,7 @@ typedef struct _tagMSG
 extern message_queue g_worker;
 extern message_queue g_uart;
 
-void SendGlobalMsg(int type, int data1, int data2, int data3);
+void SendGlobalMsg(int type, long data1, long data2, long data3);
 
 
 #endif // MSG_H

@@ -14,7 +14,7 @@
 #include "cvi_param.h"
 #include "wifi_if.h"
 #include "ethernet_init.h"
-
+#include "fm_main.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 	isp_daemon2_init(5566);
 	#endif
 	LOGI(TAG, "app start........\n");
+	fmMain();
 	APP_CustomEventStart();
 	while (1) {
 		aos_msleep(3000);

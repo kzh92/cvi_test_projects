@@ -12,13 +12,6 @@
 #include "DBManager.h"
 #include "FaceRetrievalSystem.h"
 #include "mutex.h"
-#include "mi_sys.h"
-#include "mi_vpe.h"
-#include "mi_vif.h"
-#include "mi_sensor.h"
-#include "st_common.h"
-#include "st_vif.h"
-#include "st_vpe.h"
 
 #include <errno.h>
 #include <string.h>
@@ -1362,6 +1355,7 @@ int GetCameraCounter()
 
 void* ProcessDVPCaptureFirst(void*)
 {
+#if 0 //kkk
     if(g_iDvpCamInited == 0)
     {
         int ret;
@@ -1433,7 +1427,7 @@ void* ProcessDVPCaptureFirst(void*)
         GPIO_fast_setvalue(IR_LED, OFF);
         g_xSS.iCamError |= CAM_ERROR_DVP1;
     }
-
+#endif
     my_thread_exit(NULL);
     return NULL;
 }
@@ -1448,120 +1442,6 @@ void StartFirstCam()
     g_irOffData = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
 
     fr_InitIRCamera_ExpGain();
-//#ifndef NOTHREAD_MUL
-#if 0
-    GPIO_fast_setvalue(IR_LED, ON);
-
-    // g_nFaceFailed = 0;
-    // g_nFaceRectValid = 0;
-    // g_faceDetected = 0;
-    fr_InitIRCamera_ExpGain();
-
-#if (TEST_CAM_MODE == TEST_TCMIPI || TEST_CAM_MODE == TEST_TWO)
-    g_iDvpCamInited = camera_init(MIPI_0_CAM, WIDTH_1280, HEIGHT_720);
-    my_thread_create_ext(&g_capture2, 0, ProcessDVPCaptureFirst, NULL, (char*)"getdvp1st", 8192, MYTHREAD_PRIORITY_MEDIUM);
-#endif
-
-    g_iMipiCamInited = camera_init(MIPI_1_CAM, WIDTH_1280, HEIGHT_720);
-    if(g_iMipiCamInited == 0)
-    {
-        int ret;
-
-        camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
-        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1);
-
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-        {
-            //test pattern
-            camera_set_regval(MIPI_0_CAM, 0x0C, 0x41);
-            camera_set_regval(MIPI_1_CAM, 0x0C, 0x41);
-        }
-        else
-        {
-            //normal mode
-            camera_set_regval(MIPI_0_CAM, 0x0C, 0x40);
-            camera_set_regval(MIPI_1_CAM, 0x0C, 0x40);
-        }
-
-        camera_set_irled(0, 0);
-
-        MI_SYS_ChnPort_t stChnPort;
-        MI_SYS_BufInfo_t stBufInfo;
-        MI_SYS_BUF_HANDLE hHandle;
-
-        memset(&stChnPort, 0x0, sizeof(MI_SYS_ChnPort_t));
-        memset(&stBufInfo, 0, sizeof(MI_SYS_BufInfo_t));
-        memset(&hHandle, 0, sizeof(MI_SYS_BUF_HANDLE));
-        stChnPort.eModId = E_MI_MODULE_ID_VIF;
-        stChnPort.u32DevId = MIPI_1_CAM;
-        stChnPort.u32ChnId = MIPI_1_CAM * 4;
-        stChnPort.u32PortId = 0;
-
-        dbug_printf("\t [mipi 1] going to get first buf (%0.3f)\n", Now());
-        for(int i = 0; i < 1; i ++)
-        {
-            wait_camera_ready_with_param(stChnPort, stBufInfo, hHandle, 2000, ret);
-            if (ret < 0)
-            {
-                GPIO_fast_setvalue(IR_LED, OFF);
-                g_xSS.iCamError |= CAM_ERROR_MIPI2;
-
-                g_iMipiCamInited = -1;
-                camera_release(MIPI_1_CAM);
-                dbug_printf("\t [mipi 1] get first buf timeout (%0.3f)\n", Now());
-
-                return;
-            }
-
-            {
-                //if(i == 0)
-                {
-                    g_iFirstCamFlag |= RIGHT_IR_CAM_RECVED;
-#if (IR_LED_ONOFF_MODE == 1)
-                    if(g_iFirstCamFlag & LEFT_IR_CAM_RECVED)
-                        GPIO_fast_setvalue(IR_LED, OFF);
-#endif
-
-                    unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-                    lockIRBuffer();
-                    for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-                        g_irOnData2[iIdx] = (pbSrc[iIdx] >> 2);
-                    unlockIRBuffer();
-#if 0
-                    FILE* fp = fopen("/mnt/ir_mipi1.bin", "wb");
-                    if(fp)
-                    {
-                        fwrite(g_irOnData2, sizeof(g_irOnData2), 1, fp);
-                        fclose(fp);
-                    }
-#endif
-                    g_rFirstCamTime = Now();
-                }
-#if 0
-                else if(i == 2)
-                {
-                    memcpy(g_irOffData, pbSrc + WIDTH_1280 * 40, WIDTH_1280 * HEIGHT_720);
-                }
-#endif
-                int pret = (int)MI_SYS_ChnOutputPortPutBuf(hHandle);
-                my_printf("\t [mipi 1] get first buf   %d (%0.3f), %d\n", i, Now(), pret);
-            }
-        }
-    }
-    else
-    {
-        g_xSS.iCamError |= CAM_ERROR_MIPI1;
-        GPIO_fast_setvalue(IR_LED, OFF);
-    }
-
-#if 0
-    if(g_iDvpCamInited != -1)
-    {
-        g_iDvpCamInited = -1;
-        camera_release(DVP_CAM);
-    }
-#endif
-#endif // ! NOTHREAD_MUL
 }
 
 void StartCamSurface(int iMode)
@@ -1685,6 +1565,7 @@ void StopCamSurface()
 
 void* ProcessDVPCapture(void *param)
 {
+#if 0 //kkk
     int ret;
     int iFrameCount = 0;
     int iNextOff = 0;
@@ -1784,12 +1665,14 @@ void* ProcessDVPCapture(void *param)
 
     g_iLedOnStatus = 0;
     GPIO_fast_setvalue(IR_LED, OFF);
+#endif
     my_thread_exit(NULL);
     return NULL;
 }
 
 void* ProcessTCMipiCapture(void *param)
 {
+#if 0 //kkk
     int ret;
     int iFrameCount = 0;
     int iTestSet = 0;
@@ -1868,37 +1751,11 @@ void* ProcessTCMipiCapture(void *param)
     }
 
     g_xSS.iShowIrCamera = 0;
+#endif
     my_thread_exit(NULL);
 
     return NULL;
 }
-
-#if 0
-int ChangeRegister()
-{
-    my_printf("    -------- read clr reg -----------\n");
-    FILE* fp = fopen("/db/param.txt", "r");
-    if (fp)
-    {
-        while (1)
-        {
-            my_printf("  =================  read file ============\n");
-            int regAddr, regValue;
-            int ret = fscanf(fp, "0x%x, 0x%x\n", &regAddr, &regValue);
-            if (ret < 0)
-                break;
-
-            my_printf("************* BF clr reg 0x%x, 0x%x, ret = %d\n", regAddr, regValue, ret);
-            camera_set_regval(DVP_CAM, regAddr, regValue);
-            camera_set_regval(TC_MIPI_CAM, regAddr, regValue);
-        }
-        fclose(fp);
-        return 1;
-    }
-
-    return 0;
-}
-#endif
 
 void CalcNextExposure()
 {

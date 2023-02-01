@@ -422,7 +422,7 @@ void FaceRecogTask::run()
                     float _tmpTime = Now();
                     SaveImage(m_irOnData1, 1, g_xSS.iCameraRotate == 0 ? 270: 90);
                     if (g_xSS.bSnapImageData != NULL)
-                        my_flash_write(IR_ERROR_SAVE_ADDR, (unsigned int)g_xSS.bSnapImageData, g_xSS.iSnapImageLen[0]);
+                        my_flash_write(IR_ERROR_SAVE_ADDR, g_xSS.bSnapImageData, g_xSS.iSnapImageLen[0]);
                     my_printf("write ir1=%d, jpg %0.3f\n", g_xSS.iSnapImageLen[0], Now() - _tmpTime);
                 }
 #endif // !USE_STATIC_IMAGE
@@ -431,7 +431,7 @@ void FaceRecogTask::run()
                     float _tmpTime = Now();
                     SaveImage(m_irOnData2, 2, g_xSS.iCameraRotate == 0 ? 270: 90);
                     if (g_xSS.bSnapImageData != NULL)
-                        my_flash_write(IR_ERROR_SAVE_ADDR + SI_MAX_IMAGE_SIZE, (unsigned int)g_xSS.bSnapImageData + SI_MAX_IMAGE_SIZE, g_xSS.iSnapImageLen[1]);
+                        my_flash_write(IR_ERROR_SAVE_ADDR + SI_MAX_IMAGE_SIZE, g_xSS.bSnapImageData + SI_MAX_IMAGE_SIZE, g_xSS.iSnapImageLen[1]);
                     my_printf("write ir2=%d, jpg %0.3f\n", g_xSS.iSnapImageLen[1], Now() - _tmpTime);
                 }
             }

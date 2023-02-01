@@ -2374,7 +2374,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     return -1;
 
 off_read_file:
-    read_len = my_flash_read(file_offset + u32_offset, u32_length, (unsigned int)buf, u32_length);
+    read_len = my_flash_read(file_offset + u32_offset, u32_length, buf, u32_length);
     return read_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -2488,7 +2488,7 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
     return -1;
 
 off_write_file:
-    write_len = my_flash_write(file_offset + u32_offset, (unsigned int)buf, u32_length);
+    write_len = my_flash_write(file_offset + u32_offset, buf, u32_length);
     return write_len;
 #else // MY_DICT_FLASH
     int ret = -1;

@@ -24,7 +24,7 @@
 #include "KeyGenAPI.h"
 #include "KeyGenBase.h"
 #include "b64.h"
-#include "st_base.h"
+// #include "st_base.h"
 #include "functestproc.h"
 #include "FaceRetrievalSystem_base.h"
 #include "sha1.h"
@@ -33,9 +33,7 @@
 #include "check_firmware.h"
 #include "upgrade_firmware.h"
 #include "vdbtask.h"
-#include "uvc_app.h"
 
-#include <arm_neon.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -115,16 +113,7 @@ mymutex_ptr    g_xVDBMutex;
 
 void SystemReboot(void)
 {
-    unsigned int addr;
-    unsigned int bank = 0xe, offset = 0x2e, u32content = 0x0079;
-    unsigned short content;
-    unsigned char * map_base = NULL;
-
-    map_base = (unsigned char *) 0x1F000000;
-    content = (unsigned short) (u32content & 0xFFFFFFFF);
-    addr = (unsigned long) (map_base + bank * 0x200 + offset * 4);
-    *(unsigned short *) addr = content;
-    content = *(unsigned short *) addr;
+    //kkk
 }
 
 void ResetPersonDB()
@@ -252,12 +241,12 @@ void DriverInit()
     M24C64_Open();
     UART_Init();
 
-    ST_Base_Init();
+    // ST_Base_Init();
 }
 
 void DriverRelease()
 {
-    ST_Base_Exit();
+    // ST_Base_Exit();
     UART_Quit();
     M24C64_Close();
 
@@ -1236,7 +1225,7 @@ static int main1(int argc, char** argv)
     s_msg* psMsg = NULL;
     psMsg = (s_msg*)malloc(sizeof(raw_msg_init_enc));
     memcpy(psMsg, raw_msg_init_enc, sizeof(raw_msg_init_enc));
-    SendGlobalMsg(MSG_SENSE, (int)psMsg, 0, 0);
+    SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
 #endif // FRM_PRODUCT_TYPE
 
     ///////////////////////////Key Init///////////////////////////
@@ -2363,7 +2352,7 @@ int MsgProcSense(MSG* pMsg)
                     memcpy(psMsg, raw_msg_enroll_middle, sizeof(raw_msg_enroll_middle));
                     g_xSS.iAutoUserAdd = 1;
                     my_printf("*** auto add step 1\n");
-                    SendGlobalMsg(MSG_SENSE, (int)psMsg, 0, 0);
+                    SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
                 }
                 else
                 {
@@ -3031,7 +3020,7 @@ int ProcessSenseFace(int iCmd)
                         psMsg = (s_msg*)my_malloc(sizeof(raw_msg_enroll_right));
                         memcpy(psMsg, raw_msg_enroll_right, sizeof(raw_msg_enroll_right));
                         g_xSS.iAutoUserAdd = 2;
-                        SendGlobalMsg(MSG_SENSE, (int)psMsg, 0, 0);
+                        SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
                     }
                     else if (g_xSS.iAutoUserAdd == 2)
                     {
@@ -3041,7 +3030,7 @@ int ProcessSenseFace(int iCmd)
                         psMsg = (s_msg*)my_malloc(sizeof(raw_msg_enroll_left));
                         memcpy(psMsg, raw_msg_enroll_left, sizeof(raw_msg_enroll_left));
                         g_xSS.iAutoUserAdd = 3;
-                        SendGlobalMsg(MSG_SENSE, (int)psMsg, 0, 0);
+                        SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
                     }
                     else if (g_xSS.iAutoUserAdd == 3)
                     {
@@ -3051,7 +3040,7 @@ int ProcessSenseFace(int iCmd)
                         psMsg = (s_msg*)my_malloc(sizeof(raw_msg_enroll_down));
                         memcpy(psMsg, raw_msg_enroll_down, sizeof(raw_msg_enroll_down));
                         g_xSS.iAutoUserAdd = 4;
-                        SendGlobalMsg(MSG_SENSE, (int)psMsg, 0, 0);
+                        SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
                     }
                     else if (g_xSS.iAutoUserAdd == 4)
                     {
@@ -3061,7 +3050,7 @@ int ProcessSenseFace(int iCmd)
                         psMsg = (s_msg*)my_malloc(sizeof(raw_msg_enroll_up));
                         memcpy(psMsg, raw_msg_enroll_up, sizeof(raw_msg_enroll_up));
                         g_xSS.iAutoUserAdd = 5;
-                        SendGlobalMsg(MSG_SENSE, (int)psMsg, 0, 0);
+                        SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
                     }
                     else
                     {

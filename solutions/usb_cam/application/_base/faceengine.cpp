@@ -200,6 +200,7 @@ typedef void* (fn_customFunc)(void* data);
 
 extern "C" void* feTaskFunc(void* data)
 {
+#if 0
     g_feTaskMutex = my_mutex_init();
     int cmd;
     void* args[FE_TASK_MAX_CMD_ARGS];
@@ -237,6 +238,7 @@ extern "C" void* feTaskFunc(void* data)
             xFaceTask.Stop();
         }
     }
+#endif
     return NULL;
 }
 
@@ -270,6 +272,7 @@ void fe_InitEngine(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum
 
 void feFaceStart(int iCmd)
 {
+#if 0 //kkk
 #if (USE_SMP_CORE1 == 0)
     xFaceTask.Start(iCmd);
 #else // USE_SMP_CORE1
@@ -278,10 +281,12 @@ void feFaceStart(int iCmd)
     g_feTaskCmdArgs[0] = (void*)iCmd;
     my_mutex_unlock(g_feTaskMutex);
 #endif // USE_SMP_CORE1
+#endif
 }
 
 void feFaceStop()
 {
+#if 0 //kkk
 #if (USE_SMP_CORE1 == 0)
     xFaceTask.Stop();
 #else // USE_SMP_CORE1
@@ -289,4 +294,5 @@ void feFaceStop()
     g_feTaskCmd = FE_TASK_CMD_DO_FACE_TASK_STOP;
     my_mutex_unlock(g_feTaskMutex);
 #endif // USE_SMP_CORE1
+#endif
 }

@@ -325,7 +325,7 @@
 
 #define FRM_PT_DEFAULT_3_3          200   //3.3 default
 #define FRM_PT_DEFAULT_3_3_720P     201   //3.3 720p
-#define FRM_PRODUCT_TYPE            FRM_PT_3_4_XINNENGYUAN_MODE
+#define FRM_PRODUCT_TYPE            FRM_PT_S22_DEFAULT
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT)

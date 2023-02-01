@@ -746,7 +746,7 @@ void SenseLockTask::run()
                     }
 
                     stUpInfo upgrader;
-                    my_flash_read(UPGRADER_INFO_ADDR, sizeof(stUpInfo), (unsigned int)&upgrader,sizeof(stUpInfo));
+                    my_flash_read(UPGRADER_INFO_ADDR, sizeof(stUpInfo), &upgrader,sizeof(stUpInfo));
 
                     memcpy((unsigned int *)&header, (unsigned int *)g_xSS.pbOtaData, sizeof(stUsbUpgradeEasenHeader));
                     _decryptBuf((unsigned char *)&header, sizeof(header) - REH_KEY_LEN, header.key);
@@ -779,7 +779,7 @@ void SenseLockTask::run()
                                 upgrader.size = erase_size;
                             }
 
-                            if (my_flash_write(header.slots[i].offset, (unsigned int)g_xSS.pbOtaData + offset, header.slots[i].size) < header.slots[i].size)
+                            if (my_flash_write(header.slots[i].offset, g_xSS.pbOtaData + offset, header.slots[i].size) < header.slots[i].size)
                             {
                                 my_printf("[upgrade] failed to write\n");
                                 break;
@@ -791,7 +791,7 @@ void SenseLockTask::run()
                         if (i == header.slot_count)//receive success
                         {
                             my_flash_erase(UPGRADER_INFO_ADDR, PAGE_SIZE);
-                            my_flash_write_pages(UPGRADER_INFO_ADDR, (unsigned int)&upgrader, sizeof(stUpInfo));
+                            my_flash_write_pages(UPGRADER_INFO_ADDR, &upgrader, sizeof(stUpInfo));
                         }
 
                         SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_OK, 0);
@@ -903,7 +903,7 @@ void SenseLockTask::run()
 #ifndef _NO_ENGINE_
             fr_SetStopEngineFlag(1);
 #endif
-            SendGlobalMsg(MSG_SENSE, (int)msg, 0, 0);
+            SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
             iMsgSent = 1;
 #endif // NOTHREAD_MUL
@@ -923,7 +923,7 @@ void SenseLockTask::run()
             if(g_xSS.rFaceEngineTime == 0)
             {
                 //my_printf("******* got ENROLL, sent\n");
-                SendGlobalMsg(MSG_SENSE, (int)msg, 0, 0);
+                SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
                 iMsgSent = 1;
 #endif // NOTHREAD_MUL
@@ -934,7 +934,7 @@ void SenseLockTask::run()
 #ifndef _NO_ENGINE_
                 fr_SetStopEngineFlag(1);
 #endif
-                SendGlobalMsg(MSG_SENSE, (int)msg, 0, 0);
+                SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
             }
             else
             {
@@ -947,7 +947,7 @@ void SenseLockTask::run()
             if(g_xSS.rFaceEngineTime == 0)
             {
                 //my_printf("******* got ENROLL, sent\n");
-                SendGlobalMsg(MSG_SENSE, (int)msg, 0, 0);
+                SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
                 iMsgSent = 1;
 #endif // NOTHREAD_MUL
@@ -960,7 +960,7 @@ void SenseLockTask::run()
         else if(msg->mid == MID_POWERDOWN || msg->mid == MID_POWERDOWN_ED)
         {
             g_xSS.iResetFlag = 1;
-            SendGlobalMsg(MSG_SENSE, (int)msg, 0, 0);
+            SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
             iMsgSent = 1;
 #endif // NOTHREAD_MUL
@@ -986,7 +986,7 @@ void SenseLockTask::run()
 #endif
         else
         {
-            SendGlobalMsg(MSG_SENSE, (int)msg, 0, 0);
+            SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
             iMsgSent = 1;
 #endif // NOTHREAD_MUL
@@ -1514,7 +1514,7 @@ void SenseLockTask::Send_Msg(s_msg* msg)
         return;
     }
     memset(pxMsg, 0, sizeof(MSG));
-    pxMsg->data1 = (int)msg;
+    pxMsg->data1 = (long)msg;
 
     message_queue_write(&g_queue_send, pxMsg);
 #ifdef NOTHREAD_MUL

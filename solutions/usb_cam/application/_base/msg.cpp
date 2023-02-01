@@ -4,7 +4,7 @@
 message_queue g_worker;
 message_queue g_uart;
 
-void SendGlobalMsg(int type, int data1, int data2, int data3)
+void SendGlobalMsg(int type, long data1, long data2, long data3)
 {
     MSG* msg = (MSG*)message_queue_message_alloc(&g_worker);
     if (msg == NULL)

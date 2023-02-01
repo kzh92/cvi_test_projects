@@ -8,7 +8,9 @@
 // #include <malloc.h>
 // #include <stdlib.h>
 #include <math.h>
+#if __ARM_NEON
 #include <arm_neon.h>
+#endif
 #include "common_types.h"
 
 #define __max(a, b) (a > b ? a : b)
@@ -18,24 +20,24 @@ unsigned char g_jpgTmpData[N_MAX_JPG_FACE_IMAGE_SIZE * 2];
 
 
 
-inline static int f_sad_16_neon(const uint8_t* a, const uint8_t* b)
-{
-    int32_t r[4] = { 0, 0, 0, 0 };
-    uint8x16_t va, vb, vr;
+// inline static int f_sad_16_neon(const uint8_t* a, const uint8_t* b)
+// {
+//     int32_t r[4] = { 0, 0, 0, 0 };
+//     uint8x16_t va, vb, vr;
 
-    va = vld1q_u8(a);
-    vb = vld1q_u8(b);
+//     va = vld1q_u8(a);
+//     vb = vld1q_u8(b);
 
-    vr = vabdq_u8(va, vb);
+//     vr = vabdq_u8(va, vb);
 
-    uint16x8_t vr1 = vpaddlq_u8(vr);
-    uint32x4_t vr2 = vpaddlq_u16(vr1);
-    uint64x2_t vr3 = vpaddlq_u32(vr2);
+//     uint16x8_t vr1 = vpaddlq_u8(vr);
+//     uint32x4_t vr2 = vpaddlq_u16(vr1);
+//     uint64x2_t vr3 = vpaddlq_u32(vr2);
 
-    vst1q_u64(reinterpret_cast<uint64_t*>(r), vr3);
+//     vst1q_u64(reinterpret_cast<uint64_t*>(r), vr3);
 
-    return r[0] + r[2];
-}
+//     return r[0] + r[2];
+// }
 
 
 void ScaleImage(unsigned char *pbOrg, unsigned char* pbScaledImage)
@@ -527,20 +529,20 @@ int GetFaceMotion_Fast(unsigned char* pbImage1, unsigned char* pbImage2, int nIm
     nSRight = nFaceLeft + nFaceW - 1;
     nSBottom = nFaceTop + nFaceH - 1;
 
-#if 0
+#if 1
 
     for (int nY = nSTop; nY <= nSBottom; nY++)
     {
         pbPtr1 = pbTmpImage1 + nY * nImageWidth;
         for (int nX = nSLeft; nX <= nSRight; nX++)
         {
-            a = pbPtr1[nX];
+            unsigned char a = pbPtr1[nX];
             for (int i = 0; i < MAX_OFFSET2; i++)
             {
                 pbPtr2 = pbTmpImage2 + (nY + i) * nOffImageW;
                 for (int j = 0; j < MAX_OFFSET2; j++)
                 {
-                    b = pbPtr2[nX + j];
+                    unsigned char b = pbPtr2[nX + j];
                     ppnError[i][j] += (a > b) ? a - b : b - a;
                 }
             }

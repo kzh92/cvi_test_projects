@@ -1,7 +1,8 @@
 #include "i2cbase.h"
 #include "settings.h"
-#include "cam_drv_i2c.h"
+// #include "cam_drv_i2c.h"
 #include "common_types.h"
+#include <string.h>
 
 #ifndef _APP_UPGRADE
 #ifndef __RTK_OS__
@@ -36,8 +37,8 @@ Mutex g_xI2CMutex;
 
 #else // !__RTK_OS__
 
-tI2cHandle g_i2cHandleM24C64 = {-1, NULL};
-#define IS_24C64_OPEN() (g_i2cHandleM24C64.nPortNum != -1)
+// tI2cHandle g_i2cHandleM24C64 = {-1, NULL};
+// #define IS_24C64_OPEN() (g_i2cHandleM24C64.nPortNum != -1)
 
 #endif // !__RTK_OS__
 static  int g_i24C04Reset = 0;
@@ -234,31 +235,31 @@ int I2C_Read8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
     return -1;
 #else // !__RTK_OS__
     //no need to use mutex
-    tI2cMsg msg;
-    unsigned char _buf[WORD_SIZE*2];
-    if (iLen > WORD_SIZE)
-        return -1;
-    //write address
-    _buf[0] = iAddr;
-    msg.addr = I2C_ADDR_M24C64;
-    msg.flags = 0;
-    msg.buf = _buf;
-    msg.len = 1;
-    CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
-    //read data
-    msg.addr = I2C_ADDR_M24C64;
-    msg.flags = I2C_M_RD;
-    msg.buf = _buf;
-    msg.len = iLen;
-    CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
-    memcpy(pbData, _buf, iLen);
+    // tI2cMsg msg;
+    // unsigned char _buf[WORD_SIZE*2];
+    // if (iLen > WORD_SIZE)
+    //     return -1;
+    // //write address
+    // _buf[0] = iAddr;
+    // msg.addr = I2C_ADDR_M24C64;
+    // msg.flags = 0;
+    // msg.buf = _buf;
+    // msg.len = 1;
+    // CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
+    // //read data
+    // msg.addr = I2C_ADDR_M24C64;
+    // msg.flags = I2C_M_RD;
+    // msg.buf = _buf;
+    // msg.len = iLen;
+    // CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
+    // memcpy(pbData, _buf, iLen);
 
-    LOG_PRINT("[I2C-1] ** Read 0x%0*x: ", 2, iAddr);
-    for (int i = 0; i < iLen; i++)
-    {
-        LOG_PRINT("%0*x, ", 2, pbData[i]);
-    }
-    LOG_PRINT("\n\r");
+    // LOG_PRINT("[I2C-1] ** Read 0x%0*x: ", 2, iAddr);
+    // for (int i = 0; i < iLen; i++)
+    // {
+    //     LOG_PRINT("%0*x, ", 2, pbData[i]);
+    // }
+    // LOG_PRINT("\n\r");
     return 0;
 #endif // !__RTK_OS__
 }
@@ -356,25 +357,25 @@ int I2C_Write8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
     return -1;
 #else // !__RTK_OS__
     //no need to use mutex
-    tI2cMsg msg;
-    unsigned char _buf[WORD_SIZE*2];
-    if (iLen > WORD_SIZE)
-        return -1;
-    //write address
-    _buf[0] = iAddr;
-    memcpy(_buf + 1, pbData, iLen);
-    msg.addr = I2C_ADDR_M24C64;
-    msg.flags = 0;
-    msg.buf = _buf;
-    msg.len = iLen + 1;
-    CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
-    LOG_PRINT("[I2C-1] ** Write 0x%0*x: ", 2, iAddr);
-    for (int i = 0; i < iLen; i++)
-    {
-        LOG_PRINT("%0*x, ", 2, pbData[i]);
-    }
-    LOG_PRINT("\n\r");
-    my_usleep(10000);      //!!!!
+    // tI2cMsg msg;
+    // unsigned char _buf[WORD_SIZE*2];
+    // if (iLen > WORD_SIZE)
+    //     return -1;
+    // //write address
+    // _buf[0] = iAddr;
+    // memcpy(_buf + 1, pbData, iLen);
+    // msg.addr = I2C_ADDR_M24C64;
+    // msg.flags = 0;
+    // msg.buf = _buf;
+    // msg.len = iLen + 1;
+    // CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
+    // LOG_PRINT("[I2C-1] ** Write 0x%0*x: ", 2, iAddr);
+    // for (int i = 0; i < iLen; i++)
+    // {
+    //     LOG_PRINT("%0*x, ", 2, pbData[i]);
+    // }
+    // LOG_PRINT("\n\r");
+    // my_usleep(10000);      //!!!!
 
     return 0;
 #endif // !__RTK_OS__
@@ -573,13 +574,13 @@ int M24C64_Open()
 //    my_printf("M24C64: %d\n", g_iM24C64);
     return g_iM24C64;
 #else // !__RTK_OS__
-    if (IS_24C64_OPEN())
-        return 0;
-#if (USE_SSD210)
-    CamI2cOpen(&g_i2cHandleM24C64, 0);
-#else
-    CamI2cOpen(&g_i2cHandleM24C64, 1);
-#endif
+    // if (IS_24C64_OPEN())
+    //     return 0;
+// #if (USE_SSD210)
+//     CamI2cOpen(&g_i2cHandleM24C64, 0);
+// #else
+//     CamI2cOpen(&g_i2cHandleM24C64, 1);
+// #endif
     return 0;
 #endif // !__RTK_OS__
 }
@@ -596,10 +597,10 @@ void M24C64_Close()
         g_iM24C64 = -1;
     }
 #else // !__RTK_OS__
-    if (IS_24C64_OPEN())
-    {
-        CamI2cClose(&g_i2cHandleM24C64);
-    }
+    // if (IS_24C64_OPEN())
+    // {
+    //     CamI2cClose(&g_i2cHandleM24C64);
+    // }
 #endif // !__RTK_OS__
 }
 
