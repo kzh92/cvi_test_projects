@@ -282,6 +282,7 @@ void feFaceStart(int iCmd)
     my_mutex_unlock(g_feTaskMutex);
 #endif // USE_SMP_CORE1
 #endif
+    xFaceTask.Start(iCmd);
 }
 
 void feFaceStop()
@@ -295,4 +296,5 @@ void feFaceStop()
     my_mutex_unlock(g_feTaskMutex);
 #endif // USE_SMP_CORE1
 #endif
+    xFaceTask.Stop();
 }
