@@ -847,6 +847,7 @@ int my_thread_create(mythread_ptr *thread, void *attr, void *(*start_routine) (v
 
 int my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine) (void *), void *arg, char* thd_name, int stack_size, int priority)
 {
+    pthread_attr_t a;
     if (thread == NULL)
         return -1;
     pthread_t* pThread = my_malloc(sizeof(pthread_t));
@@ -854,6 +855,13 @@ int my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine
     if (pThread == NULL)
         return -2;
     memset(pThread, 0, sizeof(*pThread));
+    if (attr == NULL)
+    {
+        pthread_attr_init(&a);
+        a.stacksize = stack_size;
+        attr = (void*)&a;
+    }
+    
     //if (attr != NULL)
     {
         if (pthread_create(pThread, attr, start_routine, arg))
