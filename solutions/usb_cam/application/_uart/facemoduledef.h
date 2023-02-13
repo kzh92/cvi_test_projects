@@ -1,0 +1,109 @@
+#ifndef FACE_MODULE_DEF_H
+#define FACE_MODULE_DEF_H
+
+#define FM_HEADER       0xF5
+
+enum
+{
+    STATUS_READY = 0x01,
+    STATUS_FINISH = 0x02,
+    STATUS_BUSY = 0x03,
+    STATUS_NO_ACTIVATED = 0x04,
+    STATUS_ACTIVATE_SUCCESSED = 0x05,
+    STATUS_ACTIVATE_FAILED = 0x06,
+    STATUS_FACE_DETECTED = 0x11,
+    STATUS_FACE_NO_DETECTED = 0x12,
+    STATUS_REGISTER_NEXT = 0x21,
+    STATUS_REGISTER_SUCCESS = 0x22,
+    STATUS_REGISTER_SPOOF = 0x23,
+    STATUS_REGISTER_DUPLICATED = 0x24,
+    STATUS_REGISTER_TIMEOUT = 0x25,
+    STATUS_IDENTIFY_SUCCESS = 0x31,
+    STATUS_IDENTIFY_FAILED = 0x32,
+    STATUS_IDENTIFY_TIMEOUT = 0x33,
+    STATUS_GET_IMAGE_TIMEOUT = 0x41,
+    STATUS_USER_DELETED = 0x51,
+    STATUS_USER_REMOVE_ALL = 0x52,
+    STATUS_FACTORY_RESETED = 0x53,
+    STATUS_CAM_ERROR = 0x61,
+    STATUS_I2C_ERROR = 0x62,
+    STATUS_MEM_ERROR = 0x63,
+    STATUS_PROCESS_STOPPED = 0x71,
+    STATUS_OTA_READY = 0x81,
+    STATUS_OTA_DONE = 0x82,
+};
+
+enum
+{
+    FM_CMD_REGISTER_USER = 0x01,
+    FM_CMD_IDENTIFY = 0x02,
+    FM_CMD_VERIFY = 0x03,
+    FM_CMD_GET_IMG = 0x04,
+    FM_CMD_GET_FEATURE = 0x05,
+    FM_CMD_STOP_PROCESS = 0x06,
+    FM_CMD_FACTORY_RESET = 0x11,
+    FM_CMD_DEL_USER = 0x12,
+    FM_CMD_DEL_ALL_USER = 0x13,
+    FM_CMD_GET_USER_COUNT = 0x21,
+    FM_CMD_GET_USER_ROLE = 0x22,
+    FM_CMD_GET_NEW_ID = 0x23,
+    FM_CMD_GET_INFO = 0x24,
+    FM_CMD_FINISH = 0x31,
+    FM_CMD_SET_LED = 0x32,
+    FM_CMD_SET_BAUDRATE = 0x33,
+    FM_CMD_REGISTER_SETTINGS = 0x34,
+    FM_CMD_GET_USER_FEATS = 0x35,
+    FM_CMD_SET_USER_FEATS = 0x36,
+    FM_CMD_CAMERA_FLIP = 0x37,
+    FM_CMD_START_OTA = 0x41,
+    FM_CMD_STOP_OTA = 0x42,
+    FM_CMD_OTA_BAUDRATE = 0x43,
+    FM_CMD_OTA_HEADER = 0x44,
+    FM_CMD_OTA_PACKET = 0x45,
+    FM_CMD_START_VDB = 0x50,
+    FM_CMD_STOP_VDB = 0x51,
+    FM_CMD_STATUS = 0x81,
+    FM_CMD_GET_IMAGE_RESULT = 0x82,
+    FM_CMD_DEV_TEST_START = 0xA0,
+    FM_CMD_GET_HWID = 0xF0,
+    FM_CMD_ACTIVATE = 0xF1,
+};
+
+enum
+{
+    FM_ACK_SUCCESS = 0x00,
+    FM_ACK_FAIL = 0x01,
+    FM_ACK_FULL = 0x02,
+    FM_ACK_NO_USER = 0x03,
+    FM_ACK_ID_INVALID = 0x04,
+    FM_ACK_ROLE_INVALID = 0x05,
+    FM_ACK_NO_ACTIVATED = 0x06,
+    FM_ACK_ALREADY_ACTIVATED = 0x07,
+};
+
+enum
+{
+    E_LED_OFF = 0,
+    E_LED_R = 1,
+    E_LED_G = 2,
+    E_LED_B = 3,
+    E_LED_END = 3
+};
+
+#pragma pack(push, 1)
+
+typedef struct _tagFM_CMD
+{
+    unsigned char   bHeader;
+    unsigned char   bType;
+    unsigned char   bSeqNum;
+    unsigned char   bP1;
+    unsigned char   bP2;
+    unsigned char   bP3;
+    unsigned char   bP4;
+    unsigned char   bChk;
+} FM_CMD;
+
+#pragma pack(pop)
+
+#endif // FACE_MODULE_DEF_H

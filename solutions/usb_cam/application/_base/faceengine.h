@@ -1,0 +1,49 @@
+#ifndef FACEENGINE_H
+#define FACEENGINE_H
+
+#include "EngineStruct.h"
+
+#define FE_TASK_MAX_CMD_ARGS    2
+typedef enum _tagFE_TASK_CMD_TYPE{
+    FE_TASK_CMD_NONE,
+    FE_TASK_CMD_CUSTOM_FUNC,
+    FE_TASK_CMD_INIT_FEGN,
+    FE_TASK_CMD_DO_FACE_TASK_START,
+    FE_TASK_CMD_DO_FACE_TASK_STOP,
+} FE_TASK_CMD_TYPE;
+
+class FaceRecogTask;
+
+void feTaskCustomFunction_arg1(void* p_fn, void* arg0);
+void fe_InitEngine(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
+void feFaceStart(int iCmd);
+void feFaceStop();
+FaceRecogTask* getFaceInstance();
+
+class FaceEngine
+{
+public:
+    static int Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
+    static int ResetAll();
+    static int Release();
+
+	//engine process
+    static void	VerifyInit(int fAdminiMode, int iUserID = -1);
+    static void	UnregisterFace(int nUpdateID = -1, int isMultiDirectionMode = 1);
+
+    static int	ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData, float* prResultArray);
+	static int	VerifyFace(float* prResultArray);
+    static void RegisterFace(float* prResultArray, int iFaceDir);
+
+    static void InitCalibOffset();
+    static int  AutoCameraAdjust(unsigned char* pbClrData, unsigned char* pbRedOnData, float* pnResultArray);
+
+    static int	GetRegisteredFaceImage(unsigned char* pbJpgData, int* pnJpgLen);
+    static int  GetLastFaceData(unsigned char* pbFaceData);
+    static int  GetLastFaceImage(unsigned char* pbJpgData, int* pnJpgLen);
+    static int  SetLastFaceScene(unsigned char* pbRgbData);
+    static void GetRegisteredFeatInfo(PSFeatInfo pxFeatInfo);
+    static int SavePerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum);
+};
+
+#endif // FACEENGINE_H

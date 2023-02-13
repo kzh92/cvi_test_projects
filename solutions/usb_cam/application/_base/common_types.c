@@ -1,0 +1,1479 @@
+#include "common_types.h"
+#include "drv_gpio.h"
+
+// #include <unistd.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <errno.h>
+#include <string.h>
+#include <stdarg.h>
+#include <cam_os_wrapper.h>
+#include <cam_fs_wrapper.h>
+#include "mi_sys.h"
+#include "mi_common_datatype.h"
+#include "cam_drv_i2c.h" //i2c
+#include "mem_backtrace.h"
+#include "drv_mspi.h"
+#include "padmux.h"
+
+mymutex_ptr g_FlashReadWriteLock = 0;
+mymutex_ptr g_MyPrintfLock = 0;
+// #include <sys/types.h>
+// #include <sys/ipc.h>
+// #include <sys/shm.h>
+// #include <signal.h>
+
+// const char* dbfs_part_names[DB_PART_END+1] =
+// {
+//     "/dev/mtdblock5",
+// //    "/dev/mmcblk0p3",
+//     "/dev/mtdblock6",
+//     "null"
+// };
+
+SHARED_MEM* g_pxSharedMem = NULL;
+SHARED_MEM* g_pxSharedLCD = NULL;
+
+int g_iShmid;
+int g_iShmidLCD;
+
+int bSetKernelFlag = 1;
+
+// const char* rfs_exec_filenames[] = {
+//     "cp",
+//     "rm",
+//     "e2fsck",
+//     "tune2fs",
+//     "mount",
+//     "umount",
+//     "dd",
+//     "hwclock",
+//     "insmod",
+//     "aplay",
+//     "touch",
+//     "fdisk",
+//     "/usr/bin/mke2fs1",
+//     "date",
+//     "touch",
+//     NULL
+// };
+// const char* rfs_dir_names[] = {
+//     "/sbin",
+//     "/bin",
+//     "/usr/bin",
+//     "/usr/sbin",
+//     NULL
+// };
+
+//prebuilt functions
+extern U32 MDRV_FLASH_read(U32 u32_bytes_offset, U32 u32_limit, U32 u32_address, U32 u32_size);
+extern U32 MDRV_FLASH_write_pages(U32 u32_bytes_offset, U32 U32_address, U32 u32_size);
+extern U32 MDRV_FLASH_write_parts(U32 u32_bytes_offset, U32 u32_limit, U32 u32_address, U32 u32_size);
+extern U32 MDRV_FLASH_erase(U32 u32_bytes_offset, U32 u32_size);
+
+#ifdef UPGRADE_MODE
+int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
+{
+#if(MY_DICT_FLASH)
+    int read_len = -1;
+    int file_offset = 0;
+    int align_byte = 64;
+
+    file_offset = DICT_START_ADDR;
+    if (strstr(filename, "detect.bin"))
+        goto off_read_file;
+    file_offset += FN_DETECT_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "dlamk.bin"))
+        goto off_read_file;
+    file_offset += FN_DLAMK_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "occ.bin"))
+        goto off_read_file;
+    file_offset += FN_OCC_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "esn.bin"))
+        goto off_read_file;
+    file_offset += FN_ESN_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "a1.bin"))
+        goto off_read_file;
+    file_offset += FN_A1_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "a2.bin"))
+        goto off_read_file;
+    file_offset += FN_A2_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "b.bin"))
+        goto off_read_file;
+    file_offset += FN_B_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "b2.bin"))
+        goto off_read_file;
+    file_offset += FN_B2_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "c.bin"))
+        goto off_read_file;
+    file_offset += FN_C_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "wno.bin"))
+        goto off_read_file;
+    file_offset += FN_WNO_DICT_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_031TTS_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_031TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_032TTS_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_032TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_033TTS_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_033TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_034TTS_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_034TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_035TTS_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_035TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_036TTS_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_036TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_TEST_WAV_PATH))
+        goto off_read_file;
+    file_offset += FN_TEST_WAV_SIZE;
+    
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "act_mark.bin"))
+        goto off_read_file;
+    file_offset += ACT_MARK_LEN;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "actd.bin"))
+        goto off_read_file;
+    file_offset += 4;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "first.bin"))
+        goto off_read_file;
+
+    //invalid dict file.
+    return -1;
+
+off_read_file:
+    read_len = my_flash_read(file_offset + u32_offset, u32_length, (unsigned int)buf, u32_length);
+    return read_len;
+#else // MY_DICT_FLASH
+    int ret = -1;
+    myfdesc_ptr f;
+    f = my_open(filename, O_RDONLY, 0777);
+    if (is_myfdesc_ptr_valid(f))
+    {
+        ret = my_read_ext(f, buf, u32_length);
+        my_close(f);
+    }
+    return ret;
+#endif // MY_DICT_FLASH
+}
+int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
+{
+#if(MY_DICT_FLASH)
+    int write_len = -1;
+    int file_offset = 0;
+    int align_byte = 64;
+    file_offset = DICT_START_ADDR;
+    if (strstr(filename, "detect.bin"))
+        goto off_write_file;
+    file_offset += FN_DETECT_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "dlamk.bin"))
+        goto off_write_file;
+    file_offset += FN_DLAMK_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "occ.bin"))
+        goto off_write_file;
+    file_offset += FN_OCC_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "esn.bin"))
+        goto off_write_file;
+    file_offset += FN_ESN_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "a1.bin"))
+        goto off_write_file;
+    file_offset += FN_A1_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "a2.bin"))
+        goto off_write_file;
+    file_offset += FN_A2_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "b.bin"))
+        goto off_write_file;
+    file_offset += FN_B_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "b2.bin"))
+        goto off_write_file;
+    file_offset += FN_B2_DICT_SIZE;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "c.bin"))
+        goto off_write_file;
+    file_offset += FN_C_DICT_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "wno.bin"))
+        goto off_write_file;
+    file_offset += FN_WNO_DICT_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_031TTS_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_031TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_032TTS_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_032TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_033TTS_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_033TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_034TTS_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_034TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_035TTS_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_035TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_036TTS_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_036TTS_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, FN_TEST_WAV_PATH))
+        goto off_write_file;
+    file_offset += FN_TEST_WAV_SIZE;
+
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "act_mark.bin"))
+        goto off_write_file;
+    file_offset += ACT_MARK_LEN;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "actd.bin"))
+        goto off_write_file;
+    file_offset += 4;
+    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
+    if (strstr(filename, "first.bin"))
+        goto off_write_file;
+
+    //invalid dict file.
+    return -1;
+
+off_write_file:
+    write_len = my_flash_write(file_offset + u32_offset, (unsigned int)buf, u32_length);
+    return write_len;
+#else // MY_DICT_FLASH
+    int ret = -1;
+    myfdesc_ptr f;
+    f = my_open(filename, O_RDONLY, 0777);
+    if (is_myfdesc_ptr_valid(f))
+    {
+        ret = my_read_ext(f, buf, u32_length);
+        my_close(f);
+    }
+    return ret;
+#endif // MY_DICT_FLASH
+}
+#else //UPGRADE_MODE
+extern int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
+extern int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
+#endif //UPGRADE_MODE
+
+#if (USE_WIFI_MODULE)
+struct spi_slave *spi_dev;
+int iInitSpi = 0;
+struct spi_slave *my_spi_init(void)
+{
+    int bus = 0;
+    int cs = 0;
+    int max_hz = 40000000;
+    int mode = 0;//E_MSPI_MODE0;
+    int usedma = true;
+    struct spi_slave *slave = spi_setup_slave(bus,cs,max_hz,mode,usedma);
+    iInitSpi = 1;
+    return slave;
+}
+
+int my_spi_write(char* tx, int len)
+{
+    if (!iInitSpi)
+    {
+        spi_dev = my_spi_init();
+        spi_select_pad(spi_dev, PINMUX_FOR_SPI0_MODE_4);
+    }
+    // slave->pfMspiCbFunc = Mspi_Cb;
+    if (spi_xfer_Async(spi_dev, len, tx, NULL) == 0)
+        return len;
+    else
+        return -1;
+}
+
+int my_spi_read(unsigned char* rx, int len)
+{
+    if (!iInitSpi)
+    {
+        spi_dev = my_spi_init();
+        spi_select_pad(spi_dev, PINMUX_FOR_SPI0_MODE_4);
+    }
+    // slave->pfMspiCbFunc = Mspi_Cb;
+    //if (spi_xfer_Async(spi_dev, len, NULL, rx) == 0)
+    if (spi_xfer(spi_dev, len, NULL, rx) == 0)
+        return len;
+    else
+        return -1;
+}
+#endif
+
+void CreateSharedMem()
+{
+    if(g_pxSharedMem != NULL)
+        return;
+#if 0 // kkk test
+    g_iShmid = shmget(SHMKEY, sizeof(SHARED_MEM), IPC_CREAT);
+    g_pxSharedMem = (SHARED_MEM*)shmat(g_iShmid, NULL, 0);
+    if (!g_pxSharedMem)
+    {
+        my_printf("[ascript]failed to allocate gl_shmdata.\n");
+        return;
+    }
+#endif
+    if(g_pxSharedMem->iHeader != 0x55AA)
+    {
+        g_pxSharedMem->iHeader = 0x55AA;
+        g_pxSharedMem->iData0 = 0;
+    }
+
+    return;
+}
+
+int CreateSharedLCD()
+{
+    int is_created = 0;
+    if(g_pxSharedLCD != NULL)
+        return 0;
+#ifndef __RTK_OS__
+    g_iShmidLCD = shmget(SHMKEY_LCD, sizeof(SHARED_MEM), 0);
+    if (g_iShmidLCD < 0)
+    {
+        g_iShmidLCD = shmget(SHMKEY_LCD, sizeof(SHARED_MEM), IPC_CREAT);
+        is_created = 1;
+    }
+
+    g_pxSharedLCD = (SHARED_MEM*)shmat(g_iShmidLCD, NULL, 0);
+    if (!g_pxSharedLCD)
+    {
+        my_printf("[ascript]failed to allocate gl_shmdata.\n");
+        return 1;
+    }
+#else // !__RTK_OS__
+    if (g_pxSharedLCD == NULL)
+    {
+        is_created = 1;
+        g_pxSharedLCD = (SHARED_MEM*)my_malloc(sizeof(*g_pxSharedLCD));
+    }
+#endif // !__RTK_OS__
+    if(is_created)
+    {
+        g_pxSharedLCD->iHeader = 0x55AA;
+        g_pxSharedLCD->iData0 = 0;
+        g_pxSharedLCD->iMountPoints = 0;
+    }
+
+    return 0;
+}
+
+int my_fsync(myfdesc_ptr fd)
+{
+    int ret = 0;
+#ifndef __RTK_OS__
+    do {
+        ret = fsync(fd);
+    } while(ret == -1 && errno == EINTR);
+    if (ret)
+    {
+        my_printf("my_fsync failed:%d(%s).\n", errno, strerror(errno));
+    }
+#else // ! __RTK_OS__
+#endif // ! __RTK_OS__
+    return ret;
+}
+
+void set_kernel_flag_action(int b)
+{
+    bSetKernelFlag = b;
+}
+
+int get_kernel_flag_action()
+{
+    return bSetKernelFlag;
+}
+
+int my_system(const char* command)
+{
+#ifndef __RTK_OS__
+    unsigned int cs;
+    int ret = -1;
+    char str_cmd[64] = {0};
+    int i;
+    char buf[256];
+
+    for (i = 0; i < 63; i ++)
+    {
+        if (command[i] == 0 || command[i] == ' ')
+            break;
+        str_cmd[i] = command[i];
+    }
+
+    //my_printf("[%s]trying to open %s.\n", __FUNCTION__, str_cmd);
+    FILE* fp = fopen(str_cmd, "r");
+    if (fp == NULL)
+    {
+        for (i = 0; rfs_dir_names[i] != NULL; i++)
+        {
+            sprintf(buf, "%s/%s", rfs_dir_names[i], str_cmd);
+            //my_printf("[%s]trying to open %s.\n", __FUNCTION__, buf);
+            fp = fopen(buf, "r");
+            if (fp)
+                break;
+        }
+    }
+
+    if (fp)
+    {
+        fclose(fp);
+        ret = get_execfile_checksum_val(str_cmd, &cs);
+        if (ret == 0 && get_execfile_checksum(str_cmd) != cs)
+        {
+            //rootfs partition may be destroyed.
+            //do not set kernel flag.
+            set_kernel_flag_action(0);
+            return -1;
+        }
+        ret = system(command);
+        if (WIFSIGNALED(ret) &&
+                (WTERMSIG(ret) == SIGINT || WTERMSIG(ret) == SIGQUIT))
+        {
+            set_kernel_flag_action(0);
+        }
+    }
+    return ret;
+#else
+    return 0;
+#endif
+}
+
+void do_backup_exec_checksum()
+{
+#ifndef __RTK_OS__
+    int i;
+    FILE* fp;
+    unsigned int cs;
+    my_system("mount -o remount, rw /");
+    fp = fopen(EXEC_CHECKSUM_FILE, "w");
+    if (fp)
+    {
+        for (i = 0; rfs_exec_filenames[i] != NULL; i++)
+        {
+            cs = get_execfile_checksum(rfs_exec_filenames[i]);
+            fwrite(&cs, sizeof(unsigned int), 1, fp);
+        }
+        my_fsync(fileno(fp));
+        fclose(fp);
+    }
+    else
+    {
+        my_printf("Failed to create checksum backup.\n");
+    }
+    my_system("mount -r -o remount /");
+#endif // !__RTK_OS__
+}
+unsigned int get_execfile_checksum(const char* path)
+{
+#ifndef __RTK_OS__
+    FILE* fp = NULL;
+    unsigned int i;
+    unsigned int len;
+    unsigned int ret = 0;
+    char buf[256];
+    fp = fopen(path, "r");
+    if (fp == NULL)
+    {
+        for (i = 0; rfs_dir_names[i] != NULL; i++)
+        {
+            sprintf(buf, "%s/%s", rfs_dir_names[i], path);
+            fp = fopen(buf, "r");
+            if (fp)
+                break;
+        }
+    }
+    if (fp)
+    {
+        i = 0;
+        len = fread(buf, 1, 256, fp);
+        while(len > 0)
+        {
+            for (i = 0; i < len; i += 4)
+                ret = ret ^ (*((unsigned int*)(buf + i)));
+            len = fread(buf, 1, 256, fp);
+        }
+        fclose(fp);
+    }
+    return ret;
+#endif // !__RTK_OS__
+    return 0;
+}
+
+/*
+* return 0: ok, 1: no result
+*/
+int get_execfile_checksum_val(const char* path, unsigned int *cs_out)
+{
+#ifndef __RTK_OS__
+    int i;
+    for (i = 0; rfs_exec_filenames[i] != NULL; i++ )
+    {
+        if (!strcmp(path, rfs_exec_filenames[i]))
+            break;
+    }
+    if (rfs_exec_filenames[i] != NULL)
+    {
+        FILE* fp;
+        fp = fopen(EXEC_CHECKSUM_FILE, "r");
+        if (fp)
+        {
+            fseek(fp, i * sizeof(unsigned int), SEEK_SET);
+            fread((void*)cs_out, sizeof(unsigned int), 1, fp);
+            fclose(fp);
+            return 0;
+        }
+    }
+    *cs_out = 0;
+#endif // !__RTK_OS__
+    return 1;
+}
+
+//caution: use this function before activation.
+// after activation, detection method is different.
+int get_cur_rootfs_part()
+{
+    int ret = RFS_PART0;
+#ifndef __RTK_OS__
+#if (!ROOTFS_BAK)
+    return ret;
+#endif
+    char str_cmd[256];
+    const char* rfs_names[] = { RFS0_DEVNAME, RFS1_DEVNAME, RFS2_DEVNAME };
+
+    for(int i = RFS_PART0; i < RFS_PART_END; i++)
+    {
+        sprintf(str_cmd, "df -h %s", rfs_names[i]);
+        int a = system(str_cmd);
+        if(a == 0)
+        {
+            ret = i;
+            break;
+        }
+    }
+#endif // !__RTK_OS__
+    return ret;
+}
+
+int get_rootfs_checksum(const char *dev_path, unsigned int* n_checksum_ptr)
+{
+#ifndef __RTK_OS__
+    unsigned int sum = 0;
+    int ret = 0;
+    unsigned int buf[4096];
+    int len_to_read, read_len;
+    int total_len = 0;
+    FILE* fp_rfs = NULL;
+    fp_rfs = fopen(dev_path, "r");
+    if (fp_rfs)
+    {
+        for (int i = 0; i < SEC2BYTES(RFS_SEC_COUNT); i += sizeof(buf))
+        {
+            len_to_read = ((SEC2BYTES(RFS_SEC_COUNT) - i) < (int)sizeof(buf)) ? (SEC2BYTES(RFS_SEC_COUNT) - i): sizeof(buf);
+            read_len = fread(buf, 1, len_to_read, fp_rfs);
+            if (read_len == 0)
+            {
+                //my_printf("failed to read %s:off=%08xh\n", dev_path, i);
+                //ret = 1;
+                break;
+            }
+            total_len += read_len;
+            for (int j = 0; j < read_len / 4; j ++)
+            {
+                sum ^= buf[j];
+            }
+        }
+    }
+    if (ret == 0)
+    {
+        *n_checksum_ptr = sum;
+        my_printf("%s, len=0x%08x, checksum=0x%08x\n", dev_path, total_len, sum);
+    }
+    return ret;
+#endif // !__RTK_OS__
+    return 0;
+}
+
+void* my_malloc_real(unsigned int nSize)
+{
+    return CamOsMemAlloc(nSize);
+}
+
+void* my_malloc_real_debug(unsigned int nSize, const char* strFile, int nLine)
+{
+    void* ptrRet = CamOsMemAlloc(nSize);
+    my_printf("[%s] %p, %d, %s:%d\n", __func__, ptrRet, nSize, strFile, nLine);
+    return ptrRet;
+}
+
+void* my_calloc_real(unsigned int nmemb, unsigned int n_size)
+{
+    return CamOsMemCalloc(nmemb, n_size);
+}
+
+void* my_calloc_real_debug(unsigned int nmemb, unsigned int n_size, const char* strFile, int nLine)
+{
+    void* ptrRet = CamOsMemCalloc(nmemb, n_size);
+    my_printf("[%s] %p, %d, %s:%d\n", __func__, ptrRet, nmemb * n_size, strFile, nLine);
+    return ptrRet;
+}
+
+void* my_realloc(void* pPtr, unsigned int nSize)
+{
+    return CamOsMemRealloc(pPtr, nSize);
+}
+
+void my_free_real(void* pPtr)
+{
+    CamOsMemRelease(pPtr);
+}
+
+void my_free_real_debug(void* pPtr, const char* strFile, int nLine)
+{
+    my_printf("[%s] %p, %s:%d\n", __func__, pPtr, strFile, nLine);
+    CamOsMemRelease(pPtr);
+}
+
+void my_usleep(int nUsec)
+{
+    CamOsUsSleep((unsigned int)nUsec);
+}
+
+void my_printf(const char * format, ...)
+{
+    my_mutex_lock(g_MyPrintfLock);
+    char buf[1024] = {0};
+    va_list args;
+    va_start (args, format);
+    vsnprintf(buf, 1023, format, args);
+    va_end (args);
+    CamOsPrintf(KERN_ERR "%s", buf);
+    my_mutex_unlock(g_MyPrintfLock);
+}
+
+void LOG_PRINT(const char * format, ...)
+{
+#if 0
+    my_mutex_lock(g_MyPrintfLock);
+    char buf[1024] = {0};
+    va_list args;
+    va_start (args, format);
+    vsnprintf(buf, 1023, format, args);
+    va_end (args);
+    CamOsPrintf(KERN_ERR "%s", buf);
+    my_mutex_unlock(g_MyPrintfLock);
+#endif
+}
+
+float Now(void)
+{
+    return GetMonoTime();
+}
+
+float GetMonoTime(void)
+{
+#if 0
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec*1000.f + ts.tv_nsec/1000000.f;
+#else
+    CamOsTimespec_t s;
+    CamOsGetMonotonicTime(&s);
+    return s.nSec*1000.f + s.nNanoSec/1000000.f;
+#endif
+    return 0;
+}
+
+myfdesc_ptr my_open(const char *szpath, unsigned int nflag, unsigned int nmode)
+{
+    myfdesc_ptr _fdptr;
+    if (CamFsOpen(&_fdptr, szpath, nflag, nmode))
+        return NULL;
+    else
+        return _fdptr;
+}
+
+int my_close(myfdesc_ptr _fd)
+{
+    return CamFsClose(_fd);
+}
+
+int my_read(myfdesc_ptr fd, void *buf, unsigned int count)
+{
+    dbug_printf("[%s] buf=%p, count=%d\n",
+        __func__, buf, count);
+    return CamFsRead(fd, buf, count);
+}
+
+int my_read_ext(myfdesc_ptr fd, void *buf, unsigned int count)
+{
+    const int alen = 64;
+    int remain = count % alen;
+    int read_len = count - remain;
+    int ret = -1;
+    dbug_printf("[%s] buf=%p, count=%d, read_len=%d\n",
+        __func__, buf, count, read_len);
+    ret = my_read(fd, buf, read_len);
+    if (ret == read_len && remain > 0)
+    {
+        ret += my_read(fd, (void*)((char*)buf + read_len), remain);
+    }
+    return ret;
+}
+
+int my_write(myfdesc_ptr fd, const void *buf, unsigned int count)
+{
+    return CamFsWrite(fd, buf, count);
+}
+
+int my_seek(myfdesc_ptr fd, unsigned int offset, unsigned int whence)
+{
+    return CamFsSeek(fd, offset, whence);
+}
+
+mymutex_ptr my_mutex_init()
+{
+    CamOsMutex_t* mt = (CamOsMutex_t*)my_malloc(sizeof(CamOsMutex_t));
+    if (mt == NULL)
+        return NULL;
+    if (CamOsMutexInit(mt))
+    {
+        my_free(mt);
+        return NULL;
+    }
+    return (mymutex_ptr)mt;
+}
+
+void my_mutex_destroy(mymutex_ptr mtx)
+{
+    if (mtx == NULL)
+        return;
+    CamOsMutexDestroy((CamOsMutex_t*)mtx);
+    my_free(mtx);
+}
+
+void my_mutex_lock_real(mymutex_ptr mtx)
+{
+    if (mtx == NULL)
+        return;
+    CamOsMutexLock((CamOsMutex_t*)mtx);
+}
+
+void my_mutex_unlock_real(mymutex_ptr mtx)
+{
+    if (mtx == NULL)
+        return;
+    CamOsMutexUnlock((CamOsMutex_t*)mtx);
+}
+
+void my_mutex_lock_real_debug(mymutex_ptr mtx, const char* str_file, int n_line)
+{
+    if (mtx == NULL)
+        return;
+    my_printf("[%s] %p, %s:%d\n", __func__, mtx, str_file, n_line);
+    CamOsMutexLock((CamOsMutex_t*)mtx);
+}
+
+void my_mutex_unlock_real_debug(mymutex_ptr mtx, const char* str_file, int n_line)
+{
+    if (mtx == NULL)
+        return;
+    my_printf("[%s] %p, %s:%d\n", __func__, mtx, str_file, n_line);
+    CamOsMutexUnlock((CamOsMutex_t*)mtx);
+}
+
+int my_thread_create(mythread_ptr *thread, void *attr, void *(*start_routine) (void *), void *arg)
+{
+    if (thread == NULL)
+        return -1;
+    CamOsThread* pThread = my_malloc(sizeof(CamOsThread));
+    *thread = NULL;
+    if (pThread == NULL)
+        return -2;
+    memset(pThread, 0, sizeof(*pThread));
+    CamOsThreadAttrb_t threadUVCAttr_0 = {.nPriority = 0,.szName = "mydyn_thread",.nStackSize = 16384};
+    if (attr != NULL)
+    {
+        if (CamOsThreadCreate(pThread, attr, start_routine, arg))
+        {
+            my_free(pThread);
+            return -3;
+        }
+    }
+    else
+    {
+        if (CamOsThreadCreate(pThread, &threadUVCAttr_0, start_routine, arg))
+        {
+            my_free(pThread);
+            return -4;
+        }
+    }
+    *thread = pThread;
+    return 0;
+}
+
+int my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine) (void *), void *arg, char* thd_name, int stack_size, int priority)
+{
+    if (thread == NULL)
+        return -1;
+    CamOsThread* pThread = my_malloc(sizeof(CamOsThread));
+    *thread = NULL;
+    if (pThread == NULL)
+        return -2;
+    memset(pThread, 0, sizeof(*pThread));
+    CamOsThreadAttrb_t threadUVCAttr_0 = {.nPriority = priority,.szName = thd_name,.nStackSize = stack_size};
+    if (attr != NULL)
+    {
+        if (CamOsThreadCreate(pThread, attr, start_routine, arg))
+        {
+            my_free(pThread);
+            return -3;
+        }
+    }
+    else
+    {
+        if (CamOsThreadCreate(pThread, &threadUVCAttr_0, start_routine, arg))
+        {
+            my_free(pThread);
+            return -4;
+        }
+    }
+    *thread = pThread;
+    return 0;
+}
+
+int my_thread_join(mythread_ptr *thread)
+{
+    if (thread == NULL)
+        return -1;
+    return CamOsThreadJoin(*((CamOsThread*)*thread));
+}
+
+int my_sync()
+{
+    //todo
+    return 0;
+}
+
+int my_mount(const char *source, const char *target,
+                          const char *filesystemtype, unsigned long mountflags,
+                          const void *data)
+{
+    //todo
+    return 0;
+}
+
+int my_umount(const char *target)
+{
+    //todo
+    return CamFsUnmount(target);
+}
+
+int mount_db1()
+{
+    return 0;
+}
+
+int umount_db1()
+{
+    return 0;
+}
+
+int my_mount_userdb()
+{
+#ifndef MMAP_MODE
+    my_printf("[%s] start\n", __func__);
+    return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "USERDB1", "/mnt/db");
+#else // !MMAP_MODE
+    return 0;
+#endif // !MMAP_MODE
+}
+
+int my_mount_userdb_backup()
+{
+#ifndef MMAP_MODE
+    return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "USERDB2", "/mnt/backup");
+#else // !MMAP_MODE
+    return 0;
+#endif // !MMAP_MODE
+}
+
+int my_mount_misc()
+{
+    return CamFsMount(CAM_FS_FMT_FIRMWAREFS, "MISC", "/mnt/MISC");
+}
+
+unsigned long long my_get_chip_id()
+{
+    MI_U64 u64Uuid = 0;
+
+    MI_S32 s32Ret = MI_ERR_SYS_FAILED;
+
+    s32Ret = MI_SYS_ReadUuid (&u64Uuid);
+
+    if(!s32Ret)
+    {
+        dbug_printf("uuid: %llx\n",u64Uuid);
+    }
+    return u64Uuid;
+}
+
+int my_print_callstack()
+{
+    CamOsCallStack();
+    return 0;
+}
+
+int my_i2c_open(int num, myi2cdesc_ptr* pptr)
+{
+    tI2cHandle* p_handle = NULL;
+    p_handle = my_malloc(sizeof(tI2cHandle));
+    if (p_handle == NULL)
+        return -1;
+
+    p_handle->nPortNum = -1;
+    p_handle->pAdapter = NULL;
+    CamI2cOpen(p_handle, num);
+    *pptr = (void*)p_handle;
+    return 0;
+}
+
+int my_i2c_close(myi2cdesc_ptr ptr)
+{
+    CamI2cClose((tI2cHandle*)ptr);
+    my_free(ptr);
+    return 0;
+}
+
+int my_i2c_write8(myi2cdesc_ptr ptr, unsigned char addr, unsigned char* buf, unsigned int len)
+{
+    //no need to use mutex
+    tI2cMsg msg;
+    if (len == 0)
+        return -1;
+    //read data
+    msg.addr = addr;
+    msg.flags = 0;
+    msg.buf = buf;
+    msg.len = len;
+    CamI2cTransfer((tI2cHandle*)ptr, &msg, 1);
+    return (int)len;
+}
+
+int my_i2c_read8(myi2cdesc_ptr ptr, unsigned char addr, unsigned char* buf, unsigned int len)
+{
+    //no need to use mutex
+    tI2cMsg msg;
+    if (len == 0)
+        return -1;
+    //read data
+    msg.addr = addr;
+    msg.flags = I2C_M_RD;
+    msg.buf = buf;
+    msg.len = len;
+    CamI2cTransfer((tI2cHandle*)ptr, &msg, 1);
+    return (int)len;
+}
+
+#define MY_PATH_FIRST_FLAG  "/mnt/MISC/first.bin"
+#define MY_PATH_ACTD        "/mnt/MISC/actd.bin"
+
+/*
+ * @return 0: not first boot, 1: first boot, 2: 3rd rootfs partition but no first flag
+*/
+int rootfs_is_first()
+{
+#ifndef __RTK_OS__
+    int ret = 0;
+#if (NFS_DEBUG_EN)
+    return ret;
+#endif
+    char str_cmd[256];
+    int rfs_cur = get_cur_rootfs_part();
+    FILE* fp;
+    fp = fopen("/test/first", "rb");
+#if (ROOTFS_BAK)
+    if(fp == NULL)
+    {
+        if (rfs_cur == RFS_PART2)
+        {
+            //this is not a desired case.
+            my_printf("booted with the 3rd partition, no first flag.\n");
+            return 2; //poweroff
+        }
+        if (rfs_cur == RFS_PART1)
+            sprintf(str_cmd, "mount %s /home/default", RFS2_DEVNAME);
+        else
+            sprintf(str_cmd, "mount %s /home/default", RFS1_DEVNAME);
+        my_system(str_cmd);
+        fp = fopen("/home/default/etc/init.d/rcS", "rb");
+        if (fp)
+        {
+            fclose(fp);
+            fp = fopen("/home/default/test/first", "rb");
+            if (fp == NULL)
+            {
+                ret = 1;
+            }
+            else
+                fclose(fp);
+        }
+        my_system("umount -f /home/default");
+    }
+    else
+        fclose(fp);
+#endif
+
+    if(fp == NULL)
+    {
+        my_printf("        first boot\n");
+        ret = 1;
+    }
+    else
+        fclose(fp);
+
+    return ret;
+#else // !__RTK_OS__
+    int abuf = 0;
+    fr_ReadFileData(MY_PATH_FIRST_FLAG, 0, &abuf, 4);
+    dbug_printf("[%s] ab=%d\n", __func__, abuf);
+    return abuf == 0;
+#endif // !__RTK_OS__
+}
+
+int rootfs_set_first_flag()
+{
+#ifndef __RTK_OS__
+    system("mount -o remount, rw /");
+    system("rm -f /etc/init.d/rcS_act");
+    FILE* fp = fopen("/test/first", "wb");
+    if(fp)
+    {
+        fflush(fp);
+        my_fsync(fileno(fp));
+        fclose(fp);
+    }
+    else
+    {
+        my_printf("failed to create first file.\n");
+    }
+
+    system("mount -r -o remount /");
+#else // !__RTK_OS__
+    int abuf = 0x55;
+    fr_WriteFileData(MY_PATH_FIRST_FLAG, 0, &abuf, 4);
+    dbug_printf("[%s] ab=%d\n", __func__, abuf);
+    return 0;
+#endif // !__RTK_OS__
+}
+
+void test_led(int n)
+{
+#if 0
+    for (int i = 0; i < n; i++)
+    {
+        GPIO_fast_setvalue(IR_LED, ON);
+        my_usleep(1000);
+        GPIO_fast_setvalue(IR_LED, OFF);
+        my_usleep(1000);
+    }
+    my_usleep(5*1000);
+#endif
+}
+
+void test_led2(int n)
+{
+#if 0
+    for (int i = 0; i < n; i++)
+    {
+        GPIO_fast_setvalue(GPIO_USBSense, ON);
+        my_usleep(1000);
+        GPIO_fast_setvalue(GPIO_USBSense, OFF);
+        my_usleep(1000);
+    }
+    my_usleep(5*1000);
+#endif
+}
+
+void test_led3(int n)
+{
+#if 0
+    for (int i = 0; i < n; i++)
+    {
+        GPIO_fast_setvalue(GPIO_USBSense, ON);
+        my_usleep(1000);
+        GPIO_fast_setvalue(GPIO_USBSense, OFF);
+        my_usleep(1000);
+    }
+    my_usleep(5*1000);
+#endif
+}
+
+int my_create_empty_file(const char* path, int file_size)
+{
+    myfdesc_ptr fd;
+#define WRITE_BUF_LEN 512
+    unsigned char buf[WRITE_BUF_LEN] = { 0 };
+    if (file_size <= 0)
+        return -1;
+    fd = my_open(path, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
+    if (!is_myfdesc_ptr_valid(fd))
+    {
+        my_printf("[%s]create file fail.\n", __func__);
+        return -1;
+    }
+    for (int i = 0; i < file_size / WRITE_BUF_LEN; i++)
+        my_write(fd, buf, WRITE_BUF_LEN);
+    int remain_len = file_size - ((file_size / WRITE_BUF_LEN) * WRITE_BUF_LEN);
+    if (remain_len > 0)
+        my_write(fd, buf, remain_len);
+    my_close(fd);
+    my_printf("[%s]create file ok, %d.\n", __func__, file_size);
+    return 0;
+}
+
+/*
+* determine if activated.
+* return, 2: not activated
+*         1: activated
+*/
+int rootfs_is_activated()
+{
+    int ret = 0;
+#ifdef __RTK_OS__
+    fr_ReadFileData(MY_PATH_ACTD, 0, &ret, sizeof(ret));
+    dbug_printf("[%s] ret=%d\n", __func__, ret);
+#endif //__RTK_OS__
+    return (ret == 0 ? 2: 1);
+}
+
+int rootfs_set_activated()
+{
+#ifdef __RTK_OS__
+    int ret = 0x55;
+    fr_WriteFileData(MY_PATH_ACTD, 0, &ret, sizeof(ret));
+#endif //__RTK_OS__
+    return 0;
+}
+
+unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, unsigned int u32_address, unsigned int u32_size)
+{
+    int ret = -1;
+#if 1
+    int read_len = 0;
+    int i = 0;
+    const int buf_len = 4096;
+    int start_off = 0;
+    ret = 0;
+    for (i = start_off; i < u32_size; i += buf_len)
+    {
+        if (u32_size - ret < buf_len)
+            read_len = u32_size - ret;
+        else
+            read_len = buf_len;
+        my_mutex_lock(g_FlashReadWriteLock);
+        read_len = MDRV_FLASH_read(u32_bytes_offset + i, read_len, u32_address + i, read_len);
+        my_mutex_unlock(g_FlashReadWriteLock);
+        if (read_len <= 0)
+            break;
+        ret += read_len;
+    }
+    // LOG_PRINT("[%s] read=", __func__);
+    // for (i = 0; i < 16 && i < u32_size; i ++)
+    // {
+    //     LOG_PRINT("%02x ", ((unsigned char*)u32_address)[u32_size - i - 1]);
+    // }
+    // LOG_PRINT("\n");
+#else
+    ret = MDRV_FLASH_read(u32_bytes_offset, u32_limit, u32_address, u32_size);
+#endif
+    return ret;
+}
+
+unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, unsigned int u32_address, unsigned int u32_size)
+{
+    U32 ret;
+    my_mutex_lock(g_FlashReadWriteLock);
+    ret = MDRV_FLASH_write_pages(u32_bytes_offset, u32_address, u32_size);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return ret;
+}
+
+unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, unsigned int u32_address, unsigned int u32_size)
+{
+    U32 ret;
+    my_mutex_lock(g_FlashReadWriteLock);
+    ret = MDRV_FLASH_write_parts(u32_bytes_offset, u32_limit, u32_address, u32_size);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return ret;
+}
+
+unsigned int my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size)
+{
+    U32 ret;
+    my_mutex_lock(g_FlashReadWriteLock);
+    ret = MDRV_FLASH_erase(u32_bytes_offset, u32_size);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return ret;
+}
+
+unsigned int my_flash_write(unsigned int u32_bytes_offset, unsigned int u32_address, unsigned int u32_size)
+{
+    const int flash_page_size = 4*1024;
+    unsigned int start_off = u32_bytes_offset - (u32_bytes_offset % flash_page_size);
+    unsigned int page_count = (((u32_bytes_offset + u32_size) - start_off) + (flash_page_size - 1)) / flash_page_size;
+    unsigned int end_off = start_off + page_count * flash_page_size;
+    unsigned char* _tmp_buf;
+    unsigned int write_len;
+    unsigned int write_off;
+    unsigned int total_len = 0;
+    LOG_PRINT("[%s] %08x, %08x, %d, p=%d, s=%08x, e=%08x\n", __func__, 
+        u32_bytes_offset, u32_address, u32_size, 
+        page_count, start_off, end_off);
+    _tmp_buf = (unsigned char*)my_malloc(flash_page_size);
+    if (_tmp_buf == NULL)
+        return 0;
+    for (; start_off < end_off; start_off += flash_page_size)
+    {
+        my_flash_read(start_off, flash_page_size, (unsigned int)_tmp_buf, flash_page_size);
+        write_len = flash_page_size;
+        write_off = 0;
+        if (start_off + flash_page_size > u32_bytes_offset + u32_size)
+            write_len = u32_bytes_offset + u32_size - start_off;
+        if (start_off < u32_bytes_offset)
+        {
+            write_off = u32_bytes_offset - start_off;
+            write_len = write_len - write_off;
+        }
+        if (memcmp(_tmp_buf + write_off, (void*)(u32_address + total_len), write_len))
+        {
+            memcpy(_tmp_buf + write_off, (void*)(u32_address + total_len), write_len);
+            my_flash_erase(start_off, flash_page_size);
+            my_flash_write_parts(start_off, flash_page_size, (unsigned int)_tmp_buf, flash_page_size);
+        }
+        total_len += write_len;
+    }
+    my_free(_tmp_buf);
+    // LOG_PRINT("[%s] write=", __func__);
+    // for (int i = 0; i < 16 && i < u32_size; i ++)
+    // {
+    //     LOG_PRINT("%02x ", ((unsigned char*)u32_address)[u32_size - i - 1]);
+    // }
+    // LOG_PRINT("\n");
+    return total_len;
+}
+
+int my_msync(void* addr, int len)
+{
+    return 0;
+}
+
+int my_munmap(void* addr, int len)
+{
+    return 0;
+}
+
+extern void RtkDumpMemoryStatus(rtk_MemStatusLv_e level);
+int my_memstat()
+{
+    my_printf("[%s] 1\n", __func__);
+    CamOsDirectMemStat();
+    my_printf("[%s] 2\n", __func__);
+    RtkDumpMemoryStatus(RTK_MEM_STATUS_HEAP_USAGE | RTK_MEM_STATUS_POOL_USAGE);
+    return 0;
+}
+
+int fr_InitAppLog()
+{
+    int write_len = -1;
+    int file_offset = APPLOG_START_ADDR;
+    unsigned char wBuf[APPLOG_LEN];
+
+    memset(wBuf, 0, sizeof(wBuf));
+
+    write_len = my_flash_write(file_offset, (unsigned int)wBuf, APPLOG_LEN);
+    return write_len;
+}
+
+int fr_GetAppLogLen()
+{
+    int read_len = 0;
+    int file_offset = 0;
+    unsigned char buf[APPLOG_SIZE_LEN];
+    file_offset = APPLOG_START_ADDR;
+    read_len = my_flash_read(file_offset, APPLOG_SIZE_LEN, (unsigned int)buf, APPLOG_SIZE_LEN);
+    if (read_len != sizeof(buf))
+        return 0;
+
+    read_len = buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3];
+    if (read_len < 0 || read_len > APPLOG_LEN) read_len = 0;
+    return read_len;
+}
+
+int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
+{
+#if(MY_DICT_FLASH)
+    int read_len = -1;
+    int file_offset = 0;
+    file_offset = APPLOG_START_ADDR;
+    if (strstr(filename, "app_log.txt"))
+        goto off_read_file;
+
+    //invalid dict file.
+    return -1;
+
+off_read_file:
+    read_len = my_flash_read(file_offset + u32_offset, u32_length, (unsigned int)buf, u32_length);
+    return read_len;
+#else // MY_DICT_FLASH
+    int ret = -1;
+    myfdesc_ptr f;
+    f = my_open(filename, O_RDONLY, 0777);
+    if (is_myfdesc_ptr_valid(f))
+    {
+        ret = my_read_ext(f, buf, u32_length);
+        my_close(f);
+    }
+    return ret;
+#endif // MY_DICT_FLASH
+}
+
+int fr_WriteAppLog(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
+{
+#if(MY_DICT_FLASH)
+    int write_len = -1;
+    int file_offset = 0;
+    int read_len = -1;
+    unsigned char wBuf[APPLOG_LEN];
+    unsigned int nWriteOffset = 0;
+    unsigned int nUpdatedWriteOffset = 0;
+
+    file_offset = APPLOG_START_ADDR;
+    if (strstr(filename, "app_log.txt"))
+    {
+        read_len = fr_ReadAppLog(filename, u32_offset, wBuf, sizeof(wBuf));
+        if (read_len != sizeof(wBuf))
+            return -1;
+
+        nWriteOffset = wBuf[0] << 24 | wBuf[1] << 16 | wBuf[2] << 8 | wBuf[3];
+        if (nWriteOffset < 0 || nWriteOffset > APPLOG_LEN)
+        {
+            my_printf("@@@@@@ miss len = %d\n", nWriteOffset);
+            nWriteOffset = 0;
+        }
+        nUpdatedWriteOffset = nWriteOffset + u32_length;
+
+        if (nUpdatedWriteOffset >= (APPLOG_LEN - 4))
+        {
+            my_printf("####### miss len = %d\n", nUpdatedWriteOffset);
+            nWriteOffset = 0;
+            nUpdatedWriteOffset = u32_length;
+        }
+        wBuf[0] = (nUpdatedWriteOffset >> 24) & 0xFF;
+        wBuf[1] = (nUpdatedWriteOffset >> 16) & 0xFF;
+        wBuf[2] = (nUpdatedWriteOffset >> 8) & 0xFF;
+        wBuf[3] = nUpdatedWriteOffset & 0xFF;
+
+        memcpy(wBuf + nWriteOffset + APPLOG_SIZE_LEN, buf, u32_length);
+        goto off_write_file;
+    }
+
+    //invalid log file.
+    return -1;
+
+off_write_file:
+    write_len = my_flash_write(file_offset + u32_offset, (unsigned int)wBuf, APPLOG_LEN);
+    return write_len;
+#else // MY_DICT_FLASH
+    int ret = -1;
+    myfdesc_ptr f;
+    f = my_open(filename, O_RDONLY, 0777);
+    if (is_myfdesc_ptr_valid(f))
+    {
+        ret = my_read_ext(f, buf, u32_length);
+        my_close(f);
+    }
+    return ret;
+#endif // MY_DICT_FLASH
+}
+
+int fr_WriteUSBScanEnableState()
+{
+#if(MY_DICT_FLASH)
+    int write_len = -1;
+    unsigned char buf[UPGRADER_INFO_SIZE * 2];
+
+    my_flash_read(UPGRADER_INFO_ADDR, sizeof(buf), (unsigned int)buf, sizeof(buf));
+    
+    buf[UPGRADER_INFO_SIZE] = 0x7E;
+    buf[UPGRADER_INFO_SIZE + 1] = 0x55;
+    buf[UPGRADER_INFO_SIZE + 2] = 0xCC;
+    buf[UPGRADER_INFO_SIZE + 3] = 0xDD;
+
+    goto off_write_file;
+
+    //invalid log file.
+    return -1;
+
+off_write_file:
+    write_len = my_flash_write(UPGRADER_INFO_ADDR, (unsigned int)buf, sizeof(buf));
+    return write_len;
+#else // MY_DICT_FLASH
+    int ret = -1;
+    myfdesc_ptr f;
+    f = my_open(filename, O_RDONLY, 0777);
+    if (is_myfdesc_ptr_valid(f))
+    {
+        ret = my_read_ext(f, buf, u32_length);
+        my_close(f);
+    }
+    return ret;
+#endif // MY_DICT_FLASH
+}

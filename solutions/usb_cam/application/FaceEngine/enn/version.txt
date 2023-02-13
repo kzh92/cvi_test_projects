@@ -1,0 +1,9 @@
+코드버젼 :
+    ENN_1.01
+이 서고를 리용하는 부분엔진 :
+    Slim_lite_CODE_1.00
+    vfl_CODE_1.00
+    Live_1.00
+    LiveMn_1.00 (ENN_1.01이상)
+    LiveMnSe_1.00 (ENN_1.01이상)
+
