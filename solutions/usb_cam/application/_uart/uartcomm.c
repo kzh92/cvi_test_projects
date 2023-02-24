@@ -6,40 +6,53 @@
 #include "drv_gpio.h"
 #include <drv/pin.h>
 #include <pin.h>
-#include "aos/hal/uart.h"
+#include <drv/uart.h>
 
 // #define UART_DEBUG_EN
-uart_dev_t g_uart1;
+static csi_uart_t  g_uart1;
 int g_uart1_baud = 115200;
 int g_uart1_inited = 0;
 
 int UART_Init()
 {
+    int ret_status;
     if (g_uart1_inited)
         return 0;
     PINMUX_CONFIG(IIC0_SCL, UART1_TX);
     PINMUX_CONFIG(IIC0_SDA, UART1_RX);
 
-    g_uart1.port                = 1;
-    g_uart1.config.baud_rate    = g_uart1_baud;
-    g_uart1.config.mode         = MODE_TX_RX;
-    g_uart1.config.flow_control = FLOW_CONTROL_DISABLED;
-    g_uart1.config.stop_bits    = STOP_BITS_1;
-    g_uart1.config.parity       = NO_PARITY;
-    g_uart1.config.data_width   = DATA_WIDTH_8BIT;
+    int portID = 1;
+    int flowctrl  = 0;
+    csi_uart_parity_t parity = UART_PARITY_NONE;
+    csi_uart_data_bits_t en_data_bits = UART_DATA_BITS_8;
+    csi_uart_stop_bits_t en_stop_bits = UART_STOP_BITS_1;
 
-    int rc = hal_uart_init(&g_uart1);
-    if (rc == 0)
-    {
-        dbug_printf("uart1 open ok\n");
-        g_uart1_inited = 1;
-        return 0;
-    }
-    else
+    ret_status = csi_uart_init(&g_uart1, portID);
+    if (ret_status == -1)
     {
         printf("uart open fail\n");
         return 1;
     }
+
+    ret_status = csi_uart_baud(&g_uart1, g_uart1_baud);
+    if (ret_status == -1)
+    {
+        printf("uart set buadrate fail\n");
+        return 1;
+    }
+    ret_status = csi_uart_format(&g_uart1, en_data_bits, parity, en_stop_bits);
+    if (ret_status == -1) {
+        printf("uart set format fail\n");
+        return 1;
+    }
+    ret_status = csi_uart_flowctrl(&g_uart1, flowctrl);
+    if (ret_status == -1) {
+        printf("uart set flowactrl fail\n");
+        return 1;
+    }
+
+    g_uart1_inited = 1;
+    return 0;
 }
 
 void UART_Quit(void)
@@ -47,21 +60,21 @@ void UART_Quit(void)
     if (g_uart1_inited == 0)
         return;
     g_uart1_inited = 0;
-    hal_uart_finalize(&g_uart1);
+    csi_uart_uninit(&g_uart1);
 }
 
 void UART_SetBaudrate(int iBaudrate)
 {
     g_uart1_baud = iBaudrate;
-    UART_Quit();
-    UART_Init();
+    csi_uart_baud(&g_uart1, g_uart1_baud);
 }
 
 int UART_Send(unsigned char * pBuf, int nBufLen)
 {
     if (g_uart1_inited == 0)
         return 0;
-    if (hal_uart_send(&g_uart1, pBuf, nBufLen, 100))
+
+    if (csi_uart_send(&g_uart1, pBuf, nBufLen, 100))
         return 0;
     else
         return nBufLen;
@@ -71,8 +84,8 @@ int UART_Recv(unsigned char * pBuf, int nBufLen)
 {
     if (g_uart1_inited == 0)
         return 0;
-    int ret = hal_uart_recv(&g_uart1, pBuf, nBufLen, 0);
-    if (ret == 0)
+    int ret = csi_uart_receive(&g_uart1, pBuf, nBufLen, 0);
+    if (ret > 0)
     {
 #ifdef UART_DEBUG_EN
         my_printf("[%s] %d, ", __func__, nBufLen);
@@ -90,8 +103,8 @@ int UART_RecvDataForWait(unsigned char* pBuf, int iBufLen, int iTimeOut, int iIn
 {
     if (g_uart1_inited == 0)
         return 0;
-    int ret = hal_uart_recv(&g_uart1, pBuf, iBufLen, iTimeOut);
-    if (ret == 0)
+    int ret = csi_uart_receive(&g_uart1, pBuf, iBufLen, iTimeOut);
+    if (ret > 0)
     {
 #ifdef UART_DEBUG_EN
         my_printf("[%s] %d, ", __func__, iBufLen);
