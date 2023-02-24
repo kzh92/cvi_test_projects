@@ -171,7 +171,6 @@ void UpdateBackupSettings()
 void ResetCS(COMMON_SETTINGS* pxCS)
 {
     memset(pxCS, 0, sizeof(COMMON_SETTINGS));
-    pxCS->x.bBaudRateMode = Baud_Rate_115200;
     pxCS->x.bPresentation = DEFAULT_PRESENATATION;
     pxCS->x.bDupCheck = ENROLL_DUPLICATION_CHECK;
     pxCS->x.bUVCDir = DEFAULT_UVC_DIR;

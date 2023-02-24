@@ -175,7 +175,7 @@ typedef struct _tagCOMMON_SETTINGS
 {
     //[0]
     unsigned char   bUserCount;             //등록된 사용자수
-    unsigned char   bBaudRateMode;
+    unsigned char   bReserved;              //baud rate before
 
     unsigned char   bPresentation:1;        //연시방식(0: Off, 1: On)
     unsigned char   bDupCheck:1;

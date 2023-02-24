@@ -194,6 +194,7 @@ enum E_Baud_Rate
 #define DESMAN_ENC_MODE             2       //0 -> dessmman, 1 -> bom, 2 -> test
 #define DEFAULT_MI_AO_VOLUME        (0)   // -60~30
 #define DEFAULT_MI_AI_VOLUME        20      // 0~21
+#define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
 #define FIRMWARE_MAGIC              "FTSVD"
 
 #if (LOCK_MODE == LM_SEMI_AUTO)

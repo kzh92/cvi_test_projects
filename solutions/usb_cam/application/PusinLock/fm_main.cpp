@@ -528,7 +528,7 @@ int GotoActivation()
 
 void UART_Create()
 {
-    UART_SetBaudrate(UART_Baudrate(g_xCS.x.bBaudRateMode));
+    UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
 #if (FM_PROTOCOL == FM_EASEN)
     //g_pFMTask = new FaceModuleTask();
     g_pFMTask = &g_FMTask;

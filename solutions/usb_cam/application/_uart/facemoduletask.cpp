@@ -1,7 +1,6 @@
 
 #include "facemoduletask.h"
 #include "settings.h"
-//#include "uarttask.h"
 #include "DBManager.h"
 #include "appdef.h"
 #include "uartcomm.h"
@@ -792,8 +791,6 @@ void FaceModuleTask::run()
 
                     if(iFlag != 0)
                     {
-                        g_xCS.x.bBaudRateMode = iBaudRate;
-                        UpdateCommonSettings();
                         //g_xUartMutex.Lock();
                         UART_SetBaudrate(UART_Baudrate(iBaudRate));
                         my_printf("UART_SetBaudrate1: %x\n", UART_Baudrate(iBaudRate));
