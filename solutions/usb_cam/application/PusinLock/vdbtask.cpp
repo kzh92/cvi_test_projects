@@ -55,7 +55,7 @@ int ConvertYuvToSceneJpeg(unsigned char* pbSrc, int iYUYVMode)
 {
     unsigned char* pbTmp = pbSrc;
     unsigned char* pbYUV = NULL;
-    g_clrRgbData = (unsigned char*)my_malloc(WIDTH_1280 * ALIGN_16B(HEIGHT_960) * 3);
+    g_clrRgbData = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 3);
     if (g_clrRgbData == NULL)
     {
         my_printf("@@@ g_clrRgbData my_malloc fail\n");
@@ -69,21 +69,21 @@ int ConvertYuvToSceneJpeg(unsigned char* pbSrc, int iYUYVMode)
 
     if(iYUYVMode == 1)
     {
-        pbYUV = (unsigned char*)my_malloc(WIDTH_1280 * HEIGHT_960 * 3 >> 1);
+        pbYUV = (unsigned char*)my_malloc(CLR_CAM_WIDTH * CLR_CAM_HEIGHT * 3 >> 1);
         if(!pbYUV)
         {
             my_free(g_clrRgbData);
             return 0;
         }
 
-        ConvertYUYV_toYUV420(pbSrc, WIDTH_1280, HEIGHT_960, pbYUV);
+        ConvertYUYV_toYUV420(pbSrc, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, pbYUV);
         pbTmp = pbYUV;
     }
-    rotateYUV420SP_flip(pbTmp, WIDTH_1280, HEIGHT_960, g_clrYuvData, g_xPS.x.bCamFlip == 0 ? 270: 90, 1);
+    rotateYUV420SP_flip(pbTmp, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, g_clrYuvData, g_xPS.x.bCamFlip == 0 ? 270: 90, 1);
 
-    ConvertYUV420_NV21toRGB888(g_clrYuvData, HEIGHT_960, WIDTH_1280, g_clrRgbData);
+    ConvertYUV420_NV21toRGB888(g_clrYuvData, CLR_CAM_HEIGHT, CLR_CAM_WIDTH, g_clrRgbData);
 
-    Shrink_RGB(g_clrRgbData, WIDTH_1280, HEIGHT_960, g_clrYuvData, CAPTURE_HEIGHT, CAPTURE_WIDTH);
+    Shrink_RGB(g_clrRgbData, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, g_clrYuvData, CAPTURE_HEIGHT, CAPTURE_WIDTH);
 
     int iWriteLen = 0;
     for(int i = 90; i >= 10; i -= 10)
@@ -116,13 +116,13 @@ int ConvertYuvToSceneJpeg(unsigned char* pbSrc, int iYUYVMode)
 
 int ConvertIRToSceneJpeg(unsigned char* pbSrc)
 {
-    g_clrRgbData = (unsigned char*)my_malloc(WIDTH_1280 * ALIGN_16B(HEIGHT_960) * 3);
+    g_clrRgbData = (unsigned char*)my_malloc(IR_CAM_WIDTH * ALIGN_16B(IR_CAM_HEIGHT) * 3);
     if (g_clrRgbData == NULL)
     {
         my_printf("@@@ g_clrRgbData my_malloc fail\n");
         return 0;
     }
-    Shrink_Grey(pbSrc, WIDTH_960, HEIGHT_720, g_clrRgbData, CAPTURE_HEIGHT, CAPTURE_WIDTH);
+    Shrink_Grey(pbSrc, IR_CAM_HEIGHT / 3 * 4, IR_CAM_HEIGHT, g_clrRgbData, CAPTURE_HEIGHT, CAPTURE_WIDTH);
 
     int iWriteLen = 0;
     for(int i = 90; i >= 10; i -= 10)
@@ -144,8 +144,9 @@ int ConvertIRToSceneJpeg(unsigned char* pbSrc)
             break;
         }
     }
-    my_free(g_clrRgbData);
+
     g_iJpgDataLen = iWriteLen;
+    my_free(g_clrRgbData);
     return iWriteLen;
 }
 

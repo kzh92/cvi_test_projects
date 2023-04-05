@@ -27,21 +27,21 @@ extern "C"{
 #define MIPI_CAM_S2RIGHT        MIPI_CAM_SUB0 // switch to right IR
 #define MIPI_CAM_S2LEFT         MIPI_CAM_SUB1 // switch to left IR
 
-#define WIDTH_640 640
-#define HEIGHT_480 480
+// #define WIDTH_640 640
+// #define HEIGHT_480 480
 
-#define WIDTH_1280  1280
-#define HEIGHT_720  720
-#define HEIGHT_800  720
+// #define WIDTH_1280  1280
+// #define HEIGHT_720  720
+// #define HEIGHT_800  720
 
-#define WIDTH_960   960
-#define HEIGHT_960 	960
+// #define WIDTH_960   960
+// #define HEIGHT_960 	960
 
-#define WIDTH_800   800
-#define HEIGHT_600  600
+// #define WIDTH_800   800
+// #define HEIGHT_600  600
 
-#define IR_BUFFER_SIZE (WIDTH_1280 * HEIGHT_720)
-#define CLR_BUFFER_SIZE (WIDTH_1280 * HEIGHT_960 * 2)
+#define IR_BUFFER_SIZE (IR_CAM_WIDTH * IR_CAM_HEIGHT)
+#define CLR_BUFFER_SIZE (CLR_CAM_WIDTH * CLR_CAM_HEIGHT * 2)
 
 enum {
 	CAM_ID_CLR,

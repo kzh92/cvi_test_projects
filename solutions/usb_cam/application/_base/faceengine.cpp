@@ -16,7 +16,7 @@ int FaceEngine::Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHChec
 {
     int ret = ES_SUCCESS;
     fr_SetSecurityMode(g_xCS.x.bTwinsMode);
-    fr_InitEngine(iDupCheck, iCamFlip, nDnnCheckSum, nHCheckSum);
+    // fr_InitEngine(iDupCheck, iCamFlip, nDnnCheckSum, nHCheckSum);
     fr_SetCheckOpenEyeEnable(DESMAN_ENC_MODE == 0);
     dbm_Init(NULL);
 
@@ -38,6 +38,7 @@ int FaceEngine::ResetAll()
 
 void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
 {
+    return; //test
     fr_SetCameraFlip(g_xSS.iCameraRotate);
     fr_SetDupCheck(g_xSS.iEnrollFaceDupCheck);
     fr_SetLivenessCheckStrong_On_NoUser(g_xCS.x.bLivenessMode);
@@ -47,6 +48,7 @@ void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
 
 void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
 {
+    return; //test
     fr_SetCameraFlip(g_xSS.iCameraRotate);
     fr_SetDupCheck(g_xSS.iEnrollFaceDupCheck);
     fr_SetLivenessCheckStrong_On_NoUser(g_xCS.x.bLivenessMode);
@@ -59,6 +61,7 @@ void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
 
 int FaceEngine::ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData, float* prResultArray)
 {
+    return ES_FAILED; //test
     if (pbLedOnData == NULL)
     {
         prResultArray[0] = ES_FAILED;
@@ -86,6 +89,7 @@ int FaceEngine::ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData
 
 int  FaceEngine::VerifyFace(float* prResultArray)
 {
+    return ES_PROCESS; //test
     int nRet = fr_VerifyFace();
 //    nRet = ES_PROCESS;
 
@@ -107,6 +111,7 @@ int  FaceEngine::VerifyFace(float* prResultArray)
 
 void FaceEngine::RegisterFace(float* prResultArray, int iFaceDir)
 {
+    return; //test
     int nRet = fr_RegisterFace(iFaceDir);
     prResultArray[0] = (float)(nRet);
 }

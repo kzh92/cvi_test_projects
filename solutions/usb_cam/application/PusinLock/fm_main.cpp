@@ -1061,17 +1061,17 @@ static int main1(int argc, char** argv)
         }
     }
 #else // !__RTK_OS__
-    if (!g_xSS.idbPartNoRestore && dbfs_get_cur_part() == DB_PART_BACKUP)
-    {
-        my_printf("@@@ Restore DBpartition!\n");
-        start_restore_dbPart();
-    }
-    else if(g_xROKLog.iDBformatCount > 0 && dbfs_get_cur_part() != DB_PART_BACKUP)
-    {
-        my_printf("@@@ Restore block = %d\n", g_xROKLog.iDBformatCount);
-        g_xROKLog.iDBformatCount = 0;
-        UpdateROKLogs();
-    }
+    // if (!g_xSS.idbPartNoRestore && dbfs_get_cur_part() == DB_PART_BACKUP)
+    // {
+    //     my_printf("@@@ Restore DBpartition!\n");
+    //     start_restore_dbPart();
+    // }
+    // else if(g_xROKLog.iDBformatCount > 0 && dbfs_get_cur_part() != DB_PART_BACKUP)
+    // {
+    //     my_printf("@@@ Restore block = %d\n", g_xROKLog.iDBformatCount);
+    //     g_xROKLog.iDBformatCount = 0;
+    //     UpdateROKLogs();
+    // }
 #endif // !__RTK_OS__
 
 #if (FM_PROTOCOL == FM_EASEN)
@@ -1788,7 +1788,7 @@ int MsgProcSense(MSG* pMsg)
         else
         {
             int iFlag = 0;
-            unsigned char* g_abCapturedClrFace = (unsigned char*)my_malloc(WIDTH_1280 * HEIGHT_960 * 2);
+            unsigned char* g_abCapturedClrFace = (unsigned char*)my_malloc(CLR_CAM_WIDTH * CLR_CAM_HEIGHT * 2);
             if (g_abCapturedClrFace == NULL)
             {
                 my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
@@ -1824,7 +1824,7 @@ int MsgProcSense(MSG* pMsg)
                     {
                         if(g_iCapturedClrFlag == IR_CAPTURE_OK)
                         {
-                            g_clrYuvData_tmp1 = (unsigned char*)my_malloc(WIDTH_1280 * ALIGN_16B(HEIGHT_960) * 2);
+                            g_clrYuvData_tmp1 = (unsigned char*)my_malloc(IR_CAM_WIDTH * ALIGN_16B(IR_CAM_HEIGHT) * 2);
                             if (g_clrYuvData_tmp1 == NULL)
                             {
                                 my_printf("@@@ g_clrYuvData_tmp1 malloc fail\n");
@@ -1836,12 +1836,14 @@ int MsgProcSense(MSG* pMsg)
                             lockIRBuffer();
                             memcpy(g_abCapturedClrFace, g_irOnData1, IR_BUFFER_SIZE);
                             unlockIRBuffer();
+                            int width = IR_CAM_HEIGHT / 3 * 4;
+                            int height = IR_CAM_HEIGHT;
                             //적외선카메라 1280 * 720을 960 * 720으로 crop한다.
-                            for(int y = 0; y < HEIGHT_720; y ++)
-                                memcpy(g_clrYuvData_tmp1 + y * WIDTH_960, g_abCapturedClrFace + y * WIDTH_1280 + 160, WIDTH_960);
+                                for(int y = 0; y < height; y ++)
+                                    memcpy(g_clrYuvData_tmp1 + y * width, g_abCapturedClrFace + y * IR_CAM_WIDTH + (IR_CAM_WIDTH - width) / 2, width);
 
-                            rotateImage_inner(g_clrYuvData_tmp1, WIDTH_960, HEIGHT_720, g_xPS.x.bCamFlip == 0 ? 270: 90);
-                            memset(g_clrYuvData_tmp1 + WIDTH_960 * HEIGHT_720, 0x80, WIDTH_960 * HEIGHT_720 / 2);
+                                rotateImage_inner(g_clrYuvData_tmp1, width, height, g_xSS.iCameraRotate == 0 ? 270: 90);
+                                memset(g_clrYuvData_tmp1 + width * height, 0x80, width * height / 2);
 
                             int iWriteLen = ConvertIRToSceneJpeg(g_clrYuvData_tmp1);
                             if(iWriteLen > 0)

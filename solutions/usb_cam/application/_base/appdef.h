@@ -118,6 +118,11 @@ enum E_Baud_Rate
 #define UVC_RES_FLAG        UVC_RES_480P
 #define UVC_RES_COUNT       1
 
+#define CLR_CAM_WIDTH       1280
+#define CLR_CAM_HEIGHT      960
+#define IR_CAM_WIDTH        1600
+#define IR_CAM_HEIGHT       900
+
 #define USE_VDBTASK         0
 #define USE_SMP_CORE1       1
 #define CHECK_FIRMWARE      1

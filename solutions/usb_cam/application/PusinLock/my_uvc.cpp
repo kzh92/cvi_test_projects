@@ -80,13 +80,14 @@ void my_ConvertToSceneJpeg(int PADId)
     }
     else
     {
+        int width = IR_CAM_HEIGHT / 3 * 4;
         lockIRBuffer();
-        for(int y = 0; y < HEIGHT_720; y ++)
-            memcpy(g_clrYuvData + y * WIDTH_960, g_irOnData1 + y * WIDTH_1280 + 160, WIDTH_960);
+        for(int y = 0; y < IR_CAM_HEIGHT; y ++)
+            memcpy(g_clrYuvData + y * IR_CAM_HEIGHT, g_irOnData1 + y * IR_CAM_WIDTH + 160, IR_CAM_HEIGHT);
         unlockIRBuffer();
 
-        rotateImage_inner(g_clrYuvData, WIDTH_960, HEIGHT_720, g_xPS.x.bCamFlip == 0 ? 270: 90);
-        memset(g_clrYuvData + WIDTH_960 * HEIGHT_720, 0x80, WIDTH_960 * HEIGHT_720 / 2);
+        rotateImage_inner(g_clrYuvData, width, IR_CAM_HEIGHT, g_xPS.x.bCamFlip == 0 ? 270: 90);
+        memset(g_clrYuvData + width * IR_CAM_HEIGHT, 0x80, width * IR_CAM_HEIGHT / 2);
         int iWriteLen = ConvertIRToSceneJpeg(g_clrYuvData);
 
         SendGlobalMsg(MSG_VDB_TASK, VDB_CAPTURED_IMAGE, iWriteLen, m_iCounter);

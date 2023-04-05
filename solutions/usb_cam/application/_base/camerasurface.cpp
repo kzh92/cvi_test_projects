@@ -12,6 +12,12 @@
 #include "DBManager.h"
 #include "FaceRetrievalSystem.h"
 #include "mutex.h"
+#include <cvi_base.h>
+#include "cvi_vb.h"
+#include "cvi_sys.h"
+#include "cvi_vi.h"
+#include "cvi_isp.h"
+#include "cvi_buffer.h"
 
 #include <errno.h>
 #include <string.h>
@@ -129,10 +135,10 @@ void StartFirstCam()
     g_irOffData = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
     if (g_irOffData == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-    g_clrYuvData_tmp = (unsigned char*)my_malloc(WIDTH_1280 * ALIGN_16B(HEIGHT_960) * 2);
+    g_clrYuvData_tmp = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
     if (g_clrYuvData_tmp == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-    g_clrYuvData = (unsigned char*)my_malloc(WIDTH_1280 * ALIGN_16B(HEIGHT_960) * 2);
+    g_clrYuvData = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
     if (g_clrYuvData == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
 
@@ -179,7 +185,7 @@ void StartCamSurface(int iMode)
         my_mutex_lock(g_captureLock);
         if(g_iMipiCamInited == -1)
         {
-            g_iMipiCamInited = camera_init(TC_MIPI_CAM, WIDTH_1280, HEIGHT_800, MIPI_CAM_SUB0);
+            g_iMipiCamInited = camera_init(TC_MIPI_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_SUB0);
             if(g_iMipiCamInited == -1)
             {
                 my_mutex_unlock(g_captureLock);
@@ -481,12 +487,12 @@ int GetYAVGValueOfClr(unsigned char* pbClrBuf)
 
     unsigned char* pbSrcPtr = pbClrBuf;
 
-    for (nX = 0; nX < HEIGHT_960; nX += 2)
+    for (nX = 0; nX < CLR_CAM_HEIGHT; nX += 2)
     {
-        for (nY = 0; nY < WIDTH_1280; nY += 2)
+        for (nY = 0; nY < CLR_CAM_WIDTH; nY += 2)
         {
             unsigned char bYData = pbSrcPtr[nY * 2];
-            if (nX > 120 && nX < HEIGHT_960 - 120 && nY > 216 && nY < WIDTH_1280 - 216)
+            if (nX > 120 && nX < CLR_CAM_HEIGHT - 120 && nY > 216 && nY < CLR_CAM_WIDTH - 216)
             {
                 nEntirePixelCount++;
 
@@ -500,7 +506,7 @@ int GetYAVGValueOfClr(unsigned char* pbClrBuf)
                 }
             }
         }
-        pbSrcPtr += WIDTH_1280 * 2 * 2;
+        pbSrcPtr += CLR_CAM_WIDTH * 2 * 2;
     }
 
     if (nEntirePixelCount)
@@ -831,7 +837,7 @@ void* ProcessDVPCapture(void */*param*/)
     int iCamInited = -1;
     for(int i = 0; i < 2; i++)
     {
-        iCamInited = camera_init(DVP_CAM, WIDTH_1280, HEIGHT_960, 0);
+        iCamInited = camera_init(DVP_CAM, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, 0);
         if(iCamInited == -1)
             break;
 
@@ -1138,33 +1144,82 @@ void* ProcessDVPCapture(void */*param*/)
 
 void* ProcessTCMipiCapture(void */*param*/)
 {
+    VIDEO_FRAME_INFO_S stVideoFrame[2];
+    VI_DUMP_ATTR_S attr;
+    int frm_num = 1;
+    CVI_U32 dev = 0;
+
     dbug_printf("[%s]\n", __func__);
-#if 0
     int ret;
-
-    MI_SYS_ChnPort_t stChnPort;
-    MI_SYS_BufInfo_t stBufInfo;
-    MI_SYS_BUF_HANDLE hHandle;
-
-    memset(&stChnPort, 0x0, sizeof(MI_SYS_ChnPort_t));
-    memset(&stBufInfo, 0, sizeof(MI_SYS_BufInfo_t));
-    memset(&hHandle, 0, sizeof(MI_SYS_BUF_HANDLE));
-    stChnPort.eModId = E_MI_MODULE_ID_VIF;
-    stChnPort.u32DevId = TC_MIPI_CAM;
-    stChnPort.u32ChnId = TC_MIPI_CAM * 4;
-    stChnPort.u32PortId = 0;
 
     //int iSwitchFlag = 0;
     int iFrameCount = 0;
-    //int iOldReserved = 0;
     int iNeedNext = 0;
-    //darkhorse
-    // unsigned char*  pbLedOnSrc = NULL;
-    // pbLedOnSrc = (unsigned char*)my_malloc(WIDTH_1280 * HEIGHT_720);
-    //float rOld = Now();
+    float rOld = Now();
+
+    GPIO_fast_setvalue(IR_LED, ON);
+
+    memset(stVideoFrame, 0, sizeof(stVideoFrame));
+    stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+    stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+
+    attr.bEnable = 1;
+    attr.u32Depth = 0;
+    attr.enDumpType = VI_DUMP_TYPE_RAW;
+
+    CVI_VI_SetPipeDumpAttr(dev, &attr);
+
+    attr.bEnable = 0;
+    attr.enDumpType = VI_DUMP_TYPE_IR;
+
+    CVI_VI_GetPipeDumpAttr(dev, &attr);
     while (g_xSS.iRunningCamSurface)
     {
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
+
+        frm_num = 1;
+
+        CVI_VI_GetPipeFrame(dev, stVideoFrame, 1000);
+
+        if (stVideoFrame[1].stVFrame.u64PhyAddr[0] != 0)
+            frm_num = 2;
+
+        rOld = Now();
+
+        int j = 0;
+
+        dbug_printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
+        size_t image_size = stVideoFrame[0].stVFrame.u32Length[0];
+
+        stVideoFrame[j].stVFrame.pu8VirAddr[0] =
+        (CVI_U8 *)stVideoFrame[j].stVFrame.u64PhyAddr[0];
+        printf("paddr(%ld) vaddr(%p)\n",
+            stVideoFrame[j].stVFrame.u64PhyAddr[0],
+            stVideoFrame[j].stVFrame.pu8VirAddr[0]);
+
+        unsigned char *ptr = (unsigned char*)stVideoFrame[j].stVFrame.pu8VirAddr[0];
+        memcpy(ptr, (const void *)stVideoFrame[j].stVFrame.pu8VirAddr[0],
+            stVideoFrame[j].stVFrame.u32Length[0]);
+
+        lockIRBuffer();
+        size_t test_pos = 0;
+        for (int k = 0 ; k < (int)image_size; k+=3)
+        {
+            g_irOnData1[test_pos++] = ptr[k];
+            g_irOnData1[test_pos++] = ptr[k+1];
+            if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                break;
+        }
+        memcpy(g_irOnData2, g_irOnData1, IR_BUFFER_SIZE);
+        unlockIRBuffer();
+
+        WaitIRCancel();
+        g_iTwoCamFlag = -1;
+
+
+        CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
+        continue;
+
         ret = wait_camera_ready (TC_MIPI_CAM);
         if (ret == -1 || ret == -2)
         {
@@ -1174,15 +1229,15 @@ void* ProcessTCMipiCapture(void */*param*/)
             break;
         }
 
-        if (MI_SYS_ChnOutputPortGetBuf(&stChnPort, &stBufInfo, &hHandle) != MI_SUCCESS)
+        //if (MI_SYS_ChnOutputPortGetBuf(&stChnPort, &stBufInfo, &hHandle) != MI_SUCCESS)
         {
             //my_printf("[MIPI]  Getting IR Buffer is failed\n");
             my_usleep(20*1000);
             continue;
         }
 
-//        my_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
-        //rOld = Now();
+        dbug_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
+        rOld = Now();
 
         if(iFrameCount == 0 && camera_get_actIR() == MIPI_CAM_SUB1)
         {
@@ -1199,13 +1254,12 @@ void* ProcessTCMipiCapture(void */*param*/)
             if(g_iLedOnStatus == 1)
                 GPIO_fast_setvalue(IR_LED, ON);
 
-            unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-            for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-                g_irOffData[iIdx] = (pbSrc[iIdx] >> 2);
+            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
+            //     g_irOffData[iIdx] = (pbSrc[iIdx] >> 2);
 
             g_iTwoCamFlag ++;
         }
-#if 1
         else if(g_iTwoCamFlag == 1)
         {
             g_iTwoCamFlag ++;
@@ -1213,13 +1267,11 @@ void* ProcessTCMipiCapture(void */*param*/)
         else if(g_iTwoCamFlag == 2)
         {
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-            //darkhorse
-            //memcpy(pbLedOnSrc, stBufInfo.stFrameData.pVirAddr[0], stBufInfo.stFrameData.u32BufSize);
-            unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-            lockIRBuffer();
-            for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-                g_irOnData2[iIdx] = (pbSrc[iIdx] >> 2);
-            unlockIRBuffer();
+            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+            // lockIRBuffer();
+            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
+            //     g_irOnData2[iIdx] = (pbSrc[iIdx] >> 2);
+            // unlockIRBuffer();
             g_iTwoCamFlag ++;
         }
         else if(g_iTwoCamFlag == 3)
@@ -1232,17 +1284,11 @@ void* ProcessTCMipiCapture(void */*param*/)
             GPIO_fast_setvalue(IR_LED, OFF);
 
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
-            unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-            lockIRBuffer();
-            for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-                g_irOnData1[iIdx] = (pbSrc[iIdx] >> 2);
+            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+            // lockIRBuffer();
+            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
+            //     g_irOnData1[iIdx] = (pbSrc[iIdx] >> 2);
 
-            //darkhorse
-            //if(pbLedOnSrc)
-            // {
-            //     for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-            //         g_irOnData2[iIdx] = (pbLedOnSrc[iIdx] >> 2);
-            // }
             unlockIRBuffer();
 
             if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
@@ -1263,9 +1309,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             iNeedNext = 0;
         }
 
-#endif
-
-        MI_SYS_ChnOutputPortPutBuf(hHandle);
+        // MI_SYS_ChnOutputPortPutBuf(hHandle);
 
         iFrameCount ++;
     }
@@ -1273,7 +1317,7 @@ void* ProcessTCMipiCapture(void */*param*/)
     //적외선카메라를 끄기 전에 sub0으로 절환하여 끄게 함, 카메라끄기할때 카메라오유가 나오는 문제가 있음
     g_xSS.iShowIrCamera = 0;
     my_thread_exit(NULL);
-#endif
+
     return NULL;
 }
 
@@ -1470,7 +1514,7 @@ void StartCamSurface(int iMode)
     if(g_iMipiCamInited == -1)
     {
         float r = Now();
-        g_iMipiCamInited = camera_init(MIPI_1_CAM, WIDTH_1280, HEIGHT_720);
+        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
         if(Now() - r > 500)
             my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
 
@@ -1500,7 +1544,7 @@ void StartCamSurface(int iMode)
     if(g_iDvpCamInited == -1)
     {
         float r = Now();
-        g_iDvpCamInited = camera_init(MIPI_0_CAM, WIDTH_1280, HEIGHT_720);
+        g_iDvpCamInited = camera_init(MIPI_0_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
         if(Now() - r > 500)
             my_printf("+++++++++++++++++  MIPI_0_ERROR :  %f\n", Now() - r);
         if(g_iDvpCamInited == -1)
@@ -2315,8 +2359,8 @@ void ConvertYUV422_To8Bit(unsigned char* data, int width, int height, unsigned c
 //    for(int i = 0; i < height; i ++)
 //        memcpy(dstData + i * width, data + 2 * i * width, width);
 
-//    memcpy(dstData, data, WIDTH_1280 * HEIGHT_720);
-    rotateImage_inner(data, WIDTH_1280, HEIGHT_720, 270);
+//    memcpy(dstData, data, IR_CAM_WIDTH * IR_CAM_HEIGHT);
+    rotateImage_inner(data, IR_CAM_WIDTH, IR_CAM_HEIGHT, 270);
 }
 
 void RGB2HSV(int nR, int nG, int nB, int& nH, int& nS, int& nV)

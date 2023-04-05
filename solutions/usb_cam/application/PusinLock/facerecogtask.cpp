@@ -179,14 +179,14 @@ void FaceRecogTask::run()
     int iTimeout = DETECTION_TIMEOUT;
     int iCaptureCount = 0;
 
-    m_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    m_irOnData2 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    if (m_irOnData1 == NULL || m_irOnData2 == NULL)
-    {
-        my_printf("failed to malloc, ft. %p, %p\n", m_irOnData1, m_irOnData2);
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
-        return;
-    }
+    //m_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
+    //m_irOnData2 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
+    // if (m_irOnData1 == NULL || m_irOnData2 == NULL)
+    // {
+    //     my_printf("failed to malloc, ft. %p, %p\n", m_irOnData1, m_irOnData2);
+    //     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
+    //     return;
+    // }
 
     g_abCapturedFace = (unsigned char*)my_malloc(CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
 
@@ -331,21 +331,21 @@ void FaceRecogTask::run()
                 StartCamSurface(1);
             }
             lockIRBuffer();
-            fr_CalcScreenValue(g_irOnData1, IR_SCREEN_GETIMAGE_MODE);
+            // fr_CalcScreenValue(g_irOnData1, IR_SCREEN_GETIMAGE_MODE);
             unlockIRBuffer();
-            CalcNextExposure();
+            // CalcNextExposure();
             my_usleep(30*1000);
             if (iLoopCount >= 3)
             {
-                unsigned char* pbTmp = (unsigned char*)my_malloc(WIDTH_1280*HEIGHT_720);
+                // unsigned char* pbTmp = (unsigned char*)my_malloc(IR_CAM_WIDTH * IR_CAM_HEIGHT);
                 if(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
                         g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM)
                 {
                     lockIRBuffer();
-                    memcpy(pbTmp, g_irOnData1, IR_BUFFER_SIZE);
+                    // memcpy(pbTmp, g_irOnData1, IR_BUFFER_SIZE);
+                    // gammaCorrection_screen(pbTmp, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+                    SaveImage(g_irOnData1, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
                     unlockIRBuffer();
-                    gammaCorrection_screen(pbTmp, WIDTH_1280, HEIGHT_720);
-                    SaveImage(pbTmp, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
                     iCaptureCount ++;
                 }
 
@@ -353,13 +353,13 @@ void FaceRecogTask::run()
                         g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM)
                 {
                     lockIRBuffer();
-                    memcpy(pbTmp, g_irOnData2, IR_BUFFER_SIZE);
+                    // memcpy(pbTmp, g_irOnData2, IR_BUFFER_SIZE);
+                    // gammaCorrection_screen(pbTmp, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+                    SaveImage(g_irOnData2, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
                     unlockIRBuffer();
-                    gammaCorrection_screen(pbTmp, WIDTH_1280, HEIGHT_720);
-                    SaveImage(pbTmp, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
                     iCaptureCount ++;
                 }
-                my_free(pbTmp);
+                // my_free(pbTmp);
 
                 if(!(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
                         g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM))
@@ -442,12 +442,12 @@ void FaceRecogTask::run()
                 fd = my_open(FN_FACE_BIN, O_RDONLY, 0);
                 if (is_myfdesc_ptr_valid(fd))
                 {
-                    my_read(fd, m_irOnData1, HEIGHT_720*WIDTH_1280);
+                    my_read(fd, m_irOnData1, IR_CAM_WIDTH * IR_CAM_HEIGHT);
                     my_close(fd);
-                    for (int x = 0; x < WIDTH_1280; x++)
-                        for (int y = 0; y < HEIGHT_720; y++)
+                    for (int x = 0; x < IR_CAM_WIDTH; x++)
+                        for (int y = 0; y < IR_CAM_HEIGHT; y++)
                         {
-                            m_irOnData2[(WIDTH_1280 - x - 1) + WIDTH_1280 * (HEIGHT_720 - y - 1)] = m_irOnData1[x + y*WIDTH_1280];
+                            m_irOnData2[(IR_CAM_WIDTH - x - 1) + IR_CAM_WIDTH * (IR_CAM_HEIGHT - y - 1)] = m_irOnData1[x + y*IR_CAM_WIDTH];
                         }
                     dbug_printf("-------------------- read static image ok.\n");
                 }
@@ -786,13 +786,13 @@ void FaceRecogTask::run()
 #if (FM_PROTOCOL == FM_EASEN)
                 if((m_iImageMode % 2) == 0)
                 {
-                    rotateImage_inner(m_irOnData1, WIDTH_1280, HEIGHT_720, g_xSS.iCameraRotate == 0 ? 270: 90);
-                    Shrink_Grey(m_irOnData1, WIDTH_1280, HEIGHT_720, g_abCapturedFace, WIDTH_1280 / 4, HEIGHT_720 / 4);
+                    rotateImage_inner(m_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_xSS.iCameraRotate == 0 ? 270: 90);
+                    Shrink_Grey(m_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, IR_CAM_WIDTH / 4, IR_CAM_HEIGHT / 4);
                 }
                 else
                 {
-                    rotateImage_inner(m_irOnData2, WIDTH_1280, HEIGHT_720, g_xSS.iCameraRotate == 0 ? 90 : 270);
-                    Shrink_Grey(m_irOnData2, WIDTH_1280, HEIGHT_720, g_abCapturedFace, WIDTH_1280 / 4, HEIGHT_720 / 4);
+                    rotateImage_inner(m_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_xSS.iCameraRotate == 0 ? 90 : 270);
+                    Shrink_Grey(m_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, IR_CAM_WIDTH / 4, IR_CAM_HEIGHT / 4);
                 }
 
                 m_iResult = FACE_RESULT_CAPTURED_FACE;
@@ -900,8 +900,8 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
         return -1;
     }
 
-    rotateImage_inner(pbImage, WIDTH_1280, HEIGHT_720, iRotate);
-    Shrink_Grey(pbImage, WIDTH_1280, HEIGHT_720, g_abCapturedFace, CAPTURE_HEIGHT, CAPTURE_WIDTH);
+    rotateImage_inner(pbImage, IR_CAM_WIDTH, IR_CAM_HEIGHT, iRotate);
+    Shrink_Grey(pbImage, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, CAPTURE_HEIGHT, CAPTURE_WIDTH);
 
     jpge::params params;
     params.m_quality = 90;
