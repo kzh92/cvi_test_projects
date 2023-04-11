@@ -346,7 +346,7 @@ enum E_Baud_Rate
 
 #define FRM_PT_DEFAULT_3_3          200   //3.3 default
 #define FRM_PT_DEFAULT_3_3_720P     201   //3.3 720p
-#define FRM_PRODUCT_TYPE            FRM_PT_S22_DEFAULT_3_4
+#define FRM_PRODUCT_TYPE            FRM_PT_DEFAULT
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT)
