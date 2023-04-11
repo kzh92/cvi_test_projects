@@ -2,12 +2,12 @@
 
 #include "detect.h"
 #include "modeling.h"
-#include "livemn.h"
 #include "livemnse.h"
 #include "livemnse3.h"
 #include "occ.h"
 #include "esn.h"
 #include "feat.h"
+#include "hand_feat.h"
 
 #include "engine_inner_param.h"
 #ifndef __RTK_OS__
@@ -41,27 +41,37 @@
 #define FN_LIVEB    FN_B_DICT_PATH
 #define FN_LIVEB2   FN_B2_DICT_PATH
 #define FN_LIVEC    FN_C_DICT_PATH
+#define FN_CHECKVALID_H FN_CH_DICT_PATH
 #define FN_DETECT   FN_DETECT_DICT_PATH
+#define FN_DETECT_H FN_DETECT_H_DICT_PATH
 #define FN_MODEL    FN_DLAMK_DICT_PATH
+#define FN_MODEL_H  FN_DLAMK_H_DICT_PATH
 #define FN_FEATURE  FN_WNO_DICT_PATH
+#define FN_H_FEATURE  FN_WNOH_DICT_PATH
 #define FN_ESN      FN_ESN_DICT_PATH
 #define FN_OCC      FN_OCC_DICT_PATH
 #define FN_H_1      "/test/hdic_1.bin"
 #define FN_H_2      "/test/hdic_2.bin"
 int g_id_detect = 0;
+int g_id_detect_h = 0;
 int g_id_model = 0;
+int g_id_model_h = 0;
 int g_id_live_a1 = 0;
 int g_id_live_a2 = 0;
 int g_id_live_b = 0;
 int g_id_live_b2 = 0;
 int g_id_live_c = 0;
+int g_id_checkValid_hand = 0;
 int g_id_occ = 0;
 int g_id_esn = 0;
 int g_id_H_2 = 0;
 #endif
 
 unsigned char*  g_dic_detect = 0;
+unsigned char*  g_dic_detect_hand = 0;
 unsigned char*  g_dic_model = 0;
+unsigned char*  g_dic_model_hand = 0;
+unsigned char*  g_dic_checkValid_hand = 0;
 unsigned char*  g_dic_live_a1 = 0;
 unsigned char*  g_dic_live_a2 = 0;
 unsigned char*  g_dic_live_b = 0;
@@ -70,6 +80,7 @@ unsigned char*  g_dic_live_c = 0;
 unsigned char*  g_dic_occ = 0;
 unsigned char*  g_dic_esn = 0;
 unsigned char*  g_dic_feature = 0;
+unsigned char*  g_dic_feature_hand = 0;
 unsigned char*  g_dic_H_1 = 0;
 unsigned char*  g_dic_H_2 = 0;
 
@@ -77,7 +88,10 @@ int g_nDicLoadedFlag = 0;
 int g_nDicLoadedFromFileFlag = 0;
 
 int g_nDicCheckSum_Calced_detector = 0;
+int g_nDicCheckSum_Calced_detector_h = 0;
 int g_nDicCheckSum_Calced_modeling = 0;
+int g_nDicCheckSum_Calced_modeling_h = 0;
+int g_nDicCheckSum_Calced_checkValid_hand = 0;
 int g_nDicCheckSum_Calced_spoof_A1 = 0;
 int g_nDicCheckSum_Calced_spoof_A2 = 0;
 int g_nDicCheckSum_Calced_spoof_B = 0;
@@ -89,7 +103,10 @@ int g_nDicCheckSum_Calced_H_1 = 0;
 int g_nDicCheckSum_Calced_H_2 = 0;
 
 int g_nDicCheckSum_Checked_detector = 0;
+int g_nDicCheckSum_Checked_detector_h = 0;
 int g_nDicCheckSum_Checked_modeling = 0;
+int g_nDicCheckSum_Checked_modeling_h = 0;
+int g_nDicCheckSum_Checked_checkValid_hand = 0;
 int g_nDicCheckSum_Checked_spoof_A1 = 0;
 int g_nDicCheckSum_Checked_spoof_A2 = 0;
 int g_nDicCheckSum_Checked_spoof_B = 0;
@@ -101,6 +118,7 @@ int g_nDicCheckSum_Checked_H_1 = 0;
 int g_nDicCheckSum_Checked_H_2 = 0;
 
 int g_nDicCheckSum_FEAT = 0;
+int g_nDicCheckSum_FEAT_Hand = 0;
 int g_nDicCheckSum_H_1 = 0;
 
 #define SHA_LEN 20
@@ -148,7 +166,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_detect;
 #endif
-        nDicSize = Detect::dnn_dic_size();
+        nDicSize = Detect_dnn_dic_size();
         strcpy(szFileNameTemp, FN_DETECT);
         ppbDicData = &g_dic_detect;
         nGTCheckSum = DNN_DETECT_CHECKSUM;
@@ -156,12 +174,25 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         pnCheckSum_Checked = &g_nDicCheckSum_Checked_detector;
         break;
     }
+    case MachineFlagIndex_DNN_Detect_Hand:
+    {
+#ifndef __RTK_OS__
+        pnFileIndicator = &g_id_detect_h;
+#endif
+        nDicSize = Detect_dnn_dic_size();
+        strcpy(szFileNameTemp, FN_DETECT_H);
+        ppbDicData = &g_dic_detect_hand;
+        nGTCheckSum = DNN_DETECT_HAND_CHECKSUM;
+        pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_detector_h;
+        pnCheckSum_Checked = &g_nDicCheckSum_Checked_detector_h;
+        break;
+    }
     case MachineFlagIndex_DNN_Modeling:
     {
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_model;
 #endif
-        nDicSize = Modeling::dnn_dic_size();
+        nDicSize = Modeling_dnn_dic_size(0);
         strcpy(szFileNameTemp, FN_MODEL);
         ppbDicData = &g_dic_model;
         nGTCheckSum = DNN_MODELING_CHECKSUM;
@@ -169,12 +200,25 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         pnCheckSum_Checked = &g_nDicCheckSum_Checked_modeling;
         break;
     }
+    case MachineFlagIndex_DNN_Modeling_Hand:
+    {
+#ifndef __RTK_OS__
+        pnFileIndicator = &g_id_model_h;
+#endif
+        nDicSize = Modeling_dnn_dic_size(1);
+        strcpy(szFileNameTemp, FN_MODEL_H);
+        ppbDicData = &g_dic_model_hand;
+        nGTCheckSum = DNN_MODELING_HAND_CHECKSUM;
+        pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_modeling_h;
+        pnCheckSum_Checked = &g_nDicCheckSum_Checked_modeling_h;
+        break;
+    }
     case MachineFlagIndex_DNN_Liveness_A1:
     {
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_a1;
 #endif
-        nDicSize = LiveMnSE::dnn_dic_size();
+        nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEA1);
         ppbDicData = &g_dic_live_a1;
         nGTCheckSum = DNN_2D_LIVE_A1_CHECKSUM;
@@ -187,7 +231,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_a2;
 #endif
-        nDicSize = LiveMnSE::dnn_dic_size();
+        nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEA2);
         ppbDicData = &g_dic_live_a2;
         nGTCheckSum = DNN_2D_LIVE_A2_CHECKSUM;
@@ -200,7 +244,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_b;
 #endif
-        nDicSize = LiveMnSE::dnn_dic_size();
+        nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEB);
         ppbDicData = &g_dic_live_b;
         nGTCheckSum = DNN_2D_LIVE_B_CHECKSUM;
@@ -213,7 +257,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_b2;
 #endif
-        nDicSize = LiveMnSE3::dnn_dic_size();
+        nDicSize = LiveMnSE3_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEB2);
         ppbDicData = &g_dic_live_b2;
         nGTCheckSum = DNN_2D_LIVE_B2_CHECKSUM;
@@ -226,12 +270,25 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
 #ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_c;
 #endif
-        nDicSize = LiveMn::dnn_dic_size();
+        nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEC);
         ppbDicData = &g_dic_live_c;
         nGTCheckSum = DNN_3D_LIVE_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_3D;
         pnCheckSum_Checked = &g_nDicCheckSum_Checked_spoof_3D;
+        break;
+    }
+    case MachineFlagIndex_DNN_CheckValid_Hand:
+    {
+#ifndef __RTK_OS__
+        pnFileIndicator = &g_id_checkValid_hand;
+#endif
+        nDicSize = LiveMnSE_dnn_dic_size();
+        strcpy(szFileNameTemp, FN_CHECKVALID_H);
+        ppbDicData = &g_dic_checkValid_hand;
+        nGTCheckSum = DNN_CHECKVALID_HAND_CHECKSUM;
+        pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_checkValid_hand;
+        pnCheckSum_Checked = &g_nDicCheckSum_Checked_checkValid_hand;
         break;
     }
     case MachineFlagIndex_DNN_OCC:
@@ -265,6 +322,13 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = Feature::dnn_dic_size();
         strcpy(szFileNameTemp, FN_FEATURE);
         ppbDicData = &g_dic_feature;
+        break;
+    }
+    case MachineFlagIndex_DNN_Feature_Hand:
+    {
+        nDicSize = HandFeat_dnn_dic_size();
+        strcpy(szFileNameTemp, FN_H_FEATURE);
+        ppbDicData = &g_dic_feature_hand;
         break;
     }
     case MachineFlagIndex_H_1:
@@ -332,7 +396,7 @@ int loadMachineDic(int nMachineIndex)
     int nReadLength = 0;
     getDicInfos(nMachineIndex, &pFileIndicator, &pDicDataBuffer, &nDicSize, szDicFilePath, 0, &pnDicCheckSum_Calced);
 
-    if(nMachineIndex != MachineFlagIndex_DNN_Feature && nMachineIndex != MachineFlagIndex_H_1)
+    if(nMachineIndex != MachineFlagIndex_DNN_Feature  && nMachineIndex != MachineFlagIndex_DNN_Feature_Hand  && nMachineIndex != MachineFlagIndex_H_1)
     {
 #ifdef __RTK_OS__
         nReadLength = fr_ReadFileData(szDicFilePath, 0, *pDicDataBuffer, nDicSize);
@@ -426,7 +490,11 @@ int loadMachineDic(int nMachineIndex)
 #endif
 
             int *pCheckSum = &g_nDicCheckSum_FEAT;
-            if(nMachineIndex == MachineFlagIndex_H_1)
+            if(nMachineIndex == MachineFlagIndex_DNN_Feature_Hand)
+            {
+                pCheckSum = &g_nDicCheckSum_FEAT_Hand;
+            }
+            else if(nMachineIndex == MachineFlagIndex_H_1)
             {
                 pCheckSum = &g_nDicCheckSum_H_1;
             }
@@ -450,7 +518,7 @@ int releaseMachineDic(int nMachineIndex)
         return 1;
     }
 #ifndef __RTK_OS__
-    if(nMachineIndex != MachineFlagIndex_DNN_Feature)
+    if(nMachineIndex != MachineFlagIndex_DNN_Feature && nMachineIndex != MachineFlagIndex_DNN_Feature_Hand)
     {
         int* pFileIndicator = 0;
         int nDicSize = 0;
@@ -512,6 +580,17 @@ int getDicChecSumChecked(int nMachineIndex)
         }
     }
 
+    if(nMachineIndex == MachineFlagIndex_DNN_Feature_Hand)
+    {
+        if(g_nDicCheckSum_FEAT_Hand == DNN_FEAT_HAND_CHECKSUM)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
     int nDicSize = 0;
     unsigned char** ppDicDataBuffer = 0;
     int nGTDicCheckSum = 0;

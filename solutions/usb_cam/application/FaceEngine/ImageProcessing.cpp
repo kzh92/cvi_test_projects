@@ -8,9 +8,7 @@
 // #include <malloc.h>
 // #include <stdlib.h>
 #include <math.h>
-#if __ARM_NEON
 #include <arm_neon.h>
-#endif
 #include "common_types.h"
 
 #define __max(a, b) (a > b ? a : b)
@@ -20,24 +18,24 @@ unsigned char g_jpgTmpData[N_MAX_JPG_FACE_IMAGE_SIZE * 2];
 
 
 
-// inline static int f_sad_16_neon(const uint8_t* a, const uint8_t* b)
-// {
-//     int32_t r[4] = { 0, 0, 0, 0 };
-//     uint8x16_t va, vb, vr;
+inline static int f_sad_16_neon(const uint8_t* a, const uint8_t* b)
+{
+    int32_t r[4] = { 0, 0, 0, 0 };
+    uint8x16_t va, vb, vr;
 
-//     va = vld1q_u8(a);
-//     vb = vld1q_u8(b);
+    va = vld1q_u8(a);
+    vb = vld1q_u8(b);
 
-//     vr = vabdq_u8(va, vb);
+    vr = vabdq_u8(va, vb);
 
-//     uint16x8_t vr1 = vpaddlq_u8(vr);
-//     uint32x4_t vr2 = vpaddlq_u16(vr1);
-//     uint64x2_t vr3 = vpaddlq_u32(vr2);
+    uint16x8_t vr1 = vpaddlq_u8(vr);
+    uint32x4_t vr2 = vpaddlq_u16(vr1);
+    uint64x2_t vr3 = vpaddlq_u32(vr2);
 
-//     vst1q_u64(reinterpret_cast<uint64_t*>(r), vr3);
+    vst1q_u64(reinterpret_cast<uint64_t*>(r), vr3);
 
-//     return r[0] + r[2];
-// }
+    return r[0] + r[2];
+}
 
 
 void ScaleImage(unsigned char *pbOrg, unsigned char* pbScaledImage)
@@ -224,6 +222,168 @@ int CalcDiffImage(unsigned char* dst, unsigned char* src1, unsigned char *src2, 
 
     return 0;
 }
+
+
+int CalcDiffImage_Crop(unsigned char* dst, unsigned char* src1, unsigned char *src2, int diffX, int diffY, int nLeft, int nTop, int nRight, int nBottom, int nCropX, int nCropY, int nCropWidth, int nCropHeight, float rAlpha, float rBeta)
+{
+#if 0
+    for(int y = 0; y < g_xEngineParam.nDetectionHeight; y ++)
+    {
+        int y1 = y + nDiffY;
+        if(y1 < 0)
+            y1 = 0;
+        else if(y1 >= g_xEngineParam.nDetectionHeight)
+            y1 = g_xEngineParam.nDetectionHeight - 1;
+
+        for(int x = 0; x < g_xEngineParam.nDetectionWidth; x ++)
+        {
+            int x1 = x + nDiffX;
+            if(x1 < 0)
+                x1 = 0;
+            else if(x1 >= g_xEngineParam.nDetectionWidth)
+                x1 = g_xEngineParam.nDetectionWidth - 1;
+
+            int tmp = pbSrcLedOn[y * g_xEngineParam.nDetectionWidth + x] - pbLedOff[y1 * g_xEngineParam.nDetectionWidth + x1];
+            if (tmp < 0) tmp = 0;
+            if (tmp > 255) tmp = 255;
+            pbDst[y * g_xEngineParam.nDetectionWidth + x] = tmp;
+        }
+    }
+#else
+    //unsigned char *pSrc1 = src1;
+    unsigned char *pDes = dst;
+    _u8 *pSrc2, *pSrc2_1;
+    //memset(dst, 0, g_xEngineParam.nDetectionHeight * g_xEngineParam.nDetectionWidth);
+
+    //copy src1->dst
+    int nY;
+    for(nY = 0; nY < nCropHeight; nY ++)
+    {
+        memcpy(dst + nY * nCropWidth, src1 + (nY + nCropY) * g_xEngineParam.nDetectionWidth + nCropX, nCropWidth);
+    }
+
+    //memcpy(dst, src1, g_xEngineParam.nDetectionHeight * g_xEngineParam.nDetectionWidth);
+
+    int nInitIndex =  (nTop - nCropY) * nCropWidth + nLeft - nCropX;
+    _u8* pDesInit = dst + nInitIndex;
+    //_u8* pSrcInit = src1 + nInitIndex;
+
+    int nDeltaLeft, nDeltaRight;
+    nDeltaLeft = nLeft + diffX;
+    nDeltaRight = nRight + diffX;
+    if (nDeltaLeft < 0)
+    {
+        nDeltaLeft = 0;
+    }
+
+    if(nDeltaRight >= g_xEngineParam.nDetectionWidth)
+    {
+        nDeltaRight = g_xEngineParam.nDetectionWidth - 1;
+    }
+
+
+    _u8* pInitLeftLimit = src2 + (nTop + diffY) * g_xEngineParam.nDetectionWidth + (nDeltaLeft);
+    _u8* pInitRightLimit = src2 + (nTop + diffY) * g_xEngineParam.nDetectionWidth + (nDeltaRight);
+
+    _u8* pMinLeftLimit = src2 + nDeltaLeft;
+    _u8* pMinRightLimit = src2 + nDeltaRight;
+
+    _u8* pMaxLeftLimit = pMinLeftLimit + (g_xEngineParam.nDetectionHeight - 1) * g_xEngineParam.nDetectionWidth;
+    _u8* pMaxRightLimit = pMinRightLimit + (g_xEngineParam.nDetectionHeight - 1) * g_xEngineParam.nDetectionWidth;
+    _u8* pSrc2Init = src2 + (nTop + diffY) * g_xEngineParam.nDetectionWidth + (nLeft + diffX);
+
+    int nAlpha = ((int)(rAlpha * 1024));
+    int nBeta = ((int)(rBeta * 1024));
+
+    int nAlphaIsOne, nBetaIsOne;
+
+    nAlphaIsOne = 0;
+    nBetaIsOne = 0;
+
+    if (rAlpha == 1.0f)
+    {
+        nAlphaIsOne = 1;
+    }
+
+    if (rBeta == -1.0f)
+    {
+        nBetaIsOne = 1;
+    }
+
+
+    for (int y = nTop; y < nBottom; y++)
+    {
+
+        _u8 *pCurLeftLimit, *pCurRightLimit;
+        pCurLeftLimit = pInitLeftLimit;
+        pCurRightLimit = pInitRightLimit;
+        int y1 = y + diffY;
+        if (y1 < 0)
+        {
+            pCurLeftLimit = pMinLeftLimit;
+            pCurRightLimit = pMinRightLimit;
+        }
+        else if (y1 >= g_xEngineParam.nDetectionHeight)
+        {
+            pCurLeftLimit = pMaxLeftLimit;
+            pCurRightLimit = pMaxRightLimit;
+        }
+
+        //pSrc1 = pSrcInit;
+        pDes = pDesInit;
+        pSrc2 = pSrc2Init;
+        for (int x = nLeft; x < nRight; x++)
+        {
+            pSrc2_1 = pSrc2;
+            if(pSrc2_1 < pCurLeftLimit)
+            {
+                pSrc2_1 = pCurLeftLimit;
+            }
+
+            if(pSrc2_1 > pCurRightLimit)
+            {
+                pSrc2_1 = pCurRightLimit;
+            }
+            int tmp;
+            //int tmp = (int)(*pSrc1) * rAlpha -	*pSrc2_1;
+
+            if (nAlphaIsOne && nBetaIsOne)
+            {
+                tmp = (int)(*pDes) - *pSrc2_1;
+            }
+            else if (nBetaIsOne)
+            {
+                tmp = (((int)(*pDes) * nAlpha) >> 10) - *pSrc2_1;
+            }
+            else if (nAlphaIsOne)
+            {
+                tmp = (int)(*pDes) + (((int)(*pSrc2_1) * nBeta) >> 10);
+            }
+            else
+            {
+                tmp = (((int)(*pDes) * nAlpha) >> 10) + (((int)(*pSrc2_1) * nBeta) >> 10);
+            }
+
+
+            if (tmp < 0) tmp = 0;
+            if (tmp > 255) tmp = 255;
+            *pDes = tmp;
+            pDes ++;
+            //pSrc1 ++;
+            pSrc2 ++;
+        }
+
+        //pSrcInit += g_xEngineParam.nDetectionWidth;
+        pDesInit += nCropWidth;
+        pInitLeftLimit += g_xEngineParam.nDetectionWidth;
+        pInitRightLimit += g_xEngineParam.nDetectionWidth;
+        pSrc2Init += g_xEngineParam.nDetectionWidth;
+    }
+#endif
+
+    return 0;
+}
+
 
 
 void NormalizeImage(int* pnImage, unsigned char* pbNormalized, int nH, int nW)
@@ -529,20 +689,20 @@ int GetFaceMotion_Fast(unsigned char* pbImage1, unsigned char* pbImage2, int nIm
     nSRight = nFaceLeft + nFaceW - 1;
     nSBottom = nFaceTop + nFaceH - 1;
 
-#if 1
+#if 0
 
     for (int nY = nSTop; nY <= nSBottom; nY++)
     {
         pbPtr1 = pbTmpImage1 + nY * nImageWidth;
         for (int nX = nSLeft; nX <= nSRight; nX++)
         {
-            unsigned char a = pbPtr1[nX];
+            a = pbPtr1[nX];
             for (int i = 0; i < MAX_OFFSET2; i++)
             {
                 pbPtr2 = pbTmpImage2 + (nY + i) * nOffImageW;
                 for (int j = 0; j < MAX_OFFSET2; j++)
                 {
-                    unsigned char b = pbPtr2[nX + j];
+                    b = pbPtr2[nX + j];
                     ppnError[i][j] += (a > b) ? a - b : b - a;
                 }
             }

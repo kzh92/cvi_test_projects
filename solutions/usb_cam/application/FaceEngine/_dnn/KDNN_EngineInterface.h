@@ -54,13 +54,14 @@ int     cacheLivenessDic();
 #define INIT_ENROLL_DNNFEATURE_COUNT        3
 #define TOTAL_ENROLL_DNNFEATURE_SIZE        0x2000
 
-int     KdnnCreateEngine_feat(unsigned char* pMem);
-int     KdnnDetect_feat(unsigned char * pbImage, float* prFeatArray);
-int     KdnnFreeEngine_feat();
-void    generateAlignImageForFeature(unsigned char* pSrcBuf, int nSrcWidth, int nSrcHeight, unsigned char* pDstBuf, float* landmark_ptr);
-int     getFeatEngineLoaded();
+int     KdnnCreateEngine_feat(unsigned char* pMem, int nMode = 0);
+int     KdnnDetect_feat(unsigned char * pbImage, unsigned short* prFeatArray, int nMode);
 
-float   KdnnGetSimilarity(const float* imgData1, const float* imgData2);
+int     KdnnFreeEngine_feat(int nMode);
+void    generateAlignImageForFeature(unsigned char* pSrcBuf, int nSrcWidth, int nSrcHeight, unsigned char* pDstBuf, float* landmark_ptr);
+int     getFeatEngineLoaded(int nMode);
+
+float   KdnnGetSimilarity(const unsigned short* imgData1, const unsigned short* imgData2);
 
 
 #endif

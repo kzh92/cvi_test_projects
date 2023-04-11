@@ -17,8 +17,8 @@
 #define MAX_CALCOFFSETPROCESS_COUNT     12
 #define N_MAX_NAME_LEN                  32
 
-#define E_IMAGE_WIDTH                   1280
-#define E_IMAGE_HEIGHT                  720
+#define E_IMAGE_WIDTH                   1600
+#define E_IMAGE_HEIGHT                  900
 #define E_CLR_WIDTH                     320
 #define E_CLR_HEIGHT                    240
 
@@ -89,6 +89,12 @@ enum ENOWSTATE
 {
 	ENS_VERIFY,
 	ENS_REGISTER
+};
+
+enum EEnroll_Kind
+{
+    EEK_Face,
+    EEK_Hand
 };
 
 enum EEngineState

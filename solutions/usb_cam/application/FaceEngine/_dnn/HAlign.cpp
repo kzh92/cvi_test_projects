@@ -2,7 +2,7 @@
 #include "convert.h"
 #include <math.h>
 #include <memory.h>
-#include "gammacorrection.h"
+//#include "gammacorrection.h"
 
 
 float rConstPoints[5][3] =
@@ -1422,7 +1422,7 @@ int getAreaInSrcImage_68(int nSrcWidth, int nSrcHeight, int nDstWidth, int nDstH
     return 0;
 }
 
-void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDstImage, int nDstWidth, int nDstHeight, float *prShrinkScale, unsigned char* pbSrcImage, int nSrcWidth, int nSrcHeight, float rMean, float rNorm)
+void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDstImage, int nDstWidth, int nDstHeight, float *prShrinkScale, unsigned char* pbSrcImage, int nSrcWidth, int nSrcHeight, float rMean, float rNorm, int* pnCropRect)
 {
     unsigned char* pSrcBuffer;
     int nWorkImageWidth = nSrcWidth;
@@ -1432,6 +1432,21 @@ void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDst
     int nRateY, nRateX, x, y, nPixel0, nPixel1;
     float rRateX, rRateY;
 
+    int nWorkSrcX, nWorkSrcY, nWorkSrcWidth, nWorkSrcHeight;
+    if(pnCropRect)
+    {
+        nWorkSrcX = pnCropRect[0];
+        nWorkSrcY = pnCropRect[1];
+        nWorkSrcWidth = pnCropRect[2];
+        nWorkSrcHeight = pnCropRect[3];
+    }
+    else
+    {
+        nWorkSrcX = 0;
+        nWorkSrcY = 0;
+        nWorkSrcWidth = nSrcWidth;
+        nWorkSrcHeight = nSrcHeight;
+    }
     if(prDstImage)
     {
         memset(prDstImage, 0, nDstWidth * nDstHeight * sizeof(float));
@@ -1440,8 +1455,8 @@ void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDst
     {
         memset(pbDstImage, 0x80, nDstWidth * nDstHeight);
     }
-    rRateX = (float)nSrcWidth / nDstWidth;
-    rRateY = (float)nSrcHeight / nDstHeight;
+    rRateX = (float)nWorkSrcWidth / nDstWidth;
+    rRateY = (float)nWorkSrcHeight / nDstHeight;
 
     float rMaxRate = rRateX;
     if (rMaxRate < rRateY)
@@ -1476,7 +1491,7 @@ void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDst
         int nTmpRate0 = (int)(nYRateCounter - nOffY_16);
         int nTmpRate1 = 65536 - nTmpRate0;
 
-        pSrcBuffer = pbSrcImage + nOffY * nSrcWidth;
+        pSrcBuffer = pbSrcImage + (nOffY + nWorkSrcY) * nSrcWidth + nWorkSrcX;
         //pDestBuffer = prDstImage + nDstIndexInit;
         //pDestTempBuffer = pbDstImage + nDstIndexInit;
 
@@ -1500,7 +1515,7 @@ void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDst
             nPixel1 = (int)pwTmp1 * nTmpRateX0;
 
             unsigned char bValue = (unsigned char)((nPixel0 + nPixel1) >> 0x16);
-            bValue = getGammaCorrection(bValue);
+            //bValue = getGammaCorrection(bValue);
 
             if(prDstImage)
             {
@@ -1520,6 +1535,156 @@ void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDst
         nYRateCounter += nRateY;
     }
 }
+
+void handAlign(unsigned char* img, int width, int height, unsigned char* align_buf, float* landmark, int align_width, int align_height, int align_left, int align_right, int align_top, int align_bottom, float* prAverageValue)
+{
+    int i;
+    int scale_width = align_width - align_left - align_right;
+    int scale_height = align_height - align_top - align_bottom;
+    float srcPoints[] = {0.f, 0.f, 0.25f, -0.1f, 0.5f, -0.15f, 0.75f, -0.1f, 1.f, 0.f};
+
+    float rSigmaAverageValue = 0;
+    int nAveragePixelCount = 0;
+
+    for (i = 0; i < 5; i++)
+    {
+        srcPoints[2 * i] = srcPoints[2 * i] * scale_width + align_left + 0.5f;
+        srcPoints[2 * i + 1] = srcPoints[2 * i + 1] * scale_width + align_top + 0.5f;
+    }
+
+    float csx = 0.f, csy = 0.f;
+    float cdx = 0.f, cdy = 0.f;
+    float sum_a2b2 = 0.f, sum_A2B2 = 0.f, sum_AaBb = 0.f, sum_BamAb = 0.f;
+
+    for (i = 0; i < 5; i++)
+    {
+//        cdx += landmark[i + 2].x;
+//        cdy += landmark[i + 2].y;
+        cdx += landmark[(i + 2) * 2];
+        cdy += landmark[(i + 2) * 2 + 1];
+
+        csx += srcPoints[i * 2];
+        csy += srcPoints[i * 2 + 1];
+    }
+
+    csx /= 5;
+    csy /= 5;
+    cdx /= 5;
+    cdy /= 5;
+
+    for (i = 0; i < 5; i++)
+    {
+        float dsx, dsy, ddx, ddy;
+
+        dsx = srcPoints[i * 2] - csx;
+        dsy = srcPoints[i * 2 + 1] - csy;
+//        ddx = landmark[i + 2].x - cdx;
+//        ddy = landmark[i + 2].y - cdy;
+        ddx = landmark[(i + 2) * 2] - cdx;
+        ddy = landmark[(i + 2) * 2 + 1] - cdy;
+
+        sum_a2b2 += (dsx * dsx + dsy * dsy);
+        sum_A2B2 += (ddx * ddx + ddy * ddy);
+        sum_AaBb += (dsx * ddx + dsy * ddy);
+        sum_BamAb += (dsx * ddy - ddx * dsy);
+    }
+
+    float scale, cosa, sina;
+    cosa = sum_AaBb;
+    sina = sum_BamAb;
+    scale = hypotf(cosa, sina);
+
+    if (scale < 0.000001f) scale = 0.000001f;
+
+    cosa /= scale;
+    sina /= scale;
+    scale = sqrtf(sum_A2B2 / sum_a2b2);
+
+    float px, py;
+    px = cdx - (csx * cosa - csy * sina) * scale;
+    py = cdy - (csx * sina + csy * cosa) * scale;
+
+    unsigned char* buf = align_buf;
+    memset(buf, 0, align_width * align_height);
+
+    int nX, nY;
+    for (nY = 0; nY < align_height; nY++)
+    {
+        for (nX = 0; nX < align_width; nX++)
+        {
+            float x = (nX * cosa - nY * sina) * scale + px;
+            float y = (nX * sina + nY * cosa) * scale + py;
+
+            if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
+            {
+                buf++;
+                continue;
+            }
+            else
+            {
+                int nDstValue = 0;
+                int nFllorR, nFloorC, nFllorR1, nFloorC1;
+                nFllorR = (int)y;
+                nFloorC = (int)x;
+
+                if (nFllorR == y && nFloorC == x)
+                {
+                    unsigned char* pSourceProcessBuffer;
+                    pSourceProcessBuffer = img + (nFllorR * width + nFloorC);
+                    nDstValue = *pSourceProcessBuffer;
+                    *buf++ = nDstValue;
+                }
+                else
+                {
+                    float rXRate, rYRate;
+                    rYRate = y - nFllorR;
+                    rXRate = x - nFloorC;
+
+                    nFloorC1 = nFloorC + 1;
+                    nFllorR1 = nFllorR + 1;
+
+                    if (nFloorC == width - 1)
+                    {
+                        nFloorC1 = nFloorC;
+                        rXRate = 0;
+                    }
+
+                    if (nFllorR == height - 1)
+                    {
+                        nFllorR1 = nFllorR;
+                        rYRate = 0;
+                    }
+
+                    unsigned char *pSourceProcessBuffer1, *pSourceProcessBuffer2, *pSourceProcessBuffer3, *pSourceProcessBuffer4;
+                    pSourceProcessBuffer1 = img + (nFllorR1 * width + nFloorC1);
+                    pSourceProcessBuffer2 = img + (nFllorR * width + nFloorC1);
+                    pSourceProcessBuffer3 = img + (nFllorR * width + nFloorC);
+                    pSourceProcessBuffer4 = img + (nFllorR1 * width + nFloorC);
+
+                    nDstValue = (unsigned char)((float)*pSourceProcessBuffer1 * rXRate * rYRate +
+                                                (float)*pSourceProcessBuffer2 * rXRate * (1 - rYRate) +
+                                                (float)*pSourceProcessBuffer3 * (1 - rXRate) * (1 - rYRate) +
+                                                (float)*pSourceProcessBuffer4 * (1 - rXRate) * rYRate);
+
+                    *buf++ = nDstValue;
+                }
+
+                rSigmaAverageValue += nDstValue;
+                nAveragePixelCount ++;
+            }
+        }
+    }
+    rSigmaAverageValue = rSigmaAverageValue / nAveragePixelCount;
+
+    if(prAverageValue)
+    {
+        *prAverageValue = rSigmaAverageValue;
+    }
+
+}
+
+
+
 
 
 

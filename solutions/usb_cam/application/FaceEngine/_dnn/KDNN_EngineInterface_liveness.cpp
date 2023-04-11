@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
 *   KDNNFR : KCC-Single dnn model, for detect liveness SDK						*
 ************************************************************************/
 /*
@@ -17,7 +17,6 @@
 #include <memory.h>
 #include <time.h>
 
-#include "livemn.h"
 #include "livemnse.h"
 #include "livemnse3.h"
 #include "engine_inner_param.h"
@@ -43,11 +42,11 @@ extern float g_rSecurityValue;
 ////////////////////////////////////////////////
 //Liveness g_2DLiveness;
 //Liveness g_3DLiveness;
-LiveMnSE    g_n2DLive_A1;
-LiveMnSE    g_n2DLive_A2;
-LiveMnSE    g_n2DLive_B;
-LiveMnSE3   g_n2DLive_B2;
-LiveMn      g_n3DLive;
+LiveMnSE    g_n2DLive_A1 = { 0 };
+LiveMnSE    g_n2DLive_A2 = { 0 };
+LiveMnSE    g_n2DLive_B = { 0 };
+LiveMnSE3   g_n2DLive_B2 = { 0 };
+LiveMnSE      g_n3DLive = { 0 };
 
 extern void APP_LOG(const char * format, ...);
 
@@ -58,12 +57,12 @@ int     KdnnCreateLivenessEngine_2DA1(unsigned char* pMem)
     if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_A1))
             return KDNN_FAILED;
 
-    if (g_n2DLive_A1.getEngineLoaded())
+    if (LiveMnSE_getEngineLoaded(&g_n2DLive_A1))
         return KDNN_SUCCESS;
 
-    int nDicSize = g_n2DLive_A1.dnn_dic_size();
+    int nDicSize = LiveMnSE_dnn_dic_size();
     int ret = 0;
-    ret = g_n2DLive_A1.dnn_create(g_dic_live_a1, nDicSize, g_rSecurityValue, pMem);
+    ret = LiveMnSE_dnn_create_(&g_n2DLive_A1, g_dic_live_a1, nDicSize, g_rSecurityValue, pMem);
     if(ret)
     {
         return KDNN_FAILED;
@@ -76,12 +75,12 @@ int     KdnnCreateLivenessEngine_2DA2(unsigned char* pMem)
     if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_A2))
             return KDNN_FAILED;
 
-    if (g_n2DLive_A2.getEngineLoaded())
+    if (LiveMnSE_getEngineLoaded(&g_n2DLive_A2))
         return KDNN_SUCCESS;
 
-    int nDicSize = g_n2DLive_A2.dnn_dic_size();
+    int nDicSize = LiveMnSE_dnn_dic_size();
     int ret = 0;
-    ret = g_n2DLive_A2.dnn_create(g_dic_live_a2, nDicSize, g_rSecurityValue, pMem);
+    ret = LiveMnSE_dnn_create_(&g_n2DLive_A2, g_dic_live_a2, nDicSize, g_rSecurityValue, pMem);
     if(ret)
        return KDNN_FAILED;
 
@@ -93,12 +92,12 @@ int     KdnnCreateLivenessEngine_2DB(unsigned char* pMem)
     if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_B))
             return KDNN_FAILED;
 
-    if (g_n2DLive_B.getEngineLoaded())
+    if (LiveMnSE_getEngineLoaded(&g_n2DLive_B))
         return KDNN_SUCCESS;
 
-    int nDicSize = g_n2DLive_B.dnn_dic_size();
+    int nDicSize = LiveMnSE_dnn_dic_size();
     int ret = 0;
-    ret = g_n2DLive_B.dnn_create(g_dic_live_b, nDicSize, g_rSecurityValue, pMem);
+    ret = LiveMnSE_dnn_create_(&g_n2DLive_B, g_dic_live_b, nDicSize, g_rSecurityValue, pMem);
     if(ret)
        return KDNN_FAILED;
 
@@ -111,12 +110,12 @@ int     KdnnCreateLivenessEngine_2DB2(unsigned char* pMem)
     if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_B2))
             return KDNN_FAILED;
 
-    if (g_n2DLive_B2.getEngineLoaded())
+    if (LiveMnSE3_getEngineLoaded(&g_n2DLive_B2))
         return KDNN_SUCCESS;
 
-    int nDicSize = g_n2DLive_B2.dnn_dic_size();
+    int nDicSize = LiveMnSE3_dnn_dic_size();
     int ret = 0;
-    ret = g_n2DLive_B2.dnn_create(g_dic_live_b2, nDicSize, g_rSecurityValue, pMem);
+    ret = LiveMnSE3_dnn_create_(&g_n2DLive_B2, g_dic_live_b2, nDicSize, g_rSecurityValue, pMem);
     if(ret)
        return KDNN_FAILED;
 
@@ -129,12 +128,12 @@ int     KdnnCreateLivenessEngine_3D(unsigned char* pMem)
     if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_C))
             return KDNN_FAILED;
 
-    if (g_n3DLive.getEngineLoaded())
+    if (LiveMnSE_getEngineLoaded(&g_n3DLive))
         return KDNN_SUCCESS;
 
-    int nDicSize = g_n3DLive.dnn_dic_size();
+    int nDicSize = LiveMnSE_dnn_dic_size();
     int ret = 0;
-    ret = g_n3DLive.dnn_create(g_dic_live_c, nDicSize, g_rSecurityValue, pMem);
+    ret = LiveMnSE_dnn_create_(&g_n3DLive, g_dic_live_c, nDicSize, g_rSecurityValue, pMem);
     if(ret)
        return KDNN_FAILED;
 
@@ -148,7 +147,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
         return -1;
 
     //float rStart = Now();
-    if(!g_n2DLive_A1.getEngineLoaded() || !g_n2DLive_A2.getEngineLoaded() )
+    if(!LiveMnSE_getEngineLoaded(&g_n2DLive_A1) || !LiveMnSE_getEngineLoaded(&g_n2DLive_A2) )
     {
         APP_LOG("[%d] 26-0-3\n", (int)Now());
         return -1;
@@ -165,7 +164,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
     float *res1, *res2;
     float res1_backup[2], res2_backup[2];
 
-    res1 = g_n2DLive_A1.dnn_forward(pbImage);
+    res1 = LiveMnSE_dnn_forward(&g_n2DLive_A1, pbImage);
     //printf("g_n2DLive_A1 = %f\n", Now() - rStart);
     //rStart = Now();
     if (g_nStopEngine == 1)
@@ -178,7 +177,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
         APP_LOG("[%d] 26-0-5\n", (int)Now());
         return -1;
     }
-    res2 = g_n2DLive_A2.dnn_forward(pbImage);
+    res2 = LiveMnSE_dnn_forward(&g_n2DLive_A2, pbImage);
     //printf("g_n2DLive_A2 = %f\n", Now() - rStart);
     if (g_nStopEngine == 1)
     {
@@ -192,7 +191,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
 
 float KdnnDetectLiveness_2D_B(unsigned char * pbImage)
 {
-    if(!g_n2DLive_B.getEngineLoaded() || !getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B))
+    if(!LiveMnSE_getEngineLoaded(&g_n2DLive_B) || !getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B))
     {
         APP_LOG("[%d] 26-0-6\n", (int)Now());
         return -1;
@@ -202,7 +201,7 @@ float KdnnDetectLiveness_2D_B(unsigned char * pbImage)
         return -1;
 
     float* res;
-    res = g_n2DLive_B.dnn_forward(pbImage);
+    res = LiveMnSE_dnn_forward(&g_n2DLive_B, pbImage);
     if (g_nStopEngine == 1)
     {
         return -1;
@@ -212,7 +211,7 @@ float KdnnDetectLiveness_2D_B(unsigned char * pbImage)
 
 float KdnnDetectLiveness_2D_B2(unsigned char * pbImage)
 {
-    if(!g_n2DLive_B2.getEngineLoaded() || !getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B2))
+    if(!LiveMnSE3_getEngineLoaded(&g_n2DLive_B2) || !getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B2))
     {
         APP_LOG("[%d] 26-0-62\n", (int)Now());
         return -1;
@@ -222,7 +221,7 @@ float KdnnDetectLiveness_2D_B2(unsigned char * pbImage)
         return -1;
 
     float* res;
-    res = g_n2DLive_B2.dnn_forward(pbImage);
+    res = LiveMnSE3_dnn_forward(&g_n2DLive_B2, pbImage);
     if (g_nStopEngine == 1)
     {
         return -1;
@@ -233,7 +232,7 @@ float KdnnDetectLiveness_2D_B2(unsigned char * pbImage)
 
 float KdnnDetectLiveness_3D(unsigned char * pbImage)
 {
-    if(!g_n3DLive.getEngineLoaded() || !getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_C))
+    if(!LiveMnSE_getEngineLoaded(&g_n3DLive) || !getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_C))
     {
         APP_LOG("[%d] 26-0-7\n", (int)Now());
         return -1;
@@ -243,7 +242,7 @@ float KdnnDetectLiveness_3D(unsigned char * pbImage)
         return -1;
 
     float* res;
-    res = g_n3DLive.dnn_forward(pbImage);
+    res = LiveMnSE_dnn_forward(&g_n3DLive, pbImage);
     if (g_nStopEngine == 1)
     {
         return -1;
@@ -254,11 +253,11 @@ float KdnnDetectLiveness_3D(unsigned char * pbImage)
 
 int	KdnnFreeEngine_liveness()
 {
-    g_n2DLive_A1.dnn_free();
-    g_n2DLive_A2.dnn_free();
-    g_n2DLive_B.dnn_free();
-    g_n2DLive_B2.dnn_free();
-    g_n3DLive.dnn_free();
+    LiveMnSE_dnn_free(&g_n2DLive_A1);
+    LiveMnSE_dnn_free(&g_n2DLive_A2);
+    LiveMnSE_dnn_free(&g_n2DLive_B);
+    LiveMnSE3_dnn_free(&g_n2DLive_B2);
+    LiveMnSE_dnn_free(&g_n3DLive);
 
     releaseMachineDic(MachineFlagIndex_DNN_Liveness_A1);
     releaseMachineDic(MachineFlagIndex_DNN_Liveness_A2);

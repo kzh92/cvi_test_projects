@@ -1120,7 +1120,7 @@ namespace ENN
 		out_blob->c = outch;
 		out_blob->pack = 4;
 
-		// int kernel_cstep = 144 * inch;
+		int kernel_cstep = 144 * inch;
 
 		// 		size_t elemsize = bottom_blob.elemsize;
 		// 		int elempack = bottom_blob.elempack;
@@ -2420,7 +2420,7 @@ namespace ENN
 		out_blob->c = outch;
 		out_blob->pack = 4;
 
-		// int kernel_cstep = 400 * inch;
+		int kernel_cstep = 400 * inch;
 
 		// 		size_t elemsize = bottom_blob.elemsize;
 		// 		int elempack = bottom_blob.elempack;
@@ -3738,7 +3738,7 @@ namespace ENN
 		out_blob->c = outch;
 		out_blob->pack = 4;
 
-		// int kernel_cstep = 100 * inch;
+		int kernel_cstep = 100 * inch;
 
 		// 		size_t elemsize = bottom_blob.elemsize;
 		// 		int elempack = bottom_blob.elempack;

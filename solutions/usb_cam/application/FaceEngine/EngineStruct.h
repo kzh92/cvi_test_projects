@@ -60,11 +60,11 @@ typedef struct _tagFeatInfo
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
     int             nDNNFeatCount;						//4
     int             nFeatCount;                             //4
-    unsigned char   arFeatBuffer[TOTAL_ENROLL_MAX_FEATURE_COUNT * UNIT_ENROLL_FEATURE_SIZE + KDNN_FEAT_SIZE * sizeof(float) * 4];       //10240
+    unsigned char   arFeatBuffer[TOTAL_ENROLL_MAX_FEATURE_COUNT * UNIT_ENROLL_FEATURE_SIZE + KDNN_FEAT_SIZE * sizeof(unsigned short) * 4];       //10240
     unsigned char	ab_Info[TOTAL_ENROLL_MAX_FEATURE_COUNT];										//added by KSB 20180613
 #else//ENGINE_SECURITY_ONLY_COMMON
     int             nDNNFeatCount;						//4
-    unsigned char   arFeatBuffer[TOTAL_ENROLL_MAX_DNNFEATURE_COUNT*KDNN_FEAT_SIZE * sizeof(float)];       //10240
+    unsigned char   arFeatBuffer[TOTAL_ENROLL_MAX_DNNFEATURE_COUNT*KDNN_FEAT_SIZE * sizeof(unsigned short)];       //10240
     unsigned char	ab_Info[TOTAL_ENROLL_MAX_DNNFEATURE_COUNT];										//added by KSB 20180613
 #endif
 
@@ -109,7 +109,7 @@ typedef struct _tagSEngineParam
     int             fEngineState;
     int             fVerifyMode;
     int             iDemoMode;
-
+    int             iEnrollKind;
     float           arThresholdVals[5];
 
     int             nDetectionWidth;

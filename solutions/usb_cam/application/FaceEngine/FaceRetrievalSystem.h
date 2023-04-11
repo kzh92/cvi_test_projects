@@ -16,7 +16,6 @@ extern SEngineParam g_xEngineParam;
 #define IR_SCREEN_GETIMAGE_MODE     0
 #define IR_SCREEN_CAMERAVIEW_MODE   1
 
-
 //#define H_DICT_SIZE1        (0xDD2D4)
 
 #ifdef __cplusplus
@@ -32,10 +31,14 @@ LIBFOO_DLL_EXPORTED void    fr_SetDupCheck(int iDupCheck);
 LIBFOO_DLL_EXPORTED void    fr_SetCameraFlip(int iCameraFlip);
 LIBFOO_DLL_EXPORTED void    fr_EnableLogFile(int iEnable);
 
-LIBFOO_DLL_EXPORTED void    fr_SetEngineState(int nState, int iParam1, int iParam2, int iParam3 = ENROLL_MULTI_DIRECTION_MODE, int iParam4 = 0);
+LIBFOO_DLL_EXPORTED void    fr_SetEngineState(int nState, int iParam1, int iParam2, int iParam3 = ENROLL_MULTI_DIRECTION_MODE, int iParam4 = 0, int iParam5 = EEK_Face);
 
 LIBFOO_DLL_EXPORTED int     fr_PreExtractFace(unsigned char *pbClrImage, unsigned char *pbLedOnImage);
 LIBFOO_DLL_EXPORTED int		fr_PreExtractFace2(unsigned char *pbBayerFromCamera2);
+LIBFOO_DLL_EXPORTED int		fr_PreExtractFaceClr(unsigned char *pbYUV222,int nWidth, int nHeight);
+LIBFOO_DLL_EXPORTED int		fr_convertCam2(unsigned char *pbBayerFromCamera2);
+LIBFOO_DLL_EXPORTED int		fr_Get_thread_flag_feat();
+
 LIBFOO_DLL_EXPORTED int		fr_ExtractFace();
 LIBFOO_DLL_EXPORTED int     fr_calc_Off(unsigned char *pbLedOffImage);
 
@@ -58,9 +61,13 @@ LIBFOO_DLL_EXPORTED void    fr_SetDecodedData(unsigned int iKey, unsigned char* 
 LIBFOO_DLL_EXPORTED int		fr_GetCurEnvForCameraControl();
 LIBFOO_DLL_EXPORTED int*    fr_GetExposure();
 LIBFOO_DLL_EXPORTED int*    fr_GetGain();
+LIBFOO_DLL_EXPORTED int*    fr_GetFineGain();
 LIBFOO_DLL_EXPORTED int*    fr_GetExposure2();
 LIBFOO_DLL_EXPORTED int*    fr_GetGain2();
+LIBFOO_DLL_EXPORTED int*    fr_GetFineGain2();
 LIBFOO_DLL_EXPORTED int*    fr_MainControlCameraIndex();
+LIBFOO_DLL_EXPORTED int*    fr_GetMainProcessCameraIndex();
+LIBFOO_DLL_EXPORTED int     fr_GetNeedSmallFaceCheck();
 
 LIBFOO_DLL_EXPORTED int		fr_GetNeedToCalcNextExposure();
 LIBFOO_DLL_EXPORTED int		fr_SetLivenessCheckStrong_On_NoUser(int nMode);
@@ -77,9 +84,19 @@ LIBFOO_DLL_EXPORTED int     fr_getHDicCheckSumMatched();
 
 LIBFOO_DLL_EXPORTED void    fr_SetSecurityMode(int nSecurityMode);
 LIBFOO_DLL_EXPORTED void    fr_InitIRCamera_ExpGain();
+LIBFOO_DLL_EXPORTED void    fr_BackupIRCamera_ExpGain();
 
 LIBFOO_DLL_EXPORTED int     fr_GetSecondImageNeedReCheck();
-LIBFOO_DLL_EXPORTED int     fr_CheckFaceInSecondImage(unsigned char *pbBayerLeft, unsigned char *pbBayerRight);
+LIBFOO_DLL_EXPORTED int     fr_GetSecondImageIsRight();
+LIBFOO_DLL_EXPORTED int     fr_CheckFaceInSecondImage(unsigned char *pbBayerNeedReCheck);
+LIBFOO_DLL_EXPORTED unsigned char* fr_GetInputImageBuffer1();
+LIBFOO_DLL_EXPORTED unsigned char* fr_GetInputImageBuffer2();
+LIBFOO_DLL_EXPORTED unsigned char* fr_GetOffImageBuffer();
+LIBFOO_DLL_EXPORTED unsigned char* fr_GetOffImageBuffer2();
+LIBFOO_DLL_EXPORTED unsigned char* fr_GetFullOffImageBuffer();
+
+
+LIBFOO_DLL_EXPORTED int*    fr_GetFaceDetectedMode();
 
 #ifdef __RTK_OS__
 LIBFOO_DLL_EXPORTED int 	fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);

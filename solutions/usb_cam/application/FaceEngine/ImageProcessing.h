@@ -11,6 +11,7 @@ extern	"C"
 LIBFOO_DLL_EXPORTED void    ScaleImage(unsigned char *pbOrg, unsigned char* pbScaledImage);
 LIBFOO_DLL_EXPORTED int     CalcDiffImageA(unsigned char* pbDst, unsigned char* pbSrcLedOn, unsigned char *pbLedOff, int nDiffX, int nDiffY, int nLeft, int nTop, int nRight, int nBottom);
 LIBFOO_DLL_EXPORTED int     CalcDiffImage(unsigned char* pbDst, unsigned char* pbSrcLedOn, unsigned char *pbLedOff, int nDiffX, int nDiffY, int nLeft, int nTop, int nRight, int nBottom, float rAlpha = 1.0f, float rBeta = 1.0f);
+LIBFOO_DLL_EXPORTED int     CalcDiffImage_Crop(unsigned char* pbDst, unsigned char* pbSrcLedOn, unsigned char *pbLedOff, int nDiffX, int nDiffY, int nLeft, int nTop, int nRight, int nBottom, int nCropX, int nCropY, int nCropWidth, int nCropHeight, float rAlpha = 1.0f, float rBeta = 1.0f);
 LIBFOO_DLL_EXPORTED void    NormalizeImage(int* pnImage, unsigned char* pbNormalized, int nH, int nW);
 LIBFOO_DLL_EXPORTED void    Sobel_Process(unsigned char* pbSrc, unsigned char* pbEdge, int nH, int nW);
 LIBFOO_DLL_EXPORTED int     GetFaceMotion(unsigned char* pbImage1, unsigned char* pbImage2, int nImageHeight, int nImageWidth, int nLeft, int nTop, int nH, int nW, int* pnXMotion, int* pnYMotion);

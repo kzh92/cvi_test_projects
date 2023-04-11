@@ -2,16 +2,16 @@
 #include "FaceRetrievalSystem_base.h"
 #include "detect.h"
 #include "modeling.h"
-#include "livemn.h"
 #include "livemnse.h"
 #include "occ.h"
 #include "esn.h"
 #include "feat.h"
 #include "dic_manage.h"
 #include "settings.h"
+#include "manageIRCamera.h"
 
-extern int g_exposureImage;
-extern int g_exposurePrev;
+//extern int g_exposureImage;
+//extern int g_exposurePrev;
 
 extern int g_nSecondImageNeedReCheck;
 extern int g_nSecondImageIsRight;
@@ -19,7 +19,7 @@ extern int g_nSecondImageIsRight;
 static int g_nGlassesEquiped = 0;
 //static int g_nGlassesEquipedPrev = 0;
 static unsigned char g_nCurInfo = 0;
-//static int      g_nCurEnv = 0;
+// static int      g_nCurEnv = 0;
 //static int		g_nPrevEnvForCameraControl = -1;//0:dark, 1:indoor, 2:oudoor
 
 extern int* g_nIndexList;
@@ -28,15 +28,16 @@ extern int* g_nIndexList_Dup;
 extern int* g_nDNNFeatureCount_Dup;
 extern int* g_nDNNFeatureCount;
 extern int* g_nDNNFeatureCount_Admin;
-extern float** g_prDNNEnrolledFeature_Dup;
-extern float** g_prDNNEnrolledFeature;
-extern float** g_prDNNEnrolledFeature_Admin;
+extern unsigned short** g_prDNNEnrolledFeature_Dup;
+extern unsigned short** g_prDNNEnrolledFeature;
+extern unsigned short** g_prDNNEnrolledFeature_Admin;
 
 extern int g_nEnrollePersonCount_Dup;
 
 #define DNN_FEATURE_COUNT_PER_ENV	4
 
-int update_DNN_EnrollFeature_sizeChanged_withEnv(float* prEnrollFeatureToUpdate, unsigned char* pbInfo, int* pnEnrolledFeatureCount, float* pVerifyFeatureToUpdate, unsigned char nVerifyInfo)
+
+int update_DNN_EnrollFeature_sizeChanged_withEnv(unsigned short* prEnrollFeatureToUpdate, unsigned char* pbInfo, int* pnEnrolledFeatureCount, unsigned short* pVerifyFeatureToUpdate, unsigned char nVerifyInfo)
 {
     int nIndexToUpdate = -1;
     int nFeatureCountPerEnv[ENV_COUNT] = { 0 };
@@ -46,7 +47,7 @@ int update_DNN_EnrollFeature_sizeChanged_withEnv(float* prEnrollFeatureToUpdate,
     if (*pnEnrolledFeatureCount < TOTAL_ENROLL_MAX_DNNFEATURE_COUNT)
     {
         nIndexToUpdate = *pnEnrolledFeatureCount;
-        memcpy(prEnrollFeatureToUpdate + nIndexToUpdate * KDNN_FEAT_SIZE, pVerifyFeatureToUpdate, KDNN_FEAT_SIZE * sizeof(float));
+        memcpy(prEnrollFeatureToUpdate + nIndexToUpdate * KDNN_FEAT_SIZE, pVerifyFeatureToUpdate, KDNN_FEAT_SIZE * sizeof(unsigned short));
         pbInfo[nIndexToUpdate] = nVerifyInfo;
         *pnEnrolledFeatureCount = *pnEnrolledFeatureCount + 1;
         return nIndexToUpdate;
@@ -123,13 +124,13 @@ int update_DNN_EnrollFeature_sizeChanged_withEnv(float* prEnrollFeatureToUpdate,
             return -1;
         }
 
-        memcpy(prEnrollFeatureToUpdate + nIndexToUpdate * KDNN_FEAT_SIZE, pVerifyFeatureToUpdate, KDNN_FEAT_SIZE * sizeof(float));
+        memcpy(prEnrollFeatureToUpdate + nIndexToUpdate * KDNN_FEAT_SIZE, pVerifyFeatureToUpdate, KDNN_FEAT_SIZE * sizeof(unsigned short));
         pbInfo[nIndexToUpdate] = nVerifyInfo;
     }
     return nIndexToUpdate;
 }
 
-int fr_UpdateFeat_DNN(int nUserIndex, float* prDNNFeature, unsigned char nCurInfo)
+int fr_UpdateFeat_DNN(int nUserIndex, unsigned short* prDNNFeature, unsigned char nCurInfo)
 {
 #ifdef DB_BAK3
     //skip feature update in case of using backup partition.
@@ -147,10 +148,10 @@ int fr_UpdateFeat_DNN(int nUserIndex, float* prDNNFeature, unsigned char nCurInf
 
     int nRet2 = -1;
 
-    nRet2 = update_DNN_EnrollFeature_sizeChanged_withEnv((float*)pxFeatInfo->arFeatBuffer, pxFeatInfo->ab_Info, &pxFeatInfo->nDNNFeatCount, prDNNFeature, nCurInfo);
+    nRet2 = update_DNN_EnrollFeature_sizeChanged_withEnv((unsigned short*)pxFeatInfo->arFeatBuffer, pxFeatInfo->ab_Info, &pxFeatInfo->nDNNFeatCount, prDNNFeature, nCurInfo);
 
     if(nRet2 != -1)
-        return dbm_UpdatePersonFeatInfo(nUserIndex, pxFeatInfo, NULL);
+        return dbm_UpdatePersonFeatInfo(nUserIndex, pxFeatInfo, NULL, -1);
 
     return 0;
 }
@@ -174,7 +175,7 @@ void*   EngineLoadAndCheckFunc(void*)
     
     g_thread_flag_model = 1;
     loadMachineDic(MachineFlagIndex_DNN_Modeling);
-    createModelingEngine(g_shared_mem);
+    createModelingEngine(g_shared_mem, 0);
     getDicChecSumChecked(MachineFlagIndex_DNN_Modeling);
     g_thread_flag_model = 2;
     
@@ -187,33 +188,37 @@ void*   EngineLoadAndCheckFunc(void*)
     g_thread_flag_occ = 2;
 #endif
 
+    //Live Feature Mem
+    unsigned char* pLive_Feat_Mem = g_shared_mem + (128 * 128 * 3 + 88 * 128);
     g_thread_flag_spoofa1 = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_A1);
-    KdnnCreateLivenessEngine_2DA1(g_shared_mem);
+    KdnnCreateLivenessEngine_2DA1(pLive_Feat_Mem);
     getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_A1);
     g_thread_flag_spoofa1 = 2;
 
     g_thread_flag_spoofa2 = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_A2);
-    KdnnCreateLivenessEngine_2DA2(g_shared_mem);
+    KdnnCreateLivenessEngine_2DA2(pLive_Feat_Mem);
     getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_A2);
     g_thread_flag_spoofa2 = 2;
 
+#if (ENGINE_USE_TWO_CAM != 0)//ENGINE_USE_TWO_CAM=0:2D, 1:common, 2:3M
     g_thread_flag_spoofb = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_B);
-    KdnnCreateLivenessEngine_2DB(g_shared_mem);
+    KdnnCreateLivenessEngine_2DB(pLive_Feat_Mem);
     getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B);
     g_thread_flag_spoofb = 2;
 
     g_thread_flag_spoofb2 = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_B2);
-    KdnnCreateLivenessEngine_2DB2(g_shared_mem);
+    KdnnCreateLivenessEngine_2DB2(pLive_Feat_Mem);
     getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B2);
     g_thread_flag_spoofb2 = 2;
+#endif
 
     g_thread_flag_spoofc = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_C);
-    KdnnCreateLivenessEngine_3D(g_shared_mem);
+    KdnnCreateLivenessEngine_3D(pLive_Feat_Mem);
     getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_C);
     g_thread_flag_spoofc = 2;
 
@@ -221,13 +226,13 @@ void*   EngineLoadAndCheckFunc(void*)
 
     g_thread_flag_feat = 1;
     loadMachineDic(MachineFlagIndex_DNN_Feature);
-    KdnnCreateEngine_feat(g_shared_mem);
+    KdnnCreateEngine_feat(pLive_Feat_Mem, 0);
     g_thread_flag_feat = 2;
 
 #ifdef ENGINE_FOR_DESSMAN
     g_thread_flag_esn = 1;
     loadMachineDic(MachineFlagIndex_DNN_ESN);
-    init_esn_detection(g_shared_mem);
+	init_esn_detection(pLive_Feat_Mem);
     getDicChecSumChecked(MachineFlagIndex_DNN_ESN);
     g_thread_flag_esn = 2;
 #endif
@@ -252,34 +257,29 @@ void    fr_InitEngine_dnn()
 int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage)
 {
     fr_SetStopEngineFlag(0);
-
     if (pbLedOnImage == NULL)
         return ES_FAILED;
     APP_LOG("[%d] process start\n", (int)Now());
-
-#ifdef TimeProfiling
-    g_rStartTime = Now();
-#endif
 
 //check Exposure setting time
     int exposure = *fr_GetExposure();
     float rFrameCaptureTime = Now() - g_rExposureSettenTime;
     if(*fr_GetExposure() == INIT_EXP)
     {
-        g_exposureImage = exposure;
+        *fr_GetExposureImage() = exposure;
     }
     else
     {
         if(rFrameCaptureTime < 70)
         {
-            g_exposureImage = g_exposurePrev;
+            *fr_GetExposureImage() = *fr_GetExposurePrev();
         }
         else
         {
-            g_exposureImage = exposure;
+            *fr_GetExposureImage() = exposure;
         }
     }
-    g_exposurePrev = exposure;
+    *fr_GetExposurePrev() = exposure;
 
 #ifdef LOG_MODE
     my_printf("Frame Capture Time = %f\r\n", rFrameCaptureTime);
@@ -289,13 +289,18 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 
     IF_FLAG_STOP1(ES_FAILED);
 
-    g_nNeedToCalcNextExposure = 0;
+//    g_nNeedToCalcNextExposure = 0;
     memset(&g_xEngineResult, 0, sizeof(SEngineResult));
     memset(getFaceProcessData(), 0, sizeof(Face_Process_Data));
 #ifdef TimeProfiling
         float rBaterStartTime =Now();
 #endif
-    convert_bayer2y_rotate((void*)pbLedOnImage, (void*)g_pbYIrImage, 1280, 720, g_xEngineParam.iCamFlip);
+    if(*fr_GetBayerYConvertedCameraIndex() != 0)
+    {
+        convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
+        *fr_GetBayerYConvertedCameraIndex() = 0;
+        //printf("Camera 0 Bayer->Y converted\n");
+    }
 
 #ifdef LOG_MODE
     {
@@ -356,9 +361,10 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
             return ES_FAILED;
         }
 
+        g_pbFaceDetectionBuffer = g_shared_mem + getDetectMenSize();
         FaceInfo *face_info = (FaceInfo *)g_pbFaceDetectionBuffer;
         int n_face_cnt = 0;
-        detect(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, face_info, MAX_FACE_NUM, &n_face_cnt, g_pbFaceDetectionBuffer);
+        detect(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, face_info, MAX_FACE_NUM, &n_face_cnt, g_pbFaceDetectionBuffer, 0);
 
         IF_FLAG_STOP1(ES_FAILED);
 
@@ -453,17 +459,17 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 //        APPl_LOG("g_rAverageLedOnImage = %d\n", g_rAverageLedOnImage);
 //#endif
 
-        if (g_rAverageLedOnImage < MIN_USER_LUM || g_rAverageLedOnImage > MAX_USER_LUM)
+//        if (g_rAverageLedOnImage < nMIN_USER_LUM || g_rAverageLedOnImage > nMAX_USER_LUM)
+//        {
+//            g_nNeedToCalcNextExposure = 1;
+//        }
+//        if (g_rSaturatedRate > SAT_THRESHOLD)
+//        {
+//            g_nNeedToCalcNextExposure = 1;
+//        }
+//        if(g_nNeedToCalcNextExposure)
         {
-            g_nNeedToCalcNextExposure = 1;
-        }
-        if (g_rSaturatedRate > SAT_THRESHOLD)
-        {
-            g_nNeedToCalcNextExposure = 1;
-        }
-        if(g_nNeedToCalcNextExposure)
-        {
-            *fr_GetExposure() = g_exposureImage;
+            *fr_GetExposure() = *fr_GetExposureImage();
             *fr_MainControlCameraIndex() = 0;
         }
         APP_LOG("pes %d Satu %f\n", g_rAverageLedOnImage, g_rSaturatedRate);
@@ -473,11 +479,18 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
     IF_FLAG_STOP1(ES_FAILED);
     if (!nFaceDetectSuccess)
     {
-        (getFaceProcessData())->rFaceRect[0] = rFaceRects[0];
-        (getFaceProcessData())->rFaceRect[1] = rFaceRects[1];
-        (getFaceProcessData())->rFaceRect[2] = rFaceRects[2] - rFaceRects[0];
-        (getFaceProcessData())->rFaceRect[3] = rFaceRects[3] - rFaceRects[1];
-        (getFaceProcessData())->nFaceDetected = 1;
+        int nMIN_DNN_LUM = MIN_DNN_LUM;
+
+        if (g_rAverageLedOnImage > nMIN_DNN_LUM && (g_rSaturatedRate < SAT_THRESHOLD))
+        {
+            (getFaceProcessData())->rFaceRect[0] = rFaceRects[0];
+            (getFaceProcessData())->rFaceRect[1] = rFaceRects[1];
+            (getFaceProcessData())->rFaceRect[2] = rFaceRects[2] - rFaceRects[0];
+            (getFaceProcessData())->rFaceRect[3] = rFaceRects[3] - rFaceRects[1];
+            (getFaceProcessData())->nFaceDetected = 1;
+
+            *fr_GetMainProcessCameraIndex() = 0;
+        }
 
         //g_nLastDetectionSuccess = 1;
 #ifdef TimeProfiling
@@ -489,10 +502,12 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
     else
     {
         //g_nLastDetectionSuccess = 0;
-        if (!g_nCurEnvForCameraControlSettenFromOffImage)
+        if (!g_nCurEnvForCameraControlSettenFromOffImage && (*fr_GetEntireImageAnalysed() == 0))
         {
             APP_LOG("pes 2 o\n");
-            analyseBufferAndUpgradeCurEnvForCameraControl(pbLedOnImage, g_xEngineParam.nDetectionHeight, g_xEngineParam.nDetectionWidth, g_exposureImage, 0);
+            int nExpValue = (int)((float)(*fr_GetExposureImage()) * getGainRateFromGain_SC2355(*fr_GetGain(), *fr_GetFineGain()));
+            analyseBufferAndUpgradeCurEnvForCameraControl(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, nExpValue, 0);
+            *fr_GetEntireImageAnalysed() = 0;
         }
 
 #ifdef LOG_MODE
@@ -552,11 +567,6 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         nLRExpGainEqual = 0;
     }
 
-    if (g_rAverageLedOnImage < MIN_DNN_LUM || (g_rSaturatedRate > SAT_THRESHOLD))
-    {
-        (getFaceProcessData())->nFaceDetected = 0;
-    }
-
     if (nFaceDetectedinLeft && g_rAverageLedOnImage < MIN_DNN_LUM && *fr_GetExposure() > *fr_GetExposure2())
     {
         nRightCameraNeedToChceck = 0;
@@ -580,25 +590,28 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         my_printf("[%d] checkFaceInCamera2ImageTime = %f\r\n", (int)Now(), Now() - rStartTime1);
         my_printf("[%d] checkFaceInCamera2ImageTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
 #endif
+            //nFaceCheck = 1;
             if(!nFaceCheck)
             {
                 (getFaceProcessData())->nFaceDetected = 0;
                 APP_LOG("pes 4\n");
             }
+            IF_FLAG_STOP1(ES_FAILED);
         }
         else
         {
             (getFaceProcessData())->nFaceDetected = 0;
         }
 
-
+        IF_FLAG_STOP1(ES_FAILED);
+        /*
         if(nFaceDetectedinLeft)
         {
             if (g_rAverageLedOnImage < MIN_USER_LUM || g_rAverageLedOnImage > MAX_USER_LUM)
             {
                 g_nNeedToCalcNextExposure = 1;
             }
-            if (g_rSaturatedRate > SAT_THRESHOLD)
+            if (g_rSaturatedRate > 5)
             {
                 g_nNeedToCalcNextExposure = 1;
             }
@@ -608,6 +621,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
                 *fr_MainControlCameraIndex() = 0;
             }
         }
+        */
     }
     else
     {
@@ -619,15 +633,27 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
 #ifdef TimeProfiling
         float rStartTime1 = Now();
 #endif
-            convert_bayer2y_rotate((void*)pbBayerFromCamera2, (void*)g_pbYIrImage, 1280, 720, 1 - g_xEngineParam.iCamFlip);
+            if(*fr_GetBayerYConvertedCameraIndex() != 1)
+            {
+                convert_bayer2y_rotate_cm(pbBayerFromCamera2, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
+                *fr_GetBayerYConvertedCameraIndex() = 1;
+                //printf("Camera 1 Bayer->Y converted\n");
+
+            }
+            IF_FLAG_STOP1(ES_FAILED);
+
 #ifdef TimeProfiling
             my_printf("[%d] convert_bayer2y_rotateRightTime = %f\r\n", (int)Now(), Now() - rStartTime1);
             my_printf("[%d] convert_bayer2y_rotateRightTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
             rStartTime1 = Now();
 #endif
+            g_pbFaceDetectionBuffer = g_shared_mem + getDetectMenSize();
             FaceInfo *face_info = (FaceInfo *)g_pbFaceDetectionBuffer;
             int n_face_cnt = 0;
             detect(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, face_info, MAX_FACE_NUM, &n_face_cnt, g_pbFaceDetectionBuffer);
+
+            IF_FLAG_STOP1(ES_FAILED);
+
 #ifdef TimeProfiling
             my_printf("[%d] detectRightTime = %f\r\n", (int)Now(), Now() - rStartTime1);
             my_printf("[%d] detectRightTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
@@ -703,6 +729,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
                 rectAvg.width = aWidth * 0.6f;
                 rectAvg.height = aHeight * 0.8f;
                 calcAverageValues(g_pbYIrImage, 0, rectAvg);
+                IF_FLAG_STOP1(ES_FAILED);
 
 #ifdef TimeProfiling
         my_printf("[%d] calcAverageValuesRightTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
@@ -730,6 +757,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
                 (getFaceProcessData())->rFaceRect[3] = rFaceRects[3] - rFaceRects[1];
                 (getFaceProcessData())->nFaceDetected = 1;
 
+                *fr_GetMainProcessCameraIndex() = 1;
                 //g_nLastDetectionSuccess = 1;
             }
 
@@ -766,12 +794,13 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
                 g_nSecondImageNeedReCheck = 0;
                 APP_LOG("pes 51\n");
             }
+            IF_FLAG_STOP1(ES_FAILED);
         }
 
         //camera control decide
         if(!nFaceDetectedinLeft && !nFaceDetectedinRight)
         {
-            g_nNeedToCalcNextExposure = 1;
+            //g_nNeedToCalcNextExposure = 1;
             *fr_GetFaceDetected() = 0;
         }
         if(nFaceDetectedinLeft && !nFaceDetectedinRight)
@@ -780,7 +809,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
             g_rSaturatedRate = rSaturatedRate_temp;
             memcpy(g_nHistInLEDOnImage, g_nHistInLEDOnImage_temp, sizeof(int) * 256);
             g_rAverageDiffImage = g_rAverageLedOnImage;
-            g_nNeedToCalcNextExposure = 1;
+            //g_nNeedToCalcNextExposure = 1;
             *fr_GetFaceDetected() = 1;
             //*fr_GetExposure() = g_exposureImage;//nedd to decide
             *fr_MainControlCameraIndex() = 0;
@@ -790,7 +819,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         if(!nFaceDetectedinLeft && nFaceDetectedinRight)
         {
             g_rAverageDiffImage = g_rAverageLedOnImage;
-            g_nNeedToCalcNextExposure = 1;
+            //g_nNeedToCalcNextExposure = 1;
             *fr_GetFaceDetected() = 1;
             //*fr_GetExposure() = g_exposureImage;//nedd to decide
             *fr_MainControlCameraIndex() = 1;
@@ -818,7 +847,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
                 g_rSaturatedRate = rSaturatedRate_temp;
                 memcpy(g_nHistInLEDOnImage, g_nHistInLEDOnImage_temp, sizeof(int) * 256);
             }
-            g_nNeedToCalcNextExposure = 1;
+            //g_nNeedToCalcNextExposure = 1;
             *fr_GetFaceDetected() = 1;
             //*fr_GetExposure() = g_exposureImage;//nedd to decide
             *fr_MainControlCameraIndex() = nGoodCameraIndex;
@@ -843,32 +872,9 @@ int fr_ExtractFace_dnn()
 
     IF_FLAG_STOP1(ES_FAILED);
 
-    g_rExposureSettenTime = Now();
-
-    float rStart = Now();
-    float rPassTime;
-#ifdef ENGINE_IS_DUALCAMERA
-    float rPassTimeThreshold = 30;
-#else
-    float rPassTimeThreshold = 70;
-#endif
-
-    if(nTempCode == -1)
-    {
-        nTempCode = 0;
-        rPassTimeThreshold = 0;
-    }
 
     if (!(getFaceProcessData())->nFaceDetected)
     {
-       if (g_nNeedToCalcNextExposure)
-       {
-           rPassTime = Now() - rStart;
-           if (rPassTime < rPassTimeThreshold)
-           {
-               my_usleep((rPassTimeThreshold - rPassTime) * 1000);
-           }
-       }
        APP_LOG("[%d] pec 3 %d %d\n", (int)Now(), g_xEngineResult.nFaceNearFar, g_xEngineResult.nFacePosition);
 
     //        my_printf("Face far = %d\r\n", g_xEngineResult.nFaceNearFar);
@@ -890,8 +896,8 @@ int fr_ExtractFace_dnn()
         {
             return ES_FAILED;
         }
-
-        int nRet = getFaceModelPoint(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, g_pbFaceDetectionBuffer, (getFaceProcessData())->rFaceRect, (getFaceProcessData())->rLandmarkPoint);
+        unsigned char* pAlignBufferForModeling = g_shared_mem + Modeling_dnn_mem_size();
+        int nRet = getFaceModelPoint(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pAlignBufferForModeling, (getFaceProcessData())->rFaceRect, (getFaceProcessData())->rLandmarkPoint);
 #ifdef TimeProfiling
         my_printf("[%d] getFaceModelPointTime = %f\r\n", (int)Now(), Now() - rStartTime1);
         my_printf("[%d] getFaceModelPointTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
@@ -960,15 +966,15 @@ int fr_ExtractFace_dnn()
 #endif
     }
 
-    if (g_nNeedToCalcNextExposure)
-    {
-        rPassTime = Now() - rStart;
-        if (rPassTime < rPassTimeThreshold)
-        {
-            my_usleep((rPassTimeThreshold - rPassTime) * 1000);
-        }
-    }
     APP_LOG("[%d] pec 00\n", (int)Now());
+
+    unsigned char *pLiveAlignAC, *pLiveAlignB, *pLiveAlignB2, *pLiveAlignFeat;
+    pLiveAlignAC = g_shared_mem;
+    pLiveAlignB = pLiveAlignAC + 128*128;
+    pLiveAlignB2 = pLiveAlignB + 128*128;
+    pLiveAlignFeat = pLiveAlignB2 + 88*128;
+    generateAlignImageForLiveness(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pLiveAlignAC, pLiveAlignB, pLiveAlignB2, (getFaceProcessData())->rLandmarkPoint);
+    generateAlignImageForFeature(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pLiveAlignFeat, (getFaceProcessData())->rLandmarkPoint);
 
     return ES_SUCCESS;
 }
@@ -978,8 +984,22 @@ int	fr_RegisterFace_dnn(int iFaceDir)
     g_nEnrollFeatureAdded = 0;
     IF_FLAG_STOP1(ES_FAILED);
 
-    if (g_xEngineResult.fValid == 0)
+    float rStart = Now();
+    float rPassTime;
+    float rPassTimeThreshold = 70;
+
+    if (g_xEngineResult.fValid == 0 /*|| fr_GetNeedSmallFaceCheck() == 0*/)
+    {
+        if (g_nNeedToCalcNextExposure)
+        {
+           rPassTime = Now() - rStart;
+           if (rPassTime < rPassTimeThreshold)
+           {
+               my_usleep((rPassTimeThreshold - rPassTime) * 1000);
+           }
+        }
         return ES_PROCESS;
+    }
     APP_LOG("[%d] pdc 2 %d\n", (int)Now(), g_nPassedDirectionCount);
 
     if(g_nEnrollDirectionMode == ENROLL_ONLY_FRONT_DIRECTION_MODE)
@@ -989,27 +1009,29 @@ int	fr_RegisterFace_dnn(int iFaceDir)
 
     if(g_nPassedDirectionCount == g_nEnrollDirectionMax)
     {
+        if (g_nNeedToCalcNextExposure)
+        {
+           rPassTime = Now() - rStart;
+           if (rPassTime < rPassTimeThreshold)
+           {
+               my_usleep((rPassTimeThreshold - rPassTime) * 1000);
+           }
+        }
         APP_LOG("[%d] pec 9\n", (int)Now());
         return ES_FAILED;
     }
 
-    if(g_rSaturatedRate > SAT_THRESHOLD)
-    {
-        APP_LOG("[%d] pec 10\n", (int)Now());
-        return ES_FAILED;
-    }
-
-#if (FAKE_DETECTION == 1 && ENROLL_FAKE == 1)
-    if (g_rAverageLedOnImage < ENROLL_LIVENESS_MIN_AVERAGE)
-    {
-        APP_LOG("[%d] pec 11\n", (int)Now());
-        return ES_FAILED;
-    }
-#endif
-
 
     if(!isCorrectPose(iFaceDir) && g_xEngineParam.iDemoMode != N_DEMO_FACTORY_MODE)
     {
+        if (g_nNeedToCalcNextExposure)
+        {
+           rPassTime = Now() - rStart;
+           if (rPassTime < rPassTimeThreshold)
+           {
+               my_usleep((rPassTimeThreshold - rPassTime) * 1000);
+           }
+        }
         return ES_DIRECTION_ERROR;
     }
 
@@ -1028,30 +1050,30 @@ int	fr_RegisterFace_dnn(int iFaceDir)
 #endif
 
     IF_FLAG_STOP1(ES_FAILED);
-    int nLiveness = check2D_3DFake();
 
-    IF_FLAG_STOP1(ES_FAILED);
-
-    if(nLiveness == ES_SUCCESS)
+    if(((fr_GetNeedSmallFaceCheck() == 1 && checkFaceIsInPhoto() != ES_SUCCESS) || fr_GetNeedSmallFaceCheck() == 0) && g_xEngineParam.iDemoMode != N_DEMO_FACTORY_MODE)
     {
-        fCurRealState = 1;
+        *getContinueRealCount() = 0;
+        if(fr_GetNeedSmallFaceCheck() == 1 && checkFaceIsInPhoto() != ES_SUCCESS)
+        {
+            APP_LOG("[%d] pec 26-ps\n", (int)Now());
+        }
+        APP_LOG("[%d] pec 26-ps\n", (int)Now());
     }
     else
     {
-        APP_LOG("[%d] pec 16\n", (int)Now());
+        *getContinueRealCount() = *getContinueRealCount() + 1;
     }
+
 
 #ifdef TimeProfiling
     my_printf("[%d] 2D 3D fake Time = %f\r\n", (int)Now(), Now() - rTempStartTime);
     my_printf("[%d] 2D 3D fake Time111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
 #endif
 
-    fComboRealState = fCurRealState && g_fRealState;
-    g_fRealState = fCurRealState;
+    APP_LOG("[%d] pec 17 %d\n", (int)Now(), *getContinueRealCount());
 
-    APP_LOG("[%d] pec 17 %d %d\n", (int)Now(), fComboRealState, g_fRealState);
-
-    if(!fComboRealState)
+    if(*getContinueRealCount() < USER_CONTINUE_FRAME)
     {
         g_nFakeFrameCountInOneDirection ++;
         APP_LOG("[%d] pec 18 %d\n", (int)Now(), g_nFakeFrameCountInOneDirection);
@@ -1062,6 +1084,14 @@ int	fr_RegisterFace_dnn(int iFaceDir)
         }
         else
         {
+            if (g_nNeedToCalcNextExposure)
+            {
+               rPassTime = Now() - rStart;
+               if (rPassTime < rPassTimeThreshold)
+               {
+                   my_usleep((rPassTimeThreshold - rPassTime) * 1000);
+               }
+            }
             return ES_PROCESS;
         }
     }
@@ -1071,19 +1101,27 @@ int	fr_RegisterFace_dnn(int iFaceDir)
 
     *getDNNFeatureExtracted() = 0;
     extarctDNNFeature_process();
-    float* arLastDNNFeature = getLastDNNFeature();
+    unsigned short* arLastDNNFeature = getLastDNNFeature();
 
     IF_FLAG_STOP1(ES_FAILED);
 
     if(!(*getDNNFeatureExtracted()))
     {
 //        my_printf("extract DNN Feature falied\r\n");
+        if (g_nNeedToCalcNextExposure)
+        {
+           rPassTime = Now() - rStart;
+           if (rPassTime < rPassTimeThreshold)
+           {
+               my_usleep((rPassTimeThreshold - rPassTime) * 1000);
+           }
+        }
         return ES_PROCESS;
     }
 
     if(g_nPassedDirectionCount == 0)
     {
-        memcpy((float*)(g_xEnrollFeatA->arFeatBuffer) + g_xEnrollFeatA->nDNNFeatCount * KDNN_FEAT_SIZE, arLastDNNFeature, sizeof(float)* KDNN_FEAT_SIZE);
+        memcpy((unsigned short*)(g_xEnrollFeatA->arFeatBuffer) + g_xEnrollFeatA->nDNNFeatCount * KDNN_FEAT_SIZE, arLastDNNFeature, sizeof(unsigned short)* KDNN_FEAT_SIZE);
         g_xEnrollFeatA->ab_Info[g_xEnrollFeatA->nDNNFeatCount] = g_nCurInfo;
         g_xEnrollFeatA->nDNNFeatCount = g_xEnrollFeatA->nDNNFeatCount + 1;
         APP_LOG("[%d] pec 19\n", (int)Now());
@@ -1093,10 +1131,10 @@ int	fr_RegisterFace_dnn(int iFaceDir)
     else
     {
         int pnDNNFeatureCount[2];
-        float* prDNNEnrolledFeature[2];
+        unsigned short* prDNNEnrolledFeature[2];
 
         pnDNNFeatureCount[0] = g_xEnrollFeatA->nDNNFeatCount;
-        prDNNEnrolledFeature[0] = (float*)g_xEnrollFeatA->arFeatBuffer;
+        prDNNEnrolledFeature[0] = (unsigned short*)g_xEnrollFeatA->arFeatBuffer;
 
         float rDNNScore;
         int nDNNMaxScoreIndex;
@@ -1114,7 +1152,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
         {
 //            my_printf("In Enrolling DNN Feature added.\r\n");
 
-            memcpy((float*)(g_xEnrollFeatA->arFeatBuffer) + g_xEnrollFeatA->nDNNFeatCount * KDNN_FEAT_SIZE, arLastDNNFeature, sizeof(float)* KDNN_FEAT_SIZE);
+            memcpy((unsigned short*)(g_xEnrollFeatA->arFeatBuffer) + g_xEnrollFeatA->nDNNFeatCount * KDNN_FEAT_SIZE, arLastDNNFeature, sizeof(unsigned short)* KDNN_FEAT_SIZE);
             g_xEnrollFeatA->ab_Info[g_xEnrollFeatA->nDNNFeatCount] = g_nCurInfo;
             g_xEnrollFeatA->nDNNFeatCount = g_xEnrollFeatA->nDNNFeatCount + 1;
             g_nEnrollFeatureAdded = 1;
@@ -1148,6 +1186,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
     {
         if (nDuplicated && (g_nEnrollDirectionMax == 1))
         {
+            APP_LOG("[%d] pec 25\n", (int)Now());
             return ES_DUPLICATED;
         }
         return ES_SUCCESS;
@@ -1231,14 +1270,14 @@ int fr_Retrieval_dnn()
         {
             g_nIndexList_Admin[nAdminPersonCount] = i;
             g_nDNNFeatureCount_Admin[nAdminPersonCount] = pFeatInfo->nDNNFeatCount;
-            g_prDNNEnrolledFeature_Admin[nAdminPersonCount] = (float*)(pFeatInfo->arFeatBuffer);
+            g_prDNNEnrolledFeature_Admin[nAdminPersonCount] = (unsigned short*)(pFeatInfo->arFeatBuffer);
             nAdminPersonCount ++;
         }
         else
         {
             g_nIndexList[nPersonCount] = i;
             g_nDNNFeatureCount[nPersonCount] = pFeatInfo->nDNNFeatCount;
-            g_prDNNEnrolledFeature[nPersonCount] = (float*)(pFeatInfo->arFeatBuffer);
+            g_prDNNEnrolledFeature[nPersonCount] = (unsigned short*)(pFeatInfo->arFeatBuffer);
             nPersonCount ++;
         }
     }
@@ -1257,7 +1296,7 @@ int fr_Retrieval_dnn()
     my_printf("[%d] pre extarctDNNFeature_process111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
 #endif
     extarctDNNFeature_process();
-    float* arLastDNNFeature = getLastDNNFeature();
+    unsigned short* arLastDNNFeature = getLastDNNFeature();
     // {
     //     int nIndex;
     //     my_printf("Face Feature\n");
@@ -1354,7 +1393,7 @@ int fr_calc_Off_dnn(unsigned char *pbLedOffImage)
     if (!g_nCurEnvForCameraControlSettenFromOffImage)
     {
         APP_LOG("pes 15 f\n");
-        analyseBufferAndUpgradeCurEnvForCameraControl(pbLedOffImage, g_xEngineParam.nDetectionHeight, g_xEngineParam.nDetectionWidth, g_exposurePrev, 1);
+        analyseBufferAndUpgradeCurEnvForCameraControl(pbLedOffImage, g_xEngineParam.nDetectionHeight, g_xEngineParam.nDetectionWidth, *fr_GetExposurePrev(), 1);
         g_nCurEnvForCameraControlSettenFromOffImage = 1;
     }
     return 0;
@@ -1377,7 +1416,7 @@ void    fr_LoadFeatureForDuplicateCheck_dnn(int nUpdateID)
 
         g_nIndexList_Dup[g_nEnrollePersonCount_Dup] = i;
         g_nDNNFeatureCount_Dup[g_nEnrollePersonCount_Dup] = pxFeatInfo->nDNNFeatCount;
-        g_prDNNEnrolledFeature_Dup[g_nEnrollePersonCount_Dup] = (float*)pxFeatInfo->arFeatBuffer;
+        g_prDNNEnrolledFeature_Dup[g_nEnrollePersonCount_Dup] = (unsigned short*)pxFeatInfo->arFeatBuffer;
 
         g_nEnrollePersonCount_Dup ++;
     }
@@ -1390,7 +1429,7 @@ int     fr_GetRegisteredFeatInfo_dnn(void* pFeatInfo)
     if (g_xEnrollFeatA->nDNNFeatCount > 0)
     {
         //LOG_PRINT("dfa = %d\n", g_xEnrollFeatA->nDNNFeatCount);
-        memcpy(pxFeatInfo->arFeatBuffer, g_xEnrollFeatA->arFeatBuffer, g_xEnrollFeatA->nDNNFeatCount * KDNN_FEAT_SIZE * sizeof(float));
+        memcpy(pxFeatInfo->arFeatBuffer, g_xEnrollFeatA->arFeatBuffer, g_xEnrollFeatA->nDNNFeatCount * KDNN_FEAT_SIZE * sizeof(unsigned short));
         memcpy(pxFeatInfo->ab_Info, g_xEnrollFeatA->ab_Info, g_xEnrollFeatA->nDNNFeatCount * sizeof(unsigned char));
         pxFeatInfo->nDNNFeatCount = g_xEnrollFeatA->nDNNFeatCount;
     }

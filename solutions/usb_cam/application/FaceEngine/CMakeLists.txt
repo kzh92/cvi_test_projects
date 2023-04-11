@@ -3,8 +3,8 @@ include(../config.cmake)
 project(FaceEngine LANGUAGES CXX)
 project(FaceEngine LANGUAGES C)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mthumb -O3 -fsigned-char -mfpu=neon -std=c++11 -fopenmp")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthumb -O3 -fsigned-char -mfpu=neon -std=c++11 -fopenmp")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mthumb -O3 -fsigned-char -mfpu=neon-fp16 -mfp16-format=ieee -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthumb -O3 -fsigned-char -mfpu=neon-fp16 -mfp16-format=ieee -std=c++11 -fopenmp")
 
 add_definitions(-DFE_ENGINE_LIB)
 
@@ -13,7 +13,6 @@ set(FACEENGINE_SRC
     FaceRetrievalSystem.cpp
     sha1.cpp
     gammacorrection.cpp
-    removebackground.cpp
     manageEnvironment.cpp
     convert.cpp
     Pose.cpp
@@ -21,42 +20,47 @@ set(FACEENGINE_SRC
     FaceRetrievalSystem_dnn.cpp
     FaceRetrievalSystem_h.cpp
     manageIRCamera.cpp
-    convertBayer2Y.cpp
+    convertBayer2Y_cm.cpp
+    ComboRetrievalSystem.cpp
     ../_base/DBManager.cpp
     ../_base/common_types.cpp
+#    ./hand/hand.cpp
+#    ./hand/HandRetrival.cpp
+    ./hand/HandRetrival_.cpp
 )
 
 set(DNN_SRC
     _dnn/KDNN_EngineInterface_liveness.cpp
     _dnn/KDNN_EngineInterface_feat.cpp
+    _dnn/KDNN_handValid.cpp
     _dnn/HAlign.cpp
     _dnn/UltraFace.cpp
     _dnn/modeling_interface.cpp
-    _dnn/livemnse3.cpp
     _dnn/esn_detection.cpp
     _dnn/occ_detection.cpp
     _dnn/esn.cpp
-    _dnn/livemn.cpp
-    _dnn/livemnse.cpp
+    _dnn/livemnse.c
+    _dnn/livemnse3.c
     _dnn/occ.cpp
-    _dnn/modeling.cpp
-    _dnn/detect.cpp
+    _dnn/modeling.c
+    _dnn/detect.c
     _dnn/feat.cpp
+    _dnn/hand_feat.c
     _dnn/dic_manage.cpp
 )
 
 set(ENN_SRC
-    enn/enn_activation.cpp
-    enn/enn_conv.cpp
-    enn/enn_eltwise.cpp
-    enn/enn_global.cpp
-    enn/enn_inner.cpp
-    enn/enn_pad.cpp
-    enn/enn_permute.cpp
-    enn/enn_pool.cpp
-    enn/enn_reshape.cpp
-    enn/enn_softmax.cpp
-    enn/enn_trans.cpp
+    enn/enn_activation.c
+    enn/enn_conv.c
+    enn/enn_eltwise.c
+    enn/enn_global.c
+    enn/enn_inner.c
+    enn/enn_pad.c
+    enn/enn_permute.c
+    enn/enn_pool.c
+    enn/enn_reshape.c
+    enn/enn_softmax.c
+    enn/enn_trans.c
     )
 
 set(ENNQ_SRC
@@ -82,9 +86,9 @@ set_target_properties(faceengine
 target_link_libraries(faceengine -lpthread -ldl -lgomp)
 
 if (DEFINED MY_USE_TWIN_ENGINE)
-    target_link_libraries(faceengine -L../FaceEngine/HEngineLib -lhengine)
+    target_link_libraries(faceengine -L../../FaceEngine/HEngineLib -lhengine)
 endif()
 
-include_directories(./ ./HEngineLib ./AEngineLib  ./_dnn ./_nqmfnr ./enn ./ennq ../_base ../_uart)
+include_directories(./ ./HEngineLib ./AEngineLib  ./_dnn ./_nqmfnr ./enn ./ennq ../_base ../_uart ./hand)
 
 #/root/QuickBoot/a20/

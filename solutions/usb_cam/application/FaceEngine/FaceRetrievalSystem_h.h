@@ -3,7 +3,8 @@
 
 void    fr_InitEngine_h();
 int     fr_PreExtractFace_h(unsigned char *pbClrImage, unsigned char *pbLedOnImage);
-int     fr_ExtractFace_h(unsigned char *pbBayerFromCamera2);
+int		fr_PreExtractFace2_h(unsigned char *pbBayerFromCamera2);
+int     fr_ExtractFace_h();
 int     fr_RegisterFace_h(int iFaceDir);
 int     fr_Retrieval_h();
 int     fr_calc_Off_h(unsigned char *pbLedOffImage);

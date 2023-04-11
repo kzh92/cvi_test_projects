@@ -1,16 +1,32 @@
 #include "manageIRCamera.h"
 #include "FaceRetrievalSystem.h"
+#include "FaceRetrievalSystem_base.h"
+#include "EngineDef.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define LIMIT_INCREASE_RATE	1.5f
 int g_nFaceFailed = 0;
+
+
+#include "HandRetrival_.h"
+int g_nHandFailed = 0;
+
+//static int g_exposure = 0;
+//static int g_nGain = 0;
+//static int g_nFineGain = 0;
+//static int g_exposure2 = 0;
+//static int g_nGain2 = 0;
+//static int g_nFineGain2 = 0;
+
+
 //get init Exp
 void setInitExp()
 {
-    int		iInitExps[10];
-    int		iInitGains[10];
+    int		iInitExps[14];
+    int		iInitGains[14];
+    int		iInitFineGains[14];
 
     iInitExps[0] = INIT_EXP_2;
     iInitExps[1] = INIT_EXP_3;
@@ -22,6 +38,10 @@ void setInitExp()
     iInitExps[7] = INIT_EXP_9;
     iInitExps[8] = INIT_EXP_10;
     iInitExps[9] = INIT_EXP_11;
+    iInitExps[10] = INIT_EXP_12;
+    iInitExps[11] = INIT_EXP_13;
+    iInitExps[12] = INIT_EXP_14;
+    iInitExps[13] = INIT_EXP_15;
 
     iInitGains[0] = INIT_GAIN_2;
     iInitGains[1] = INIT_GAIN_3;
@@ -33,6 +53,25 @@ void setInitExp()
     iInitGains[7] = INIT_GAIN_9;
     iInitGains[8] = INIT_GAIN_10;
     iInitGains[9] = INIT_GAIN_11;
+    iInitGains[10] = INIT_GAIN_12;
+    iInitGains[11] = INIT_GAIN_13;
+    iInitGains[12] = INIT_GAIN_14;
+    iInitGains[13] = INIT_GAIN_15;
+
+    iInitFineGains[0] = INIT_FINEGAIN_2;
+    iInitFineGains[1] = INIT_FINEGAIN_3;
+    iInitFineGains[2] = INIT_FINEGAIN_4;
+    iInitFineGains[3] = INIT_FINEGAIN_5;
+    iInitFineGains[4] = INIT_FINEGAIN_6;
+    iInitFineGains[5] = INIT_FINEGAIN_7;
+    iInitFineGains[6] = INIT_FINEGAIN_8;
+    iInitFineGains[7] = INIT_FINEGAIN_9;
+    iInitFineGains[8] = INIT_FINEGAIN_10;
+    iInitFineGains[9] = INIT_FINEGAIN_11;
+    iInitFineGains[10] = INIT_FINEGAIN_12;
+    iInitFineGains[11] = INIT_FINEGAIN_13;
+    iInitFineGains[12] = INIT_FINEGAIN_14;
+    iInitFineGains[13] = INIT_FINEGAIN_15;
 
     //calc cur init exp
     int nCurEnv;
@@ -41,37 +80,73 @@ void setInitExp()
     int nEnvIndex;
 
     nCurEnv = fr_GetCurEnvForCameraControl();
+    int nSelectedEnvIndex = -1;
+    int nNewIndex = 0;
+#if (ENGINE_USE_TWO_CAM == 1)//ENGINE_USE_TWO_CAM=0:2D, 1:common, 2:3M
     if (nCurEnv == 0)//dark
     {
         nStartEnvIndex = 0;
-        nEndEnvIndex = 1;
+        nEndEnvIndex = 3;
     }
     else if (nCurEnv == 1)//indoor
     {
-        nStartEnvIndex = 2;
-        nEndEnvIndex = 5;
+        nStartEnvIndex = 4;
+        nEndEnvIndex = 7;
     }
     else//outdoor
     {
-        nStartEnvIndex = 6;
-        nEndEnvIndex = 9;
+        nStartEnvIndex = 8;
+        nEndEnvIndex = 13;
     }
-    int nSelectedEnvIndex = -1;
-    int nNewIndex = nStartEnvIndex;
     for (nEnvIndex = nStartEnvIndex; nEnvIndex <= nEndEnvIndex; nEnvIndex += 2)
     {
-        if (*fr_GetExposure() == iInitExps[nEnvIndex] && *fr_GetGain() == iInitGains[nEnvIndex] &&
-            *fr_GetExposure2() == iInitExps[nEnvIndex + 1] && *fr_GetGain2() == iInitGains[nEnvIndex + 1])
+        if (*fr_GetExposure_bkup() == iInitExps[nEnvIndex] && *fr_GetGain_bkup() == iInitGains[nEnvIndex] &&
+            *fr_GetExposure2_bkup() == iInitExps[nEnvIndex + 1] && *fr_GetGain2_bkup() == iInitGains[nEnvIndex + 1])
         {
             nSelectedEnvIndex = nEnvIndex;
         }
     }
-
     if (nSelectedEnvIndex == -1)
     {
         nNewIndex = nStartEnvIndex;
     }
     else if (nSelectedEnvIndex < nEndEnvIndex - 1)
+    {
+        nNewIndex = nSelectedEnvIndex + 2;
+    }
+    else
+    {
+        nNewIndex = nStartEnvIndex;
+    }
+#else
+    if (nCurEnv == 0)//dark
+    {
+        nStartEnvIndex = 0;
+        nEndEnvIndex = 3;
+    }
+    else if (nCurEnv == 1)//indoor
+    {
+        nStartEnvIndex = 4;
+        nEndEnvIndex = 7;
+    }
+    else//outdoor
+    {
+        nStartEnvIndex = 8;
+        nEndEnvIndex = 11;
+    }
+
+    for (nEnvIndex = nStartEnvIndex; nEnvIndex <= nEndEnvIndex; nEnvIndex ++)
+    {
+        if (*fr_GetExposure() == iInitExps[nEnvIndex] && *fr_GetGain() == iInitGains[nEnvIndex])
+        {
+            nSelectedEnvIndex = nEnvIndex;
+        }
+    }
+    if (nSelectedEnvIndex == -1)
+    {
+        nNewIndex = nStartEnvIndex;
+    }
+    else if (nSelectedEnvIndex < nEndEnvIndex)
     {
         nNewIndex = nSelectedEnvIndex + 1;
     }
@@ -79,63 +154,102 @@ void setInitExp()
     {
         nNewIndex = nStartEnvIndex;
     }
+#endif
 
     *fr_GetExposure() = iInitExps[nNewIndex];
     *fr_GetGain() = iInitGains[nNewIndex];
+    *fr_GetFineGain() = iInitFineGains[nNewIndex];
     *fr_GetExposure2() = iInitExps[nNewIndex + 1];
     *fr_GetGain2() = iInitGains[nNewIndex + 1];
+    *fr_GetFineGain2() = iInitFineGains[nNewIndex + 1];
 }
 
-float getGainRateFromGain(int nGain)
+#define SC2355_COARSE_GAIN_COUNT    5
+int g_nSC2355_COARSE_GAIN_TABLE[SC2355_COARSE_GAIN_COUNT][2] =
 {
-    float rGainRate = 1.0f;
-    float rGainRate1, rGainRate2;
-    rGainRate1 = (float)(nGain & 0xF) / 0x10 + 1.0f;
-    rGainRate2 = pow(2.0f, ((nGain >> 4) & 0x7));
+    {0x00,1},
+    {0x01,2},
+    {0x03,4},
+    {0x07,8},
+    {0x0F,16},
+};
 
-    rGainRate = rGainRate1 * rGainRate2;
+float getGainRateFromGain_SC2355(int nCoarseGain, int nFineGain)
+{
+    float rCoarseGainRate, rFineGainRate;
+    float rGainRate = 1.0f;
+
+    int nCourseGainIndex = 0;
+    int nIndex;
+    for(nIndex = 0; nIndex < SC2355_COARSE_GAIN_COUNT; nIndex ++)
+    {
+        if(g_nSC2355_COARSE_GAIN_TABLE[nIndex][0] == nCoarseGain)
+        {
+            nCourseGainIndex = nIndex;
+            break;
+        }
+    }
+
+    rCoarseGainRate = g_nSC2355_COARSE_GAIN_TABLE[nCourseGainIndex][1];
+    if(nFineGain < 0x80)
+    {
+        nFineGain = 0x80;
+    }
+    if(nFineGain > 0xfe)
+    {
+        nFineGain = 0xfe;
+    }
+
+    rFineGainRate = (float)nFineGain / 0x80;
+    rGainRate = rCoarseGainRate * rFineGainRate;
     return rGainRate;
 }
 
-
-
-int getGainFromGainRate(float rGainRate, float rMaxScore)
+int getGainFromGainRate_SC2355(float rGainRate, float rMaxScore, int &nCoarseGain, int &nFineGain)
 {
-    int nGain;
     if (rGainRate <= 1)
     {
-        return 0;
+        rGainRate = 1;
     }
     if (rGainRate > rMaxScore)
     {
         rGainRate = rMaxScore;
     }
-    int nPowNum = (int)(log(rGainRate) / log(2));
-    if (nPowNum < 0)
+
+    int nPowIndex = (int)(log(rGainRate) / log(2));
+    if (nPowIndex < 0)
     {
-        nPowNum = 0;
+        nPowIndex = 0;
     }
 
-    float rRate1 = rGainRate / pow(2.0f, nPowNum);
-    int nAlpaValue = (int)((rRate1 - 1) * 16);
-    if (nAlpaValue < 0)
+    nCoarseGain = g_nSC2355_COARSE_GAIN_TABLE[nPowIndex][0];
+    float rRate1 = rGainRate / pow(2.0f, nPowIndex);
+    nFineGain = (int)(rRate1 * 0x80);
+    if(nFineGain < 0x80)
     {
-        nAlpaValue = 0;
+        nFineGain = 0x80;
     }
-    if (nAlpaValue > 15)
+    if(nFineGain > 0xfe)
     {
-        nAlpaValue = 15;
+        nFineGain = 0xfe;
     }
-    nGain = (nPowNum << 4) | nAlpaValue;
-
-    return nGain;
+    return 0;
 }
 
+#define SC2355_CONTROL_MILSTONE_COUNT   5
+float SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT][2] =
+{
+    {MIN_EXP,1.0f},
+    {MID_EXP,1.0f},
+    {MID_EXP,4.0f},
+    {MAX_EXP,4.0f},
+    {MAX_EXP,8.0f},
+};
 
 void CalcNextExposure_inner()
 {
     //changed by KSB 20180711
-    int nNewGain, nNewExposure;
+    int nNewGain, nNewFineGain, nNewExposure;
 
     if(!(*fr_GetFaceDetected()))
     {
@@ -143,8 +257,8 @@ void CalcNextExposure_inner()
         if(g_nFaceFailed >= DETECT_FAIL_COUNT)
         {
            setInitExp();
-
            g_nFaceFailed = 0;
+           g_nNeedToCalcNextExposure = 1;
         }
 
         return;
@@ -173,14 +287,15 @@ void CalcNextExposure_inner()
     nAverageValueInDiff = nAverageDiffImage;
 
     float rDeltaValue = 1.0f;
-    // float rGain2Step = 10.0f;
-    float rMaxGainRate = 4.0f;
+    float rMaxGainRate = 8.0f;
     //LOGE("AAA rSaturatedRate = %f", rSaturatedRate);
 
     if (nAverageValueInDiff < MIN_USER_LUM && rSaturatedRate < SAT_THRESHOLD)
     {
         //calc top level
         int nThresLevel = fr_GetBrightUpThresholdLevel();
+
+        nThresLevel++;
         if (nThresLevel > 250)
         {
             nThresLevel = 250;
@@ -214,139 +329,82 @@ void CalcNextExposure_inner()
         }
         else if (nAverageValueInDiff > MAX_USER_LUM)
         {
-            rDeltaValue = (float)MAX_USER_LUM / nAverageValueInDiff;
+            rDeltaValue = ((float)(MAX_USER_LUM + MIN_USER_LUM) / 2)/ nAverageValueInDiff;
         }
     }
 
-    float rExposureRate, rAvailableExposureRate;
-    float rExposureRateUnderMid, rExposureRateUpperMid;
-    float rAvailableGainRate;
-    float rGainRate;
+    float rGainRate = 1.0;
 
     int nMainControlCameraIndex = *fr_MainControlCameraIndex();
 
-    int nOldGain, nOldExposure;
+    int nOldGain, nOldExposure, nOldFineGain;
 
     if(nMainControlCameraIndex == 0)
     {
-        nOldGain = *fr_GetGain();
-        nOldExposure = *fr_GetExposure();
+        nOldGain = *fr_GetGain_bkup();
+        nOldExposure = *fr_GetExposure_bkup();
+        nOldFineGain = *fr_GetFineGain_bkup();
     }
     else
     {
-        nOldGain = *fr_GetGain2();
-        nOldExposure = *fr_GetExposure2();
+        nOldGain = *fr_GetGain2_bkup();
+        nOldExposure = *fr_GetExposure2_bkup();
+        nOldFineGain = *fr_GetFineGain2_bkup();
     }
+
     nNewGain = nOldGain;
     nNewExposure = nOldExposure;
+    nNewFineGain = nOldFineGain;
+
+    //printf("rDeltaValue = %f\n", rDeltaValue);
+    //printf("org exp = %d, Gain = %d %d\n", nNewExposure, nNewGain, nNewFineGain);
 
     *fr_GetExposure() = nNewExposure;
     *fr_GetGain() = nNewGain;
+    *fr_GetFineGain() = nNewFineGain;
     *fr_GetExposure2() = nNewExposure;
     *fr_GetGain2() = nNewGain;
-
-    //printf("CalcNextExposure_inner nOldExposure = %d\n", nOldExposure);
-    //printf("CalcNextExposure_inner nOldGain = %d\n", nOldGain);
+    *fr_GetFineGain2() = nNewFineGain;
 
     if (rDeltaValue != 1.0f)
     {
-        if (rDeltaValue > 1.0f)
+        float rCurExpGainValue, rNewExpGainValue;
+
+        rCurExpGainValue = (float)(nOldExposure) * getGainRateFromGain_SC2355(nNewGain, nOldFineGain);
+        rNewExpGainValue = rCurExpGainValue * rDeltaValue;
+
+        if(rNewExpGainValue < (float)SC2355_CONTROL_MILSTONE[0][0] * SC2355_CONTROL_MILSTONE[0][1])
         {
-            rExposureRateUnderMid = 1;
-            rExposureRateUpperMid = 1;
-
-            rGainRate = 1;
-            rAvailableGainRate = rMaxGainRate / getGainRateFromGain(nOldGain);
-            rAvailableExposureRate = 1;
-
-            rExposureRate = 1;
-
-            if (nOldExposure < MID_EXP)
-            {
-                rExposureRateUnderMid = (float)MID_EXP / nOldExposure;
-            }
-
-            if (nOldExposure < MAX_EXP)
-            {
-                rAvailableExposureRate = (float)MAX_EXP / nOldExposure;
-            }
-
-
-            if (rDeltaValue <= rExposureRateUnderMid)
-            {
-                rExposureRate = rDeltaValue;
-                rGainRate = 1.0f;
-            }
-            else
-            {
-                rGainRate = rDeltaValue / rExposureRateUnderMid;
-                if (rGainRate < rAvailableGainRate)
-                {
-                    rExposureRate = rExposureRateUnderMid;
-                }
-                else
-                {
-                    rGainRate = rAvailableGainRate;
-                    rExposureRateUpperMid = rDeltaValue / (rExposureRateUnderMid * rGainRate);
-                    rExposureRate = rExposureRateUpperMid * rExposureRateUnderMid;
-                }
-             }
-
-             if (rExposureRate > rAvailableExposureRate)
-             {
-                rExposureRate = rAvailableExposureRate;
-             }
+            rGainRate = SC2355_CONTROL_MILSTONE[0][1];
+            nNewExposure = (int)(SC2355_CONTROL_MILSTONE[0][0]);
+        }
+        else if(rNewExpGainValue > (float)SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][0] * SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][1])
+        {
+            rGainRate = SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][1];
+            nNewExposure = (int)(SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][0]);
         }
         else
         {
-            rExposureRateUnderMid = 1;
-            rExposureRateUpperMid = 1;
-            rExposureRate = 1;
-            rGainRate = 1;
-            rAvailableGainRate = 1.0f / getGainRateFromGain(nOldGain);
-
-            rAvailableExposureRate = 1;
-            rExposureRate = 1;
-
-            if (nOldExposure > MID_EXP)
+            int nMileStoneIndex, nSelectedIndex;
+            nSelectedIndex = 0;
+            for(nMileStoneIndex = 0; nMileStoneIndex < SC2355_CONTROL_MILSTONE_COUNT - 1; nMileStoneIndex ++)
             {
-                rExposureRateUpperMid = (float)MID_EXP / nOldExposure;
-            }
-
-            if (rDeltaValue > rExposureRateUpperMid)
-            {
-                rExposureRate = rDeltaValue;
-                rGainRate = 1;
-            }
-            else
-            {
-                rGainRate = rDeltaValue / rExposureRateUpperMid;
-                if (rGainRate > rAvailableGainRate)
+                if(rNewExpGainValue >= (float)SC2355_CONTROL_MILSTONE[nMileStoneIndex][0] * SC2355_CONTROL_MILSTONE[nMileStoneIndex][1] &&
+                   rNewExpGainValue < (float)SC2355_CONTROL_MILSTONE[nMileStoneIndex + 1][0] * SC2355_CONTROL_MILSTONE[nMileStoneIndex + 1][1])
                 {
-                    rExposureRate = rExposureRateUpperMid;
-                }
-                else
-                {
-                    rGainRate = rAvailableGainRate;
-                    rExposureRateUnderMid = rDeltaValue / (rExposureRateUnderMid * rGainRate);
-                    rExposureRate = rExposureRateUpperMid * rExposureRateUnderMid;
+                    nSelectedIndex = nMileStoneIndex;
                 }
             }
 
-            if (nOldExposure > MIN_EXP)
+            float rDeltaRate = rNewExpGainValue / ((float)SC2355_CONTROL_MILSTONE[nSelectedIndex][0] * SC2355_CONTROL_MILSTONE[nSelectedIndex][1]);
+            nNewExposure = (int)((float)SC2355_CONTROL_MILSTONE[nSelectedIndex][0] * rDeltaRate);
+            if(nNewExposure > (int)SC2355_CONTROL_MILSTONE[nSelectedIndex + 1][0])
             {
-                rAvailableExposureRate = (float)MIN_EXP / nOldExposure;
+                nNewExposure = (int)SC2355_CONTROL_MILSTONE[nSelectedIndex + 1][0];
             }
-
-            if (rExposureRate < rAvailableExposureRate)
-            {
-                rExposureRate = rAvailableExposureRate;
-            }
+            rGainRate = rNewExpGainValue / nNewExposure;
         }
-
-        nNewExposure = (int)(rExposureRate * nOldExposure);
-        float rNewGainRate = rGainRate * getGainRateFromGain(nOldGain);
-        nNewGain = getGainFromGainRate(rNewGainRate, rMaxGainRate);
+        getGainFromGainRate_SC2355(rGainRate, rMaxGainRate, nNewGain, nNewFineGain);
 
         if (nNewGain < MIN_GAIN)
         {
@@ -356,6 +414,15 @@ void CalcNextExposure_inner()
         {
             nNewGain = MAX_GAIN;
         }
+        if (nNewFineGain < MIN_FINEGAIN)
+        {
+            nNewFineGain = MIN_FINEGAIN;
+        }
+        if (nNewFineGain > MAX_FINEGAIN)
+        {
+            nNewFineGain = MAX_FINEGAIN;
+        }
+
         if (nNewExposure > MAX_EXP)
         {
             nNewExposure = MAX_EXP;
@@ -367,20 +434,257 @@ void CalcNextExposure_inner()
 
         *fr_GetExposure() = nNewExposure;
         *fr_GetGain() = nNewGain;
+        *fr_GetFineGain() = nNewFineGain;
         *fr_GetExposure2() = nNewExposure;
         *fr_GetGain2() = nNewGain;
+        *fr_GetFineGain2() = nNewFineGain;
+        g_nNeedToCalcNextExposure = 1;
     }
-
-    //printf("CalcNextExposure_inner nNewExposure = %d\n", nNewExposure);
-    //printf("CalcNextExposure_inner nNewGain = %d\n", nNewGain);
 }
 
-void CalcNextExposure_ir_screen_inner(int nMode)
+#if (N_MAX_HAND_NUM)
+void CalcNextExposure_inner_hand()
 {
-    int nNewGain, nNewExposure;
+    //changed by KSB 20180711
+    int nNewGain, nNewFineGain, nNewExposure;
+
+    if(!(*fr_GetHandDetected()) && !(*fr_GetFaceDetected()))
+    {
+        g_nHandFailed ++;
+        if(g_nHandFailed >= DETECT_FAIL_COUNT)
+        {
+            setInitExp();
+            g_nHandFailed = 0;
+            g_nNeedToCalcNextExposure = 1;
+        }
+
+        return;
+    }
+    if(!(*fr_GetHandDetected()) && (*fr_GetFaceDetected()))
+    {
+        //g_nNeedToCalcNextExposure = 0;
+        return;
+    }
+    float rIncrease_rate_limit = LIMIT_INCREASE_RATE;
+
+    if (fr_GetCurEnvForCameraControl())
+    {
+        rIncrease_rate_limit = 2.5f;
+    }
+
+    g_nFaceFailed = 0;
+    int nAverageValueInDiff;
+
+    //calc average values
+    nAverageValueInDiff = 0;
+
+    float rSaturatedRate = fr_GetSaturatedRate_Hand();
+
+    int* pnAverageDiffImage = fr_GetAverageLedOnImage_Hand();
+    int nAverageDiffImage = 0;
+    if(pnAverageDiffImage)
+        nAverageDiffImage = *pnAverageDiffImage;
+
+    nAverageValueInDiff = nAverageDiffImage;
 
     float rDeltaValue = 1.0f;
     float rMaxGainRate = 8.0f;
+    int nForceDownForSaturation = 0;
+
+    //LOGE("AAA rSaturatedRate = %f", rSaturatedRate);
+    //printf("CalcNextExposure_inner_hand nAverageValueInDiff %d rSaturatedRate %f\n", nAverageValueInDiff, rSaturatedRate);
+    if (nAverageValueInDiff < MIN_USER_LUM_HAND && rSaturatedRate < SAT_THRESHOLD)
+    {
+        //calc top level
+        int nThresLevel = fr_GetBrightUpThresholdLevel_Hand();
+
+        nThresLevel++;
+        if (nThresLevel > 250)
+        {
+            nThresLevel = 250;
+        }
+
+        float rAvailableIncrease = ((float)250) / nThresLevel;
+        if (rAvailableIncrease > rIncrease_rate_limit)
+        {
+            rAvailableIncrease = rIncrease_rate_limit;
+        }
+        rDeltaValue = (float)MIN_USER_LUM_HAND / nAverageValueInDiff;
+
+        if (rDeltaValue > rAvailableIncrease)
+        {
+            rDeltaValue = rAvailableIncrease;
+        }
+    }
+    else
+    {
+        if (rSaturatedRate > SAT_THRESHOLD)
+        {
+            if(rSaturatedRate > 50 && ((float)(*fr_GetExposure_bkup()) * getGainRateFromGain_SC2355(*fr_GetGain_bkup(), *fr_GetFineGain_bkup())) > 60)
+            {
+                nForceDownForSaturation = 1;
+            }
+            else
+            {
+                if(rSaturatedRate > 90)
+                {
+                    rDeltaValue = 1.0f / 8;
+                }
+                else if(rSaturatedRate > 70)
+                {
+                    rDeltaValue = 1.0f / 6.0f;
+                }
+                else if(rSaturatedRate > 50)
+                {
+                    rDeltaValue = 1.0f / 3.5f;
+                }
+                else
+                {
+                    float rProcessSaturatdRate;
+                    rProcessSaturatdRate = rSaturatedRate;
+
+                    if (rProcessSaturatdRate > 20.0f)
+                    {
+                        rProcessSaturatdRate = 20.0f;
+                    }
+
+                    rDeltaValue = 1.0f - rProcessSaturatdRate / (20.0f * 2.0f);
+                }
+            }
+        }
+        else if (nAverageValueInDiff > MAX_USER_LUM_HAND)
+        {
+            rDeltaValue = ((float)(MAX_USER_LUM_HAND + MIN_USER_LUM_HAND) / 2)/ nAverageValueInDiff;
+        }
+    }
+
+    float rGainRate = 1.0;
+
+    int nOldGain, nOldExposure, nOldFineGain;
+
+    nOldGain = *fr_GetGain_bkup();
+    nOldExposure = *fr_GetExposure_bkup();
+    nOldFineGain = *fr_GetFineGain_bkup();
+
+    nNewGain = nOldGain;
+    nNewExposure = nOldExposure;
+    nNewFineGain = nOldFineGain;
+
+    //printf("rDeltaValue = %f\n", rDeltaValue);
+    //printf("org exp = %d, Gain = %d %d\n", nNewExposure, nNewGain, nNewFineGain);
+
+    *fr_GetExposure() = nNewExposure;
+    *fr_GetGain() = nNewGain;
+    *fr_GetFineGain() = nNewFineGain;
+    *fr_GetExposure2() = nNewExposure;
+    *fr_GetGain2() = nNewGain;
+    *fr_GetFineGain2() = nNewFineGain;
+    g_nNeedToCalcNextExposure = 0;
+    //printf("CalcNextExposure_inner_hand rDeltaValue = %f\n", rDeltaValue);
+    if (rDeltaValue != 1.0f || nForceDownForSaturation)
+    {
+        if(rDeltaValue != 1.0f)
+        {
+            float rCurExpGainValue, rNewExpGainValue;
+
+            rCurExpGainValue = (float)(nOldExposure) * getGainRateFromGain_SC2355(nOldGain, nOldFineGain);
+            rNewExpGainValue = rCurExpGainValue * rDeltaValue;
+
+            if(rNewExpGainValue < (float)SC2355_CONTROL_MILSTONE[0][0] * SC2355_CONTROL_MILSTONE[0][1])
+            {
+                rGainRate = SC2355_CONTROL_MILSTONE[0][1];
+                nNewExposure = (int)(SC2355_CONTROL_MILSTONE[0][0]);
+            }
+            else if(rNewExpGainValue > (float)SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][0] * SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][1])
+            {
+                rGainRate = SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][1];
+                nNewExposure = (int)(SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][0]);
+            }
+            else
+            {
+                int nMileStoneIndex, nSelectedIndex;
+                nSelectedIndex = 0;
+                for(nMileStoneIndex = 0; nMileStoneIndex < SC2355_CONTROL_MILSTONE_COUNT - 1; nMileStoneIndex ++)
+                {
+                    if(rNewExpGainValue >= (float)SC2355_CONTROL_MILSTONE[nMileStoneIndex][0] * SC2355_CONTROL_MILSTONE[nMileStoneIndex][1] &&
+                       rNewExpGainValue < (float)SC2355_CONTROL_MILSTONE[nMileStoneIndex + 1][0] * SC2355_CONTROL_MILSTONE[nMileStoneIndex + 1][1])
+                    {
+                        nSelectedIndex = nMileStoneIndex;
+                    }
+                }
+
+                float rDeltaRate = rNewExpGainValue / ((float)SC2355_CONTROL_MILSTONE[nSelectedIndex][0] * SC2355_CONTROL_MILSTONE[nSelectedIndex][1]);
+                nNewExposure = (int)((float)SC2355_CONTROL_MILSTONE[nSelectedIndex][0] * rDeltaRate);
+                if(nNewExposure > (int)SC2355_CONTROL_MILSTONE[nSelectedIndex + 1][0])
+                {
+                    nNewExposure = (int)SC2355_CONTROL_MILSTONE[nSelectedIndex + 1][0];
+                }
+                rGainRate = rNewExpGainValue / nNewExposure;
+            }
+            getGainFromGainRate_SC2355(rGainRate, rMaxGainRate, nNewGain, nNewFineGain);
+        }
+        else//nForceDownForSaturation
+        {
+            nNewGain = 0x00;
+            nNewFineGain = 0x80;
+            nNewExposure = 75;
+        }
+
+        if (nNewGain < MIN_GAIN)
+        {
+            nNewGain = MIN_GAIN;
+        }
+        if (nNewGain > MAX_GAIN)
+        {
+            nNewGain = MAX_GAIN;
+        }
+        if (nNewFineGain < MIN_FINEGAIN)
+        {
+            nNewFineGain = MIN_FINEGAIN;
+        }
+        if (nNewFineGain > MAX_FINEGAIN)
+        {
+            nNewFineGain = MAX_FINEGAIN;
+        }
+
+        if (nNewExposure > MAX_EXP)
+        {
+            nNewExposure = MAX_EXP;
+        }
+        if (nNewExposure < MIN_EXP)
+        {
+            nNewExposure = MIN_EXP;
+        }
+
+        *fr_GetExposure() = nNewExposure;
+        *fr_GetGain() = nNewGain;
+        *fr_GetFineGain() = nNewFineGain;
+        *fr_GetExposure2() = nNewExposure;
+        *fr_GetGain2() = nNewGain;
+        *fr_GetFineGain2() = nNewFineGain;
+        g_nNeedToCalcNextExposure = 1;
+    }
+    else
+    {
+        if(*fr_GetExposure() != *fr_GetExposure_bkup() || *fr_GetExposure2() != *fr_GetExposure2_bkup() ||
+           *fr_GetGain() != *fr_GetGain_bkup() || *fr_GetGain2() != *fr_GetGain2_bkup() ||
+            *fr_GetFineGain() != *fr_GetFineGain_bkup() || *fr_GetFineGain2() != *fr_GetFineGain2_bkup())
+        {
+            g_nNeedToCalcNextExposure = 1;
+        }
+    }
+}
+#endif //N_MAX_HAND_NUM
+
+void CalcNextExposure_ir_screen_inner(int nMode)
+{
+    int nNewGain, nNewFineGain, nNewExposure;
+
+    float rDeltaValue = 1.0f;
+    float rMaxGainRate = 8.0f;
+    // float rExposureRate, rAvailableExposureRate;
+    // float rExposureRateUnderMid, rExposureRateUpperMid;
+    // float rAvailableGainRate;
 
     if(nMode == IR_SCREEN_GETIMAGE_MODE)
     {
@@ -427,123 +731,69 @@ void CalcNextExposure_ir_screen_inner(int nMode)
     }
 
 
-    float rExposureRate, rAvailableExposureRate;
-    float rExposureRateUnderMid, rExposureRateUpperMid;
-    float rAvailableGainRate;
     float rGainRate;
 
-//    nNewGain = *fr_GetGain();
-//    nNewExposure = *fr_GetExposure();
-
+    nNewGain = *fr_GetGain();
+    nNewExposure = *fr_GetExposure();
+    nNewFineGain = *fr_GetFineGain();
 
     if (rDeltaValue != 1.0f)
     {
-        if (rDeltaValue > 1.0f)
+        float rCurExpGainValue, rNewExpGainValue;
+
+        rCurExpGainValue = (float)(*fr_GetExposure()) * getGainRateFromGain_SC2355(*fr_GetGain(), *fr_GetFineGain());
+        rNewExpGainValue = rCurExpGainValue * rDeltaValue;
+
+        if(rNewExpGainValue < (float)SC2355_CONTROL_MILSTONE[0][0] * SC2355_CONTROL_MILSTONE[0][1])
         {
-            rExposureRateUnderMid = 1;
-            rExposureRateUpperMid = 1;
-
-            rGainRate = 1;
-            rAvailableGainRate = rMaxGainRate / getGainRateFromGain(*fr_GetGain());
-            rAvailableExposureRate = 1;
-
-            rExposureRate = 1;
-
-            if (*fr_GetExposure() < MID_EXP)
-            {
-                rExposureRateUnderMid = (float)MID_EXP / *fr_GetExposure();
-            }
-
-            if (*fr_GetExposure() < MAX_EXP)
-            {
-                rAvailableExposureRate = (float)MAX_EXP / *fr_GetExposure();
-            }
-
-
-            if (rDeltaValue <= rExposureRateUnderMid)
-            {
-                rExposureRate = rDeltaValue;
-                rGainRate = 1.0f;
-            }
-            else
-            {
-                rGainRate = rDeltaValue / rExposureRateUnderMid;
-                if (rGainRate < rAvailableGainRate)
-                {
-                    rExposureRate = rExposureRateUnderMid;
-                }
-                else
-                {
-                    rGainRate = rAvailableGainRate;
-                    rExposureRateUpperMid = rDeltaValue / (rExposureRateUnderMid * rGainRate);
-                    rExposureRate = rExposureRateUpperMid * rExposureRateUnderMid;
-                }
-             }
-
-             if (rExposureRate > rAvailableExposureRate)
-             {
-                rExposureRate = rAvailableExposureRate;
-             }
+            rGainRate = SC2355_CONTROL_MILSTONE[0][1];
+            nNewExposure = (int)(SC2355_CONTROL_MILSTONE[0][0]);
+        }
+        else if(rNewExpGainValue > (float)SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][0] * SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][1])
+        {
+            rGainRate = SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][1];
+            nNewExposure = (int)(SC2355_CONTROL_MILSTONE[SC2355_CONTROL_MILSTONE_COUNT - 1][0]);
         }
         else
         {
-            rExposureRateUnderMid = 1;
-            rExposureRateUpperMid = 1;
-            rExposureRate = 1;
-            rGainRate = 1;
-            rAvailableGainRate = 1.0f / getGainRateFromGain(*fr_GetGain());
-
-            rAvailableExposureRate = 1;
-            rExposureRate = 1;
-
-            if (*fr_GetExposure() > MID_EXP)
+            int nMileStoneIndex, nSelectedIndex;
+            nSelectedIndex = 0;
+            for(nMileStoneIndex = 0; nMileStoneIndex < SC2355_CONTROL_MILSTONE_COUNT - 1; nMileStoneIndex ++)
             {
-                rExposureRateUpperMid = (float)MID_EXP / *fr_GetExposure();
-            }
-
-            if (rDeltaValue > rExposureRateUpperMid)
-            {
-                rExposureRate = rDeltaValue;
-                rGainRate = 1;
-            }
-            else
-            {
-                rGainRate = rDeltaValue / rExposureRateUpperMid;
-                if (rGainRate > rAvailableGainRate)
+                if(rNewExpGainValue >= (float)SC2355_CONTROL_MILSTONE[nMileStoneIndex][0] * SC2355_CONTROL_MILSTONE[nMileStoneIndex][1] &&
+                   rNewExpGainValue < (float)SC2355_CONTROL_MILSTONE[nMileStoneIndex + 1][0] * SC2355_CONTROL_MILSTONE[nMileStoneIndex + 1][1])
                 {
-                    rExposureRate = rExposureRateUpperMid;
-                }
-                else
-                {
-                    rGainRate = rAvailableGainRate;
-                    rExposureRateUnderMid = rDeltaValue / (rExposureRateUnderMid * rGainRate);
-                    rExposureRate = rExposureRateUpperMid * rExposureRateUnderMid;
+                    nSelectedIndex = nMileStoneIndex;
                 }
             }
 
-            if (*fr_GetExposure() > MIN_EXP)
+            float rDeltaRate = rNewExpGainValue / ((float)SC2355_CONTROL_MILSTONE[nSelectedIndex][0] * SC2355_CONTROL_MILSTONE[nSelectedIndex][1]);
+            nNewExposure = (int)((float)SC2355_CONTROL_MILSTONE[nSelectedIndex][0] * rDeltaRate);
+            if(nNewExposure > (int)SC2355_CONTROL_MILSTONE[nSelectedIndex + 1][0])
             {
-                rAvailableExposureRate = (float)MIN_EXP / *fr_GetExposure();
+                nNewExposure = (int)SC2355_CONTROL_MILSTONE[nSelectedIndex + 1][0];
             }
-
-            if (rExposureRate < rAvailableExposureRate)
-            {
-                rExposureRate = rAvailableExposureRate;
-            }
+            rGainRate = rNewExpGainValue / nNewExposure;
         }
-
-        nNewExposure = (int)(rExposureRate * *fr_GetExposure());
-        float rNewGainRate = rGainRate * getGainRateFromGain(*fr_GetGain());
-        nNewGain = getGainFromGainRate(rNewGainRate, rMaxGainRate);
+        getGainFromGainRate_SC2355(rGainRate, rMaxGainRate, nNewGain, nNewFineGain);
 
         if (nNewGain < MIN_GAIN)
         {
             nNewGain = MIN_GAIN;
         }
-        if (nNewGain > MAX_SCREEN_GAIN)
+        if (nNewGain > MAX_GAIN)
         {
-            nNewGain = MAX_SCREEN_GAIN;
+            nNewGain = MAX_GAIN;
         }
+        if (nNewFineGain < MIN_FINEGAIN)
+        {
+            nNewFineGain = MIN_FINEGAIN;
+        }
+        if (nNewFineGain > MAX_FINEGAIN)
+        {
+            nNewFineGain = MAX_FINEGAIN;
+        }
+
         if (nNewExposure > MAX_EXP)
         {
             nNewExposure = MAX_EXP;
@@ -555,8 +805,10 @@ void CalcNextExposure_ir_screen_inner(int nMode)
 
         *fr_GetExposure() = nNewExposure;
         *fr_GetGain() = nNewGain;
+        *fr_GetFineGain() = nNewFineGain;
         *fr_GetExposure2() = nNewExposure;
         *fr_GetGain2() = nNewGain;
+        *fr_GetFineGain2() = nNewFineGain;
     }
 }
 
@@ -565,9 +817,17 @@ void    InitIRCamera_ExpGain()
     g_nFaceFailed = 0;
     *fr_GetExposure() = INIT_EXP;
     *fr_GetGain() = INIT_GAIN;
+    *fr_GetFineGain() = INIT_FINEGAIN;
+
     *fr_GetExposure2() = INIT_EXP_1;
     *fr_GetGain2() = INIT_GAIN_1;
+    *fr_GetFineGain2() = INIT_FINEGAIN_1;
+
 }
 
+void    BackupIRCamera_ExpGain()
+{
+
+}
 
 

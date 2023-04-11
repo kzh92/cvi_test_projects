@@ -18,26 +18,40 @@
 #include "dic_manage.h"
 #include "common_types.h"
 
-Modeling g_Modeling;
+Modeling g_Modeling = { 0 };
+Modeling g_Modeling_Hand = { 0 };
 
 extern void APP_LOG(const char * format, ...);
 extern int g_nStopEngine;
 
-int createModelingEngine(unsigned char* pMem)
+int createModelingEngine(unsigned char* pMem, int nMode)
 {
-    if(g_Modeling.getEngineLoaded())
+    Modeling* p_Modeling = &g_Modeling;
+    int nModuleID = MachineFlagIndex_DNN_Modeling;
+    unsigned char* p_dic_modeling = g_dic_model;
+
+    if(nMode)
+    {
+        Modeling_Modeling(&g_Modeling_Hand, 1);
+        p_Modeling = &g_Modeling_Hand;
+        nModuleID = MachineFlagIndex_DNN_Modeling_Hand;
+        p_dic_modeling = g_dic_model_hand;
+    }
+
+
+    if(Modeling_getEngineLoaded(p_Modeling))
     {
         return 0;
     }
-    if(!getLoadedDicFlag(MachineFlagIndex_DNN_Modeling))
+    if(!getLoadedDicFlag(nModuleID))
     {
         return 1;
     }
 
     int nRet = 0;
 
-    int nDicSize = g_Modeling.dnn_dic_size();
-    nRet = g_Modeling.dnn_create(g_dic_model, nDicSize, pMem);
+    int nDicSize = Modeling_dnn_dic_size(nMode);
+    nRet = Modeling_dnn_create_(p_Modeling, p_dic_modeling, nDicSize, pMem);
     if(nRet)
     {
         return nRet;
@@ -46,17 +60,25 @@ int createModelingEngine(unsigned char* pMem)
 }
 
 
-int releaseModelingEngine()
+int releaseModelingEngine(int nMode)
 {
-    g_Modeling.dnn_free();
-    releaseMachineDic(MachineFlagIndex_DNN_Modeling);
+    if(nMode == 0)
+    {
+        Modeling_dnn_free(&g_Modeling);
+        releaseMachineDic(MachineFlagIndex_DNN_Modeling);
+    }
+    else
+    {
+        Modeling_dnn_free(&g_Modeling_Hand);
+        releaseMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
+    }
 
     return 0;
 }
 
 int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHeight, unsigned char* tempCropBuffer, float* prFaceRect, float* prLandmarkPoint)
 {
-    if(!g_Modeling.getEngineLoaded() || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling))
+    if(!Modeling_getEngineLoaded(&g_Modeling) || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling))
     {
         return 1;
     }
@@ -76,7 +98,7 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
     float rLeftMargin = 0.05f;
     float rTopMargin = 0.00f;
     float rRightMargin = 0.05f;
-    float rBottomMargin = 0.1f;
+    float rBottomMargin = 0.10f;
 
     int iExFaceX = (int)(rX - rLeftMargin * rW);
     int iExFaceY = (int)(rY - rTopMargin * rH);
@@ -95,7 +117,7 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
         return 1;
     }
 
-    float *pTemp = g_Modeling.dnn_forward(tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height);
+    float *pTemp = Modeling_dnn_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height);
     if (g_nStopEngine == 1)
     {
         return 1;
@@ -108,6 +130,53 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
         prLandmarkPoint[nPointIndex * 2 + 1] = pTemp[nPointIndex * 2 + 1] * iExFaceH + iExFaceY;
     }
 
+    return 0;
+}
+
+int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHeight, unsigned char* tempCropBuffer, float* prHandRect, float* prHandLandmarkPoint)
+{
+    if(!Modeling_getEngineLoaded(&g_Modeling_Hand) || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand))
+    {
+        return 1;
+    }
+
+    if (g_nStopEngine == 1)
+    {
+        return 1;
+    }
+
+    float rX, rY, rW, rH;
+    //float aLeft, aTop, aWidth, aHeight;
+    rX = prHandRect[0];
+    rY = prHandRect[1];
+    rW = prHandRect[2];
+    rH = prHandRect[3];
+
+    float cx = rX + rW / 2;
+    float cy = rY + rH / 2;
+    float sz = std::max(rW, rH);
+
+    int sz_crop = (int)(sz * 1.4);
+
+    int x1 = int(cx - sz_crop / 2);
+    int y1 = int(cy - sz_crop / 2);
+
+    x1 = x1 > 0 ? (x1 < nImageWidth ? x1 : nImageWidth - 1) : 0;
+    y1 = y1 > 0 ? (y1 < nImageHeight ? y1 : nImageHeight - 1) : 0;
+
+    int xw = (x1 + sz_crop) < nImageWidth ? sz_crop : (nImageWidth - x1 - 1);
+    int yh = (y1 + sz_crop) < nImageHeight ? sz_crop : (nImageHeight - y1 - 1);
+
+    alignForModeling(pImageBuffer, nImageWidth, nImageHeight, x1, y1, xw, yh, tempCropBuffer, 64, 64);
+
+    float *pTemp = Modeling_dnn_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64);
+
+    int nPointIndex;
+    for (nPointIndex = 0; nPointIndex < 7; nPointIndex++)
+    {
+        prHandLandmarkPoint[nPointIndex * 2] = pTemp[nPointIndex * 2] * xw + x1;
+        prHandLandmarkPoint[nPointIndex * 2 + 1] = pTemp[nPointIndex * 2 + 1] * yh + y1;
+    }
     return 0;
 }
 

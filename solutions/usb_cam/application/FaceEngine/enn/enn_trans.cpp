@@ -121,7 +121,7 @@ namespace ENN
 				float* in_mit = in_mem + cstep * i;
 				float* out_mit = out_mem + cstep * i;
 				float* scit = sc + i * 4;
-				// int nn = size;
+				int nn = size;
 #if __ARM_NEON
 				asm volatile(
 					"vld1.f32   {d6-d7}, [%3]		\n"

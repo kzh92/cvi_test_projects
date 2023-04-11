@@ -25,5 +25,9 @@ int getAreaInSrcImage_68(int nSrcWidth, int nSrcHeight, int nDstWidth, int nDstH
     float rDistanceEye_Mouth, float rFaceCenterX, float rFaceCenterY, int* pnRectInSrc);
 
 void CreateShrinkImage_normalize_FixRate(float* prDstImage, unsigned char* pbDstImage, int nDstWidth, int nDstHeight, float *prShrinkScale,
-                                         unsigned char* pbSrcImage, int nSrcWidth, int nSrcHeight, float rMean, float rNorm);
+                                         unsigned char* pbSrcImage, int nSrcWidth, int nSrcHeight, float rMean, float rNorm, int* pnCropRect = 0);
+
+void handAlign(unsigned char* img, int width, int height, unsigned char* align_buf, float* landmark,
+               int align_width, int align_height, int align_left, int align_right, int align_top, int align_bottom, float* prAverageValue = 0);
+
 #endif // HALIGN_H__INCLUDED

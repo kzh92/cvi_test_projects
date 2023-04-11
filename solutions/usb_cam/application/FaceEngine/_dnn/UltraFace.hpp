@@ -50,8 +50,12 @@
 #define g_DNN_Detection_input_height  192
 #define g_DNN_Detection_input_width_base   240
 #define g_DNN_Detection_input_height_base  320
+#define g_DNN_Detection_hand_input_width   56
+#define g_DNN_Detection_hand_input_height  96
 #endif
 
+#define Detect_Mode_Face 0
+#define Detect_Mode_Hand 1
 
 typedef struct FaceInfo {
     float x1;
@@ -62,10 +66,10 @@ typedef struct FaceInfo {
 } FaceInfo;
 
 int loadDetectDic();
-int createDetectEngine(unsigned char* pMem);
-int releaseDetectEngine();
+int createDetectEngine(unsigned char* pMemp, int nMode = Detect_Mode_Face);
+int releaseDetectEngine(int nMode = Detect_Mode_Face);
 int getDetectMenSize();
-int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* face_list, int nMaxFaceNum, int* pn_facelist_cnt, unsigned char* pTempBuffer);
+int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* face_list, int nMaxFaceNum, int* pn_facelist_cnt, unsigned char* pTempBuffer, int nDetectMode = Detect_Mode_Face);
 int checkFace(unsigned char* img, int bufferWidth, int bufferHeight);
 
 /*
