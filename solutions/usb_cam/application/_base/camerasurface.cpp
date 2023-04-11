@@ -118,13 +118,32 @@ int             g_nValueSettenPassed = 0;
 #define SCREEN_MID_CLR_USER_LUM     130//150
 
 #define SCREEN_CLR_LUM_LIMMIT       220
+#endif // USE_VDBTASK
+
+#define wait_camera_ready_with_param(st_port, st_buf, st_handle, n_timeout_ms, ret) \
+    do { \
+        int _oldTime = (int)Now(); \
+        ret = -1; \
+        while(1) \
+        { \
+            if (MI_SUCCESS == MI_SYS_ChnOutputPortGetBuf(&(st_port), &(st_buf), &(st_handle))) \
+            { \
+                ret = 0; \
+                break; \
+            } \
+            if ((int)Now() - _oldTime - n_timeout_ms > 0 ) \
+                break; \
+            my_usleep(1000); \
+        } \
+    } while(0)
+
+void CalcNextExposure();
 
 void StartFirstCam()
 {
     dbug_printf("[%s] start, %0.3f\n", __func__, Now());
     g_irWriteLock = my_mutex_init();
     g_captureLock = my_mutex_init();
-    g_clrWriteLock = my_mutex_init();
 
     g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
     if (g_irOnData1 == NULL)
@@ -135,16 +154,20 @@ void StartFirstCam()
     g_irOffData = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
     if (g_irOffData == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
+
+#if (USE_VDBTASK)
+    g_clrWriteLock = my_mutex_init();
     g_clrYuvData_tmp = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
     if (g_clrYuvData_tmp == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
     g_clrYuvData = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
     if (g_clrYuvData == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-
+#endif // USE_VDBTASK
     fr_InitIRCamera_ExpGain();
 }
 
+#if (USE_VDBTASK)
 void StartClrCam()
 {
     if(g_xSS.iRunningDvpCam == 0)
@@ -163,10 +186,11 @@ void StopClrCam()
         g_capture1 = 0;
     }
 }
+#endif // USE_VDBTASK
 
 void StartCamSurface(int iMode)
 {
-    //init color camera
+#if (USE_VDBTASK)
     g_xSS.iRunningCamSurface = 1;
 
     if(iMode == 0)
@@ -236,11 +260,95 @@ void StartCamSurface(int iMode)
         my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, 0);
     }
 #endif
+#else // USE_VDBTASK
+    g_xSS.iRunningCamSurface = 1;
+
+#if (IR_LED_ONOFF_MODE == 0)
+    GPIO_fast_setvalue(IR_LED, ON);
+#endif
+    if(iMode == 0)
+    {
+        fr_InitIRCamera_ExpGain();
+
+        // g_nFaceFailed = 0;
+        // g_nFaceRectValid = 0;
+        // g_faceDetected = 0;
+    }
+
+#if (TEST_CAM_MODE == TEST_TCMIPI || TEST_CAM_MODE == TEST_TWO)
+    //init tc mipi camera
+    if(g_iMipiCamInited == -1)
+    {
+        float r = Now();
+        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+        if(Now() - r > 500)
+            my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
+
+        if(g_iMipiCamInited == -1)
+        {
+            g_xSS.iCamError |= CAM_ERROR_MIPI1;
+
+#if 0
+            if(g_xSS.iAppType == APP_MAIN)
+                SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_TCMIPI, 0, 0);
+#endif
+        }
+    }
+
+    if(iMode == 0 && g_iMipiCamInited == 0)
+    {
+        camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
+        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1);
+    }
+
+    if(g_iMipiCamInited == 0)
+        my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, MYTHREAD_PRIORITY_MEDIUM);
+#endif
+
+#if (TEST_CAM_MODE == TEST_DVP || TEST_CAM_MODE == TEST_TWO)
+    //init dvp camera
+    if(g_iDvpCamInited == -1)
+    {
+        float r = Now();
+        g_iDvpCamInited = camera_init(MIPI_0_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+        if(Now() - r > 500)
+            my_printf("+++++++++++++++++  MIPI_0_ERROR :  %f\n", Now() - r);
+        if(g_iDvpCamInited == -1)
+        {
+            g_xSS.iCamError |= CAM_ERROR_DVP1;
+
+#if 0
+            if(g_xSS.iAppType == APP_MAIN)
+                SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_DVP, 0, 0);
+#endif
+        }
+    }
+
+    if (g_iDvpCamInited == 0)
+    {
+        if(iMode == 0)
+        {
+            camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
+            camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN);
+        }
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        {
+            //test pattern
+            camera_set_regval(MIPI_0_CAM, 0x0C, 0x41);
+            camera_set_regval(MIPI_1_CAM, 0x0C, 0x41);
+        }
+    }
+
+    if(g_iDvpCamInited == 0)
+        my_thread_create_ext(&g_capture1, 0, ProcessDVPCapture, NULL, (char*)"getdvp1", 8192, MYTHREAD_PRIORITY_MEDIUM);
+#endif
+#endif // USE_VDBTASK
 }
 
 void StopCamSurface()
 {
     g_xSS.iRunningCamSurface = 0;
+#if (USE_VDBTASK)
     if(g_capture0)
     {
         my_thread_join(&g_capture0);
@@ -254,6 +362,27 @@ void StopCamSurface()
 
         camera_release(TC_MIPI_CAM);
     }
+#else // USE_VDBTASK
+    if(g_capture1)
+    {
+        my_thread_join(&g_capture1);
+        g_capture1 = 0;
+    }
+
+    if(g_iDvpCamInited != -1)
+        camera_release(MIPI_0_CAM);
+
+    if(g_capture0)
+    {
+        my_thread_join(&g_capture0);
+        g_capture0 = 0;
+    }
+
+    if(g_iMipiCamInited != -1)
+        camera_release(MIPI_1_CAM);
+
+    g_iDvpCamInited = -1;
+#endif // USE_VDBTASK
 
     WaitIRCancel();
 
@@ -262,551 +391,10 @@ void StopCamSurface()
     GPIO_fast_setvalue(IR_LED, OFF);
 }
 
-#define GC2145_BASE_EXPO_NUM    16
-int ganBaseExposureArray[GC2145_BASE_EXPO_NUM] = {0xFA0, 0xEA0, 0xDA0, 0xCC0, 0xBC0, 0xAC0, 0x9C0, 0x8C0, 0x7D0, 0x6D0, 0x5D0, 0x4F0, 0x3F0, 0x2F0, 0x1F0, 0xF0};
-void CheckGC2145NewExposure(int &nNewExposure, int nPrevExposure)
-{
-    int nUpdateFlag = nNewExposure - nPrevExposure;
-    int nExposure = nNewExposure;
-    if (nExposure >= ganBaseExposureArray[0])
-        return;
-    if (nExposure <= ganBaseExposureArray[GC2145_BASE_EXPO_NUM - 1])
-    {
-        if (nPrevExposure > MIN_CLR_EXP && nExposure < nPrevExposure)
-            nNewExposure = MIN_CLR_EXP;
-//        nExposure = ganBaseExposureArray[BF3A03_BASE_EXPO_NUM - 1];
-        return;
-    }
-
-    int i = 0;
-    for (i = 1 ; i < GC2145_BASE_EXPO_NUM ; i ++)
-    {
-        if (nExposure >= ganBaseExposureArray[i])
-            break;
-    }
-    if (nExposure == ganBaseExposureArray[i])
-        return;
-#if 0
-    if (nUpdateFlag > 0)
-    {
-        nNewExposure = ganBaseExposureArray[i - 1];
-    }
-    else
-    {
-        nNewExposure = ganBaseExposureArray[i];
-    }
-#else
-    if (nUpdateFlag > 0)
-    {
-        if ((nExposure - ganBaseExposureArray[i]) * 2 > ganBaseExposureArray[i - 1] - nExposure)
-            nNewExposure = ganBaseExposureArray[i - 1];
-        else
-            nNewExposure = ganBaseExposureArray[i];
-    }
-    else
-    {
-        if (nExposure - ganBaseExposureArray[i] < 2 * (ganBaseExposureArray[i - 1] - nExposure))
-            nNewExposure = ganBaseExposureArray[i];
-        else
-            nNewExposure = ganBaseExposureArray[i-1];
-    }
-#endif
-    return;
-}
-void rotateYUV420SP_align_flip(unsigned char* src, int width, int height, unsigned char* dst, int angle, int flip)
-{
-    int wh = width * height;
-    int i, j, k = 0;
-
-    if(angle == 90)
-    {
-        for(i = 0; i < width; i++) {
-            for(j = 0; j < height; j++) {
-                if(flip == 0)
-                    dst[k + j] = src[width * j + (width - i - 1)];
-                else
-                    dst[k + height - j - 1] = src[width * j + (width - i - 1)];
-            }
-            k+= ALIGN_16B_C(height);
-        }
-
-        for(i = 0; i < width; i += 2) {
-            for(j = 0; j < height / 2; j++) {
-                if(flip == 0)
-                {
-                    dst[j * 2 + k + 1] = src[wh + width * j + (width - i - 1)];
-                    dst[j * 2 + k] = src[wh + width * j + (width - i - 1) + 1];
-                }
-                else
-                {
-                    dst[(height/2 - j - 1) * 2 + k + 1] = src[wh + width * j + (width - i - 1)];
-                    dst[(height/2 - j - 1) * 2 + k] = src[wh + width * j + (width - i - 1) + 1];
-                }
-            }
-            k += ALIGN_16B_C(height);
-        }
-    }
-    else if(angle == 270)
-    {
-        for(i = 0; i < width; i++) {
-            for(j = 0; j < height; j++) {
-                if(flip == 0)
-                    dst[k + height - j - 1] = src[width * j + i];
-                else
-                    dst[k + j] = src[width * j + i];
-            }
-            k+= ALIGN_16B_C(height);
-        }
-
-        for(i = 0; i < width; i += 2) {
-            for(j = 0; j < height / 2; j++) {
-                if(flip == 0)
-                {
-                    dst[(height/2 - j - 1) * 2 + k] = src[wh + width * j + i];
-                    dst[(height/2 - j - 1) * 2 + k + 1] = src[wh + width * j + i + 1];
-                }
-                else
-                {
-                    dst[j * 2 + k] = src[wh + width * j + i];
-                    dst[j * 2 + k + 1] = src[wh + width * j + i + 1];
-                }
-            }
-            k += ALIGN_16B_C(height);
-        }
-    }
-    else if(angle == 0)
-    {
-        memcpy(dst, src, width* height *3 /2);
-    }
-    else if(angle == 180)
-    {
-        for (j = 0; j < height; j++)
-        {
-            memcpy(dst + width*j, src + width * (height - j - 1), width);
-        }
-        for (j = 0; j < height; j++)
-            memcpy(dst + wh + width/2*j, src + wh + width/2*(height - j - 1), width/2);
-    }
-}
-
-void rotateYUV420SP_flip(unsigned char* src, int width, int height, unsigned char* dst, int angle, int flip)
-{
-    int wh = width * height;
-    int i, j, k = 0;
-
-    if(angle == 90)
-    {
-        for(i = 0; i < width; i++) {
-            for(j = 0; j < height; j++) {
-                if(flip == 0)
-                    dst[k + j] = src[width * j + (width - i - 1)];
-                else
-                    dst[k + height - j - 1] = src[width * j + (width - i - 1)];
-            }
-            k+= (height);
-        }
-
-        for(i = 0; i < width; i += 2) {
-            for(j = 0; j < height / 2; j++) {
-                if(flip == 0)
-                {
-                    dst[j * 2 + k + 1] = src[wh + width * j + (width - i - 1)];
-                    dst[j * 2 + k] = src[wh + width * j + (width - i - 1) + 1];
-                }
-                else
-                {
-                    dst[(height/2 - j - 1) * 2 + k + 1] = src[wh + width * j + (width - i - 1)];
-                    dst[(height/2 - j - 1) * 2 + k] = src[wh + width * j + (width - i - 1) + 1];
-                }
-            }
-            k += (height);
-        }
-    }
-    else if(angle == 270)
-    {
-        for(i = 0; i < width; i++) {
-            for(j = 0; j < height; j++) {
-                if(flip == 0)
-                    dst[k + height - j - 1] = src[width * j + i];
-                else
-                    dst[k + j] = src[width * j + i];
-            }
-            k+= (height);
-        }
-
-        for(i = 0; i < width; i += 2) {
-            for(j = 0; j < height / 2; j++) {
-                if(flip == 0)
-                {
-                    dst[(height/2 - j - 1) * 2 + k] = src[wh + width * j + i];
-                    dst[(height/2 - j - 1) * 2 + k + 1] = src[wh + width * j + i + 1];
-                }
-                else
-                {
-                    dst[j * 2 + k] = src[wh + width * j + i];
-                    dst[j * 2 + k + 1] = src[wh + width * j + i + 1];
-                }
-            }
-            k += (height);
-        }
-    }
-}
-
-void ConvertYUYV_toYUV420(unsigned char* data, int width, int height, unsigned char* dstData)
-{
-    unsigned char* pUV = dstData + width * height;
-    int iUVFlag = 0;
-    for(int i = 0; i < height; i++)
-    {
-        iUVFlag = (i % 2 == 0) ? 1 : 0;
-        for(int j = 0; j < (width >> 1); j++)
-        {
-            dstData[j * 2] = data[j * 4];
-            dstData[j * 2 + 1] = data[j * 4 + 2];
-
-            if(iUVFlag == 1)
-            {
-                *pUV = data[j * 4 + 1];
-                pUV++;
-                *pUV = data[j * 4 + 3];
-                pUV++;
-            }
-        }
-        data = data + width * 2;
-        dstData = dstData + width;
-    }
-}
-int GetYAVGValueOfClr(unsigned char* pbClrBuf)
-{
-    int nY, nX;
-    int nInvaliedPixelCount = 0;
-    int nEntireValue = 0;
-
-    int nEntirePixelCount = 0;
-    int nEntireTotalValue = 0;
-
-    unsigned char* pbSrcPtr = pbClrBuf;
-
-    for (nX = 0; nX < CLR_CAM_HEIGHT; nX += 2)
-    {
-        for (nY = 0; nY < CLR_CAM_WIDTH; nY += 2)
-        {
-            unsigned char bYData = pbSrcPtr[nY * 2];
-            if (nX > 120 && nX < CLR_CAM_HEIGHT - 120 && nY > 216 && nY < CLR_CAM_WIDTH - 216)
-            {
-                nEntirePixelCount++;
-
-                if (bYData < 0)
-                {
-                    nInvaliedPixelCount++;
-                }
-                else
-                {
-                    nEntireTotalValue += bYData;
-                }
-            }
-        }
-        pbSrcPtr += CLR_CAM_WIDTH * 2 * 2;
-    }
-
-    if (nEntirePixelCount)
-    {
-        nEntireValue = nEntireTotalValue / nEntirePixelCount;
-    }
-    else
-    {
-        nEntireValue = 30;
-    }
-    return nEntireValue;
-}
-
-int CalcClrNextExposure(unsigned char* pbClrBuf)
-{
-    //changed by KSB 20180711
-    int nNewGain, nNewExposure;
-    int nEntireCurYAVG = 0;
-    int nFaceCurYAVG = 0;
-    float rDeltaValue = 1.0f;
-
-    g_nClrFramePassCount++;
-    g_nValueSettenPassed++;
-
-    if (g_nClrFramePassCount < 1)
-    {
-//        return;
-    }
-
-    g_nClrFramePassCount = 0;
-    nEntireCurYAVG = GetYAVGValueOfClr(pbClrBuf);
-    nFaceCurYAVG = nEntireCurYAVG;
-    return nEntireCurYAVG;
-
-    if (g_nPrevYAVGSetten && g_nValueSettenPassed < 4)
-    {
-        if (g_rPrevValue > 1.1 || g_rPrevValue < 0.9)
-        {
-            float rRealRate = 1;
-            if (nEntireCurYAVG && g_nPrevEntireYAVG)
-            {
-                rRealRate = (float)nEntireCurYAVG / g_nPrevEntireYAVG;
-            }
-
-            if (rRealRate < 1.1 && rRealRate > 0.9)
-            {
-                return nEntireCurYAVG;
-            }
-        }
-    }
-
-    if (nEntireCurYAVG < SCREEN_MIN_CLR_USER_LUM && nFaceCurYAVG < FACE_MAX_CLR_USER_LUM)
-    {
-        rDeltaValue = (float)(SCREEN_MIN_CLR_USER_LUM) / nEntireCurYAVG;
-        float rFaceDeltaValue = (float)FACE_MAX_CLR_USER_LUM / nFaceCurYAVG;
-        if (rDeltaValue > rFaceDeltaValue)
-        {
-            rDeltaValue = rFaceDeltaValue;
-        }
-        if (rDeltaValue > LIMIT_INCREASE_RATE_UPPER)
-        {
-            rDeltaValue = LIMIT_INCREASE_RATE_UPPER;
-        }
-    }
-    else if (nEntireCurYAVG > SCREEN_MAX_CLR_USER_LUM && nFaceCurYAVG > FACE_MIN_CLR_USER_LUM)
-    {
-        if (nEntireCurYAVG >= SCREEN_CLR_LUM_LIMMIT/* && g_nExposureClr < 900*/)
-        {
-            rDeltaValue = 0.5f;
-            g_nClrFramePassCount = -2;
-        }
-        else
-        {
-            rDeltaValue = (float)(SCREEN_MAX_CLR_USER_LUM) / nEntireCurYAVG;
-            float rFaceDeltaValue = (float)FACE_MIN_CLR_USER_LUM / nFaceCurYAVG;
-            if (rDeltaValue < rFaceDeltaValue)
-            {
-                rDeltaValue = rFaceDeltaValue;
-            }
-
-            if (rDeltaValue < LIMIT_DECREASE_RATE_UNDER)
-            {
-                rDeltaValue = LIMIT_DECREASE_RATE_UNDER;
-            }
-        }
-    }
-
-    if (nFaceCurYAVG < FACE_MIN_CLR_USER_LUM)
-    {
-        rDeltaValue = (float)(FACE_MIN_CLR_USER_LUM) / nFaceCurYAVG;
-        if (rDeltaValue > LIMIT_INCREASE_RATE_UPPER_FACE)
-        {
-            rDeltaValue = LIMIT_INCREASE_RATE_UPPER_FACE;
-        }
-    }
-    if (nFaceCurYAVG > FACE_MAX_CLR_USER_LUM)
-    {
-        rDeltaValue = (float)(FACE_MAX_CLR_USER_LUM) / nFaceCurYAVG;
-        if (nFaceCurYAVG < 210 && rDeltaValue < LIMIT_DECREASE_RATE_UNDER_FACE)
-        {
-            rDeltaValue = LIMIT_DECREASE_RATE_UNDER_FACE;
-        }
-
-    }
-
-    if (rDeltaValue == 1.0f)
-        return nEntireCurYAVG;
-
-    g_nPrevEntireYAVG = nEntireCurYAVG;
-    g_nPrevYAVGSetten = 1;
-    g_rPrevValue = rDeltaValue;
-    g_nValueSettenPassed = 0;
-
-    nNewGain = g_nGainClr;
-    nNewExposure = g_nExposureClr;
-
-    float rExposureRate, rAvailableExposureRate;
-    float rExposureRateUnderMid, rExposureRateUpperMid;
-    float rAvailableGainRate;
-    float rGainRate;
-
-    if (rDeltaValue > 1.0f)
-    {
-        rExposureRateUnderMid = 1;
-        rExposureRateUpperMid = 1;
-        rGainRate = 1;
-        rAvailableGainRate = (float)INIT_CLR_GAIN / g_nGainClr;
-
-        if (g_nGainClr < INIT_CLR_GAIN)
-        {
-            if (g_nExposureClr < MID_CLR_EXP)
-            {
-                rExposureRateUnderMid = (float)MID_CLR_EXP / g_nExposureClr;
-            }
-
-            if (rDeltaValue <= rExposureRateUnderMid)
-            {
-                rExposureRate = rDeltaValue;
-                rGainRate = 1.0f;
-            }
-            else
-            {
-                rGainRate = rDeltaValue / rExposureRateUnderMid;
-                if (rGainRate < rAvailableGainRate)
-                {
-                    rExposureRate = rExposureRateUnderMid;
-                }
-                else
-                {
-                    rGainRate = rAvailableGainRate;
-                    rExposureRateUpperMid = rDeltaValue / (rExposureRateUnderMid * rGainRate);
-                    rExposureRate = rExposureRateUpperMid * rExposureRateUnderMid;
-                }
-            }
-        }
-        else
-        {
-            rExposureRate = rDeltaValue;
-            rAvailableExposureRate = (float)MAX_CLR_EXP / g_nExposureClr;
-            if (rExposureRate > rAvailableExposureRate)
-            {
-                rExposureRate = rAvailableExposureRate;
-            }
-
-            rGainRate = rDeltaValue / rExposureRate;
-        }
-    }
-    else
-    {
-        rExposureRateUnderMid = 1;
-        rExposureRateUpperMid = 1;
-        rExposureRate = 1;
-
-        rAvailableGainRate = (float)MIN_CLR_GAIN / g_nGainClr;
-        rGainRate = rDeltaValue;
-        if (rGainRate < rAvailableGainRate)
-        {
-            rGainRate = rAvailableGainRate;
-            rExposureRate = rDeltaValue / rGainRate;
-        }
-    }
-
-//    my_printf("rate: %f, %f,  exp: %d, %d\n", rExposureRate, rGainRate, g_nExposureClr, g_nGainClr);
-    nNewExposure = (int)(rExposureRate * g_nExposureClr);
-    nNewGain = (int)(rGainRate * g_nGainClr);
-
-    if (nNewExposure < MIN_CLR_EXP)
-    {
-        if (nEntireCurYAVG >= 160 && (g_nExposureClr <= MIN_CLR_EXP))
-        {
-            nNewExposure = MIN_CLR_EXP;
-        }
-        else
-            nNewExposure = MIN_CLR_EXP;
-    }
-    if (nNewExposure > MAX_CLR_EXP)
-    {
-        nNewExposure = MAX_CLR_EXP;
-    }
-    if (nNewGain < MIN_CLR_GAIN)
-    {
-        nNewGain = MIN_CLR_GAIN;
-    }
-    if (nNewGain > MAX_CLR_GAIN)
-    {
-        nNewGain = MAX_CLR_GAIN;
-    }
-
-//    my_printf("=====================  Exposure:  %d,  Gain:  %d\n", nNewExposure, nNewGain);
-    if (nNewExposure != g_nExposureClr || nNewGain != g_nGainClr)
-    {
-        if (nNewExposure != g_nExposureClr)
-            CheckGC2145NewExposure(nNewExposure, g_nExposureClr);
-
-
-        if(g_iClrAuto == 0 && (nNewExposure != g_nExposureClr || nNewGain != g_nGainClr))
-        {
-            if(nNewExposure == MIN_CLR_EXP && nNewGain == MIN_CLR_GAIN)
-            {
-                my_mi_use_lock();
-                camera_set_regval(DVP_CAM, 0xfe, 0); //select page
-                camera_set_regval(DVP_CAM, 0xb6, 1); //AEC enable
-                camera_set_regval(DVP_CAM, 0xfe, 1); //select page
-                camera_set_regval(DVP_CAM, 0x13, 0x80); //luminance
-                my_mi_use_unlock();
-
-                g_iClrAuto = 1;
-            }
-        }
-
-        if(g_iClrAuto == 1 && nEntireCurYAVG < FACE_MIN_CLR_USER_LUM)
-        {
-            my_mi_use_lock();
-            camera_set_regval(DVP_CAM, 0xfe, 0); //select page
-            camera_set_regval(DVP_CAM, 0xb6, 0); //AEC enable
-            my_mi_use_unlock();
-
-            g_iClrAuto = 0;
-        }
-
-        if(g_iClrAuto == 0)
-        {
-            if (nNewExposure != g_nExposureClr)
-            {
-                g_nExposureClr = nNewExposure;
-                my_mi_use_lock();
-                camera_clr_set_exp(g_nExposureClr);
-                my_mi_use_unlock();
-            }
-            if (nNewGain != g_nGainClr)
-            {
-                //set gain
-                g_nGainClr = nNewGain;
-                my_mi_use_lock();
-                camera_clr_set_gain(g_nGainClr);
-                my_mi_use_unlock();
-            }
-        }
-    }
-    return nEntireCurYAVG;
-}
-
-int WaitClrTimeout(int iTimeout)
-{
-    float _oldTime = Now();
-    if (iTimeout <= 0)
-        return ETIMEDOUT;
-
-    while(1)
-    {
-        float _diff = Now() - _oldTime;
-        // dbug_printf("[%s] _diff = %0.3f\n", __func__, _diff);
-        if (_diff > (float)iTimeout)
-            break;
-        my_mutex_lock(g_clrWriteLock);
-        if (g_clrWriteCond == 1)
-        {
-            my_mutex_unlock(g_clrWriteLock);
-            // dbug_printf("[%s] return 0\n", __func__);
-            return 0;
-        }
-        my_mutex_unlock(g_clrWriteLock);
-        my_usleep(1000);
-    }
-
-    return ETIMEDOUT;
-}
-
-int WaitClrCancel()
-{
-    my_mutex_lock(g_clrWriteLock);
-    g_clrWriteCond = 1;
-    //dbug_printf("[%s] set 1, %0.3f\n", __func__, Now());
-    my_mutex_unlock(g_clrWriteLock);
-    return 0;
-}
-
 void* ProcessDVPCapture(void */*param*/)
 {
     dbug_printf("ProcessDVPCapture\n");
+#if (USE_VDBTASK)
 #if 0
     int iTestMode = 0;
     g_iClrAuto = 0;
@@ -1000,7 +588,7 @@ void* ProcessDVPCapture(void */*param*/)
                 iFrameCount ++;
                 continue;
             }
-			if (iAverage < CHECK_CLR_IR_SWITCH_THR && g_xSS.iUsbHostMode == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE
+            if (iAverage < CHECK_CLR_IR_SWITCH_THR && g_xSS.iUsbHostMode == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE
 #if (USE_WIFI_MODULE)
                 && iRecogQRMode == 0
 #endif // USE_WIFI_MODULE
@@ -1139,480 +727,7 @@ void* ProcessDVPCapture(void */*param*/)
 
     my_thread_exit(NULL);
 #endif
-    return NULL;
-}
-
-void* ProcessTCMipiCapture(void */*param*/)
-{
-    VIDEO_FRAME_INFO_S stVideoFrame[2];
-    VI_DUMP_ATTR_S attr;
-    int frm_num = 1;
-    CVI_U32 dev = 0;
-
-    dbug_printf("[%s]\n", __func__);
-    int ret;
-
-    //int iSwitchFlag = 0;
-    int iFrameCount = 0;
-    int iNeedNext = 0;
-    float rOld = Now();
-
-    GPIO_fast_setvalue(IR_LED, ON);
-
-    memset(stVideoFrame, 0, sizeof(stVideoFrame));
-    stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
-    stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
-
-    attr.bEnable = 1;
-    attr.u32Depth = 0;
-    attr.enDumpType = VI_DUMP_TYPE_RAW;
-
-    CVI_VI_SetPipeDumpAttr(dev, &attr);
-
-    attr.bEnable = 0;
-    attr.enDumpType = VI_DUMP_TYPE_IR;
-
-    CVI_VI_GetPipeDumpAttr(dev, &attr);
-    while (g_xSS.iRunningCamSurface)
-    {
-        if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
-
-        frm_num = 1;
-
-        CVI_VI_GetPipeFrame(dev, stVideoFrame, 1000);
-
-        if (stVideoFrame[1].stVFrame.u64PhyAddr[0] != 0)
-            frm_num = 2;
-
-        rOld = Now();
-
-        int j = 0;
-
-        dbug_printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
-        size_t image_size = stVideoFrame[0].stVFrame.u32Length[0];
-
-        stVideoFrame[j].stVFrame.pu8VirAddr[0] =
-        (CVI_U8 *)stVideoFrame[j].stVFrame.u64PhyAddr[0];
-        printf("paddr(%ld) vaddr(%p)\n",
-            stVideoFrame[j].stVFrame.u64PhyAddr[0],
-            stVideoFrame[j].stVFrame.pu8VirAddr[0]);
-
-        unsigned char *ptr = (unsigned char*)stVideoFrame[j].stVFrame.pu8VirAddr[0];
-        memcpy(ptr, (const void *)stVideoFrame[j].stVFrame.pu8VirAddr[0],
-            stVideoFrame[j].stVFrame.u32Length[0]);
-
-        lockIRBuffer();
-        size_t test_pos = 0;
-        for (int k = 0 ; k < (int)image_size; k+=3)
-        {
-            g_irOnData1[test_pos++] = ptr[k];
-            g_irOnData1[test_pos++] = ptr[k+1];
-            if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                break;
-        }
-        memcpy(g_irOnData2, g_irOnData1, IR_BUFFER_SIZE);
-        unlockIRBuffer();
-
-        WaitIRCancel();
-        g_iTwoCamFlag = -1;
-
-
-        CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
-        continue;
-
-        ret = wait_camera_ready (TC_MIPI_CAM);
-        if (ret == -1 || ret == -2)
-        {
-            g_xSS.iCamError = CAM_ERROR_MIPI2;
-            GPIO_fast_setvalue(IR_LED, OFF);
-            SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_TCMIPI, 0, 0);
-            break;
-        }
-
-        //if (MI_SYS_ChnOutputPortGetBuf(&stChnPort, &stBufInfo, &hHandle) != MI_SUCCESS)
-        {
-            //my_printf("[MIPI]  Getting IR Buffer is failed\n");
-            my_usleep(20*1000);
-            continue;
-        }
-
-        dbug_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
-        rOld = Now();
-
-        if(iFrameCount == 0 && camera_get_actIR() == MIPI_CAM_SUB1)
-        {
-            //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
-            //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
-            //swtich to id->1
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
-            iNeedNext = 1;
-        }
-
-        ///Sub0카메라로 동작할때 레드켜기지령을 받았으면 Sub0화상을 얻고 Sub1로 절환하여 두번째화상을 얻은다음 다시 Sub0으로 카메라를 절환한다.
-        if(g_iTwoCamFlag == 0 && iNeedNext == 0/* && reserved == 1 && id == MIPI_CAM_SUB0 && iOldReserved == 0*/)
-        {
-            if(g_iLedOnStatus == 1)
-                GPIO_fast_setvalue(IR_LED, ON);
-
-            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
-            //     g_irOffData[iIdx] = (pbSrc[iIdx] >> 2);
-
-            g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == 1)
-        {
-            g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == 2)
-        {
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-            // lockIRBuffer();
-            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
-            //     g_irOnData2[iIdx] = (pbSrc[iIdx] >> 2);
-            // unlockIRBuffer();
-            g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == 3)
-        {
-            g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == 4)
-        {
-            g_iLedOnStatus = 0;
-            GPIO_fast_setvalue(IR_LED, OFF);
-
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
-            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-            // lockIRBuffer();
-            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
-            //     g_irOnData1[iIdx] = (pbSrc[iIdx] >> 2);
-
-            unlockIRBuffer();
-
-            if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
-            {
-                fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
-                CalcNextExposure();
-            }
-
-            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-                my_printf("capture on images!, %d\n", iFrameCount);
-
-            WaitIRCancel();
-            g_iTwoCamFlag = -1;
-            iNeedNext = 1;
-        }
-        else if(iNeedNext == 1)
-        {
-            iNeedNext = 0;
-        }
-
-        // MI_SYS_ChnOutputPortPutBuf(hHandle);
-
-        iFrameCount ++;
-    }
-
-    //적외선카메라를 끄기 전에 sub0으로 절환하여 끄게 함, 카메라끄기할때 카메라오유가 나오는 문제가 있음
-    g_xSS.iShowIrCamera = 0;
-    my_thread_exit(NULL);
-
-    return NULL;
-}
-
-void CalcNextExposure()
-{
-    my_mutex_lock(g_captureLock);
-    if(fr_GetExposure())
-    {
-        camera_set_exp_byreg(TC_MIPI_CAM_LEFT, *fr_GetExposure());
-    }
-    if(fr_GetExposure2())
-    {
-        camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, *fr_GetExposure2());
-    }
-    if(fr_GetGain())
-    {
-        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, *fr_GetGain());
-    }
-    if(fr_GetGain2())
-    {
-        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, *fr_GetGain2());
-    }
-    my_mutex_unlock(g_captureLock);
-}
-
-void reset_ir_exp_gain()
-{
-    my_mutex_lock(g_captureLock);
-    if(g_iMipiCamInited == 0)
-    {
-        camera_set_exp_byreg(TC_MIPI_CAM_LEFT, INIT_EXP);
-        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, INIT_GAIN);
-
-        camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, INIT_EXP_1);
-        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, INIT_GAIN_1);
-
-        fr_InitIRCamera_ExpGain();
-    }
-    my_mutex_unlock(g_captureLock);
-}
-
-#else// USE_VDBTASK
-#define wait_camera_ready_with_param(st_port, st_buf, st_handle, n_timeout_ms, ret) \
-    do { \
-        int _oldTime = (int)Now(); \
-        ret = -1; \
-        while(1) \
-        { \
-            if (MI_SUCCESS == MI_SYS_ChnOutputPortGetBuf(&(st_port), &(st_buf), &(st_handle))) \
-            { \
-                ret = 0; \
-                break; \
-            } \
-            if ((int)Now() - _oldTime - n_timeout_ms > 0 ) \
-                break; \
-            my_usleep(1000); \
-        } \
-    } while(0)
-
-
-void CalcNextExposure();
-int CheckYUVBuffer(unsigned char*pbYUV, int nWidth, int nHeight);
-
-// unsigned char* getIRBuffer(int idx)
-// {
-//     if(idx == 1)
-//         return g_irOnData1_real;
-//     else if(idx == 2)
-//         return g_irOnData2_real;
-//     else
-//         return g_irOffData_real;
-// }
-
-void IncreaseCameraCounter()
-{
-    g_iCamCounter ++;
-}
-
-int GetCameraCounter()
-{
-    return g_iCamCounter;
-}
-
-void* ProcessDVPCaptureFirst(void*)
-{
-#if 0 //kkk
-    if(g_iDvpCamInited == 0)
-    {
-        int ret;
- 
-        camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
-        camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN);
-
-        for(int i = 0; i < 1; i ++)
-        {
-            MI_SYS_ChnPort_t stChnPort;
-            MI_SYS_BufInfo_t stBufInfo;
-            MI_SYS_BUF_HANDLE hHandle;
-
-            memset(&stChnPort, 0x0, sizeof(MI_SYS_ChnPort_t));
-            memset(&stBufInfo, 0, sizeof(MI_SYS_BufInfo_t));
-            memset(&hHandle, 0, sizeof(MI_SYS_BUF_HANDLE));
-            stChnPort.eModId = E_MI_MODULE_ID_VIF;
-            stChnPort.u32DevId = MIPI_0_CAM;
-            stChnPort.u32ChnId = MIPI_0_CAM * 4;
-            stChnPort.u32PortId = 0;
-
-            wait_camera_ready_with_param(stChnPort, stBufInfo, hHandle, 2000, ret);
-            if (ret < 0)
-            {
-                g_xSS.iCamError |= CAM_ERROR_DVP2;
-                GPIO_fast_setvalue(IR_LED, OFF);
-
-                g_iDvpCamInited = -1;
-                camera_release(MIPI_0_CAM);
-                my_thread_exit(NULL);
-                dbug_printf("\t [mipi 0] get first buf timeout  (%f)\n", Now());
-                return NULL;
-            }
-
-            {
-                //if(i == 0)
-                {
-                    g_iFirstCamFlag |= LEFT_IR_CAM_RECVED;
-#if (IR_LED_ONOFF_MODE == 1)
-                    if(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED)
-                        GPIO_fast_setvalue(IR_LED, OFF);
-#endif
-                    unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-                    lockIRBuffer();
-                    for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-                        g_irOnData1[iIdx] = (pbSrc[iIdx] >> 2);
-                    unlockIRBuffer();
-#if 0
-                    FILE* fp = fopen("/mnt/ir_mipi0.bin", "wb");
-                    if(fp)
-                    {
-                        fwrite(g_irOnData1, sizeof(g_irOnData1), 1, fp);
-                        fclose(fp);
-                    }
-#endif
-                    g_rFirstCamTime = Now();
-                }
-
-                dbug_printf("\t [mipi 0] get first buf ok %d(%f)\n", i, Now());
-                MI_SYS_ChnOutputPortPutBuf(hHandle);
-            }
-        }
-#if (IR_LED_ONOFF_MODE == 1)
-        camera_set_irled(2, 0);
-#endif
-    }
-    else
-    {
-        GPIO_fast_setvalue(IR_LED, OFF);
-        g_xSS.iCamError |= CAM_ERROR_DVP1;
-    }
-#endif
-    my_thread_exit(NULL);
-    return NULL;
-}
-
-void StartFirstCam()
-{
-    dbug_printf("[%s] start, %0.3f\n", __func__, Now());
-    g_irWriteLock = my_mutex_init();
-    g_captureLock = my_mutex_init();
-    g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    g_irOnData2 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    g_irOffData = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-
-    fr_InitIRCamera_ExpGain();
-}
-
-void StartCamSurface(int iMode)
-{
-    //inti color camera
-    g_xSS.iRunningCamSurface = 1;
-
-#if (IR_LED_ONOFF_MODE == 0)
-    GPIO_fast_setvalue(IR_LED, ON);
-#endif
-    if(iMode == 0)
-    {
-        fr_InitIRCamera_ExpGain();
-
-        // g_nFaceFailed = 0;
-        // g_nFaceRectValid = 0;
-        // g_faceDetected = 0;
-    }
-
-#if (TEST_CAM_MODE == TEST_TCMIPI || TEST_CAM_MODE == TEST_TWO)
-    //init tc mipi camera
-    if(g_iMipiCamInited == -1)
-    {
-        float r = Now();
-        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-        if(Now() - r > 500)
-            my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
-
-        if(g_iMipiCamInited == -1)
-        {
-            g_xSS.iCamError |= CAM_ERROR_MIPI1;
-
-#if 0
-            if(g_xSS.iAppType == APP_MAIN)
-                SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_TCMIPI, 0, 0);
-#endif
-        }
-    }
-
-    if(iMode == 0 && g_iMipiCamInited == 0)
-    {
-        camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
-        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1);
-    }
-
-    if(g_iMipiCamInited == 0)
-        my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, MYTHREAD_PRIORITY_MEDIUM);
-#endif
-
-#if (TEST_CAM_MODE == TEST_DVP || TEST_CAM_MODE == TEST_TWO)
-    //init dvp camera
-    if(g_iDvpCamInited == -1)
-    {
-        float r = Now();
-        g_iDvpCamInited = camera_init(MIPI_0_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-        if(Now() - r > 500)
-            my_printf("+++++++++++++++++  MIPI_0_ERROR :  %f\n", Now() - r);
-        if(g_iDvpCamInited == -1)
-        {
-            g_xSS.iCamError |= CAM_ERROR_DVP1;
-
-#if 0
-            if(g_xSS.iAppType == APP_MAIN)
-                SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_DVP, 0, 0);
-#endif
-        }
-    }
-
-    if (g_iDvpCamInited == 0)
-    {
-        if(iMode == 0)
-        {
-            camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
-            camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN);
-        }
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-        {
-            //test pattern
-            camera_set_regval(MIPI_0_CAM, 0x0C, 0x41);
-            camera_set_regval(MIPI_1_CAM, 0x0C, 0x41);
-        }
-    }
-
-    if(g_iDvpCamInited == 0)
-        my_thread_create_ext(&g_capture1, 0, ProcessDVPCapture, NULL, (char*)"getdvp1", 8192, MYTHREAD_PRIORITY_MEDIUM);
-#endif
-}
-
-void StopCamSurface()
-{
-//    my_printf("Stop Camera!\n");
-    g_xSS.iRunningCamSurface = 0;
-    if(g_capture1)
-    {
-        my_thread_join(&g_capture1);
-        g_capture1 = 0;
-    }
-
-    if(g_iDvpCamInited != -1)
-        camera_release(MIPI_0_CAM);
-
-    if(g_capture0)
-    {
-        my_thread_join(&g_capture0);
-        g_capture0 = 0;
-    }
-
-    if(g_iMipiCamInited != -1)
-        camera_release(MIPI_1_CAM);
-
-    WaitIRCancel();
-#ifndef __RTK_OS__
-    WaitIROffCancel();
-#endif // !__RTK_OS__
-
-    g_iDvpCamInited = -1;
-    g_iMipiCamInited = -1;
-
-    GPIO_fast_setvalue(IR_LED, OFF);
-}
-
-void* ProcessDVPCapture(void *param)
-{
+#else // USE_VDBTASK
 #if 0 //kkk
     int ret;
     int iFrameCount = 0;
@@ -1714,92 +829,187 @@ void* ProcessDVPCapture(void *param)
     g_iLedOnStatus = 0;
     GPIO_fast_setvalue(IR_LED, OFF);
 #endif
-    my_thread_exit(NULL);
+#endif // USE_VDBTASK
     return NULL;
 }
 
-void* ProcessTCMipiCapture(void *param)
+void* ProcessTCMipiCapture(void */*param*/)
 {
-#if 0 //kkk
-    int ret;
-    int iFrameCount = 0;
-    int iTestSet = 0;
+    VIDEO_FRAME_INFO_S stVideoFrame[2];
+    VI_DUMP_ATTR_S attr;
+    int frm_num = 1;
+    CVI_U32 dev = 0;
 
+    dbug_printf("[%s]\n", __func__);
+    // int ret;
+
+    //int iSwitchFlag = 0;
+    int iFrameCount = 0;
+    // int iNeedNext = 0;
+    float rOld = Now();
+
+    GPIO_fast_setvalue(IR_LED, ON);
+
+    memset(stVideoFrame, 0, sizeof(stVideoFrame));
+    stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+    stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+
+    attr.bEnable = 1;
+    attr.u32Depth = 0;
+    attr.enDumpType = VI_DUMP_TYPE_RAW;
+
+    CVI_VI_SetPipeDumpAttr(dev, &attr);
+
+    attr.bEnable = 0;
+    attr.enDumpType = VI_DUMP_TYPE_IR;
+
+    CVI_VI_GetPipeDumpAttr(dev, &attr);
     while (g_xSS.iRunningCamSurface)
     {
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
-        MI_SYS_ChnPort_t stChnPort;
-        MI_SYS_BufInfo_t stBufInfo;
-        MI_SYS_BUF_HANDLE hHandle;
 
-        memset(&stChnPort, 0x0, sizeof(MI_SYS_ChnPort_t));
-        memset(&stBufInfo, 0, sizeof(MI_SYS_BufInfo_t));
-        memset(&hHandle, 0, sizeof(MI_SYS_BUF_HANDLE));
-        stChnPort.eModId = E_MI_MODULE_ID_VIF;
-        stChnPort.u32DevId = MIPI_1_CAM;
-        stChnPort.u32ChnId = MIPI_1_CAM * 4;
-        stChnPort.u32PortId = 0;
+        frm_num = 1;
 
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iTestSet == 0)
+        CVI_VI_GetPipeFrame(dev, stVideoFrame, 1000);
+
+        if (stVideoFrame[1].stVFrame.u64PhyAddr[0] != 0)
+            frm_num = 2;
+
+        rOld = Now();
+
+        int j = 0;
+
+        if (iFrameCount == 0)
+            printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
+        size_t image_size = stVideoFrame[0].stVFrame.u32Length[0];
+
+        stVideoFrame[j].stVFrame.pu8VirAddr[0] =
+        (CVI_U8 *)stVideoFrame[j].stVFrame.u64PhyAddr[0];
+        printf("paddr(%ld) vaddr(%p)\n",
+            stVideoFrame[j].stVFrame.u64PhyAddr[0],
+            stVideoFrame[j].stVFrame.pu8VirAddr[0]);
+
+        unsigned char *ptr = (unsigned char*)stVideoFrame[j].stVFrame.pu8VirAddr[0];
+        memcpy(ptr, (const void *)stVideoFrame[j].stVFrame.pu8VirAddr[0],
+            stVideoFrame[j].stVFrame.u32Length[0]);
+
+        lockIRBuffer();
+        size_t test_pos = 0;
+        for (int k = 0 ; k < (int)image_size; k+=3)
         {
-            //test pattern
-            camera_set_regval(MIPI_1_CAM, 0x0C, 0x41);
-            iTestSet = 1;
+            g_irOnData1[test_pos++] = ptr[k];
+            g_irOnData1[test_pos++] = ptr[k+1];
+            if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                break;
         }
-        wait_camera_ready_with_param(stChnPort, stBufInfo, hHandle, 2000, ret);
-        if (ret < 0)
+        memcpy(g_irOnData2, g_irOnData1, IR_BUFFER_SIZE);
+        unlockIRBuffer();
+
+        WaitIRCancel();
+        g_iTwoCamFlag = -1;
+
+
+        CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
+        iFrameCount ++;
+        continue;
+#if 0 //kkk test
+        ret = wait_camera_ready (TC_MIPI_CAM);
+        if (ret == -1 || ret == -2)
         {
-            g_xSS.iCamError |= CAM_ERROR_MIPI2;
-#if 0
+            g_xSS.iCamError = CAM_ERROR_MIPI2;
+            GPIO_fast_setvalue(IR_LED, OFF);
             SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_TCMIPI, 0, 0);
-#endif
             break;
         }
 
-        LOG_PRINT("\t mipi_1 capture: (%d),  %d   %d   %f\n", iFrameCount, g_iLedOnStatus, g_iTwoCamFlag, Now());
-
+        //if (MI_SYS_ChnOutputPortGetBuf(&stChnPort, &stBufInfo, &hHandle) != MI_SUCCESS)
         {
-            my_mutex_lock(g_captureLock);
-            if(g_iTwoCamFlag != -1 && /*(g_iTwoCamFlag & 1) &&*/ !(g_iTwoCamFlag & 0x04))
-            {
-                g_iTwoCamFlag |= 0x04;
-                my_mutex_unlock(g_captureLock);
-
-                unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
-                lockIRBuffer();
-                for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
-                    g_irOnData2[iIdx] = (pbSrc[iIdx] >> 2);
-                unlockIRBuffer();
-                dbug_printf("ir2 got, %d\n", g_iLedOnStatus);
-
-#if (TEST_CAM_MODE == TEST_TCMIPI)
-                WaitIRCancel();
-#endif
-            }
-            else
-                my_mutex_unlock(g_captureLock);
-
-#if (TEST_CAM_MODE == TEST_TWO)
-            my_mutex_lock(g_captureLock);
-            if(g_iTwoCamFlag != -1 && (g_iTwoCamFlag & 0x02) && (g_iTwoCamFlag & 0x04) && !(g_iTwoCamFlag & 0x08))
-            {
-                g_iTwoCamFlag |= 0x08;
-                my_mutex_unlock(g_captureLock);
-
-                WaitIRCancel();
-                dbug_printf("WIRC2 %d, %0.3f\n", g_iLedOnStatus, Now());
-            }
-            else
-                my_mutex_unlock(g_captureLock);
-#endif
-            MI_SYS_ChnOutputPortPutBuf(hHandle);
+            //my_printf("[MIPI]  Getting IR Buffer is failed\n");
+            my_usleep(20*1000);
+            continue;
         }
 
+        dbug_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
+        rOld = Now();
+
+        if(iFrameCount == 0 && camera_get_actIR() == MIPI_CAM_SUB1)
+        {
+            //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
+            //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
+            //swtich to id->1
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+            iNeedNext = 1;
+        }
+
+        ///Sub0카메라로 동작할때 레드켜기지령을 받았으면 Sub0화상을 얻고 Sub1로 절환하여 두번째화상을 얻은다음 다시 Sub0으로 카메라를 절환한다.
+        if(g_iTwoCamFlag == 0 && iNeedNext == 0/* && reserved == 1 && id == MIPI_CAM_SUB0 && iOldReserved == 0*/)
+        {
+            if(g_iLedOnStatus == 1)
+                GPIO_fast_setvalue(IR_LED, ON);
+
+            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
+            //     g_irOffData[iIdx] = (pbSrc[iIdx] >> 2);
+
+            g_iTwoCamFlag ++;
+        }
+        else if(g_iTwoCamFlag == 1)
+        {
+            g_iTwoCamFlag ++;
+        }
+        else if(g_iTwoCamFlag == 2)
+        {
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+            // lockIRBuffer();
+            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
+            //     g_irOnData2[iIdx] = (pbSrc[iIdx] >> 2);
+            // unlockIRBuffer();
+            g_iTwoCamFlag ++;
+        }
+        else if(g_iTwoCamFlag == 3)
+        {
+            g_iTwoCamFlag ++;
+        }
+        else if(g_iTwoCamFlag == 4)
+        {
+            g_iLedOnStatus = 0;
+            GPIO_fast_setvalue(IR_LED, OFF);
+
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+            // unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+            // lockIRBuffer();
+            // for(int iIdx = 0; iIdx < IR_CAM_WIDTH * IR_CAM_HEIGHT; iIdx ++)
+            //     g_irOnData1[iIdx] = (pbSrc[iIdx] >> 2);
+
+            unlockIRBuffer();
+
+            if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+            {
+                fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
+                CalcNextExposure();
+            }
+
+            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+                my_printf("capture on images!, %d\n", iFrameCount);
+
+            WaitIRCancel();
+            g_iTwoCamFlag = -1;
+            iNeedNext = 1;
+        }
+        else if(iNeedNext == 1)
+        {
+            iNeedNext = 0;
+        }
+
+        // MI_SYS_ChnOutputPortPutBuf(hHandle);
+
         iFrameCount ++;
+#endif
     }
 
+    //적외선카메라를 끄기 전에 sub0으로 절환하여 끄게 함, 카메라끄기할때 카메라오유가 나오는 문제가 있음
     g_xSS.iShowIrCamera = 0;
-#endif
     my_thread_exit(NULL);
 
     return NULL;
@@ -1807,6 +1017,26 @@ void* ProcessTCMipiCapture(void *param)
 
 void CalcNextExposure()
 {
+#if (USE_VDBTASK)
+    my_mutex_lock(g_captureLock);
+    if(fr_GetExposure())
+    {
+        camera_set_exp_byreg(TC_MIPI_CAM_LEFT, *fr_GetExposure());
+    }
+    if(fr_GetExposure2())
+    {
+        camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, *fr_GetExposure2());
+    }
+    if(fr_GetGain())
+    {
+        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, *fr_GetGain());
+    }
+    if(fr_GetGain2())
+    {
+        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, *fr_GetGain2());
+    }
+    my_mutex_unlock(g_captureLock);
+#else // USE_VDBTASK
     if(fr_GetExposure())
     {
         camera_set_exp_byreg(MIPI_0_CAM, *fr_GetExposure());
@@ -1823,460 +1053,299 @@ void CalcNextExposure()
     {
         camera_set_gain_byreg(MIPI_1_CAM, *fr_GetGain2());
     }
-}
 #endif // USE_VDBTASK
-
-void Convert10bitRawBuffer_To8BitY(unsigned short* p10bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nRotate)
-{
-    int nX, nY, nYValue;
-    int nRows = 0;
-    int nR, nB, nG;
-    int nValue[12];
-    int nWidth2 = nBufferWidth << 1;
-    int nTopRows = (nBufferWidth - 1) * nBufferHeight + 1;
-    for (nY = 0; nY < nBufferHeight - 2; nY++, nRows += nBufferWidth, nTopRows ++)
-    {
-        int nYMod = nY % 2;
-        int nDstIdx = nTopRows;
-        for (nX = 0; nX < nBufferWidth - 2; nX += 2)
-        {
-//            int nPatterIndex;
-
-            int nBufferIndex = nRows + nX;
-            unsigned short* pCurRawBuffer = (unsigned short*)(p10bitRawBuffer + nBufferIndex);
-            nValue[0] = *pCurRawBuffer;
-            nValue[1] = *(pCurRawBuffer + 1);
-            nValue[2] = *(pCurRawBuffer + 2);
-            nValue[3] = *(pCurRawBuffer + nBufferWidth);
-            nValue[4] = *(pCurRawBuffer + nBufferWidth + 1);
-            nValue[5] = *(pCurRawBuffer + nBufferWidth + 2);
-            nValue[6] = *(pCurRawBuffer + nWidth2);
-            nValue[7] = *(pCurRawBuffer + nWidth2 + 1);
-            nValue[8] = *(pCurRawBuffer + nWidth2 + 2);
-
-            nValue[9] = *(pCurRawBuffer + 3);
-            nValue[10] = *(pCurRawBuffer + nBufferWidth + 3);
-            nValue[11] = *(pCurRawBuffer + nWidth2 + 3);
-
-            if (nYMod == 0)
-            {
-                //nPatterIndex = 1;
-                nR = nValue[4];
-                nG = (nValue[1] + nValue[3] + nValue[5] + nValue[7]) / 4;
-                nB = (nValue[0] + nValue[2] + nValue[6] + nValue[8]) / 4;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 17;
-//              *pResultBuffer ++ = (unsigned char)nYValue;
-                pResultBuffer[nDstIdx] = (unsigned char)nYValue;
-                nDstIdx -= nBufferHeight;
-
-                //nPatterIndex = 3;
-                nR = (nValue[2] + nValue[8]) / 2;
-                nG = (nValue[1] + nValue[9] + 4 * nValue[5] + nValue[7] + nValue[11]) / 8;
-                nB = (nValue[4] + nValue[10]) / 2;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 17;
-//              *pResultBuffer ++ = (unsigned char)nYValue;
-                pResultBuffer[nDstIdx] = (unsigned char)nYValue;
-                nDstIdx -= nBufferHeight;
-            }
-
-            if (nYMod == 1)
-            {
-                //nPatterIndex = 0;
-
-                nR = (nValue[3] + nValue[5]) / 2;
-                nG = (nValue[0] + nValue[2] + 4 * nValue[4] + nValue[6] + nValue[8]) / 8;
-                nB = (nValue[1] + nValue[7]) / 2;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 17;
-//              *pResultBuffer ++ = (unsigned char)nYValue;
-                pResultBuffer[nDstIdx] = (unsigned char)nYValue;
-                nDstIdx -= nBufferHeight;
-
-                //nPatterIndex = 2;
-                nR = (nValue[1] + nValue[9] + nValue[7] + nValue[11]) / 4;
-                nG = (nValue[2] + nValue[4] + nValue[10] + nValue[8]) / 4;
-                nB = nValue[5];
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 17;
-//              *pResultBuffer ++ = (unsigned char)nYValue;
-                pResultBuffer[nDstIdx] = (unsigned char)nYValue;
-                nDstIdx -= nBufferHeight;
-            }
-        }
-    }
-
-    memset(pResultBuffer + nBufferWidth * nBufferHeight, 0x80, nBufferWidth * nBufferHeight / 2);
 }
 
-
-void Convert8bitBayerRawBuffer_To8BitY_noRotate(unsigned char* p8bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nResetUV)
+void reset_ir_exp_gain()
 {
-    int nX, nY, nRows = 0;
-    int nBufferWidth2 = nBufferWidth << 1;
-    int nResultStartRows = 0;
-
-    int nValue[16];
-    for (nY = 0; nY < nBufferHeight - 1; nY += 2, nRows += nBufferWidth2)
+#if (USE_VDBTASK)
+    my_mutex_lock(g_captureLock);
+    if(g_iMipiCamInited == 0)
     {
-        int nResultIdx = nResultStartRows + nY + 1;
-        int nResultIdx1 = nResultStartRows + nY + 1 + 1;
+        camera_set_exp_byreg(TC_MIPI_CAM_LEFT, INIT_EXP);
+        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, INIT_GAIN);
 
-        unsigned char* pbRow1Ptr = p8bitRawBuffer + nRows;
-        unsigned char* pbRow2Ptr = pbRow1Ptr + nBufferWidth;
-        unsigned char* pbRow3Ptr = pbRow1Ptr + nBufferWidth2;
-        unsigned char* pbRow4Ptr = pbRow1Ptr + nBufferWidth2 + nBufferWidth;
+        camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, INIT_EXP_1);
+        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, INIT_GAIN_1);
 
-        nValue[0] = *pbRow1Ptr++;
-        nValue[1] = *pbRow1Ptr++;
-        nValue[2] = *pbRow1Ptr++;
-        nValue[3] = *pbRow1Ptr++;
-
-        nValue[4] = *pbRow2Ptr++;
-        nValue[5] = *pbRow2Ptr++;
-        nValue[6] = *pbRow2Ptr++;
-        nValue[7] = *pbRow2Ptr++;
-
-        nValue[8] = *pbRow3Ptr++;
-        nValue[9] = *pbRow3Ptr++;
-        nValue[10] = *pbRow3Ptr++;
-        nValue[11] = *pbRow3Ptr++;
-
-        nValue[12] = *pbRow4Ptr++;
-        nValue[13] = *pbRow4Ptr++;
-        nValue[14] = *pbRow4Ptr++;
-        nValue[15] = *pbRow4Ptr++;
-
-        for (nX = 0; nX < nBufferWidth - 1; nX += 2)
-        {
-            int nR, nB, nG, nYValue;
-            {
-                // nX
-                nR = nValue[5];
-                nG = (nValue[1] + nValue[4] + nValue[6] + nValue[9]) >> 2;
-                nB = (nValue[0] + nValue[2] + nValue[8] + nValue[10]) >> 2;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx] = (unsigned char)nYValue;
-                nResultIdx += nBufferHeight;
-
-                // nX + 1
-                nR = (nValue[5] + nValue[7]) >> 1;
-                nG = (nValue[1] + nValue[3] + 4 * nValue[6] + nValue[9] + nValue[11]) >> 3;
-                nB = (nValue[2] + nValue[10]) >> 1;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx] = (unsigned char)nYValue;
-                nResultIdx += nBufferHeight;
-            }
-            {
-                // nX
-                nR = (nValue[5] + nValue[13]) >> 1;
-                nG = (nValue[4] + nValue[6] + 4 * nValue[9] + nValue[12] + nValue[14]) >> 3;
-                nB = (nValue[8] + nValue[10]) >> 1;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx1] = (unsigned char)nYValue;
-                nResultIdx1 += nBufferHeight;
-
-                // nX + 1
-                nR = (nValue[5] + nValue[7] + nValue[13] + nValue[15]) >> 2;
-                nG = (nValue[6] + nValue[9] + nValue[11] + nValue[14]) >> 2;
-                nB = nValue[10];
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx1] = (unsigned char)nYValue;
-                nResultIdx1 += nBufferHeight;
-            }
-            nValue[0] = nValue[2];
-            nValue[1] = nValue[3];
-            nValue[2] = *pbRow1Ptr++;
-            nValue[3] = *pbRow1Ptr++;
-
-            nValue[4] = nValue[6];
-            nValue[5] = nValue[7];
-            nValue[6] = *pbRow2Ptr++;
-            nValue[7] = *pbRow2Ptr++;
-
-            nValue[8] = nValue[10];
-            nValue[9] = nValue[11];
-            nValue[10] = *pbRow3Ptr++;
-            nValue[11] = *pbRow3Ptr++;
-
-            nValue[12] = nValue[14];
-            nValue[13] = nValue[15];
-            nValue[14] = *pbRow4Ptr++;
-            nValue[15] = *pbRow4Ptr++;
-        }
+        fr_InitIRCamera_ExpGain();
     }
-    if (nResetUV)
-        memset(pResultBuffer + nBufferWidth * nBufferHeight, 0x80, nBufferWidth * nBufferHeight / 2);
+    my_mutex_unlock(g_captureLock);
+#endif // USE_VDBTASK
 }
 
-
-void Convert8bitBayerRawBuffer_To8BitY_noRotate_FlipY(unsigned char* p8bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nResetUV)
+#if (USE_VDBTASK)
+void rotateYUV420SP_flip(unsigned char* src, int width, int height, unsigned char* dst, int angle, int flip)
 {
-    int nX, nY, nRows = 0;
-    int nBufferWidth2 = nBufferWidth << 1;
-    int nResultStartRows = 0;
+    int wh = width * height;
+    int i, j, k = 0;
 
-    int nValue[16];
-    for (nY = 0; nY < nBufferHeight - 1; nY += 2, nRows += nBufferWidth2)
+    if(angle == 90)
     {
-//      int nResultIdx = nResultStartRows + nY + 1;
-//      int nResultIdx1 = nResultStartRows + nY + 1 + 1;
-
-        int nResultIdx = nResultStartRows + nY + 1 + (nBufferWidth - 1) * nBufferHeight;
-        int nResultIdx1 = nResultStartRows + nY + 1 + 1 +(nBufferWidth - 1) * nBufferHeight;
-
-
-        unsigned char* pbRow1Ptr = p8bitRawBuffer + nRows;
-        unsigned char* pbRow2Ptr = pbRow1Ptr + nBufferWidth;
-        unsigned char* pbRow3Ptr = pbRow1Ptr + nBufferWidth2;
-        unsigned char* pbRow4Ptr = pbRow1Ptr + nBufferWidth2 + nBufferWidth;
-
-        nValue[0] = *pbRow1Ptr++;
-        nValue[1] = *pbRow1Ptr++;
-        nValue[2] = *pbRow1Ptr++;
-        nValue[3] = *pbRow1Ptr++;
-
-        nValue[4] = *pbRow2Ptr++;
-        nValue[5] = *pbRow2Ptr++;
-        nValue[6] = *pbRow2Ptr++;
-        nValue[7] = *pbRow2Ptr++;
-
-        nValue[8] = *pbRow3Ptr++;
-        nValue[9] = *pbRow3Ptr++;
-        nValue[10] = *pbRow3Ptr++;
-        nValue[11] = *pbRow3Ptr++;
-
-        nValue[12] = *pbRow4Ptr++;
-        nValue[13] = *pbRow4Ptr++;
-        nValue[14] = *pbRow4Ptr++;
-        nValue[15] = *pbRow4Ptr++;
-
-        for (nX = 0; nX < nBufferWidth - 1; nX += 2)
-        {
-            int nR, nB, nG, nYValue;
-            {
-                // nX
-                nR = nValue[5];
-                nG = (nValue[1] + nValue[4] + nValue[6] + nValue[9]) >> 2;
-                nB = (nValue[0] + nValue[2] + nValue[8] + nValue[10]) >> 2;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx] = (unsigned char)nYValue;
-                nResultIdx -= nBufferHeight;
-
-                // nX + 1
-                nR = (nValue[5] + nValue[7]) >> 1;
-                nG = (nValue[1] + nValue[3] + 4 * nValue[6] + nValue[9] + nValue[11]) >> 3;
-                nB = (nValue[2] + nValue[10]) >> 1;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx] = (unsigned char)nYValue;
-                nResultIdx -= nBufferHeight;
+        for(i = 0; i < width; i++) {
+            for(j = 0; j < height; j++) {
+                if(flip == 0)
+                    dst[k + j] = src[width * j + (width - i - 1)];
+                else
+                    dst[k + height - j - 1] = src[width * j + (width - i - 1)];
             }
-            {
-                // nX
-                nR = (nValue[5] + nValue[13]) >> 1;
-                nG = (nValue[4] + nValue[6] + 4 * nValue[9] + nValue[12] + nValue[14]) >> 3;
-                nB = (nValue[8] + nValue[10]) >> 1;
+            k+= (height);
+        }
 
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
+        for(i = 0; i < width; i += 2) {
+            for(j = 0; j < height / 2; j++) {
+                if(flip == 0)
                 {
-                    nYValue = 255;
+                    dst[j * 2 + k + 1] = src[wh + width * j + (width - i - 1)];
+                    dst[j * 2 + k] = src[wh + width * j + (width - i - 1) + 1];
                 }
-                pResultBuffer[nResultIdx1] = (unsigned char)nYValue;
-                nResultIdx1 -= nBufferHeight;
-
-                // nX + 1
-                nR = (nValue[5] + nValue[7] + nValue[13] + nValue[15]) >> 2;
-                nG = (nValue[6] + nValue[9] + nValue[11] + nValue[14]) >> 2;
-                nB = nValue[10];
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
+                else
                 {
-                    nYValue = 255;
+                    dst[(height/2 - j - 1) * 2 + k + 1] = src[wh + width * j + (width - i - 1)];
+                    dst[(height/2 - j - 1) * 2 + k] = src[wh + width * j + (width - i - 1) + 1];
                 }
-                pResultBuffer[nResultIdx1] = (unsigned char)nYValue;
-                nResultIdx1 -= nBufferHeight;
             }
-            nValue[0] = nValue[2];
-            nValue[1] = nValue[3];
-            nValue[2] = *pbRow1Ptr++;
-            nValue[3] = *pbRow1Ptr++;
-
-            nValue[4] = nValue[6];
-            nValue[5] = nValue[7];
-            nValue[6] = *pbRow2Ptr++;
-            nValue[7] = *pbRow2Ptr++;
-
-            nValue[8] = nValue[10];
-            nValue[9] = nValue[11];
-            nValue[10] = *pbRow3Ptr++;
-            nValue[11] = *pbRow3Ptr++;
-
-            nValue[12] = nValue[14];
-            nValue[13] = nValue[15];
-            nValue[14] = *pbRow4Ptr++;
-            nValue[15] = *pbRow4Ptr++;
+            k += (height);
         }
     }
-    if (nResetUV)
-        memset(pResultBuffer + nBufferWidth * nBufferHeight, 0x80, nBufferWidth * nBufferHeight / 2);
-}
-
-
-void Convert8bitBayerRawBuffer_To8BitY_noRotate_180(unsigned char* p8bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nResetUV)
-{
-    int nX, nY, nRows = 0;
-    int nBufferWidth2 = nBufferWidth << 1;
-    int nResultStartRows = 0;
-
-    int nValue[16];
-    for (nY = 0; nY < nBufferHeight - 1; nY += 2, nRows += nBufferWidth2)
+    else if(angle == 270)
     {
-        //      int nResultIdx = nResultStartRows + nY + 1;
-        //      int nResultIdx1 = nResultStartRows + nY + 1 + 1;
-
-        int nResultIdx = nResultStartRows - nY - 1 + (nBufferWidth - 1) * nBufferHeight + nBufferHeight - 1;
-        int nResultIdx1 = nResultStartRows - nY - 1 - 1 + (nBufferWidth - 1) * nBufferHeight + nBufferHeight - 1;
-
-
-        unsigned char* pbRow1Ptr = p8bitRawBuffer + nRows;
-        unsigned char* pbRow2Ptr = pbRow1Ptr + nBufferWidth;
-        unsigned char* pbRow3Ptr = pbRow1Ptr + nBufferWidth2;
-        unsigned char* pbRow4Ptr = pbRow1Ptr + nBufferWidth2 + nBufferWidth;
-
-        nValue[0] = *pbRow1Ptr++;
-        nValue[1] = *pbRow1Ptr++;
-        nValue[2] = *pbRow1Ptr++;
-        nValue[3] = *pbRow1Ptr++;
-
-        nValue[4] = *pbRow2Ptr++;
-        nValue[5] = *pbRow2Ptr++;
-        nValue[6] = *pbRow2Ptr++;
-        nValue[7] = *pbRow2Ptr++;
-
-        nValue[8] = *pbRow3Ptr++;
-        nValue[9] = *pbRow3Ptr++;
-        nValue[10] = *pbRow3Ptr++;
-        nValue[11] = *pbRow3Ptr++;
-
-        nValue[12] = *pbRow4Ptr++;
-        nValue[13] = *pbRow4Ptr++;
-        nValue[14] = *pbRow4Ptr++;
-        nValue[15] = *pbRow4Ptr++;
-
-        for (nX = 0; nX < nBufferWidth - 1; nX += 2)
-        {
-            int nR, nB, nG, nYValue;
-            {
-                // nX
-                nR = nValue[5];
-                nG = (nValue[1] + nValue[4] + nValue[6] + nValue[9]) >> 2;
-                nB = (nValue[0] + nValue[2] + nValue[8] + nValue[10]) >> 2;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx] = (unsigned char)nYValue;
-                nResultIdx -= nBufferHeight;
-
-                // nX + 1
-                nR = (nValue[5] + nValue[7]) >> 1;
-                nG = (nValue[1] + nValue[3] + 4 * nValue[6] + nValue[9] + nValue[11]) >> 3;
-                nB = (nValue[2] + nValue[10]) >> 1;
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
-                {
-                    nYValue = 255;
-                }
-                pResultBuffer[nResultIdx] = (unsigned char)nYValue;
-                nResultIdx -= nBufferHeight;
+        for(i = 0; i < width; i++) {
+            for(j = 0; j < height; j++) {
+                if(flip == 0)
+                    dst[k + height - j - 1] = src[width * j + i];
+                else
+                    dst[k + j] = src[width * j + i];
             }
-            {
-                // nX
-                nR = (nValue[5] + nValue[13]) >> 1;
-                nG = (nValue[4] + nValue[6] + 4 * nValue[9] + nValue[12] + nValue[14]) >> 3;
-                nB = (nValue[8] + nValue[10]) >> 1;
+            k+= (height);
+        }
 
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
+        for(i = 0; i < width; i += 2) {
+            for(j = 0; j < height / 2; j++) {
+                if(flip == 0)
                 {
-                    nYValue = 255;
+                    dst[(height/2 - j - 1) * 2 + k] = src[wh + width * j + i];
+                    dst[(height/2 - j - 1) * 2 + k + 1] = src[wh + width * j + i + 1];
                 }
-                pResultBuffer[nResultIdx1] = (unsigned char)nYValue;
-                nResultIdx1 -= nBufferHeight;
-
-                // nX + 1
-                nR = (nValue[5] + nValue[7] + nValue[13] + nValue[15]) >> 2;
-                nG = (nValue[6] + nValue[9] + nValue[11] + nValue[14]) >> 2;
-                nB = nValue[10];
-
-                nYValue = ((nR * 9798 + nG * 19235 + nB * 3736)) >> 14;
-                if (nYValue > 255)
+                else
                 {
-                    nYValue = 255;
+                    dst[j * 2 + k] = src[wh + width * j + i];
+                    dst[j * 2 + k + 1] = src[wh + width * j + i + 1];
                 }
-                pResultBuffer[nResultIdx1] = (unsigned char)nYValue;
-                nResultIdx1 -= nBufferHeight;
             }
-            nValue[0] = nValue[2];
-            nValue[1] = nValue[3];
-            nValue[2] = *pbRow1Ptr++;
-            nValue[3] = *pbRow1Ptr++;
-
-            nValue[4] = nValue[6];
-            nValue[5] = nValue[7];
-            nValue[6] = *pbRow2Ptr++;
-            nValue[7] = *pbRow2Ptr++;
-
-            nValue[8] = nValue[10];
-            nValue[9] = nValue[11];
-            nValue[10] = *pbRow3Ptr++;
-            nValue[11] = *pbRow3Ptr++;
-
-            nValue[12] = nValue[14];
-            nValue[13] = nValue[15];
-            nValue[14] = *pbRow4Ptr++;
-            nValue[15] = *pbRow4Ptr++;
+            k += (height);
         }
     }
-    if (nResetUV)
-        memset(pResultBuffer + nBufferWidth * nBufferHeight, 0x80, nBufferWidth * nBufferHeight / 2);
 }
+
+void ConvertYUYV_toYUV420(unsigned char* data, int width, int height, unsigned char* dstData)
+{
+    unsigned char* pUV = dstData + width * height;
+    int iUVFlag = 0;
+    for(int i = 0; i < height; i++)
+    {
+        iUVFlag = (i % 2 == 0) ? 1 : 0;
+        for(int j = 0; j < (width >> 1); j++)
+        {
+            dstData[j * 2] = data[j * 4];
+            dstData[j * 2 + 1] = data[j * 4 + 2];
+
+            if(iUVFlag == 1)
+            {
+                *pUV = data[j * 4 + 1];
+                pUV++;
+                *pUV = data[j * 4 + 3];
+                pUV++;
+            }
+        }
+        data = data + width * 2;
+        dstData = dstData + width;
+    }
+}
+
+int GetYAVGValueOfClr(unsigned char* pbClrBuf)
+{
+    int nY, nX;
+    int nInvaliedPixelCount = 0;
+    int nEntireValue = 0;
+
+    int nEntirePixelCount = 0;
+    int nEntireTotalValue = 0;
+
+    unsigned char* pbSrcPtr = pbClrBuf;
+
+    for (nX = 0; nX < CLR_CAM_HEIGHT; nX += 2)
+    {
+        for (nY = 0; nY < CLR_CAM_WIDTH; nY += 2)
+        {
+            unsigned char bYData = pbSrcPtr[nY * 2];
+            if (nX > 120 && nX < CLR_CAM_HEIGHT - 120 && nY > 216 && nY < CLR_CAM_WIDTH - 216)
+            {
+                nEntirePixelCount++;
+
+                if (bYData < 0)
+                {
+                    nInvaliedPixelCount++;
+                }
+                else
+                {
+                    nEntireTotalValue += bYData;
+                }
+            }
+        }
+        pbSrcPtr += CLR_CAM_WIDTH * 2 * 2;
+    }
+
+    if (nEntirePixelCount)
+    {
+        nEntireValue = nEntireTotalValue / nEntirePixelCount;
+    }
+    else
+    {
+        nEntireValue = 30;
+    }
+    return nEntireValue;
+}
+
+int CalcClrNextExposure(unsigned char* pbClrBuf)
+{
+    //changed by KSB 20180711
+    int nNewGain, nNewExposure;
+    int nEntireCurYAVG = 0;
+    int nFaceCurYAVG = 0;
+    float rDeltaValue = 1.0f;
+
+    g_nClrFramePassCount++;
+    g_nValueSettenPassed++;
+
+    if (g_nClrFramePassCount < 1)
+    {
+//        return;
+    }
+
+    g_nClrFramePassCount = 0;
+    nEntireCurYAVG = GetYAVGValueOfClr(pbClrBuf);
+    nFaceCurYAVG = nEntireCurYAVG;
+    return nEntireCurYAVG;
+}
+
+int WaitClrTimeout(int iTimeout)
+{
+    float _oldTime = Now();
+    if (iTimeout <= 0)
+        return ETIMEDOUT;
+
+    while(1)
+    {
+        float _diff = Now() - _oldTime;
+        // dbug_printf("[%s] _diff = %0.3f\n", __func__, _diff);
+        if (_diff > (float)iTimeout)
+            break;
+        my_mutex_lock(g_clrWriteLock);
+        if (g_clrWriteCond == 1)
+        {
+            my_mutex_unlock(g_clrWriteLock);
+            // dbug_printf("[%s] return 0\n", __func__);
+            return 0;
+        }
+        my_mutex_unlock(g_clrWriteLock);
+        my_usleep(1000);
+    }
+
+    return ETIMEDOUT;
+}
+
+int WaitClrCancel()
+{
+    my_mutex_lock(g_clrWriteLock);
+    g_clrWriteCond = 1;
+    //dbug_printf("[%s] set 1, %0.3f\n", __func__, Now());
+    my_mutex_unlock(g_clrWriteLock);
+    return 0;
+}
+
+#else// USE_VDBTASK
+
+void* ProcessDVPCaptureFirst(void*)
+{
+#if 0 //kkk
+    if(g_iDvpCamInited == 0)
+    {
+        int ret;
+ 
+        camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
+        camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN);
+
+        for(int i = 0; i < 1; i ++)
+        {
+            MI_SYS_ChnPort_t stChnPort;
+            MI_SYS_BufInfo_t stBufInfo;
+            MI_SYS_BUF_HANDLE hHandle;
+
+            memset(&stChnPort, 0x0, sizeof(MI_SYS_ChnPort_t));
+            memset(&stBufInfo, 0, sizeof(MI_SYS_BufInfo_t));
+            memset(&hHandle, 0, sizeof(MI_SYS_BUF_HANDLE));
+            stChnPort.eModId = E_MI_MODULE_ID_VIF;
+            stChnPort.u32DevId = MIPI_0_CAM;
+            stChnPort.u32ChnId = MIPI_0_CAM * 4;
+            stChnPort.u32PortId = 0;
+
+            wait_camera_ready_with_param(stChnPort, stBufInfo, hHandle, 2000, ret);
+            if (ret < 0)
+            {
+                g_xSS.iCamError |= CAM_ERROR_DVP2;
+                GPIO_fast_setvalue(IR_LED, OFF);
+
+                g_iDvpCamInited = -1;
+                camera_release(MIPI_0_CAM);
+                my_thread_exit(NULL);
+                dbug_printf("\t [mipi 0] get first buf timeout  (%f)\n", Now());
+                return NULL;
+            }
+
+            {
+                //if(i == 0)
+                {
+                    g_iFirstCamFlag |= LEFT_IR_CAM_RECVED;
+#if (IR_LED_ONOFF_MODE == 1)
+                    if(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED)
+                        GPIO_fast_setvalue(IR_LED, OFF);
+#endif
+                    unsigned short* pbSrc = (unsigned short*)stBufInfo.stFrameData.pVirAddr[0];
+                    lockIRBuffer();
+                    for(int iIdx = 0; iIdx < WIDTH_1280 * HEIGHT_720; iIdx ++)
+                        g_irOnData1[iIdx] = (pbSrc[iIdx] >> 2);
+                    unlockIRBuffer();
+#if 0
+                    FILE* fp = fopen("/mnt/ir_mipi0.bin", "wb");
+                    if(fp)
+                    {
+                        fwrite(g_irOnData1, sizeof(g_irOnData1), 1, fp);
+                        fclose(fp);
+                    }
+#endif
+                    g_rFirstCamTime = Now();
+                }
+
+                dbug_printf("\t [mipi 0] get first buf ok %d(%f)\n", i, Now());
+                MI_SYS_ChnOutputPortPutBuf(hHandle);
+            }
+        }
+#if (IR_LED_ONOFF_MODE == 1)
+        camera_set_irled(2, 0);
+#endif
+    }
+    else
+    {
+        GPIO_fast_setvalue(IR_LED, OFF);
+        g_xSS.iCamError |= CAM_ERROR_DVP1;
+    }
+#endif
+    my_thread_exit(NULL);
+    return NULL;
+}
+
+#endif // USE_VDBTASK
 
 void rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle)
 {
@@ -2354,160 +1423,6 @@ void rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, i
     my_free(pTempBuffer);
 }
 
-void ConvertYUV422_To8Bit(unsigned char* data, int width, int height, unsigned char* dstData)
-{
-//    for(int i = 0; i < height; i ++)
-//        memcpy(dstData + i * width, data + 2 * i * width, width);
-
-//    memcpy(dstData, data, IR_CAM_WIDTH * IR_CAM_HEIGHT);
-    rotateImage_inner(data, IR_CAM_WIDTH, IR_CAM_HEIGHT, 270);
-}
-
-void RGB2HSV(int nR, int nG, int nB, int& nH, int& nS, int& nV)
-{
-    float rR, rG, rB;
-    float rH, rS, rV;
-
-    float rMin, rMax, rDelta;
-
-    rR = (float)nR / 255;
-    rG = (float)nG / 255;
-    rB = (float)nB / 255;
-
-    rMin = rR;
-    rMax = rR;
-    if (rMin > rG)
-    {
-        rMin = rG;
-    }
-    if (rMin > rB)
-    {
-        rMin = rB;
-    }
-
-    if (rMax < rG)
-    {
-        rMax = rG;
-    }
-
-    if (rMax < rB)
-    {
-        rMax = rB;
-    }
-
-    rV = rMax;
-
-    rDelta = rMax - rMin;
-    if (rDelta < 0.00001)
-    {
-        nV = rV * 100;
-        nS = 0;
-        nH = 0; // undefined, maybe nan?
-        return;
-    }
-    if (rMax > 0.0)
-    {
-        // NOTE: if Max is == 0, this divide would cause a crash
-        rS = (rDelta / rMax);                  // s
-    }
-    else
-    {
-        nS = 0.0;
-        nH = 0;
-        nV = rV * 100;// its now undefined
-        return;
-    }
-    if (rR >= rMax)                           // > is bogus, just keeps compilor happy
-        rH = (rG - rB) / rDelta;        // between yellow & magenta
-    else if (rG >= rMax)
-        rH = 2.0 + (rB - rR) / rDelta;  // between cyan & yellow
-    else
-        rH = 4.0 + (rR - rG) / rDelta;  // between magenta & cyan
-
-    rH *= 60.0;                              // degrees
-
-    if (rH < 0.0)
-        rH += 360.0;
-
-    nH = rH;
-    nS = rS * 100;
-    nV = rV * 100;
-
-    return;
-}
-
-
-//if
-int CheckYUVBuffer(unsigned char*pbYUV, int nWidth, int nHeight)
-{
-    int nBufferSize = nWidth * nHeight;
-
-    int nValidPixelCount = 0;
-    int nCertainInvalidPixelCount = 0;
-    int nTotalPixelCount = 0;
-
-    int nY = 0;
-    int nX = 0;
-
-    for (nY = 0; nY < nHeight; nY += 4)
-    {
-        for (nX = 0; nX < nWidth; nX += 4)
-        {
-            int u, v, y;
-            int nBufferIndex;
-            int nUVIndex;
-            int nH, nS, nV;
-
-            nBufferIndex = nY * nWidth + nX;
-            nUVIndex = (nY / 2) * nWidth + (nX / 2) * 2 + nBufferSize;
-
-            y = pbYUV[nBufferIndex];
-            u = pbYUV[nUVIndex];
-            v = pbYUV[nUVIndex + 1];
-
-            v = v - 128;
-            u = u - 128;
-
-            y = y - 16;
-            if (y < 0)
-            {
-                y = 0;
-            }
-
-            int r = (y * 1192 + v * 1634) >> 10;
-            int g = (y * 1192 - v * 834 - 400 * u) >> 10;
-            int b = (y * 1192 + u * 2066) >> 10;
-
-            r = r > 255 ? 255 : r < 0 ? 0 : r;
-            g = g > 255 ? 255 : g < 0 ? 0 : g;
-            b = b > 255 ? 255 : b < 0 ? 0 : b;
-
-
-            RGB2HSV(r, g, b, nH, nS, nV);
-
-            if (nV > VALID_V_VALUE || (nV > 25 && nS > 25))
-            {
-                nValidPixelCount++;
-            }
-
-            if (nV < CERTAIN_INVALID_V_VALUE)
-            {
-                nCertainInvalidPixelCount++;
-            }
-            nTotalPixelCount++;
-        }
-    }
-
-    float rValidRate = (float)nValidPixelCount / nTotalPixelCount;
-    float rInValidRate = (float)nCertainInvalidPixelCount / nTotalPixelCount;
-
-    if (rValidRate > GOOD_RATE && rInValidRate < 0.65f)
-    {
-        return 1;
-    }
-    return 0;
-}
-
 //gamma = 0.65
 unsigned char bGammaValue_065[256] =
 {
@@ -2576,9 +1491,10 @@ int WaitIRCancel()
     my_mutex_unlock(g_irWriteLock);
     return 0;
 }
-#if USE_VDBTASK
+
 int camera_set_irled_on(int on)
 {
+#if (USE_VDBTASK)
     int ret = -1;
 //    printf("----------  camera_set_irled_on  %d\n", on);
     if (on)
@@ -2590,10 +1506,7 @@ int camera_set_irled_on(int on)
         g_iLedOnStatus = 0;
 
     return ret;
-}
-#else
-int camera_set_irled_on(int on)
-{
+#else // USE_VDBTASK
     int ret = -1;
     //my_printf("----------  camera_set_irled_on  %d\n", on);
     if (on)
@@ -2608,8 +1521,8 @@ int camera_set_irled_on(int on)
         g_iLedOnStatus = 0;
 
     return ret;
+#endif // USE_VDBTASK
 }
-#endif
 #ifndef __RTK_OS__
 int WaitIROffTimeout(int iTimeout)
 {

@@ -42,12 +42,7 @@ void*   ProcessDVPCapture(void *param);
 void*   ProcessTCMipiCapture(void *param);
 
 void    CalcNextExposure();
-void    Convert10bitRawBuffer_To8BitY(unsigned short* p10bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nRotate);
-void    Convert8bitBayerRawBuffer_To8BitY_noRotate(unsigned char* p8bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nResetUV);
-void    Convert8bitBayerRawBuffer_To8BitY_noRotate_FlipY(unsigned char* p8bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nResetUV);
-void    Convert8bitBayerRawBuffer_To8BitY_noRotate_180(unsigned char* p8bitRawBuffer, int nBufferWidth, int nBufferHeight, unsigned char* pResultBuffer, int nResetUV);
 void    ConvertYUV420_NV21toRGB888(unsigned char* data, int width, int height, unsigned char* dstData);
-void    ConvertYUV422_To8Bit(unsigned char* data, int width, int height, unsigned char* dstData);
 void    rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle);
 void    gammaCorrection_screen(unsigned char* pBuffer, int nWidth, int nHeight);
 int     camera_set_irled_on(int on);
@@ -97,7 +92,6 @@ enum
 };
 
 void    ConvertYUYV_toYUV420(unsigned char* data, int width, int height, unsigned char* dstData);
-void    rotateYUV420SP_align_flip(unsigned char* src, int width, int height, unsigned char* dst, int angle, int flip = 0);
 void    rotateYUV420SP_flip(unsigned char* src, int width, int height, unsigned char* dst, int angle, int flip = 0);
 void    reset_ir_exp_gain();
 int     CalcClrNextExposure(unsigned char* pbClrBuf);
