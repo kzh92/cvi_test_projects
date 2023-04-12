@@ -122,8 +122,8 @@ extern int g_nThreadCount;
 				float* in_mit = in_mem + cstep * i;
 				float* out_mit = out_mem + cstep * i;
 				float* scit = sc + i * 4;
-				int nn = size;
 #if __ARM_NEON
+				int nn = size;
 				asm volatile(
 					"vld1.f32   {d6-d7}, [%3]		\n"
 					"0:								\n"

@@ -239,3 +239,28 @@ int UART_Baudrate(int iBaudRate)
 
     return iInBaudrate;
 }
+
+//returns sending time in milliseconds
+int UART_SendTimePredict(int iLen)
+{
+    int iInBaudrate = 115200;
+    if(g_uart1_baud == 230400)
+        iInBaudrate = 230400;
+    else if(g_uart1_baud == 460800)
+        iInBaudrate = 460800;
+    else if(g_uart1_baud == 1500000)
+        iInBaudrate = 1500000;
+    else if(g_uart1_baud == 9600)
+        iInBaudrate = 9600;
+    else if(g_uart1_baud == 19200)
+        iInBaudrate = 19200;
+    else if(g_uart1_baud == 38400)
+        iInBaudrate = 38400;
+    else if(g_uart1_baud == 57600)
+        iInBaudrate = 57600;
+    if (g_uart1_baud < 115200)
+        iInBaudrate = (iLen * 1000 * 8 / iInBaudrate) + 10;
+    else
+        iInBaudrate = 5;
+    return iInBaudrate;
+}

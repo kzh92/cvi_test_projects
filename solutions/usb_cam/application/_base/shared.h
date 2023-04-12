@@ -56,6 +56,9 @@ void        ClearCache();
 void    UpdateUserCount();
 
 void    md5(const uint8_t *initial_msg, size_t initial_len, uint8_t *digest);
+#ifdef USE_TWIN_ENGINE
+int     MainSTM_GetDict(unsigned char *pbData, int len);
+#endif
 
 #if (NFS_DEBUG_EN == 0)
 #define APP_LIB_PATH "/usr/lib/libfaceengine.so"

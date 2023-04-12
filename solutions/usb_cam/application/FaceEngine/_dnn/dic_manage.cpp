@@ -22,20 +22,7 @@
 #include "string.h"
 #include "common_types.h"
 
-#ifdef __RTK_OS__
-#define FN_LIVEA1   FN_A1_DICT_PATH
-#define FN_LIVEA2   FN_A2_DICT_PATH
-#define FN_LIVEB    FN_B_DICT_PATH
-#define FN_LIVEB2   FN_B2_DICT_PATH
-#define FN_LIVEC    FN_C_DICT_PATH
-#define FN_DETECT   FN_DETECT_DICT_PATH
-#define FN_MODEL    FN_DLAMK_DICT_PATH
-#define FN_FEATURE  FN_WNO_DICT_PATH
-#define FN_ESN      FN_ESN_DICT_PATH
-#define FN_OCC      FN_OCC_DICT_PATH
-#define FN_H_1      "/mnt/hdic_1.bin"
-#define FN_H_2      "/test/hdic_2.bin"
-#else
+
 #define FN_LIVEA1   FN_A1_DICT_PATH
 #define FN_LIVEA2   FN_A2_DICT_PATH
 #define FN_LIVEB    FN_B_DICT_PATH
@@ -65,7 +52,6 @@ int g_id_checkValid_hand = 0;
 int g_id_occ = 0;
 int g_id_esn = 0;
 int g_id_H_2 = 0;
-#endif
 
 unsigned char*  g_dic_detect = 0;
 unsigned char*  g_dic_detect_hand = 0;
@@ -163,9 +149,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     {
     case MachineFlagIndex_DNN_Detect:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_detect;
-#endif
         nDicSize = Detect_dnn_dic_size();
         strcpy(szFileNameTemp, FN_DETECT);
         ppbDicData = &g_dic_detect;
@@ -176,9 +160,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Detect_Hand:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_detect_h;
-#endif
         nDicSize = Detect_dnn_dic_size();
         strcpy(szFileNameTemp, FN_DETECT_H);
         ppbDicData = &g_dic_detect_hand;
@@ -189,9 +171,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Modeling:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_model;
-#endif
         nDicSize = Modeling_dnn_dic_size(0);
         strcpy(szFileNameTemp, FN_MODEL);
         ppbDicData = &g_dic_model;
@@ -202,9 +182,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Modeling_Hand:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_model_h;
-#endif
         nDicSize = Modeling_dnn_dic_size(1);
         strcpy(szFileNameTemp, FN_MODEL_H);
         ppbDicData = &g_dic_model_hand;
@@ -215,9 +193,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Liveness_A1:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_a1;
-#endif
         nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEA1);
         ppbDicData = &g_dic_live_a1;
@@ -228,9 +204,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Liveness_A2:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_a2;
-#endif
         nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEA2);
         ppbDicData = &g_dic_live_a2;
@@ -241,9 +215,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Liveness_B:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_b;
-#endif
         nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEB);
         ppbDicData = &g_dic_live_b;
@@ -254,9 +226,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Liveness_B2:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_b2;
-#endif
         nDicSize = LiveMnSE3_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEB2);
         ppbDicData = &g_dic_live_b2;
@@ -267,9 +237,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Liveness_C:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_live_c;
-#endif
         nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_LIVEC);
         ppbDicData = &g_dic_live_c;
@@ -280,9 +248,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_CheckValid_Hand:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_checkValid_hand;
-#endif
         nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_CHECKVALID_H);
         ppbDicData = &g_dic_checkValid_hand;
@@ -293,9 +259,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_OCC:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_occ;
-#endif
         nDicSize = Occlusion::dnn_dic_size();
         ppbDicData = &g_dic_occ;
         strcpy(szFileNameTemp, FN_OCC);
@@ -306,9 +270,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_ESN:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_esn;
-#endif
         nDicSize = ESN::dnn_dic_size();
         strcpy(szFileNameTemp, FN_ESN);
         ppbDicData = &g_dic_esn;
@@ -343,9 +305,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_H_2:
     {
-#ifndef __RTK_OS__
         pnFileIndicator = &g_id_H_2;
-#endif
         nDicSize = H_DICT_SIZE2;
         strcpy(szFileNameTemp, FN_H_2);
         ppbDicData = &g_dic_H_2;

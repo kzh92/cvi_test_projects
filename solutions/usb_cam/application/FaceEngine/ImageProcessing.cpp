@@ -8,7 +8,9 @@
 // #include <malloc.h>
 // #include <stdlib.h>
 #include <math.h>
+#ifdef __ARM_NEON
 #include <arm_neon.h>
+#endif // __ARM_NEON
 #include "common_types.h"
 
 #define __max(a, b) (a > b ? a : b)
@@ -16,8 +18,7 @@
 
 unsigned char g_jpgTmpData[N_MAX_JPG_FACE_IMAGE_SIZE * 2];
 
-
-
+#ifdef __ARM_NEON
 inline static int f_sad_16_neon(const uint8_t* a, const uint8_t* b)
 {
     int32_t r[4] = { 0, 0, 0, 0 };
@@ -36,7 +37,7 @@ inline static int f_sad_16_neon(const uint8_t* a, const uint8_t* b)
 
     return r[0] + r[2];
 }
-
+#endif // __ARM_NEON
 
 void ScaleImage(unsigned char *pbOrg, unsigned char* pbScaledImage)
 {
@@ -689,27 +690,27 @@ int GetFaceMotion_Fast(unsigned char* pbImage1, unsigned char* pbImage2, int nIm
     nSRight = nFaceLeft + nFaceW - 1;
     nSBottom = nFaceTop + nFaceH - 1;
 
-#if 0
+#ifndef __ARM_NEON
 
     for (int nY = nSTop; nY <= nSBottom; nY++)
     {
         pbPtr1 = pbTmpImage1 + nY * nImageWidth;
         for (int nX = nSLeft; nX <= nSRight; nX++)
         {
-            a = pbPtr1[nX];
+            unsigned char a = pbPtr1[nX];
             for (int i = 0; i < MAX_OFFSET2; i++)
             {
                 pbPtr2 = pbTmpImage2 + (nY + i) * nOffImageW;
                 for (int j = 0; j < MAX_OFFSET2; j++)
                 {
-                    b = pbPtr2[nX + j];
+                    unsigned char b = pbPtr2[nX + j];
                     ppnError[i][j] += (a > b) ? a - b : b - a;
                 }
             }
         }
     }
 
-#else
+#else // !__ARM_NEON
 
     int nRightPad = (nSRight - nSLeft + 1) % 16;
     if (nRightPad > 0)
@@ -736,7 +737,7 @@ int GetFaceMotion_Fast(unsigned char* pbImage1, unsigned char* pbImage2, int nIm
             }
         }
     }
-#endif
+#endif // !__ARM_NEON
 
     for (i = 0; i < MAX_OFFSET2; i++)
     {

@@ -4,6 +4,8 @@
 #define CAMERA_MIDDLE_ERROR		2
 
 int checkCameraPattern(unsigned char *pbCameraPatternBuffer);
+int checkCameraPattern_SC2355(unsigned char *pbCameraPatternBuffer);
+
 //nMode=0:YYUV 1, YUYV 
 int checkCameraPattern_BF3A03_0x80_clr(unsigned char *pbClrCameraPatternBuffer, unsigned char* pbRGB_Buffer, int nMode = 0);
 

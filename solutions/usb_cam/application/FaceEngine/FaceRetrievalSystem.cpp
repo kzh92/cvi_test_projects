@@ -713,7 +713,6 @@ int isGoodFaceToEnroll()
 int getBestIndex(FaceInfo* face_info, int n_face_cnt, int &nBadCode)
 {
     int nFACE_MIN_WIDTH_AVAIABLE_ENROLL = FACE_MIN_WIDTH_AVAIABLE_ENROLL;
-    int nFACE_MIN_WIDTH_AVAIABLE = FACE_MIN_WIDTH_AVAIABLE;
     int nFACE_MAX_WIDTH_AVAIABLE = FACE_MAX_WIDTH_AVAIABLE;
 
     int nBestFaceSizeInGoodFace = 0;
@@ -1410,17 +1409,18 @@ void fr_SetEngineState(int fState, int iParam1, int iParam2, int iParam3, int iP
         g_nPassedDirectionCount = 0;
 
         int nNeedLoadFace = 0;
+#if (N_MAX_HAND_NUM)
         int nNeedLoadHand = 0;
+#endif
 
 #if !(N_MAX_HAND_NUM)
         nNeedLoadFace = 1;
-        nNeedLoadHand = 0;
-#else//face hand enroll mode
+#else // !N_MAX_HAND_NUM
 #if (ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX) //face hand enroll mix mode
         nNeedLoadFace = 1;
         nNeedLoadHand = 1;
         //g_xEngineParam.iEnrollKind = -1;
-#else//face hand enroll seperate mode
+#else // ENROLL_FACE_HAND_MODE
         if(g_xEngineParam.iEnrollKind == EEK_Face)
         {
             nNeedLoadFace = 1;
@@ -1431,8 +1431,8 @@ void fr_SetEngineState(int fState, int iParam1, int iParam2, int iParam3, int iP
             nNeedLoadFace = 0;
             nNeedLoadHand = 1;
         }
-#endif
-#endif
+#endif // ENROLL_FACE_HAND_MODE
+#endif // !N_MAX_HAND_NUM
 
         if(nNeedLoadFace)
         {
@@ -2259,22 +2259,6 @@ int AllocEngineMemory()
     }
 #endif
 
-#ifdef __RTK_OS__
-    g_global_dic_size =
-          ENNQ::get_blob_size(Detect::dnn_dic_size(),   DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(Modeling::dnn_dic_size(), DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(), DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(), DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(), DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(LiveMnSE3::dnn_dic_size(), DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(),   DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(Feature::dnn_dic_size(),  DIC_MEM_ALIGN);
-# ifdef ENGINE_FOR_DESSMAN
-        g_global_dic_size +=
-          ENNQ::get_blob_size(ESN::dnn_dic_size(),          DIC_MEM_ALIGN)
-        + ENNQ::get_blob_size(Occlusion::dnn_dic_size(),    DIC_MEM_ALIGN);
-# endif
-#else
     g_global_dic_size = ENNQ::get_blob_size(Feature::dnn_dic_size(),  DIC_MEM_ALIGN);
     //h engine
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
@@ -2282,8 +2266,6 @@ int AllocEngineMemory()
     {
         g_global_dic_size += ENNQ::get_blob_size(H_DICT_SIZE1,  DIC_MEM_ALIGN);
     }
-#endif
-
 #endif
 
     int g_global_tmp_size = 0;
@@ -2394,20 +2376,6 @@ int AllocEngineMemory()
     g_global_memory = (unsigned char*)my_malloc(g_global_size);
     unsigned char* addr = (unsigned char*)(((size_t)(g_global_memory + (DIC_MEM_ALIGN - 1))) & (-DIC_MEM_ALIGN));
 
-#ifdef __RTK_OS__
-    g_dic_detect = addr;            addr += ENNQ::get_blob_size(Detect::dnn_dic_size(),     DIC_MEM_ALIGN);
-    g_dic_model = addr;             addr += ENNQ::get_blob_size(Modeling::dnn_dic_size(),   DIC_MEM_ALIGN);
-    g_dic_live_a1 = addr;           addr += ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(),   DIC_MEM_ALIGN);
-    g_dic_live_a2 = addr;           addr += ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(),   DIC_MEM_ALIGN);
-    g_dic_live_b = addr;            addr += ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(),   DIC_MEM_ALIGN);
-    g_dic_live_b2 = addr;            addr += ENNQ::get_blob_size(LiveMnSE3::dnn_dic_size(),   DIC_MEM_ALIGN);
-    g_dic_live_c = addr;            addr += ENNQ::get_blob_size(LiveMnSE::dnn_dic_size(),     DIC_MEM_ALIGN);
-    g_dic_feature = addr;           addr += ENNQ::get_blob_size(Feature::dnn_dic_size(),    DIC_MEM_ALIGN);
-# ifdef ENGINE_FOR_DESSMAN
-    g_dic_esn = addr;               addr += ENNQ::get_blob_size(ESN::dnn_dic_size(),        DIC_MEM_ALIGN);
-    g_dic_occ = addr;               addr += ENNQ::get_blob_size(Occlusion::dnn_dic_size(),  DIC_MEM_ALIGN);
-# endif // ENGINE_FOR_DESSMAN
-#else
     g_dic_feature = addr;           addr += ENNQ::get_blob_size(Feature::dnn_dic_size(),    DIC_MEM_ALIGN);
     //H engine
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
@@ -2416,7 +2384,6 @@ int AllocEngineMemory()
         g_dic_H_1 = addr;               addr += ENNQ::get_blob_size(H_DICT_SIZE1,    DIC_MEM_ALIGN);
     }
 #endif//ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
-#endif
     g_shared_mem = addr;                        addr += g_global_tmp_size;
     g_nHistInLEDOnImage = (int*)addr;           addr += sizeof(int) * 256;
     g_nHistInLEDOnImage_temp = (int*)addr;      addr += sizeof(int) * 256;
@@ -2913,232 +2880,3 @@ int		fr_Get_thread_flag_feat()
 {
     return g_thread_flag_feat;
 }
-
-#ifdef __RTK_OS__
-int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
-{
-#if(MY_DICT_FLASH)
-    int read_len = -1;
-    int file_offset = 0;
-    int align_byte = 64;
-    file_offset = DICT_START_ADDR;
-    if (strstr(filename, "detect.bin"))
-        goto off_read_file;
-    file_offset += Detect::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "dlamk.bin"))
-        goto off_read_file;
-    file_offset += Modeling::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "occ.bin"))
-        goto off_read_file;
-    file_offset += Occlusion::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "esn.bin"))
-        goto off_read_file;
-    file_offset += ESN::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a1.bin"))
-        goto off_read_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a2.bin"))
-        goto off_read_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b.bin"))
-        goto off_read_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b2.bin"))
-        goto off_read_file;
-    file_offset += LiveMnSE3::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "c.bin"))
-        goto off_read_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "wno.bin"))
-        goto off_read_file;
-    file_offset += Feature::dnn_dic_size();
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_031TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_031TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_032TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_032TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_033TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_033TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_034TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_034TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_035TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_035TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_036TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_036TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_TEST_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_TEST_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "act_mark.bin"))
-        goto off_read_file;
-    file_offset += ACT_MARK_LEN;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "actd.bin"))
-        goto off_read_file;
-    file_offset += 4;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "first.bin"))
-        goto off_read_file;
-
-    //invalid dict file.
-    return -1;
-
-off_read_file:
-    read_len = my_flash_read(file_offset + u32_offset, u32_length, (unsigned int)buf, u32_length);
-    return read_len;
-#else // MY_DICT_FLASH
-    int ret = -1;
-    myfdesc_ptr f;
-    f = my_open(filename, O_RDONLY, 0777);
-    if (is_myfdesc_ptr_valid(f))
-    {
-        ret = my_read_ext(f, buf, u32_length);
-        my_close(f);
-    }
-    return ret;
-#endif // MY_DICT_FLASH
-}
-
-int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
-{
-#if(MY_DICT_FLASH)
-    int write_len = -1;
-    int file_offset = 0;
-    int align_byte = 64;
-    file_offset = DICT_START_ADDR;
-    if (strstr(filename, "detect.bin"))
-        goto off_write_file;
-    file_offset += Detect::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "dlamk.bin"))
-        goto off_write_file;
-    file_offset += Modeling::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "occ.bin"))
-        goto off_write_file;
-    file_offset += Occlusion::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "esn.bin"))
-        goto off_write_file;
-    file_offset += ESN::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a1.bin"))
-        goto off_write_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a2.bin"))
-        goto off_write_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b.bin"))
-        goto off_write_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b2.bin"))
-        goto off_write_file;
-    file_offset += LiveMnSE3::dnn_dic_size();
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "c.bin"))
-        goto off_write_file;
-    file_offset += LiveMnSE::dnn_dic_size();
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "wno.bin"))
-        goto off_write_file;
-    file_offset += Feature::dnn_dic_size();
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_031TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_031TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_032TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_032TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_033TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_033TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_034TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_034TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_035TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_035TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_036TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_036TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_TEST_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_TEST_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "act_mark.bin"))
-        goto off_write_file;
-    file_offset += ACT_MARK_LEN;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "actd.bin"))
-        goto off_write_file;
-    file_offset += 4;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "first.bin"))
-        goto off_write_file;
-
-    //invalid dict file.
-    return -1;
-
-off_write_file:
-    write_len = my_flash_write(file_offset + u32_offset, (unsigned int)buf, u32_length);
-    return write_len;
-#else // MY_DICT_FLASH
-    int ret = -1;
-    myfdesc_ptr f;
-    f = my_open(filename, O_RDONLY, 0777);
-    if (is_myfdesc_ptr_valid(f))
-    {
-        ret = my_read_ext(f, buf, u32_length);
-        my_close(f);
-    }
-    return ret;
-#endif // MY_DICT_FLASH
-}
-#endif // __RTK_OS__

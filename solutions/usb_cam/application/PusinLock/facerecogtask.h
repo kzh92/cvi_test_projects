@@ -10,21 +10,43 @@
 #define FACE_TASK_REGISTER          3
 #define FACE_TASK_UPDATE_CAM        4
 
-#define FACE_RESULT_NONE 0
-#define FACE_RESULT_SUCCESS 1
-#define FACE_RESULT_FAILED 2
-#define FACE_RESULT_TIMEOUT 3
-#define FACE_RESULT_ENROLLED_FACE 4
-#define FACE_RESULT_DUPLICATED_FACE 5
-#define FACE_RESULT_SPOOF_FACE 6
-#define FACE_RESULT_CAPTURED_FACE 7
-#define FACE_RESULT_ENROLLED_NEXT 8
-#define FACE_RESULT_FAILED_CAMERA 9
-#define FACE_RESULT_DETECTED 10
+enum {
+    FACE_RESULT_NONE,
+    FACE_RESULT_SUCCESS,
+    FACE_RESULT_FAILED,
+    FACE_RESULT_TIMEOUT,
+    FACE_RESULT_ENROLLED_FACE,
+    FACE_RESULT_DUPLICATED_FACE,
+    FACE_RESULT_SPOOF_FACE,
+    FACE_RESULT_CAPTURED_FACE,
+    FACE_RESULT_ENROLLED_NEXT,
+    FACE_RESULT_FAILED_CAMERA,
+    FACE_RESULT_DETECTED,
+    HAND_RESULT_SUCCESS,
+    HAND_RESULT_ENROLLED,
+    HAND_RESULT_ENROLL_DUPLICATED,
+    HAND_RESULT_FAILED,
+    HAND_RESULT_ENROLLED_NEXT,
+    HAND_RESULT_DETECTED,
+};
 
 #define FACE_REGISTER_NEXT          0
 #define FACE_REGISTER_FACE_NORMAL   1
 #define FACE_REGISTER_NO_FACE       2
+
+//face detection state,
+typedef enum {
+    FDS_NONE = 0x0,
+    FDS_FACE_DETECTED = 0x01,
+    FDS_HAND_DETECTED = 0x02,
+} e_face_detection_states;
+
+//face recognition mode index
+typedef enum {
+    FMI_FACE,
+    FMI_HAND,
+    FMI_END
+} e_face_recog_modes;
 
 class FaceRecogTask
 {
@@ -52,20 +74,37 @@ public:
 protected:
     void    run();
 
-    void    SendFaceDetectMsg(int isFaceOcculution, int iFaceNearFar, int iFacePosition, int isFaceDetected);
+    void    SendFaceDetectMsg();
+    int     ProcessGetImage1Step(int iFrameCount);
+    int     ProcessCheckCamera1Step();
+    int     ProcessVerify1Step(int iSecondImageReCheck);
+    int     ProcessEnroll1Step(int iSecondImageReCheck);
+    int     ProcessCheckEye1Step();
+    int     ReadStaticIRImage(void* dst, int flip);
+    int     GetLeftIrFrame(int* p_iUseFirstFrame);
+    int     GetRightIrFrame(void* pBuffer, int iUseFirstFrame);
+    int     GetFaceState();
 
     static int m_iCounter;
     static int m_iImageMode;
 
-    int     m_iRunning;
+    unsigned char m_iRunning;
+    unsigned char m_iCmd;
+    unsigned char m_iCaptureCount;
+    unsigned char m_iHasIrError;
+    unsigned char m_isFaceOcculution;
+    unsigned char m_iFaceNearFar[FMI_END];
+    unsigned char m_iFacePosition[FMI_END];
+    unsigned char m_isFaceDetected[FMI_END];
+    unsigned char m_iLastDetMode;   //last recognition mode
+    float m_rDetectTime[FMI_END];
+    float   m_rFaceFailTime;
+    float   m_rStartTime;
     int     m_iResult;
     int     m_iRecogIndex;
     int     m_iRecogID;
     int     m_iEyeOpened;
 
-    int     m_iCmd;
-    unsigned char *m_irOnData1;
-    unsigned char *m_irOnData2;
     mythread_ptr m_thread;
 };
 

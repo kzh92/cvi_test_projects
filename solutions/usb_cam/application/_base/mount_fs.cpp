@@ -80,9 +80,9 @@ int try_mount_dbfs()
     if (g_xROKLog.bMountStatus != 0xAA)
     {
 #if (DB_TYPE == TYPE_EXT4)
-        if (g_xROKLog.bMountRetry < 10)
+        if (g_xROKLog.bMountRetry < MOUNT_RETRY_COUNT)
 #else
-        if (g_xROKLog.bMountRetry < 5)
+        if (g_xROKLog.bMountRetry < MOUNT_RETRY_COUNT)
 #endif
         {
             g_xROKLog.bMountRetry++;
@@ -98,7 +98,7 @@ int try_mount_dbfs()
 #if (DB_TYPE == TYPE_EXT4)
         if (g_xROKLog.bMountPoint < DB_PART_BACKUP)
         {
-            if (g_xROKLog.bMountRetry >= 5)
+            if (g_xROKLog.bMountRetry >= MOUNT_RETRY_COUNT)
             {
                 UpdateROKLogs();
                 do_make_ext4(dbfs_get_part_name_by_id(g_xROKLog.bMountPoint));

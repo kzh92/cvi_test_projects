@@ -7,7 +7,6 @@
 #include "msg.h"
 #include "i2cbase.h"
 #include "faceengine.h"
-//#include "mount_fs.h"
 #include "shared.h"
 #include "sha1.h"
 #include "facemoduledef.h"
@@ -22,12 +21,6 @@
 #include "facemoduletask.h"
 #include "common_types.h"
 
-// #include <memory.h>
-// #include <stdio.h>
-// #include <termios.h>
-// #include <unistd.h>
-// #include <my_malloc.h>
-// #include <stdlib.h>
 #include <string.h>
 
 
@@ -68,21 +61,12 @@ typedef struct _tagUsbUpgradeEasenHeader
 
 SenseLockTask::EEncMode SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
 char SenseLockTask::EncKey[ENC_KEY_SIZE + 1] = { 0 };
-#if (DESMAN_ENC_MODE == 0)
 unsigned char SenseLockTask::m_encKeyPos[ENC_KEY_SIZE] = {
-    0x06, 0x12, 0x07, 0x03,
-    0x0D, 0x0D, 0x17, 0x04,
-    0x08, 0x01, 0x00, 0x19,
-    0x09, 0x02, 0x02, 0x07
+    0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff,
 };
-#else // DESMAN_ENC_MODE
-unsigned char SenseLockTask::m_encKeyPos[ENC_KEY_SIZE] = {
-    0x00, 0x01, 0x02, 0x03,
-    0x04, 0x05, 0x06, 0x07,
-    0x08, 0x09, 0x0A, 0x0B,
-    0x0C, 0x0D, 0x0E, 0x0F
-};
-#endif // DESMAN_ENC_MODE
 
 mymutex_ptr SenseLockTask::CommMutex = my_mutex_init();
 
@@ -291,8 +275,7 @@ void* senseSendThread_ThreadProc1(void*)
 
 #if (NOTE_INTERVAL_MS)
         //interval time must be 100ms between note and note, note and reply.
-        if ((iLastSendMsgID == MID_NOTE && (msg->mid == MID_NOTE || msg->mid == MID_REPLY)) ||
-            (iLastSendMsgID == MID_REPLY && msg->mid == MID_REPLY) )
+        if (iLastSendMsgID == MID_NOTE && (msg->mid == MID_NOTE || msg->mid == MID_REPLY))
         {
             float rCurTime = Now();
             int iInterval = msg->mid == MID_NOTE ? NOTE_INTERVAL_MS : NOTE2REPLY_MS;
@@ -303,16 +286,34 @@ void* senseSendThread_ThreadProc1(void*)
         rLastSendTime = Now();
 #endif // NOTE_INTERVAL_MS
 
+        if (DEFAULT_UART0_BAUDRATE != Baud_Rate_115200)
+        {
+            if (msg->mid == MID_NOTE && msg->data[0] == NID_READY)
+            {
+                unsigned char readyPacket[8] = {0xEF, 0xAA, 0x01, 0x00, 0x02, 0x00, 0x05/*baudrate*/, 0x06};
+                readyPacket[6] = DEFAULT_UART0_BAUDRATE + 1;
+                readyPacket[7] = SenseLockTask::Get_CheckSum(readyPacket + 2, sizeof(readyPacket) - 3);
+                my_mutex_lock(SenseLockTask::CommMutex);
+                UART_SetBaudrate(UART_Baudrate(Baud_Rate_115200));
+                my_usleep(5 * 1000);
+                UART_Send((unsigned char*)readyPacket, sizeof(readyPacket));
+                my_usleep(5 * 1000);
+                UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
+                my_usleep(5 * 1000);
+                my_mutex_unlock(SenseLockTask::CommMutex);
+            }
+        }
+
         my_mutex_lock(SenseLockTask::CommMutex);
         UART_Send((unsigned char*)pbPck, iPckLen);
-        //my_usleep(5 * 1000);
+        my_usleep(UART_SendTimePredict(iPckLen) * 1000);
         my_mutex_unlock(SenseLockTask::CommMutex);
 
 #if (NOTE_INTERVAL_MS)
         pMsgNext = (MSG*)message_queue_tryread(&g_queue_send);
         while(pMsgNext == NULL)
         {
-            if (g_xSS.rFaceEngineTime != 0 && msg->mid == MID_NOTE && msg->data[0] == NID_FACE_STATE)
+            if (/*g_xSS.rFaceEngineTime != 0 && */msg->mid == MID_NOTE && msg->data[0] == NID_FACE_STATE)
             {
                 if (Now() - rLastSendTime >= NOTE_INTERVAL_MS)
                 {
@@ -333,6 +334,7 @@ void* senseSendThread_ThreadProc1(void*)
         my_free(msg);
         my_free(pbPck);
         message_queue_message_free(&g_queue_send, (void*)pMsg);
+
 #if (NOTE_INTERVAL_MS)
         pMsg = pMsgNext;
 #endif // NOTE_INTERVAL_MS
@@ -615,13 +617,13 @@ void SenseLockTask::run()
 
                 my_printf("MID_CONFIG_BAUDRATE: %d\n", msg_config_baudrate->baudrate_index);
 #if 1
-                if (SF_IS_OTA_BAUDRATE_VALID(msg_config_baudrate->baudrate_index))
+                if (BR_IS_VALID(msg_config_baudrate->baudrate_index))
                 {
                     s_msg* reply_msg = SenseLockTask::Get_Reply(MID_CONFIG_BAUDRATE, MR_SUCCESS);
                     Send_Msg(reply_msg);
 
                     my_usleep(50 * 1000);
-                    SenseLockTask::SetBaudrate(msg_config_baudrate->baudrate_index);
+                    UART_SetBaudrate(UART_Baudrate(msg_config_baudrate->baudrate_index));
                 }
                 else
                 {
@@ -902,10 +904,7 @@ void SenseLockTask::run()
         else if(msg->mid == MID_RESET || msg->mid == MID_FACERESET || msg->mid == MID_DELALL || msg->mid == MID_GET_UID)
         {
             my_printf(msg->mid == MID_RESET ? "MID_RESET_recv\n" : "MID_FACERESET_recv\n");
-            g_xSS.iResetFlag = 1;
-#ifndef _NO_ENGINE_
-            fr_SetStopEngineFlag(1);
-#endif
+            MarkSenseResetFlag();
             SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
             iMsgSent = 1;
@@ -933,10 +932,7 @@ void SenseLockTask::run()
             }
             else if(iLastCmd == MID_VERIFY)
             {
-                g_xSS.iResetFlag = 1;
-#ifndef _NO_ENGINE_
-                fr_SetStopEngineFlag(1);
-#endif
+                MarkSenseResetFlag();
                 SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
             }
             else
@@ -962,7 +958,7 @@ void SenseLockTask::run()
         }
         else if(msg->mid == MID_POWERDOWN || msg->mid == MID_POWERDOWN_ED)
         {
-            g_xSS.iResetFlag = 1;
+            MarkSenseResetFlag();
             SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
 #ifdef NOTHREAD_MUL
             iMsgSent = 1;
@@ -1116,8 +1112,20 @@ s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockStat
     msg_reply_verify_data->user_id_heb = HIGH_BYTE(iUserID);
     msg_reply_verify_data->user_id_leb = LOW_BYTE(iUserID);
 
+#if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
+        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1 && iUserID > N_MAX_PERSON_NUM)
+        {
+            msg_reply_verify_data->user_id_heb = HIGH_BYTE(iUserID - N_MAX_PERSON_NUM);
+            msg_reply_verify_data->user_id_leb = LOW_BYTE(iUserID - N_MAX_PERSON_NUM);
+        }
+#endif // USE_SANJIANG3_MODE
+
     int iID = iUserID - 1;
     PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iID);
+#if (N_MAX_HAND_NUM)
+        if (iUserID > N_MAX_PERSON_NUM)
+            pxMetaInfo = dbm_GetHandMetaInfoByID(iID - N_MAX_PERSON_NUM);
+#endif // N_MAX_HAND_NUM
     if(pxMetaInfo)
     {
         strcpy((char*)msg_reply_verify_data->user_name, pxMetaInfo->szName);
@@ -1151,6 +1159,10 @@ s_msg* SenseLockTask::Get_Reply_GetUserInfo(int iResult, int iUserID)
 
     int iID = iUserID - 1;
     PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iID);
+#if (N_MAX_HAND_NUM)
+    if (iUserID > N_MAX_PERSON_NUM)
+        pxMetaInfo = dbm_GetHandMetaInfoByID(iID - N_MAX_PERSON_NUM);
+#endif // N_MAX_HAND_NUM
     if(pxMetaInfo)
     {
         strcpy((char*)msg_reply_getuserinfo_data->user_name, pxMetaInfo->szName);
@@ -1160,33 +1172,136 @@ s_msg* SenseLockTask::Get_Reply_GetUserInfo(int iResult, int iUserID)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult)
+s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
 {
-    int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data);
-    int iMsgLen = sizeof(s_msg) + iMsgDataLen;
-    s_msg* msg = (s_msg*)my_malloc(iMsgLen);
-    memset(msg, 0, iMsgLen);
-
-    msg->mid = MID_REPLY;
-    msg->size_heb = HIGH_BYTE(iMsgDataLen);
-    msg->size_leb = LOW_BYTE(iMsgDataLen);
-
-    s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
-    msg_reply_data->mid = MID_GET_ALL_USERID;
-    msg_reply_data->result = iResult;
-
-    s_msg_reply_all_userid_data* msg_reply_all_userid_data =
-            (s_msg_reply_all_userid_data*)(msg_reply_data->data);
-
-    msg_reply_all_userid_data->user_counts = dbm_GetPersonCount();
-    for(int i = 0; i < dbm_GetPersonCount(); i ++)
+    s_msg* msg = NULL;
     {
-        PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByIndex(i);
-        if(pxMetaInfo == NULL)
-            continue;
+        if (iFmt == SM_USERID_DATA_FMT_DEFAULT)
+        {
+            int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data);
+            int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+            msg = (s_msg*)malloc(iMsgLen);
+            memset(msg, 0, iMsgLen);
 
-        msg_reply_all_userid_data->users_id[i * 2] = HIGH_BYTE(pxMetaInfo->iID + 1);
-        msg_reply_all_userid_data->users_id[i * 2 + 1] = LOW_BYTE(pxMetaInfo->iID + 1);
+            msg->mid = MID_REPLY;
+            msg->size_heb = HIGH_BYTE(iMsgDataLen);
+            msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+            s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+            msg_reply_data->mid = MID_GET_ALL_USERID;
+            msg_reply_data->result = iResult;
+
+            s_msg_reply_all_userid_data* msg_reply_all_userid_data =
+                    (s_msg_reply_all_userid_data*)(msg_reply_data->data);
+
+            msg_reply_all_userid_data->user_counts = dbm_GetPersonCount();
+            for(int i = 0; i < dbm_GetPersonCount(); i ++)
+            {
+                PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByIndex(i);
+                if(pxMetaInfo == NULL)
+                    continue;
+
+                msg_reply_all_userid_data->users_id[i * 2] = HIGH_BYTE(pxMetaInfo->iID + 1);
+                msg_reply_all_userid_data->users_id[i * 2 + 1] = LOW_BYTE(pxMetaInfo->iID + 1);
+            }
+        }
+        else if (iFmt == SM_USERID_DATA_FMT_BIT1)
+        {
+            int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt1);
+            int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+            msg = (s_msg*)malloc(iMsgLen);
+            memset(msg, 0, iMsgLen);
+
+            msg->mid = MID_REPLY;
+            msg->size_heb = HIGH_BYTE(iMsgDataLen);
+            msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+            s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+            msg_reply_data->mid = MID_GET_ALL_USERID;
+            msg_reply_data->result = iResult;
+
+            s_msg_reply_all_userid_data_fmt1* msg_reply_all_userid_data =
+                    (s_msg_reply_all_userid_data_fmt1*)(msg_reply_data->data);
+
+            msg_reply_all_userid_data->user_counts = dbm_GetPersonCount();
+            for(int i = 0; i < dbm_GetPersonCount(); i ++)
+            {
+                PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByIndex(i);
+                if(pxMetaInfo == NULL)
+                    continue;
+
+                int idx = pxMetaInfo->iID / 8;
+                int shift = pxMetaInfo->iID % 8;
+                msg_reply_all_userid_data->users_id[idx] |= 1 << shift;
+            }
+        }
+        else if (iFmt == SM_USERID_DATA_FMT_BIT_EXT)
+        {
+            int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt_ext);
+            int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+            msg = (s_msg*)malloc(iMsgLen);
+            memset(msg, 0, iMsgLen);
+
+            msg->mid = MID_REPLY;
+            msg->size_heb = HIGH_BYTE(iMsgDataLen);
+            msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+            s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+            msg_reply_data->mid = MID_GET_ALL_USERID;
+            msg_reply_data->result = iResult;
+
+            s_msg_reply_all_userid_data_fmt_ext* msg_reply_all_userid_data =
+                    (s_msg_reply_all_userid_data_fmt_ext*)(msg_reply_data->data);
+
+            msg_reply_all_userid_data->magic = 0xFF;
+            msg_reply_all_userid_data->max_user_counts = N_MAX_PERSON_NUM;
+            msg_reply_all_userid_data->user_counts = dbm_GetPersonCount();
+            for(int i = 0; i < dbm_GetPersonCount(); i ++)
+            {
+                PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByIndex(i);
+                if(pxMetaInfo == NULL)
+                    continue;
+
+                int idx = pxMetaInfo->iID / 8;
+                int shift = pxMetaInfo->iID % 8;
+                msg_reply_all_userid_data->users_id[idx] |= 1 << shift;
+            }
+        }
+#if (N_MAX_HAND_NUM)
+#ifndef _NO_ENGINE_
+        else if (iFmt == SM_USERID_DATA_FMT_HAND1)
+        {
+            int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt1);
+            int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+            msg = (s_msg*)malloc(iMsgLen);
+            memset(msg, 0, iMsgLen);
+
+            msg->mid = MID_REPLY;
+            msg->size_heb = HIGH_BYTE(iMsgDataLen);
+            msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+            s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+            msg_reply_data->mid = MID_GET_ALL_USERID;
+            msg_reply_data->result = iResult;
+
+            s_msg_reply_all_userid_data_fmt1* msg_reply_all_userid_data =
+                    (s_msg_reply_all_userid_data_fmt1*)(msg_reply_data->data);
+
+            msg_reply_all_userid_data->user_counts = dbm_GetHandCount();
+            for(int i = 0; i < msg_reply_all_userid_data->user_counts; i ++)
+            {
+                PSMetaInfo pxMetaInfo = dbm_GetHandMetaInfoByIndex(i);
+                if(pxMetaInfo == NULL)
+                    continue;
+
+                int idx = pxMetaInfo->iID / 8;
+                int shift = pxMetaInfo->iID % 8;
+                msg_reply_all_userid_data->users_id[idx] |= 1 << shift;
+            }
+        }
+#endif // !_NO_ENGINE_
+#endif // N_MAX_HAND_NUM
+
     }
 
     return msg;
@@ -1417,8 +1532,22 @@ s_msg* SenseLockTask::Get_Note(int iNID)
         msg_note_data->nid = iNID;
 #if (USE_READY0_PROTO == 0)
     if (iNID == NID_READY)
-        msg_note_data->data[0] = 1;
+    {
+#if (DEFAULT_UART0_BAUDRATE + 1 > 0xf)
+#error "DEFAULT_UART0_BAUDRATE + 1 must less than 0xf"
+#endif
+        if (DEFAULT_UART0_BAUDRATE == Baud_Rate_115200)
+            msg_note_data->data[0] = 1;
+        else
+            msg_note_data->data[0] = DEFAULT_UART0_BAUDRATE + 1;
+    }
+#if (DEFAULT_PROTO_ENC_MODE > 0xf)
+#error "DEFAULT_PROTO_ENC_MODE must be less than 0xf"
+#endif
+    msg_note_data->data[0] |= (DEFAULT_PROTO_ENC_MODE < PROTO_EM_ENCRYPT_AES_DEFAULT) ? 0 : (DEFAULT_PROTO_ENC_MODE << 4);
 #endif // USE_READY0_PROTO
+
+
 #ifdef USE_UVC_PAUSE_MODE
     PauseUVC_Time = Now() - (UVC_PAUSE_LIMIT_TIME - 200);
     g_xSS.iUVCpause = 2;
@@ -1527,16 +1656,43 @@ void SenseLockTask::Send_Msg(s_msg* msg)
 
 int SenseLockTask::Set_KeyPos(unsigned char* pbKeyPos)
 {
-    for(int i = 0; i < ENC_KEY_SIZE; i ++)
+    if (pbKeyPos == NULL)
+        return -1;
+    if (pbKeyPos[0] == 0xff)
     {
-        if (pbKeyPos[i] >= 32) //must not exceed 32
-            return -1;
-        m_encKeyPos[i] = pbKeyPos[i];
+        //key pos is not set
+#if (DESMAN_ENC_MODE == 0)
+        unsigned char dessman_base_code[] = {
+            0x06, 0x12, 0x07, 0x03,
+            0x0D, 0x0D, 0x17, 0x04,
+            0x08, 0x01, 0x00, 0x19,
+            0x09, 0x02, 0x02, 0x07
+        };
+        memcpy(m_encKeyPos, dessman_base_code, ENC_KEY_SIZE);
+#endif // DESMAN_ENC_MODE
+#if (DEFAULT_PROTO_ENC_KEY_ORD == DEFAULT_PROTO_ENC_KEY_1)
+        unsigned char dessman_base_code[] = {
+            0x00, 0x01, 0x02, 0x03,
+            0x04, 0x05, 0x06, 0x07,
+            0x08, 0x09, 0x0A, 0x0B,
+            0x0C, 0x0D, 0x0E, 0x0F
+        };
+        memcpy(m_encKeyPos, dessman_base_code, ENC_KEY_SIZE);
+#endif // DEFAULT_PROTO_ENC_KEY_ORD
+    }
+    else
+    {
+        for(int i = 0; i < ENC_KEY_SIZE; i ++)
+        {
+            if (pbKeyPos[i] >= 32) //must not exceed 32
+                return -1;
+        }
+        memcpy(m_encKeyPos, pbKeyPos, ENC_KEY_SIZE);
     }
     return 0;
 }
 
-int SenseLockTask::Set_Key(unsigned char* pbSeed, int iSize, int iMode)
+int SenseLockTask::Set_Key(unsigned char* pbSeed, int iSize, int iMode, char* strEncKey)
 {
     if (iSize != 4)
     {
@@ -1550,83 +1706,55 @@ int SenseLockTask::Set_Key(unsigned char* pbSeed, int iSize, int iMode)
         return -2;
     }
 
-    char md5str[256] = { 0 };
-    unsigned char abMd5[16] = { 0 };
-    md5((uint8_t*)pbSeed, iSize, abMd5);
-    for(unsigned int i = 0; i < sizeof(abMd5); i ++)
+    if (m_encKeyPos[0] != 0xff)
     {
-        char szTmp[10] = { 0 };
-        sprintf(szTmp, "%02x", abMd5[i]);
-        strcat(md5str, szTmp);
-    }
+        char md5str[256] = { 0 };
+        unsigned char abMd5[16] = { 0 };
+        md5((uint8_t*)pbSeed, iSize, abMd5);
+        for(unsigned int i = 0; i < sizeof(abMd5); i ++)
+        {
+            char szTmp[10] = { 0 };
+            sprintf(szTmp, "%02x", abMd5[i]);
+            strcat(md5str, szTmp);
+        }
 
-//    strcpy(md5str, "fbe0aa536fc349cbdc451ff5970f9357");
-//    my_printf("md5sum: str = %s\n", md5str);
-    // specical code for DSM
+        // specical code for DSM
 #if (DESMAN_ENC_MODE == 1)
-    snprintf(SenseLockTask::EncKey, ENC_KEY_SIZE + 1, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-            md5str[0], md5str[1], md5str[2], md5str[3],
-            md5str[4], md5str[5], md5str[6], md5str[7],
-            md5str[8], md5str[9], md5str[10], md5str[11],
-            md5str[12], md5str[13], md5str[14], md5str[15]);
+        snprintf(SenseLockTask::EncKey, ENC_KEY_SIZE + 1, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+                 md5str[0], md5str[1], md5str[2], md5str[3],
+                md5str[4], md5str[5], md5str[6], md5str[7],
+                md5str[8], md5str[9], md5str[10], md5str[11],
+                md5str[12], md5str[13], md5str[14], md5str[15]);
 #else // DESMAN_ENC_MODE
-    memset(SenseLockTask::EncKey, 0, sizeof(SenseLockTask::EncKey));
-#if 0
-    snprintf(SenseLockTask::EncKey, ENC_KEY_SIZE + 1, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-             md5str[0x06], md5str[0x12], md5str[0x07], md5str[0x03],
-             md5str[0x0D], md5str[0x0D], md5str[0x17], md5str[0x04],
-             md5str[0x08], md5str[0x01], md5str[0x00], md5str[0x19],
-             md5str[0x09], md5str[0x02], md5str[0x02], md5str[0x07]);
-#else
-    for (int i = 0; i < ENC_KEY_SIZE; i++)
-        SenseLockTask::EncKey[i] = md5str[m_encKeyPos[i]];
-#endif
+        memset(SenseLockTask::EncKey, 0, sizeof(SenseLockTask::EncKey));
+        for (int i = 0; i < ENC_KEY_SIZE; i++)
+            SenseLockTask::EncKey[i] = md5str[m_encKeyPos[i]];
 #endif // DESMAN_ENC_MODE
-
-//    my_printf("EncKey: %s\n", SenseLockTask::EncKey)
-    switch(g_xCS.x.bProtoEncMode)
-    {
-    case PROTO_EM_NOENCRYPT:
-        SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
-        break;
-    case PROTO_EM_ENCRYPT:
-        SenseLockTask::m_encMode = (EEncMode)iMode;
-        break;
-    case PROTO_EM_ENCRYPT_XOR_LANHENG:
-        SenseLockTask::m_encMode = (EEncMode)iMode;
-        strcpy(SenseLockTask::EncKey, DEFAULT_PROTO_EM_XOR1_KEY);
-        break;
-    default:
-        SenseLockTask::m_encMode = (EEncMode)iMode;
-        break;
+        switch(DEFAULT_PROTO_ENC_MODE)
+        {
+        case PROTO_EM_NOENCRYPT:
+            SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
+            break;
+        case PROTO_EM_ENCRYPT:
+            SenseLockTask::m_encMode = (EEncMode)iMode;
+            break;
+        case PROTO_EM_ENCRYPT_XOR_LANHENG:
+            SenseLockTask::m_encMode = (EEncMode)iMode;
+            if (strEncKey == NULL)
+                strcpy(SenseLockTask::EncKey, PROTO_EM_XOR1_KEY_LANHENG);
+            else
+                strcpy(SenseLockTask::EncKey, strEncKey);
+            break;
+        case PROTO_EM_ENCRYPT_AES_XLAN:
+            SenseLockTask::m_encMode = (EEncMode)iMode;
+            if (iMode == SenseLockTask::EM_XOR)
+                strcpy(SenseLockTask::EncKey, DEFAULT_PROTO_EM_XOR1_KEY);
+            break;
+        default:
+            SenseLockTask::m_encMode = (EEncMode)iMode;
+            break;
+        }
     }
-
-#if 0
-
-    unsigned char abEncData[] = { 0x13, 0xDF, 0xD8, 0x84, 0x69, 0xF2, 0x07,
-                                  0x38, 0x25, 0x68, 0xAF, 0xBD, 0x27, 0xD0, 0x09, 0xCB };
-
-    unsigned char pbDecData[16];
-
-    AES_KEY key;
-    AES_set_decrypt_key((unsigned char*)SenseLockTask::EncKey, 128, &key);
-
-    unsigned char ivc[16] = { 0 };
-    //AES_cbc_encrypt(abEncData,pbDecData,16, &key,ivc,AES_DECRYPT);
-    AES_decrypt(abEncData, pbDecData, &key);
-
-#if 0
-    AES_Context xAESContext;
-    AES_SetKey(&xAESContext, (unsigned char*)abEncData);
-
-    int iDecLen = 0;
-    aes_decrypt(&xAESContext, abEncData, pbDecData);
-#endif
-
-    for(int i = 0; i < 16; i ++)
-        my_printf("%x ", pbDecData[i]);
-    my_printf("\n");
-#endif
 
     return 0;
 }
@@ -1671,33 +1799,6 @@ int SenseLockTask::Decrypt_Msg(unsigned char* pbSrc, int iSrcLen, unsigned char*
     else if(m_encMode == EM_XOR)
     {
         Encrypt_Msg_Xor(pbSrc, iSrcLen, *pbOut);
-    }
-    return 0;
-}
-
-int SenseLockTask::SetBaudrate(int index)
-{
-    if(index == SF_OTA_BAUDRATE_115200)
-    {
-        UART_SetBaudrate(B115200);
-    }
-    else if(index == SF_OTA_BAUDRATE_230400)
-    {
-        UART_SetBaudrate(B230400);
-    }
-    else if(index == SF_OTA_BAUDRATE_460800)
-    {
-        UART_SetBaudrate(B460800);
-    }
-    // not support
-    // else if(index == SF_OTA_BAUDRATE_1500000)
-    // {
-    //     UART_SetBaudrate(B1500000);
-    // }
-    else
-    {
-        UART_SetBaudrate(B115200);
-        return 1;
     }
     return 0;
 }

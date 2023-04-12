@@ -4,6 +4,10 @@
 #include "shared.h"
 #include "common_types.h"
 #include "facerecogtask.h"
+#if (N_MAX_HAND_NUM)
+#include "hand/HandRetrival_.h"
+#endif // N_MAX_HAND_NUM
+#include "ComboRetrievalSystem.h"
 
 #include <string.h>
 //#include <malloc.h>
@@ -15,7 +19,12 @@ FaceRecogTask xFaceTask;
 int FaceEngine::Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum)
 {
     int ret = ES_SUCCESS;
-    fr_SetSecurityMode(g_xCS.x.bTwinsMode);
+    fr_SetMaxThresholdValue(g_xCS.x.bSecureFlag);
+#if (USE_TWIN_ENGINE)
+    fr_SetSecurityMode(g_xPS.x.bTwinsMode == S_VERIFY_LEVEL_HIGH ? 0 : 1);
+#else
+    fr_SetSecurityMode(DEFAULT_TWINS_MODE);
+#endif
     // fr_InitEngine(iDupCheck, iCamFlip, nDnnCheckSum, nHCheckSum);
     fr_SetCheckOpenEyeEnable(DESMAN_ENC_MODE == 0);
     dbm_Init(NULL);
@@ -41,7 +50,7 @@ void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
     return; //test
     fr_SetCameraFlip(g_xSS.iCameraRotate);
     fr_SetDupCheck(g_xSS.iEnrollFaceDupCheck);
-    fr_SetLivenessCheckStrong_On_NoUser(g_xCS.x.bLivenessMode);
+    fr_SetLivenessCheckStrong_On_NoUser(DEFAULT_LIVENESS_MODE);
     fr_SetCheckOpenEyeEnable(g_xPS.x.bHijackEnable);
     fr_SetEngineState(ENS_VERIFY, fAdminMode, iUserID);
 }
@@ -51,12 +60,29 @@ void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
     return; //test
     fr_SetCameraFlip(g_xSS.iCameraRotate);
     fr_SetDupCheck(g_xSS.iEnrollFaceDupCheck);
-    fr_SetLivenessCheckStrong_On_NoUser(g_xCS.x.bLivenessMode);
+    fr_SetLivenessCheckStrong_On_NoUser(DEFAULT_LIVENESS_MODE);
     fr_SetCheckOpenEyeEnable(g_xPS.x.bHijackEnable);
     if (!isMultiDirectionMode)
-        fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_ONLY_FRONT_DIRECTION_MODE, 1);
+    {
+#if (N_MAX_HAND_NUM)
+        if (g_xSS.iRegisterHand)
+            fr_SetEngineState(ENS_REGISTER, g_xSS.iRegisterID, g_xSS.iDemoMode, ENROLL_ONLY_FRONT_DIRECTION_MODE, 1, EEK_Hand);
+        else
+#endif // N_MAX_HAND_NUM
+        {
+            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_ONLY_FRONT_DIRECTION_MODE, 1);
+        }
+    }
     else
-        fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_MULTI_DIRECTION_MODE, 5);
+    {
+#if (USE_FUSHI_PROTO)
+        if (g_xSS.iProtocolHeader == FUSHI_HEAD1)
+            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_MULTI_DIRECTION_MODE, 4);
+        else
+#endif // USE FUSHI_PROTO
+            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_MULTI_DIRECTION_MODE, 5);
+
+    }
 }
 
 int FaceEngine::ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData, float* prResultArray)
@@ -90,19 +116,20 @@ int FaceEngine::ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData
 int  FaceEngine::VerifyFace(float* prResultArray)
 {
     return ES_PROCESS; //test
-    int nRet = fr_VerifyFace();
-//    nRet = ES_PROCESS;
+    SEngineResult* pxEngineResult = NULL;
+    int nProcessMode = 0;
+    int nRet = fr_VerifyCombo(&nProcessMode);
 
-    SEngineResult* pxEngineResult =  fr_GetEngineResult();
+    pxEngineResult =  fr_GetEngineResultCombo(&nProcessMode);
 
     prResultArray[0] = (float)nRet;
-    // prResultArray[1] = (float)(pxEngineResult->fUpdateFlagA + (pxEngineResult->fUpdateFlagB << 1));
-    // prResultArray[2] = pxEngineResult->fSuccessA;
-    // prResultArray[3] = pxEngineResult->fSuccessB;
+    prResultArray[1] = nProcessMode; // 0: face, 1: hand
     prResultArray[4] = pxEngineResult->nMaxScore;
-    // prResultArray[5] = pxEngineResult->arDistVals[4];
-    prResultArray[6] = DESMAN_ENC_MODE==0 ? pxEngineResult->nEyeOpenness : 1;
-
+#if (DESMAN_ENC_MODE == 0)
+    prResultArray[6] = pxEngineResult->nEyeOpenness;
+#else // DESMAN_ENC_MODE
+    prResultArray[6] = 1;
+#endif // DESMAN_ENC_MODE
     if(nRet == ES_SUCCESS || nRet == ES_UPDATE)
         return pxEngineResult->nFineUserIndex;
 
@@ -112,62 +139,39 @@ int  FaceEngine::VerifyFace(float* prResultArray)
 void FaceEngine::RegisterFace(float* prResultArray, int iFaceDir)
 {
     return; //test
-    int nRet = fr_RegisterFace(iFaceDir);
+    int nProcessMode = 0;
+    int nRet = fr_RegisterCombo(iFaceDir, &nProcessMode);
     prResultArray[0] = (float)(nRet);
+    prResultArray[1] = nProcessMode;
 }
 
 void FaceEngine::InitCalibOffset()
 {
-    // fr_InitCalcOffsetState();
 }
 
 int FaceEngine::AutoCameraAdjust(unsigned char* pbClrData, unsigned char* pbRedOnData, float* prResultArray)
 {
-    // int anOffset[2] = { 0 };
-    // int nRet = fr_AutoCameraAdjust(pbClrData, pbRedOnData, anOffset);
-    // prResultArray[0] = (float)nRet;
-
-    // SEngineResult* pxEngineResult =  fr_GetEngineResult();
-
-    // if (pxEngineResult->fValid == 1)
-    // {
-    //     prResultArray[1] = 1;
-    //     prResultArray[2] = ((float)pxEngineResult->xFaceRect.x) / 2;
-    //     prResultArray[3] = ((float)pxEngineResult->xFaceRect.y) / 2;
-    //     prResultArray[4] = ((float)pxEngineResult->xFaceRect.width) / 2;
-    //     prResultArray[5] = ((float)pxEngineResult->xFaceRect.height) / 2;
-    //     prResultArray[6] = ((float)anOffset[0]) / 2;
-    //     prResultArray[7] = ((float)anOffset[1]) / 2;
-    // }
-    // else
-    //     memset(prResultArray + 1, 0, sizeof(int) * 5);
-
-    // return nRet;
     return 0;
 }
 
 
 int FaceEngine::GetRegisteredFaceImage(unsigned char* /*pbJpgData*/, int* /*pnJpgLen*/)
 {
-    //return fr_GetRegisteredFace(pbJpgData, pnJpgLen);
     return 0;
 }
 
 int FaceEngine::GetLastFaceData(unsigned char* /*pbFaceData*/)
 {
-    //return fr_GetLastFaceData(pbFaceData);
     return 0;
 }
 
 int  FaceEngine::GetLastFaceImage(unsigned char* /*pbJpgData*/, int* /*pnJpgLen*/)
 {
-    // return fr_GetLastFace(pbJpgData, pnJpgLen);
     return 0;
 }
 
 int  FaceEngine::SetLastFaceScene(unsigned char* /*pbRgbData*/)
 {
-    // return fr_SetLastScene(pbRgbData);
     return 0;
 }
 
@@ -274,6 +278,39 @@ void fe_InitEngine(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum
     g_feTaskCmdArgs[0] = (void*)fargs;
     my_mutex_unlock(g_feTaskMutex);
 }
+
+#if (N_MAX_HAND_NUM)
+void FaceEngine::GetRegisteredFeatInfo_Hand(SHandFeatInfo* pxFeatInfo)
+{
+    fr_GetRegisteredFeatInfo_Hand(pxFeatInfo);
+}
+
+int FaceEngine::SaveHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum)
+{
+    if(pxUserInfo == NULL || pxFeatInfo == NULL)
+        return ES_FAILED;
+
+    int iFindIdx = dbm_GetHandIndexOfID(pxUserInfo->iID);
+    if(iFindIdx < 0)
+    {
+        return dbm_AddHand(pxUserInfo, pxFeatInfo, piBlkNum);
+    }
+    else
+    {
+        return dbm_UpdateHand(iFindIdx, pxUserInfo, pxFeatInfo, piBlkNum);
+    }
+}
+
+int FaceEngine::CreateHand(int /*iDupCheck*/, int /*iCamFlip*/, int /*nDnnCheckSum*/, int /*nHCheckSum*/)
+{
+    setHandShareMem_(fr_GetInputImageBuffer1(), fr_GetDiffIrImage());
+    createHandEngine_();
+
+    int ret2 = dbm_LoadHandDB();
+    return ret2;
+}
+
+#endif // N_MAX_HAND_NUM
 
 void feFaceStart(int iCmd)
 {

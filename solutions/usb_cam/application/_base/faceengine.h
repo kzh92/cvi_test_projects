@@ -2,6 +2,9 @@
 #define FACEENGINE_H
 
 #include "EngineStruct.h"
+#if (N_MAX_HAND_NUM)
+#include "hand/HandRetrival_.h"
+#endif
 
 #define FE_TASK_MAX_CMD_ARGS    2
 typedef enum _tagFE_TASK_CMD_TYPE{
@@ -44,6 +47,11 @@ public:
     static int  SetLastFaceScene(unsigned char* pbRgbData);
     static void GetRegisteredFeatInfo(PSFeatInfo pxFeatInfo);
     static int SavePerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum);
+#if (N_MAX_HAND_NUM)
+    static int CreateHand(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
+    static void GetRegisteredFeatInfo_Hand(SHandFeatInfo*  pxFeatInfo);
+    static int SaveHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum);
+#endif // N_MAX_HAND_NUM
 };
 
 #endif // FACEENGINE_H

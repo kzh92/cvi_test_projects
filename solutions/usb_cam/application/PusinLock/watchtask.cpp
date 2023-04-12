@@ -315,15 +315,11 @@ void WatchTask::run()
             if(rNow - m_arTimerTick[i] > m_aiTimerMsec[i] * 1000)
             {
                 m_arTimerTick[i] = rNow;
-                SendGlobalMsg(MSG_WATCH, WATCH_TYPE_TIMER, m_aiTimerIDs[i], m_aiTimerCounter[i]);
+//                SendGlobalMsg(MSG_WATCH, WATCH_TYPE_TIMER, m_aiTimerIDs[i], m_aiTimerCounter[i]);
             }
         }
         my_mutex_unlock(m_xTimerMutex);
-#if (YAOYANG_MODE)
-        int bFlag = !GPIO_fast_getvalue(PSENSE_DET);
-#else
-        int bFlag = GPIO_fast_getvalue(PSENSE_DET);
-#endif
+        int bFlag = YAOYANG_MODE ? !GPIO_fast_getvalue(PSENSE_DET): GPIO_fast_getvalue(PSENSE_DET);
         if (bFlag == 0 && iPowerOnFlag != 0)
         {
             SendGlobalMsg(MSG_SENSE, 0, SENSE_READY_DETECTED, 0);
@@ -345,11 +341,10 @@ void WatchTask::run()
                 {
 #if defined(PSENSE_DET) && defined(GPIO_USBSense)
                     if (iFlagUSB == 0 && bFlag == 1)
-                    {
 #elif defined(PSENSE_DET)
                     if (bFlag == 1)
-                    {
 #endif
+                    {
 #if (ROOTFS_BAK)
                     if (get_cur_rootfs_part() == RFS_PART0)
                         SendGlobalMsg(MSG_SENSE, 0, OTA_USB_START, 1);
@@ -359,9 +354,7 @@ void WatchTask::run()
                         //SendGlobalMsg(MSG_SENSE, 0, OTA_USB_START, 1);
                         g_xSS.iUsbHostMode = 1;
 #endif
-#if defined(PSENSE_DET) || defined(GPIO_USBSense)
                     }
-#endif
                 }
             }
             else
@@ -394,15 +387,7 @@ void WatchTask::run()
 #endif
                 }
             }
-#if 0
-                ///1초에 한번씩 STM에 ROK신호를 내려보낸다.
-            int iRet = MainSTM_Command(MAIN_STM_CMD_ROK);
-#endif
-
-            //my_printf("[ROK] %0.3f\n", Now());
-            // if(m_iBattScan)
-            //     WatchTask::ScanBattery(1);
-            //PrintFreeMem();
+            // PrintFreeMem();
         }
 
         for(int i = 0; i < 10; i ++)

@@ -34,9 +34,6 @@
 FaceRecogTask* g_pFaceRecogTask = NULL;
 mythread_ptr       spi_thread = NULL;
 
-#define     CAPTURE_WIDTH   240
-#define     CAPTURE_HEIGHT  320
-
 //#define     N_MAX_JPEG_SEND_LEN     (60 * 1024)
 #define     N_MAX_JPEG_SEND_LEN     (UVC_WIDTH * UVC_HEIGHT * 3 / 2)
 

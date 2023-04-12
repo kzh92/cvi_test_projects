@@ -5,12 +5,19 @@
 #include <stdint.h>
 // #include <string.h>
 // #include <stdarg.h>
+#include "appdef.h"
 
 #define USER_NAME_SIZE   32
 #define VERSION_INFO_BUFFER_SIZE 32
 #define UID_INFO_BUFFER_SIZE 32
-#define MAX_USER_COUNTS  100
+#define MAX_USER_COUNTS  (N_MAX_PERSON_NUM > N_MAX_HAND_NUM ? N_MAX_PERSON_NUM : N_MAX_HAND_NUM)
 #define MAX_IMAGE_SIZE  (4000)
+
+#if (USE_FUSHI_PROTO)
+#define FUSHI_HEAD1     0x53
+#define FUSHI_HEAD2     0x46
+#endif // USE_FUSHI_PROTO
+
 #define SENSE_HEAD1     0xEF
 #define SENSE_HEAD2     0xAA
 
@@ -27,10 +34,14 @@ enum
     SENSE_READY_DETECTED,
 };
 
-
-
-#define ST_FACE_MODULE_STATUS_UNLOCK_OK  200
-#define ST_FACE_MODULE_STATUS_UNLOCK_WITH_EYES_CLOSE  204
+//unlock status
+#define ST_FACE_MODULE_STATUS_UNLOCK_OK                     200
+#define ST_FACE_MODULE_STATUS_UNLOCK_WITH_EYES_CLOSE        204
+#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX)
+#define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                250
+#else // ENROLL_FACE_HAND_MODE
+#define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                ST_FACE_MODULE_STATUS_UNLOCK_OK
+#endif // ENROLL_FACE_HAND_MODE
 
 #pragma pack(push, 1)
 
@@ -119,6 +130,13 @@ typedef uint8_t s_msg_result;
 #define MR_FAILED4_WRITE_FILE 20    // write file failed
 #define MR_FAILED4_NO_ENCRYPT 21    // encrypt must be set
 #define MR_FAILED4_NOCAMERA 240     // MID_GETSAVEDIMAGE, failed to get scene picture, no color camera.
+#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX)
+#define MR_FAILED4_UNKNOWN_HANDUSER 239   // no hand user enrolled
+#define MR_FAILED4_HANDENROLLED 241 // this hand has been enrolled
+#else // ENROLL_FACE_HAND_MODE
+#define MR_FAILED4_UNKNOWN_HANDUSER      MR_FAILED4_UNKNOWNUSER   // no hand user enrolled
+#define MR_FAILED4_HANDENROLLED    MR_FAILED4_FACEENROLLED // this hand has been enrolled
+#endif // ENROLL_FACE_HAND_MODE
 /* message result code end */
 
 /* module state */
@@ -157,6 +175,8 @@ typedef uint8_t s_face_dir;
 #define FACE_DIRECTION_RIGHT    0x02        // face right
 #define FACE_DIRECTION_MIDDLE   0x01        // face middle
 #define FACE_DIRECTION_UNDEFINE 0x00        // face undefine
+#define FACE_DIRECTION_HAND     0xFD        // register hand
+#define FACE_DIRECTION_PICTURE  0xFE        // register face with picture
 
 #define IS_FACE_DIR_VALID(a) \
     ((a) == FACE_DIRECTION_UNDEFINE || \
@@ -182,6 +202,15 @@ typedef uint8_t s_face_dir;
 #define FACE_STATE_EYE_CLOSE_STATUS_OPEN_EYE 12    // eye close time out
 #define FACE_STATE_EYE_CLOSE_STATUS          13      // confirm eye close status
 #define FACE_STATE_EYE_CLOSE_UNKNOW_STATUS   14  // eye close unknow status
+#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX)
+#define FACE_STATE_HAND_NORMAL  128 // hand detected
+#define FACE_STATE_HAND_FAR    129 // hand is far
+#define FACE_STATE_HAND_CLOSE    130 // hand is close
+#else // ENROLL_FACE_HAND_MODE
+#define FACE_STATE_HAND_NORMAL  FACE_STATE_NORMAL // hand detected
+#define FACE_STATE_HAND_FAR    FACE_STATE_TOOFAR // hand is far
+#define FACE_STATE_HAND_CLOSE    FACE_STATE_TOOCLOSE // hand is close
+#endif // ENROLL_FACE_HAND_MODE
 
 /* logfile type */
 #define LOG_FILE_KERNEL 0  // kernel log
@@ -267,7 +296,17 @@ typedef struct {
 typedef struct {
     uint8_t user_id_heb; // high eight bits of user_id to be deleted
     uint8_t user_id_leb; // low eight bits pf user_id to be deleted
+    uint8_t user_type; //face or hand
 } s_msg_deluser_data;
+
+//user_type of s_msg_deluser_data
+enum {
+    SM_DEL_USER_TYPE_DEFAULT, //face user
+#if (N_MAX_HAND_NUM)
+    SM_DEL_USER_TYPE_HAND, //hand user
+#endif
+    SM_DEL_USER_TYPE_END,
+};
 
 // get user info
 typedef struct {
@@ -332,6 +371,13 @@ typedef struct {
     uint8_t image_number; // number of saved image
 } s_msg_get_saved_image_data;
 
+// get usderdb data
+typedef struct {
+    uint8_t image_number; // number of saved image
+    uint8_t user_id_heb; // high eight bits of user_id to get info
+    uint8_t user_id_leb; // low eight bits of user_id to get info
+} s_msg_get_userdb_data;
+
 // upload image
 typedef struct {
     uint8_t upload_image_offset[4]; // upload image offset, int -> [o1 o2 o3 o4]
@@ -387,6 +433,28 @@ typedef struct {
     uint8_t user_counts;      // number of enrolled users
     uint8_t users_id[MAX_USER_COUNTS*2];   //use 2 bytes to save a user ID and save high eight bits firstly
 } s_msg_reply_all_userid_data;
+
+// get all userid data for extension
+typedef struct {
+    uint8_t fmt; // data format
+} s_msg_get_all_userid_data;
+
+#define SM_USERID_DATA_FMT_DEFAULT      0   // by default, 2 bytes for one user
+#define SM_USERID_DATA_FMT_BIT1         1   // 1 bit for one user
+#define SM_USERID_DATA_FMT_HAND1        2   // 1 bit for one user
+#define SM_USERID_DATA_FMT_BIT_EXT      3   // 1 bit for one user, extended format
+
+typedef struct {
+    uint8_t user_counts;      // number of enrolled users
+    uint8_t users_id[(MAX_USER_COUNTS + 7) / 8];   //use 2 bytes to save a user ID and save high eight bits firstly
+} s_msg_reply_all_userid_data_fmt1;
+
+typedef struct {
+    uint8_t magic;      // magic must be 0xFF
+    uint16_t max_user_counts;      // reserved, must be 0xFF
+    uint16_t user_counts;      // reserved, must be 0xFF
+    uint8_t users_id[(MAX_USER_COUNTS + 7) / 8];   //use 2 bytes to save a user ID and save high eight bits firstly
+} s_msg_reply_all_userid_data_fmt_ext;
 
 typedef struct {
     uint8_t time_heb;      // high eight bits of factory test time
@@ -453,6 +521,42 @@ typedef s_msg_livenessmode_data s_msg_encryption_mode_data;
 #define UVC_COMP_PARAM_BT_MAX   10
 #define UVC_COMP_PARAM_RPFR_MIN   1
 #define UVC_COMP_PARAM_RPFR_MAX   100
+
+// delall data
+typedef struct {
+    uint8_t type;
+} s_msg_del_all_data;
+
+// type of s_msg_del_all_data
+enum {
+    SM_DEL_ALL_TYPE_DEFAULT, //delete all user data
+    SM_DEL_ALL_TYPE_FACE, //delete only face users
+#if (N_MAX_HAND_NUM)
+    SM_DEL_ALL_TYPE_HAND, //delete only hand users
+#endif
+    SM_DEL_ALL_TYPE_END,
+};
+
+enum {
+    S_VERIFY_LEVEL_VERY_LOW,
+    S_VERIFY_LEVEL_LOW,
+    S_VERIFY_LEVEL_DEFAULT,
+    S_VERIFY_LEVEL_HIGH,
+    S_VERIFY_LEVEL_VERY_HIGH,
+};
+
+enum {
+    S_LIVENESS_LEVEL_VERY_LOW,
+    S_LIVENESS_LEVEL_LOW,
+    S_LIVENESS_LEVEL_DEFAULT,
+    S_LIVENESS_LEVEL_HIGH,
+    S_LIVENESS_LEVEL_VERY_HIGH,
+};
+
+typedef struct {
+    uint8_t verify_threshold_level; // level 0~4, safety from low to high, default 2
+    uint8_t liveness_threshold_level; // level 0~4, safety from low to high, default 2
+} s_msg_algo_threshold_level;
 
 #pragma pack(pop)
 

@@ -10,10 +10,9 @@
 #define _s64 long long
 #define _u64 unsigned long long
 
-#ifndef PI
-#define PI 3.1415927410125732
-#endif
-
+// #ifndef PI
+// #define PI 3.1415927410125732
+// #endif
 
 #define TOTAL_ENROLL_REFINED_FEATURE_COUNT	4
 #define TOTAL_ENROLL_RAW_FEATURE_COUNT		5

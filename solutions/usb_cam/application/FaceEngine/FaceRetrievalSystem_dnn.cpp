@@ -604,24 +604,6 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         }
 
         IF_FLAG_STOP1(ES_FAILED);
-        /*
-        if(nFaceDetectedinLeft)
-        {
-            if (g_rAverageLedOnImage < MIN_USER_LUM || g_rAverageLedOnImage > MAX_USER_LUM)
-            {
-                g_nNeedToCalcNextExposure = 1;
-            }
-            if (g_rSaturatedRate > 5)
-            {
-                g_nNeedToCalcNextExposure = 1;
-            }
-            if(g_nNeedToCalcNextExposure)
-            {
-                //*fr_GetExposure() = g_exposureImage;//need to decide
-                *fr_MainControlCameraIndex() = 0;
-            }
-        }
-        */
     }
     else
     {
@@ -1036,9 +1018,6 @@ int	fr_RegisterFace_dnn(int iFaceDir)
     }
 
     IF_FLAG_STOP1(ES_FAILED);
-
-    bool fCurRealState = 0;
-    bool fComboRealState = 0;
 
     int nNeedToSkip = 0;
 

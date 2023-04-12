@@ -805,22 +805,6 @@ void FaceModuleTask::run()
                     }
                 }
             }
-            else if(xRecvCmd.bType == FM_CMD_REGISTER_SETTINGS)
-            {
-                if(xRecvCmd.bP3 == 0)
-                {
-                    g_xCS.x.bDupCheck = xRecvCmd.bP2;
-                    UpdateCommonSettings();
-
-                    fr_SetDupCheck(g_xCS.x.bDupCheck);
-
-                    SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, g_xCS.x.bDupCheck, FM_ACK_SUCCESS);
-                }
-                else
-                {
-                    SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, g_xCS.x.bDupCheck, FM_ACK_SUCCESS);
-                }
-            }
             else if(xRecvCmd.bType == FM_CMD_CAMERA_FLIP)
             {
                 if(xRecvCmd.bP3 == 0)

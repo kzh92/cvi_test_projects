@@ -55,6 +55,7 @@ int     UART_NDelay();
 int     UART_Baudrate(int iBaudRate);
 void    UART_SetBaudrate(int iBaudrate);
 void    UART_SetBaudrate2(int iBaudrate);
+int     UART_SendTimePredict(int iLen);
 
 int     UART_RecvDataForWait(unsigned char* pBuf, int iBufLen, int iTimeOut, int iInterval);
 int     UART_RecvDataForWait2(unsigned char* pBuf, int iBufLen, int iTimeOut, int iInterval);

@@ -16,5 +16,6 @@ void SendGlobalMsg(int type, long data1, long data2, long data3)
     msg->data1 = data1;
     msg->data2 = data2;
     msg->data3 = data3;
+    msg->time_ms = Now();
     message_queue_write(&g_worker, (MSG*)msg);
 }

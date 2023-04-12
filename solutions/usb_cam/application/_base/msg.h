@@ -36,6 +36,7 @@ typedef struct _tagMSG
     long data1;
     long data2;
     long data3;
+    float time_ms; // event time in millisecs
 } MSG;
 
 #define MAX_MSG_NUM 100

@@ -3077,7 +3077,7 @@ extern int g_nThreadCount;
 					}
 					for (; j < outw; j++)
 					{
-						float sum = outptr0[0], sum0, sum1, sum2, sum3;
+						float /*sum = outptr0[0],*/ sum0, sum1, sum2, sum3;
 
 						sum0 = (outptr0[0] + r0[ 8] * _k0[8 ] + r1[8 ] * _k0[20] + r2[8 ] * _k0[32]) + ((r0[0] * _k0[0] + r1[0] * _k0[12] + r2[0] * _k0[24]) + (r0[4] * _k0[4] + r1[4] * _k0[16] + r2[4] * _k0[28]));
 						sum1 = (             r0[ 9] * _k0[9 ] + r1[9 ] * _k0[21] + r2[9 ] * _k0[33]) + ((r0[1] * _k0[1] + r1[1] * _k0[13] + r2[1] * _k0[25]) + (r0[5] * _k0[5] + r1[5] * _k0[17] + r2[5] * _k0[29]));

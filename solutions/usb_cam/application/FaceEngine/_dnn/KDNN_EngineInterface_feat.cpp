@@ -109,24 +109,24 @@ int KdnnDetect_feat(unsigned char * pbImage, unsigned short* prFeatArray, int nM
 	return KDNN_SUCCESS;
 }
 
-static float Similarity_cosine(const float* pFeat1, const float* pFeat2, int nLength)
-{
-    float rSum = 0.0f;
-    for (int i = 0; i < nLength; i++)
-        rSum += pFeat1[i] * pFeat2[i];
-    float rDistance = 1 - rSum;
-    if (rDistance < 0)
-        rDistance = 0;
-    else if (rDistance > 2)
-        rDistance = 2;
-    return rDistance;
-}
+// static float Similarity_cosine(const float* pFeat1, const float* pFeat2, int nLength)
+// {
+//     float rSum = 0.0f;
+//     for (int i = 0; i < nLength; i++)
+//         rSum += pFeat1[i] * pFeat2[i];
+//     float rDistance = 1 - rSum;
+//     if (rDistance < 0)
+//         rDistance = 0;
+//     else if (rDistance > 2)
+//         rDistance = 2;
+//     return rDistance;
+// }
 
 float Similarity_cosine_fp16(const unsigned short* nF1, const unsigned short* nF2, int n)
 {
     int nn = 0;
     float rSum = 0.0f;
-    float* prSum = &rSum;
+    // float* prSum = &rSum;
 
 #if __ARM_NEON
     int cnt = n / 4;

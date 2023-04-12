@@ -70,9 +70,7 @@ void doUpgradeFirmware()
 
     if (!iErrorFlag)
     {
-        g_xCS.x.bLivenessMode = 0;
-        g_xCS.x.bProtoEncMode = DEFAULT_PROTO_ENC_MODE;
-        UpdateCommonSettings();
+        //update settings you want
     }
 
 #ifdef DATA1_PART_UPGRADE

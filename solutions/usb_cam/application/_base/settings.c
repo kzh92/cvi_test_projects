@@ -7,17 +7,7 @@
 //#include "countbase.h"
 #endif // !_APP_UPGRADE
 #include "uartcomm.h"
-// #include <unistd.h>
-// #include <stdio.h>
-// #include <memory.h>
-// #include <stdlib.h>
-// #include <sys/types.h>
-// #include <sys/stat.h>
-// #include <fcntl.h>
-// #include <stdlib.h>
 #include <string.h>
-// #include <time.h>
-
 
 PERMANENCE_SETTINGS     g_xPS = { 0 };
 COMMON_SETTINGS         g_xCS = { 0 };
@@ -55,20 +45,9 @@ void ReadPermanenceSettings()
 {
     M24C64_GetPS((unsigned char*)&g_xPS);
 
-//    g_iDebugEn = g_xPS.x.bDebugEn;
-//    if(g_iDebugEn == 1)
-//    {
-//        unsigned char* pbData = (unsigned char*)&g_xPS;
-//        LOG_PRINT("[I2C] Read 0x%0*x: ", 2, ADDR_PS);
-//        for (int i = 0; i < sizeof(g_xPS); i++)
-//        {
-//            LOG_PRINT("%0*x, ", 2, pbData[i]);
-//        }
-//        LOG_PRINT("\n\r");
-//    }
-
     if(g_xPS.x.bCheckSum != GetSettingsCheckSum(g_xPS.a, sizeof(g_xPS.a)))       //영구설정값의 CheckSum이 틀리면 Default설정값을 리용하게 함
-        ResetPermanenceSettings();
+//        ResetPermanenceSettings();
+        memset(&g_xPS, 0, sizeof(g_xPS));
 }
 
 /**
@@ -89,15 +68,12 @@ void ResetPermanenceSettings()
     ///you should not reset dic checksum values.
     //memset(&g_xPS, 0, sizeof(g_xPS));
 
-    g_xPS.x.bDebugEn = DEBUG_EN;
     g_xPS.x.bCamFlip = CAM_ROTATION_MODE;
-    g_xPS.x.bSendLastMsg = SEND_LAST_MSG;
-    g_xPS.x.bUvcBitrateDefault = DEFAULT_UVC_COMP_PARAM_BT_DEF;
-    g_xPS.x.bUvcBitrateMax = DEFAULT_UVC_COMP_PARAM_BT_MAX;
-    g_xPS.x.bUvcImageQuality = DEFAULT_UVC_COMP_PARAM_IMQ;
-    g_xPS.x.bUvcRepeatFrame = DEFAULT_UVC_COMP_PARAM_RPFR;
     g_xPS.x.bEnableLogFile = 0;
     g_xPS.x.bHijackEnable = 0;
+#if (USE_TWIN_ENGINE)
+    g_xPS.x.bTwinsMode = S_VERIFY_LEVEL_DEFAULT;
+#endif
     UpdatePermanenceSettings();
 }
 
@@ -172,12 +148,7 @@ void ResetCS(COMMON_SETTINGS* pxCS)
 {
     memset(pxCS, 0, sizeof(COMMON_SETTINGS));
     pxCS->x.bPresentation = DEFAULT_PRESENATATION;
-    pxCS->x.bDupCheck = ENROLL_DUPLICATION_CHECK;
-    pxCS->x.bUVCDir = DEFAULT_UVC_DIR;
-    pxCS->x.bLivenessMode = DEFAULT_LIVENESS_MODE;
-    pxCS->x.bTwinsMode = DEFAULT_TWINS_MODE;
     pxCS->x.bSecureFlag = DEFAULT_SECURE_VALUE;
-    pxCS->x.bProtoEncMode = DEFAULT_PROTO_ENC_MODE;
 }
 
 #ifndef _APP_UPGRADE
@@ -328,15 +299,8 @@ void UpdateEncryptSettings()
  */
 void ResetEncryptSettings()
 {
-    unsigned char base_code[] = {
-        0x06, 0x12, 0x07, 0x03,
-        0x0D, 0x0D, 0x17, 0x04,
-        0x08, 0x01, 0x00, 0x19,
-        0x09, 0x02, 0x02, 0x07
-    };
-    memset(&g_xES, 0, sizeof(g_xES));
-    //use DESMAN original code for old compatibility
-    memcpy(g_xES.x.bEncKeyPos, base_code, sizeof(g_xES.x.bEncKeyPos));
+    // set values that indicates unset.
+    memset(&g_xES, 0xff, sizeof(g_xES));
     UpdateEncryptSettings();
 }
 
@@ -350,52 +314,21 @@ void ResetSystemState(int iAppType)
 
     g_xSS.iAppType = iAppType;
     g_xSS.iVerifyFailType = 0xFF;
-    g_xSS.iUvcWidth = UVC_WIDTH;
-    g_xSS.iUvcHeight = UVC_HEIGHT;
-    g_xSS.iCurUvcWidth = UVC_WIDTH;
-    g_xSS.iCurUvcHeight = UVC_HEIGHT;
-    g_xSS.iCameraRotate = g_xPS.x.bCamFlip;
+    g_xSS.iCameraRotate = !g_xPS.x.bCamFlip;
     g_xSS.iUsbHostMode = g_xCS.x.bUsbHost;
+    g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
 }
 
 void recvReadHeader()
 {
-#if 0
-    memset(&g_xRecvHdr, 0, sizeof(g_xRecvHdr));
-    I2C_Read8(g_iM24C64, ADDR_RECV_HDR, (unsigned char*)&g_xRecvHdr, WORD_SIZE);
-    if (g_xRecvHdr.bCheckSum != GetSettingsCheckSum((unsigned char*)&g_xRecvHdr, sizeof(g_xRecvHdr)))
-    {
-        I2C_Read8(g_iM24C64, ADDR_RECV_HDR_BAK, (unsigned char*)&g_xRecvHdr, WORD_SIZE);
-        if(g_xRecvHdr.bCheckSum != GetSettingsCheckSum((unsigned char*)&g_xRecvHdr, sizeof(g_xRecvHdr)))
-        {
-            recvResetHeader();
-        }
-    }
-    else
-    {
-        RECOVERY_HADER bak;
-        I2C_Read8(g_iM24C64, ADDR_RECV_HDR_BAK, (unsigned char*)&bak, WORD_SIZE);
-        if (memcmp(&bak, &g_xRecvHdr, sizeof(g_xRecvHdr))) //update backup header.
-            I2C_Write8(g_iM24C64, ADDR_RECV_HDR_BAK, (unsigned char*)&g_xRecvHdr, WORD_SIZE);
-    }
-#endif
 }
 
 void recvUpdateHeader()
 {
-#if 0
-    g_xRecvHdr.bCheckSum = GetSettingsCheckSum((unsigned char*)&g_xRecvHdr, sizeof(g_xRecvHdr));
-    I2C_Write8(g_iM24C64, ADDR_RECV_HDR, (unsigned char*)&g_xRecvHdr, WORD_SIZE);
-    I2C_Write8(g_iM24C64, ADDR_RECV_HDR_BAK, (unsigned char*)&g_xRecvHdr, WORD_SIZE);
-#endif
 }
 
 void recvResetHeader()
 {
-#if 0
-    memset(&g_xRecvHdr, 0, sizeof(g_xRecvHdr));
-    recvUpdateHeader();
-#endif
 }
 
 int GetZigbeeIdx(int iZigbeeMode)
@@ -525,4 +458,27 @@ void unlockUvcWindow()
     if (g_uvcWindowLocker == 0)
         g_uvcWindowLocker = my_mutex_init();
     my_mutex_unlock(g_uvcWindowLocker);
+}
+
+extern void    fr_SetStopEngineFlag(int);
+
+void ClearSenseResetFlag()
+{
+#ifndef _APP_UPGRADE
+    g_xSS.iResetFlag = 0;
+#ifndef _NO_ENGINE_
+    fr_SetStopEngineFlag(0);
+#endif
+#endif
+}
+
+void MarkSenseResetFlag()
+{
+#ifndef _APP_UPGRADE
+    g_xSS.iResetFlag = 1;
+    g_xSS.rResetFlagTime = Now();
+#ifndef _NO_ENGINE_
+    fr_SetStopEngineFlag(1);
+#endif
+#endif //! _APP_UPGRADE
 }

@@ -41,51 +41,32 @@ mythread_ptr       g_capture2 = 0;
 
 mymutex_ptr         g_irWriteLock = 0;
 int                 g_irWriteCond = 0;
-
-// pthread_mutex_t g_irOffWriteLock = PTHREAD_MUTEX_INITIALIZER;
-// pthread_cond_t  g_irOffWriteCond = PTHREAD_COND_INITIALIZER;
+mymutex_ptr         g_irOffWriteLock = 0;
+int                 g_irOffWriteCond = 0;
+mymutex_ptr         g_irOffWriteLock2 = 0;
+int                 g_irOffWriteCond2 = 0;
 
 mymutex_ptr g_captureLock = 0;
 
 unsigned char*  g_irOnData1 = NULL;
 unsigned char*  g_irOnData2 = NULL;
-unsigned char*  g_irOffData = NULL;
 
 int             g_iCamCounter = 0;
-
-//int           g_exposure = 0;
-// int             g_light = 0;
-// int             g_ledLum = 0;
-// int             g_saturation = 0;
-// int             g_nGain = 0;
-
 int             g_nGainClr = 0;
 int             g_nExposureClr = 0;
 
-// SRect           g_faceRect = { 0 };
-// int             g_faceDetected = 0;
-// int             g_nFaceFailed = 0;
-// int             g_nFaceRectValid = 0;
-
-// int             g_iForceClrCam = 0;
-// int             g_iFirstClrCam = 0;
-
 int             g_iDvpCamInited = -1;
 int             g_iMipiCamInited = -1;
-
-// int             g_iHandControlFlag = 0;
-// int             g_nHandFailed = 0;//added by KSB 20180711
-// int             g_nHandRectValid = 0;
-// int             g_nBeforeState = 0;
-
 float           g_rAppStartTime = 0;
-
 int             g_iTwoCamFlag = -1;
 int             g_iFirstCamFlag = 0;
 float           g_rFirstCamTime = 0;
+int             g_iLedOffFrameFlag = 0;
 int             g_iLedOffFlag = 0;
 
 int             g_iLedOnStatus = 0;
+int             g_iFirstCam1Frame = 0;
+int             g_iFirstCam2Frame = 0;
 
 #if (USE_VDBTASK)
 #include "check_camera_pattern.h"
@@ -150,9 +131,6 @@ void StartFirstCam()
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
     g_irOnData2 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
     if (g_irOnData2 == NULL)
-        my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-    g_irOffData = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    if (g_irOffData == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
 
 #if (USE_VDBTASK)
@@ -1523,34 +1501,76 @@ int camera_set_irled_on(int on)
     return ret;
 #endif // USE_VDBTASK
 }
-#ifndef __RTK_OS__
+
 int WaitIROffTimeout(int iTimeout)
 {
-    struct timespec ts = {0, 0};
-    clock_gettime(CLOCK_REALTIME, &ts);
-    ts.tv_nsec += (iTimeout % 1000) * 1000 * 1000;
-    if (ts.tv_nsec >= 1000000000)
+
+    float _oldTime = Now();
+    if (iTimeout <= 0)
+        return ETIMEDOUT;
+
+    while(1)
     {
-        ts.tv_nsec -= 1000000000;
-        ts.tv_sec += 1;
+        float _diff = Now() - _oldTime;
+        // dbug_printf("[%s] _diff = %0.3f\n", __func__, _diff);
+        if (_diff > (float)iTimeout)
+            break;
+        my_mutex_lock(g_irOffWriteLock);
+        if (g_irWriteCond == 1)
+        {
+            my_mutex_unlock(g_irOffWriteLock);
+            // dbug_printf("[%s] return 0\n", __func__);
+            return 0;
+        }
+        my_mutex_unlock(g_irOffWriteLock);
+        my_usleep(1000);
     }
 
-    ts.tv_sec += iTimeout / 1000;
-    pthread_mutex_lock(&g_irWriteLock);
-    pthread_cond_timedwait(&g_irWriteCond, &g_irWriteLock, &ts);
-    pthread_mutex_unlock(&g_irWriteLock);
-    return 0;
+    return ETIMEDOUT;
 }
 
 int WaitIROffCancel()
 {
-    pthread_mutex_lock(&g_irWriteLock);
-    pthread_cond_signal(&g_irWriteCond);
-    pthread_mutex_unlock(&g_irWriteLock);
+    my_mutex_lock(g_irOffWriteLock);
+    g_irOffWriteCond = 1;
+    my_mutex_unlock(g_irOffWriteLock);
     return 0;
 }
 
-#endif // !__RTK_OS__
+int WaitIROffTimeout2(int iTimeout)
+{
+
+    float _oldTime = Now();
+    if (iTimeout <= 0)
+        return ETIMEDOUT;
+
+    while(1)
+    {
+        float _diff = Now() - _oldTime;
+        // dbug_printf("[%s] _diff = %0.3f\n", __func__, _diff);
+        if (_diff > (float)iTimeout)
+            break;
+        my_mutex_lock(g_irOffWriteLock2);
+        if (g_irWriteCond == 1)
+        {
+            my_mutex_unlock(g_irOffWriteLock2);
+            // dbug_printf("[%s] return 0\n", __func__);
+            return 0;
+        }
+        my_mutex_unlock(g_irOffWriteLock2);
+        my_usleep(1000);
+    }
+
+    return ETIMEDOUT;
+}
+
+int WaitIROffCancel2()
+{
+    my_mutex_lock(g_irOffWriteLock2);
+    g_irOffWriteCond = 1;
+    my_mutex_unlock(g_irOffWriteLock2);
+    return 0;
+}
 
 int ConvertYUVtoARGB(int y, int u, int v, unsigned char* dstData, int index)
 {
@@ -1607,5 +1627,59 @@ void ConvertYUV420_NV21toRGB888(unsigned char* data, int width, int height, unsi
 
         if (i != 0 && (i + 2) % width == 0)
             i += width;
+    }
+}
+
+void lockIROffBuffer()
+{
+    //pthread_mutex_lock(&g_camIrOffBufLock);
+}
+
+void unlockIROffBuffer()
+{
+    //pthread_mutex_unlock(&g_camIrOffBufLock);
+}
+
+void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height)
+{
+    if (bufOrg == NULL || bufDst == NULL)
+    {
+        return;
+    }
+    unsigned short* spOrg = (unsigned short*)bufOrg;
+    unsigned char* pIrOffData = (unsigned char*)bufDst;
+    int iIdx = 0;
+    int nDstIdx = 0;
+    int nX, nY;
+    for(nY = 0; nY < height; nY += LEDOFFIMAGE_REDUCE_RATE)
+    {
+        for(nX = 0; nX < width; nX += LEDOFFIMAGE_REDUCE_RATE)
+        {
+            pIrOffData[nDstIdx] = (spOrg[iIdx] >> 2);
+            iIdx += LEDOFFIMAGE_REDUCE_RATE;
+            nDstIdx ++;
+        }
+        iIdx += (width * (LEDOFFIMAGE_REDUCE_RATE - 1));
+    }
+}
+
+
+void genIROffData10bit_Full(void* bufOrg, void* bufDst, int width, int height)
+{
+    if (bufOrg == NULL || bufDst == NULL)
+    {
+        return;
+    }
+    unsigned short* spOrg = (unsigned short*)bufOrg;
+    unsigned char* pIrOffData = (unsigned char*)bufDst;
+    int nX, nY;
+    for(nY = 0; nY < height; nY ++)
+    {
+        for(nX = 0; nX < width; nX ++)
+        {
+            *pIrOffData = (int)(*spOrg) >> 2;
+            pIrOffData ++;
+            spOrg ++;
+        }
     }
 }

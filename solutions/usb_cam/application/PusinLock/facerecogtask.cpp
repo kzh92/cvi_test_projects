@@ -28,6 +28,12 @@
 // #include <math.h>
 #include <fcntl.h>
 #include <errno.h>
+#if (USE_FP16_ENGINE)
+#if (N_MAX_HAND_NUM)
+#include "hand/HandRetrival_.h"
+#endif // N_MAX_HAND_NUM
+#include "ComboRetrievalSystem.h"
+#endif // USE_FP16_ENGINE
 
 //#define USE_STATIC_IMAGE
 
@@ -67,6 +73,7 @@ void FaceRecogTask::Start(int iCmd)
     m_iRecogIndex = -1;
     m_iRecogID = 0;
     m_iEyeOpened = 0;
+    g_xSS.rFaceEngineTime = Now();
     ResetDetectTimeout();
 
     //added by KSB 20180711
@@ -82,6 +89,12 @@ void FaceRecogTask::Start(int iCmd)
     {
 
     }
+    m_isFaceOcculution = 0;
+    memset(m_iFaceNearFar, 0, sizeof(m_iFaceNearFar));
+    memset(m_iFacePosition, 0, sizeof(m_iFacePosition));
+    memset(m_isFaceDetected, 0, sizeof(m_isFaceDetected));
+    memset(m_rDetectTime, 0, sizeof(m_rDetectTime));
+    m_iLastDetMode = FMI_FACE;
 
     message_queue_init(&g_queue_face, sizeof(MSG), MAX_MSG_NUM);
 
@@ -132,12 +145,19 @@ void FaceRecogTask::SendMsg(int type, int data1, int data2, int data3)
     message_queue_write(&g_queue_face, pxMsg);
 }
 
-void FaceRecogTask::SendFaceDetectMsg(int isFaceOcculution, int iFaceNearFar, int iFacePosition, int isFaceDetected)
+void FaceRecogTask::SendFaceDetectMsg()
 {
-    if(isFaceOcculution)
+    int iFaceNearFar = 0;
+    int iFacePosition = 0;
+    int idx = m_rDetectTime[FMI_FACE] >= m_rDetectTime[FMI_HAND] ? FMI_FACE : FMI_HAND;
+    int isFaceDetected = 0;
+    iFaceNearFar = (m_iFaceNearFar[idx] != 0) ? m_iFaceNearFar[idx] : m_iFaceNearFar[(idx + 1) % FMI_END];
+    iFacePosition = (m_iFacePosition[idx] != 0) ? m_iFacePosition[idx] : m_iFacePosition[(idx + 1) % FMI_END];
+    isFaceDetected = (m_isFaceDetected[idx] != FDS_NONE) ? m_isFaceDetected[idx] : m_isFaceDetected[(idx + 1) % FMI_END];
+    if(m_isFaceOcculution)
     {
         g_xSS.note_data_face.state = FACE_STATE_FACE_OCCLUSION;
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, isFaceDetected, m_iCounter);
+        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
     else if(iFaceNearFar)
     {
@@ -145,7 +165,7 @@ void FaceRecogTask::SendFaceDetectMsg(int isFaceOcculution, int iFaceNearFar, in
             g_xSS.note_data_face.state = FACE_STATE_TOOCLOSE;
         else if(iFaceNearFar == 2)
             g_xSS.note_data_face.state = FACE_STATE_TOOFAR;
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, isFaceDetected, m_iCounter);
+        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
     else if(iFacePosition)
     {
@@ -157,45 +177,30 @@ void FaceRecogTask::SendFaceDetectMsg(int isFaceOcculution, int iFaceNearFar, in
             g_xSS.note_data_face.state = FACE_STATE_TOOUP;
         else if(iFacePosition == 4)
             g_xSS.note_data_face.state = FACE_STATE_TOODOWN;
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, isFaceDetected, m_iCounter);
+        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
-    else if(isFaceDetected)
+    else if(isFaceDetected != FDS_NONE)
     {
-        g_xSS.note_data_face.state = FACE_STATE_NORMAL;
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, isFaceDetected, m_iCounter);
+        g_xSS.note_data_face.state = (isFaceDetected == FDS_FACE_DETECTED) ? FACE_STATE_NORMAL : FACE_STATE_HAND_NORMAL;
+        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
     else
     {
         g_xSS.note_data_face.state = FACE_STATE_NOFACE;
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, isFaceDetected, m_iCounter);
+        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
 }
 
 void FaceRecogTask::run()
 {
     int iLoopCount = 0;
-    float rFailedDetectTime = 0;
-    float arEngineResult[10] = { 0 };
     int iTimeout = DETECTION_TIMEOUT;
-    int iCaptureCount = 0;
-
-    //m_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    //m_irOnData2 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
-    // if (m_irOnData1 == NULL || m_irOnData2 == NULL)
-    // {
-    //     my_printf("failed to malloc, ft. %p, %p\n", m_irOnData1, m_irOnData2);
-    //     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
-    //     return;
-    // }
-
-    g_abCapturedFace = (unsigned char*)my_malloc(CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
-
     if(m_iCmd == E_REGISTER)
-        iTimeout = g_xSS.msg_enroll_itg_data.timeout;
-    else if(m_iCmd == E_VERIFY)
     {
-        iTimeout = g_xSS.msg_verify_data.timeout;
+        iTimeout = g_xSS.msg_enroll_itg_data.timeout;
     }
+    else if(m_iCmd == E_VERIFY)
+        iTimeout = g_xSS.msg_verify_data.timeout;
     else if(m_iCmd == E_EYE_CHECK)
         iTimeout = 2;
 
@@ -212,9 +217,12 @@ void FaceRecogTask::run()
 
     memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
 
-    float rFaceFailTime = 0;
-    float rStartTime = Now();
-    int hasIrError = 0;
+    m_rFaceFailTime = 0;
+
+    m_rStartTime = Now();
+    m_iCaptureCount = 0;
+    m_iHasIrError = 0;
+
 #if (NOTE_INTERVAL_MS)
     g_xSS.note_data_face.state = FACE_STATE_NOFACE;
 #endif
@@ -226,88 +234,10 @@ void FaceRecogTask::run()
         iLoopCount ++;
         g_xSS.rFaceEngineTime = Now();
 
-#if 0
-        if(g_xSS.iRestoreRootfs)
-        {
-            if(g_xSS.iRestoreRootfs == 2)
-            {
-                m_iResult = FACE_RESULT_TIMEOUT;
-                break;
-            }
-
-            g_xSS.note_data_face.state = FACE_STATE_NOFACE;
-            SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
-
-            my_usleep(500 * 1000);
-            my_printf("R: %f\n", Now());
-            continue;
-        }
-#endif
-
-        if(g_iMipiCamInited == -1)
-        {            
-            if(!((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && (g_iFirstCamFlag & RIGHT_IR_CAM_RECVED)))
-            {
-                my_usleep(30 * 1000);
-
-#if (FM_PROTOCOL == FM_EASEN)
-                if(Now() - g_rLastDetectTime > iTimeout * 1000)
-                {
-                    m_iResult = FACE_RESULT_NONE;
-                    break;
-                }
-                continue;
-#elif (FM_PROTOCOL == FM_DESMAN)
-                m_iResult = FACE_RESULT_FAILED_CAMERA;
-                break;
-#endif
-            }
-        }
-
         ///적외선켜기지령을 내려보낸후 Led On/Off화상을 얻는다.
-#if 1
         int iFlag = 0;
-        if((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && !(g_iFirstCamFlag & FIRST_IR_PROCESSED))
-        {
-            //???? ?? ???????? ???? ??????? ?? ????.
-            g_iFirstCamFlag |= FIRST_IR_PROCESSED;
-
-            fr_InitIRCamera_ExpGain();
-
-            iFlag = 1;
-        }
-        else
-        {
-            //
-            for(int i = 0; i < 10; i ++)
-            {
-                if(g_iTwoCamFlag == -1)
-                    break;
-
-                if(g_xSS.iResetFlag == 1)
-                    break;
-
-                my_usleep(10 * 1000);
-            }
-            g_iTwoCamFlag = 0;
-#if (IR_LED_ONOFF_MODE == 1)
-            camera_set_irled_on(1);
-#endif
-            float rOldTime = Now();
-            dbug_printf("--------- before wait %0.3f\n", Now());
-            while(Now() - rOldTime < 500)
-            {
-                int ret = WaitIRTimeout(10);
-                if (ret != ETIMEDOUT)
-                    break;
-                if (g_xSS.iResetFlag == 1)
-                    break;
-            }
-            dbug_printf("--------- after wait %0.3f\n", Now());
-
-            if(!m_iRunning)
-                break;
-        }
+        if (GetLeftIrFrame(&iFlag))
+            break;
 
 #if (NOTE_INTERVAL_MS)
         if(g_xSS.note_data_face.state == FACE_STATE_NOFACE)
@@ -325,50 +255,13 @@ void FaceRecogTask::run()
 
         if(m_iCmd == E_GET_IMAGE)
         {
-            if(iFlag == 1)
+            if(iFlag)
             {
                 EndIns();
                 StartCamSurface(1);
             }
-            lockIRBuffer();
-            // fr_CalcScreenValue(g_irOnData1, IR_SCREEN_GETIMAGE_MODE);
-            unlockIRBuffer();
-            // CalcNextExposure();
-            my_usleep(30*1000);
-            if (iLoopCount >= 3)
-            {
-                // unsigned char* pbTmp = (unsigned char*)my_malloc(IR_CAM_WIDTH * IR_CAM_HEIGHT);
-                if(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
-                        g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM)
-                {
-                    lockIRBuffer();
-                    // memcpy(pbTmp, g_irOnData1, IR_BUFFER_SIZE);
-                    // gammaCorrection_screen(pbTmp, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-                    SaveImage(g_irOnData1, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
-                    unlockIRBuffer();
-                    iCaptureCount ++;
-                }
-
-                if(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
-                        g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM)
-                {
-                    lockIRBuffer();
-                    // memcpy(pbTmp, g_irOnData2, IR_BUFFER_SIZE);
-                    // gammaCorrection_screen(pbTmp, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-                    SaveImage(g_irOnData2, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
-                    unlockIRBuffer();
-                    iCaptureCount ++;
-                }
-                // my_free(pbTmp);
-
-                if(!(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
-                        g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM))
-                {
-                    m_iResult = FACE_RESULT_CAPTURED_FACE;
-                    break;
-                }
-            }
-            // iLoopCount ++;
+            if (ProcessGetImage1Step(iLoopCount))
+                break;
             continue;
         }
 
@@ -376,221 +269,169 @@ void FaceRecogTask::run()
             break;
 
         ///얼굴검출을 진행한다.
-        int isFaceDetected = 0;
-        int isFaceOcculution = 0;
-        int iFaceNearFar = 0;
-        int iFacePosition = 0;
-        int iVerifyFlag = 1;
         int iSecondImageReCheck = 0;
 
-        //my_printf("E: %f\n", Now());
-#if (USE_VDBTASK)
-        g_iCapturedClrFlag = CLR_CAPTURE_START;
-#endif // USE_VDBTASK
-#ifndef USE_STATIC_IMAGE
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-#endif // !USE_STATIC_IMAGE
-        {
-            lockIRBuffer();
-            memcpy(m_irOnData1, g_irOnData1, IR_BUFFER_SIZE);
-            memcpy(m_irOnData2, g_irOnData2, IR_BUFFER_SIZE);
-            unlockIRBuffer();
-            //check camera
-            int res1 = 0, res2 = 0;
-            myfdesc_ptr fd = NULL;
-#ifndef USE_STATIC_IMAGE
-            if (m_iCmd == E_VERIFY)
-#endif // !USE_STATIC_IMAGE
-            {
-#ifndef USE_STATIC_IMAGE
-                res1 = checkCameraPattern(m_irOnData1);
-                res2 = checkCameraPattern(m_irOnData2);
-                my_printf("** check camera=%d,%d, %0.3f\n", res1, res2, Now());
-                if (res1 != 0 || res2 != 0)
-                {
-                    if (hasIrError == 1)
-                    {
-                        if (res1 == CAMERA_ERROR || res2 == CAMERA_ERROR)
-                            g_xSS.iCamError |= CAM_ERROR_IR_PATTERN;
-                        else
-                            g_xSS.iCamError |= CAM_ERROR_IR_PATTERN_2;
-                    }
-                }
+        unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
 
-                if (res1 != 0 && hasIrError)
-                {
-                    float _tmpTime = Now();
-                    SaveImage(m_irOnData1, 1, g_xSS.iCameraRotate == 0 ? 270: 90);
-                    if (g_xSS.bSnapImageData != NULL)
-                        my_flash_write(IR_ERROR_SAVE_ADDR, g_xSS.bSnapImageData, g_xSS.iSnapImageLen[0]);
-                    my_printf("write ir1=%d, jpg %0.3f\n", g_xSS.iSnapImageLen[0], Now() - _tmpTime);
-                }
-#endif // !USE_STATIC_IMAGE
-                if (res2 != 0 && hasIrError)
-                {
-                    float _tmpTime = Now();
-                    SaveImage(m_irOnData2, 2, g_xSS.iCameraRotate == 0 ? 270: 90);
-                    if (g_xSS.bSnapImageData != NULL)
-                        my_flash_write(IR_ERROR_SAVE_ADDR + SI_MAX_IMAGE_SIZE, g_xSS.bSnapImageData + SI_MAX_IMAGE_SIZE, g_xSS.iSnapImageLen[1]);
-                    my_printf("write ir2=%d, jpg %0.3f\n", g_xSS.iSnapImageLen[1], Now() - _tmpTime);
-                }
-            }
-            if ((res1 == 0 && res2 == 0) || hasIrError == 1)
+        fr_BackupIRCamera_ExpGain();
+
+        int nProcessModeIndex = 0;
+        int nProcessModeIndexStart = 0;
+        int nProcessModeIndexEnd = 0;
+
+        if(m_iCmd == E_VERIFY)
+        {
+            nProcessModeIndexStart = 0;
+            nProcessModeIndexEnd = 1;
+            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
-                my_mount_misc();
-                //read static image.
-                fd = my_open(FN_FACE_BIN, O_RDONLY, 0);
-                if (is_myfdesc_ptr_valid(fd))
-                {
-                    my_read(fd, m_irOnData1, IR_CAM_WIDTH * IR_CAM_HEIGHT);
-                    my_close(fd);
-                    for (int x = 0; x < IR_CAM_WIDTH; x++)
-                        for (int y = 0; y < IR_CAM_HEIGHT; y++)
-                        {
-                            m_irOnData2[(IR_CAM_WIDTH - x - 1) + IR_CAM_WIDTH * (IR_CAM_HEIGHT - y - 1)] = m_irOnData1[x + y*IR_CAM_WIDTH];
-                        }
-                    dbug_printf("-------------------- read static image ok.\n");
-                }
-                else
-                {
-                    dbug_printf("-------------------- read static image fail.\n");
-                }
-            }
-            else
-            {
-                memset(m_irOnData1, 0, IR_BUFFER_SIZE);
-                memset(m_irOnData2, 0, IR_BUFFER_SIZE);
-                hasIrError = 1;
+                nProcessModeIndexEnd = 0;
             }
         }
-#ifndef USE_STATIC_IMAGE
         else
         {
-            lockIRBuffer();
-            memcpy(m_irOnData1, g_irOnData1, IR_BUFFER_SIZE);
-            unlockIRBuffer();
+            nProcessModeIndexStart = -1;
+            nProcessModeIndexEnd = -1;
         }
-#endif // !USE_STATIC_IMAGE
 
-        FaceEngine::ExtractFace(NULL, m_irOnData1, arEngineResult);
-
-        if(g_xSS.iResetFlag == 1)
-            break;
-
-        if(arEngineResult[0] == ES_FAILED)
-            iVerifyFlag = 0;
-
-        if(iFlag == 1)
-            EndIns();
-#ifndef USE_STATIC_IMAGE
-        if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
-            lockIRBuffer();
-            memcpy(m_irOnData2, g_irOnData2, IR_BUFFER_SIZE);
-            unlockIRBuffer();
+            ProcessCheckCamera1Step();
         }
-#endif // !USE_STATIC_IMAGE
 
-        fr_PreExtractFace2(m_irOnData2);
-        iSecondImageReCheck = fr_GetSecondImageNeedReCheck();
-        int iNeedExp = fr_GetNeedToCalcNextExposure();
-
-        ///카메라조종에 얼굴검출정보를 넘겨준다.
-//        g_nFaceRectValid = 0;
-//        if(fr_GetFaceDetected())
-//            g_nFaceRectValid = *fr_GetFaceDetected();
-
-        if(iFlag == 0)
+        int nBreaks = 0;
+        for(nProcessModeIndex = nProcessModeIndexStart; nProcessModeIndex <= nProcessModeIndexEnd; nProcessModeIndex ++)
         {
-            fr_calc_Off(g_irOffData);
-        }
-
-        if(iNeedExp)
-        {            
-            CalcNextExposure();
-        //my_printf("CalcNextExposure: %f\n", Now());
-        }
-#endif
-
-        memset(&g_xSS.note_data_face, 0, sizeof(g_xSS.note_data_face));
-        if(iVerifyFlag == 1)
-        {
-            int iNext = fr_ExtractFace();
+            //g_irOnData1 is required
+            //caution: must fill buffer every time.
+            if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+            {
+                lockIRBuffer();
+                memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+                unlockIRBuffer();
+            }
+            fr_PreExtractCombo(pInputImageBuffer1, nProcessModeIndex);
 
             if(g_xSS.iResetFlag == 1)
                 break;
 
-            if(iNext == ES_FAILED)
+#if (ENGINE_USE_TWO_CAM == 1)
+            //g_irOnData2 is required here.
+            GetRightIrFrame(pInputImageBuffer1, iFlag);
+            fr_PreExtractCombo2(pInputImageBuffer1);
+#endif // ENGINE_USE_TWO_CAM
+
+            int iNeedExp = fr_GetNeedToCalcNextExposure();
+            iSecondImageReCheck = fr_GetSecondImageNeedReCheck();
+
+#if (USE_TWIN_ENGINE)
+            if(fr_GetFullOffImageBuffer())
             {
-                iVerifyFlag = 0;
-
-                SEngineResult* pxEngineResult =  fr_GetEngineResult();
-                SEngineParam* pxEngineParam = fr_GetEngineParam();
-                if(pxEngineResult && pxEngineParam)
+                if (!(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
                 {
-                    isFaceOcculution = pxEngineResult->nOcclusion;
-                    iFaceNearFar = pxEngineResult->nFaceNearFar;
-                    iFacePosition = pxEngineResult->nFacePosition;
+                    WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                    if (g_xSS.iResetFlag == 1)
+                        break;
                 }
-
-                memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
-                memset(&g_xSS.note_data_face, 0, sizeof(g_xSS.note_data_face));
+                fr_calc_Off(fr_GetFullOffImageBuffer());
             }
-            else
+#endif // USE_TWIN_ENGINE
+
+            GetFaceState();
+            if ((m_isFaceDetected[FMI_FACE] != FDS_NONE || m_isFaceDetected[FMI_HAND] != FDS_NONE) && m_rFaceFailTime == 0)
             {
-                if(iSecondImageReCheck)
-                {
-                    camera_set_irled_on(1);
-                    dbug_printf("irled on, %s:%d\n", __FILE__, __LINE__);
-                }
-                isFaceDetected = 1;
-
-                //added by KSB 20180711
-                //reset recognition mode to face
-#if 0
-                g_xSS.xFaceRect.x = (int)arEngineResult[2];
-                g_xSS.xFaceRect.y = (int)arEngineResult[3];
-                g_xSS.xFaceRect.width = (int)arEngineResult[4];
-                g_xSS.xFaceRect.height = (int)arEngineResult[5];
-#else
-                SEngineResult* pxEngineResult =  fr_GetEngineResult();
-                SEngineParam* pxEngineParam = fr_GetEngineParam();
-                if(pxEngineResult && pxEngineParam)
-                {
-                    g_xSS.xFaceRect.x = ((float)pxEngineResult->xFaceRect.x + pxEngineParam->nOffsetX) / 2;
-                    g_xSS.xFaceRect.y = ((float)pxEngineResult->xFaceRect.y + pxEngineParam->nOffsetY) / 2;
-                    g_xSS.xFaceRect.width = ((float)pxEngineResult->xFaceRect.width) / 2;
-                    g_xSS.xFaceRect.height = ((float)pxEngineResult->xFaceRect.height) / 2;
-
-                    g_xSS.note_data_face.left = g_xSS.xFaceRect.x;
-                    g_xSS.note_data_face.top = g_xSS.xFaceRect.y;
-                    g_xSS.note_data_face.right = g_xSS.xFaceRect.x + g_xSS.xFaceRect.width - 1;
-                    g_xSS.note_data_face.bottom = g_xSS.xFaceRect.y + g_xSS.xFaceRect.height - 1;
-                }
-#endif
-
-#if (FM_PROTOCOL == FM_EASEN)
-                ResetDetectTimeout();
-#endif
-
-                if (rFaceFailTime == 0)
-                    rFaceFailTime = Now();
-
-                if(rFailedDetectTime == 0)
-                    rFailedDetectTime = g_xSS.rFaceEngineTime;
-
-                if(isFaceOcculution == 1)
-                    rFailedDetectTime = 0;
+                m_rFaceFailTime = Now();
             }
-        }
 
-        dbug_printf("Face: x=%d,y=%d,width=%d,heigh=%d, %f\n", g_xSS.xFaceRect.x, g_xSS.xFaceRect.y, g_xSS.xFaceRect.width, g_xSS.xFaceRect.height, Now());
+            if(g_xSS.iResetFlag == 1)
+                break;
 
-        if(Now() - rStartTime > (iTimeout * 1000))
-        {
-            m_iResult = FACE_RESULT_TIMEOUT;
-            break;
-        }
+            dbug_printf("Face: x=%d,y=%d,width=%d,heigh=%d, %f\n", g_xSS.xFaceRect.x, g_xSS.xFaceRect.y, g_xSS.xFaceRect.width, g_xSS.xFaceRect.height, Now());
+
+            if(Now() - m_rStartTime > (iTimeout * 1000))
+            {
+                m_iResult = FACE_RESULT_TIMEOUT;
+                nBreaks = 1;
+                break;
+            }
+
+            if(!m_iRunning)
+                break;
+
+#if (USE_FUSHI_PROTO)
+            if (g_xSS.bVerifying && g_xSS.rLastVerifyAckSendTime > 0 && ((Now() - g_xSS.rLastVerifyAckSendTime) >= 500))
+            {
+                g_xSS.bVerifying = 0;
+                MarkSenseResetFlag();
+            }
+#endif // USE_FUSHI_PROTO
+
+            if (fr_GetNeedSmallFaceCheck())
+            {
+                //fr_GetOffImageBuffer() is required, wait for
+                if (!(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
+                {
+                    WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                    if (g_xSS.iResetFlag == 1)
+                        break;
+                }
+
+                if(*fr_GetMainProcessCameraIndex() == 1)
+                {
+                    //fr_GetOffImageBuffer2() is required, wait for
+                    if (!(g_iLedOffFrameFlag & RIGHT_IROFF_CAM_RECVED))
+                    {
+                        WAIT_CAM_FRAME(500, WaitIROffTimeout2);
+                        if (g_xSS.iResetFlag == 1)
+                            break;
+                    }
+                }
+            }
+
+            if(iNeedExp && nProcessModeIndex == nProcessModeIndexEnd)
+            {
+                CalcNextExposure();
+            }
+
+            if(iSecondImageReCheck)
+            {
+                camera_set_irled_on(1);
+                dbug_printf("irled on, %s:%d\n", __FILE__, __LINE__);
+            }
+
+            if(g_xSS.iResetFlag == 1)
+                break;
+
+            if(m_iCmd == E_REGISTER)
+            {
+                if (ProcessEnroll1Step(iSecondImageReCheck))
+                {
+                    nBreaks = 1;
+                    break;
+                }
+            }
+            else if(m_iCmd == E_VERIFY)
+            {
+                if (ProcessVerify1Step(iSecondImageReCheck))
+                {
+                    nBreaks = 1;
+                    break;
+                }
+            }
+            else if(m_iCmd == E_EYE_CHECK)
+            {
+                if (ProcessCheckEye1Step())
+                {
+                    nBreaks = 1;
+                    break;
+                }
+            }
+            if(iFlag)
+            {
+                EndIns();
+                StartCamSurface(1);
+            }
+        }//for(nProcessModeIndex
 
         if(!m_iRunning)
             break;
@@ -598,263 +439,15 @@ void FaceRecogTask::run()
         if(g_xSS.iResetFlag == 1)
             break;
 
-        if(m_iCmd == E_REGISTER)
+        if(nBreaks)
         {
-            FaceEngine::RegisterFace(arEngineResult, g_xSS.msg_enroll_itg_data.face_direction);
-
-            if(g_xSS.iResetFlag == 1)
-                break;
-
-            if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && iSecondImageReCheck)
-            {
-                //register time will be greater than 300ms
-                if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
-                {
-                    lockIRBuffer();
-                    memcpy(m_irOnData1, g_irOnData1, IR_BUFFER_SIZE);
-                    memcpy(m_irOnData2, g_irOnData2, IR_BUFFER_SIZE);
-                    unlockIRBuffer();
-                }
-
-                int iCheck = fr_CheckFaceInSecondImage(m_irOnData1, m_irOnData2);
-                if(iCheck != ES_SUCCESS)
-                {
-                    arEngineResult[0] = ES_PROCESS;
-                }
-            }
-
-            if(arEngineResult[0] != ES_PROCESS)
-            {
-//                my_printf("Register: %d\n", (int)arEngineResult[0]);
-                if(arEngineResult[0] == ES_ENEXT)
-                    SendMsg(MSG_RECOG_FACE, FACE_TASK_REGISTER, FACE_REGISTER_NEXT, m_iCounter);
-
-                if(arEngineResult[0] == ES_SUCCESS)
-                {
-                    my_usleep(20*1000);
-                    m_iResult = FACE_RESULT_ENROLLED_FACE;
-                    break;
-                }
-                else if(arEngineResult[0] == ES_DUPLICATED)
-                {
-                    my_usleep(20*1000);
-                    m_iResult = FACE_RESULT_DUPLICATED_FACE;
-                    break;
-                }
-                else if(arEngineResult[0] == ES_SPOOF_FACE)
-                {
-                    my_usleep(20*1000);
-                    m_iResult = FACE_RESULT_SPOOF_FACE;
-                    break;
-                }
-#if (FM_PROTOCOL == FM_DESMAN)
-                if(arEngineResult[0] == ES_ENEXT)
-                {
-                    SendFaceDetectMsg(isFaceOcculution, iFaceNearFar, iFacePosition, isFaceDetected);
-                    my_usleep(20*1000);
-                    m_iResult = FACE_RESULT_ENROLLED_NEXT;
-                    break;
-                }
-                else if(arEngineResult[0] == ES_DIRECTION_ERROR)
-                {
-                    g_xSS.note_data_face.state = FACE_STATE_DIRECTION_ERROR;
-                    SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, isFaceDetected, m_iCounter);
-                }
-#endif
-            }
-            else
-            {
-                SendFaceDetectMsg(isFaceOcculution, iFaceNearFar, iFacePosition, isFaceDetected);
-                my_usleep(20*1000);
-            }
+            break;
         }
-        else if(m_iCmd == E_VERIFY)
-        {
-            SendFaceDetectMsg(isFaceOcculution, iFaceNearFar, iFacePosition, isFaceDetected);
-            my_usleep(10*1000);
-            if(g_xSS.iResetFlag == 1)
-                break;
-
-#if (USE_DEMOMODE2)
-            if (g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_OFF &&
-                    arEngineResult[0] == ES_SUCCESS &&
-                    dbm_GetUserCount() == 0 &&
-                    isFaceDetected)
-            {
-                m_iResult = FACE_RESULT_DETECTED;
-                break;
-            }
-#endif // USE_DEMOMODE2
-
-            int iFindIndex = FaceEngine::VerifyFace(arEngineResult);
-
-            if(g_xSS.iResetFlag == 1)
-                break;
-
-            if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && iSecondImageReCheck)
-            {
-                //verify time will be greater than 300ms
-                if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
-                {
-                    lockIRBuffer();
-                    memcpy(m_irOnData1, g_irOnData1, IR_BUFFER_SIZE);
-                    memcpy(m_irOnData2, g_irOnData2, IR_BUFFER_SIZE);
-                    unlockIRBuffer();
-                }
-
-                int iCheck = fr_CheckFaceInSecondImage(m_irOnData1, m_irOnData2);
-                if(iCheck != ES_SUCCESS)
-                {
-                    arEngineResult[0] = ES_PROCESS;
-                }
-            }
-
-            if(arEngineResult[0] == ES_PROCESS && rFaceFailTime != 0)
-            {
-                if(Now() - rFaceFailTime >= N_MAX_FAILED_TIME * 1000)
-                    arEngineResult[0] = ES_FAILED;
-            }
-
-
-            if(arEngineResult[0] != ES_PROCESS)
-            {
-                if(arEngineResult[0] != ES_FAILED)
-                {
-                    dbug_printf("Face Recog Success! %d, %f\n", iFindIndex, Now());
-                    m_iResult = FACE_RESULT_SUCCESS;
-                    m_iEyeOpened = arEngineResult[6];
-                    m_iRecogIndex = iFindIndex;
-
-                    if(!m_iEyeOpened)
-                    {
-                        m_iCmd = E_EYE_CHECK;
-                        rStartTime = Now();
-                    }
-                    else
-                        break;
-                }
-                else
-                {
-                    dbug_printf("Face Recog Failed!\n");
-                    m_iResult = FACE_RESULT_FAILED;
-                    break;
-                }
-            }
-        }
-        else if(m_iCmd == E_EYE_CHECK)
-        {
-            if(isFaceDetected)
-            {
-                if(g_xSS.iResetFlag == 1)
-                    break;
-
-                FaceEngine::VerifyFace(arEngineResult);
-
-                if(g_xSS.iResetFlag == 1)
-                    break;
-
-                if(arEngineResult[6] == 1)
-                {
-                    //eye_close_open
-                    g_xSS.note_data_eye.eye_state = FACE_STATE_EYE_CLOSE_STATUS_OPEN_EYE;
-                    m_iEyeOpened = arEngineResult[6];
-//                    m_iResult = FACE_RESULT_TIMEOUT;
-                    break;
-                }
-                else if(Now() - rStartTime > 1000)
-                {
-                    //eye_close
-                    g_xSS.note_data_eye.eye_state = FACE_STATE_EYE_CLOSE_STATUS;
-                    m_iEyeOpened = 0;
-//                    m_iResult = FACE_RESULT_TIMEOUT;
-                    break;
-                }
-            }
-            else if(Now() - rStartTime > 1000)
-            {
-                //eye unkown
-                g_xSS.note_data_eye.eye_state = FACE_STATE_EYE_CLOSE_STATUS;
-                m_iEyeOpened = 0;
-//                m_iResult = FACE_RESULT_TIMEOUT;
-                break;
-            }
-        }
-        else if(m_iCmd == E_GET_IMAGE)
-        {            
-            if((isFaceDetected && g_xSS.iFaceImage) || (g_xSS.iFaceImage == 0))
-            {
-#if (FM_PROTOCOL == FM_EASEN)
-                if((m_iImageMode % 2) == 0)
-                {
-                    rotateImage_inner(m_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_xSS.iCameraRotate == 0 ? 270: 90);
-                    Shrink_Grey(m_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, IR_CAM_WIDTH / 4, IR_CAM_HEIGHT / 4);
-                }
-                else
-                {
-                    rotateImage_inner(m_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_xSS.iCameraRotate == 0 ? 90 : 270);
-                    Shrink_Grey(m_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, IR_CAM_WIDTH / 4, IR_CAM_HEIGHT / 4);
-                }
-
-                m_iResult = FACE_RESULT_CAPTURED_FACE;
-                m_iImageMode ++;
-                break;
-#elif (FM_PROTOCOL == FM_DESMAN)
-                if(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
-                        g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM)
-                {
-                    SaveImage(m_irOnData1, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
-                    iCaptureCount ++;
-                }
-
-                if(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
-                        g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM)
-                {
-                    SaveImage(m_irOnData2, g_xSS.msg_snap_image_data.start_number + iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
-                    iCaptureCount ++;
-                }
-
-                if(!(iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
-                        g_xSS.msg_snap_image_data.start_number + iCaptureCount <= N_MAX_SAVE_IMG_NUM))
-                {
-                    m_iResult = FACE_RESULT_CAPTURED_FACE;
-                    break;
-                }
-#endif
-            }
-        }
-
-        if(iFlag)
-        {
-#if (IR_LED_ONOFF_MODE == 1 && 0)
-            fr_calc_Off(g_irOffData);
-#endif
-            StartCamSurface(1);
-            if(iNeedExp)
-            {
-                my_usleep(70 * 1000);
-            }
-
-            //CalcNextExposure();
-        }
-
-#if 0
-#if (IR_LED_ONOFF_MODE == 1)
-        ///얼굴검출에서 실패하였으면 800ms지연준다.
-        if(isFaceDetected == 0)
-        {
-            if(iLoopCount <= 1)
-                my_usleep(100 * 1000);
-            else
-                my_usleep(100 * 1000);
-        }
-#endif
-#endif
-        // iLoopCount ++;
     }
 
     memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
 
-#ifdef PROTECT_ENGINE
+#if PROTECT_ENGINE
     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
     unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
     memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
@@ -867,36 +460,23 @@ void FaceRecogTask::run()
 #endif // PROTECT_ENGINE
 
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
-    dbug_printf("[Recog] Verify Face End!\n");
-    g_iFirstCamFlag = 0;
-
-    if (m_irOnData1)
-    {
-        my_free(m_irOnData1);
-        m_irOnData1 = NULL;
-    }
-    if (m_irOnData2)
-    {
-        my_free(m_irOnData2);
-        m_irOnData2 = NULL;
-    }
-
-    if (g_abCapturedFace)
-    {
-        my_free(g_abCapturedFace);
-        g_abCapturedFace = NULL;
-    }
+    LOG_PRINT("[Recog] Verify Face End!\n");
     g_xSS.rFaceEngineTime = 0;
+    g_iFirstCamFlag = 0;
+    reset_ir_exp_gain();
 }
+
 
 int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
 {
-    int iMaxLen = 128*1024;
-    static unsigned char* pbJpgData = NULL;
+    int iMaxLen = 128 * 1024;
+    unsigned char* pbJpgData = NULL;
+    unsigned char* g_abCapturedFace = NULL;
 
-    if (iSaveIdx < 1 || iSaveIdx > SI_MAX_IMAGE_COUNT)
+    g_abCapturedFace = (unsigned char*)malloc(CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
+    if (!g_abCapturedFace)
     {
-        //invalid index
+        printf("[%s] malloc fail1.\n", __func__);
         return -1;
     }
 
@@ -904,25 +484,25 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
     Shrink_Grey(pbImage, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, CAPTURE_HEIGHT, CAPTURE_WIDTH);
 
     jpge::params params;
-    params.m_quality = 90;
-    params.m_subsampling = jpge::Y_ONLY;
-
-#ifndef __RTK_OS__
-    if(pbJpgData == NULL)
-        pbJpgData = (unsigned char*)my_malloc(SI_MAX_IMAGE_SIZE);
-#else // ! __RTK_OS__
+#if (USE_NEW_SNAPIMAGE_MODE)
     if (g_xSS.bSnapImageData == NULL)
-        g_xSS.bSnapImageData = (unsigned char*)my_malloc(SI_MAX_IMAGE_SIZE * SI_MAX_IMAGE_COUNT);
+        g_xSS.bSnapImageData = (unsigned char*)malloc(SI_MAX_IMAGE_SIZE * SI_MAX_IMAGE_COUNT);
     if (g_xSS.bSnapImageData == NULL)
     {
-        my_printf("@@@ SaveImage malloc fail\n");
-        return 0;
+        printf("[%s] malloc fail2.\n", __func__);
+        return -1;
     }
-    pbJpgData = (unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE;
-#endif // ! __RTK_OS__
+#endif
+    pbJpgData = (unsigned char*)malloc(iMaxLen);
+    if (!pbJpgData)
+    {
+        printf("[%s] malloc fail3.\n", __func__);
+        free(g_abCapturedFace);
+        return -1;
+    }
 
-    int iWriteLen = iMaxLen;
-    for(int i = 70; i >= 10; i -= 10)
+    int iWriteLen = 0;
+    for(int i = 90; i >= 10; i -= 10)
     {
         jpge::params params;
         params.m_quality = i;
@@ -937,28 +517,508 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
 
         if(iWriteLen < SI_MAX_IMAGE_SIZE)
         {
-            my_printf("Jpeg Quality: %d\n", i);
+            printf("Jpeg Quality: %d\n", i);
             break;
         }
     }
-#ifndef __RTK_OS__
-    my_mount(TMP_DEVNAME, "/db1", TMP_FSTYPE, MS_NOATIME, "");
-
-    char szPath[256] = { 0 };
-    sprintf(szPath, "/db1/img_%d.jpg", iSaveIdx);
-    FILE* fp = my_fopen(szPath, "wb");
-    my_printf("SaveImae: %s, %p\n", szPath, fp);
-
-    if(fp)
+    if (iWriteLen > 0 && iWriteLen < SI_MAX_IMAGE_SIZE)
     {
-        my_fwrite(pbJpgData, iWriteLen, 1, fp);
-        fsync(fileno(fp));
-        fclose(fp);
+        memcpy((unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE, pbJpgData, iWriteLen);
+        g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
     }
-#else // !__RTK_OS__
-    g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
-    dbug_printf("[%s] save, %d, %d, %0.3f------------\n", __func__, iSaveIdx, iWriteLen, Now());
-#endif // !__RTK_OS__
+    printf("[%s]: %d, %d\n", __func__, iSaveIdx, iWriteLen);
+    if (pbJpgData)
+        free(pbJpgData);
+    return 0;
+}
+
+int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
+{
+    FILE* _fp = NULL;
+    _fp = fopen(FN_FACE_BIN_PATH, "r");
+    if (_fp)
+    {
+        fread(dst, 1, HEIGHT_720*WIDTH_1280, _fp);
+        fclose(_fp);
+        for (int y = IR_CAM_HEIGHT - 1; y >= 1 ; y --)
+        {
+            memmove(((char*)dst) + y * IR_CAM_WIDTH, ((char*)dst) + y * WIDTH_1280, WIDTH_1280);
+            memset(((char*)dst) + y * IR_CAM_WIDTH + WIDTH_1280, 0, IR_CAM_WIDTH - WIDTH_1280);
+        }
+        if (flip)
+        {
+            for (int x = 0; x < IR_CAM_WIDTH / 2; x++)
+            {
+                for (int y = 0; y < IR_CAM_HEIGHT; y++)
+                {
+                    unsigned char tmp = ((char*)dst)[(IR_CAM_WIDTH - x - 1) + IR_CAM_WIDTH * (IR_CAM_HEIGHT - y - 1)];
+                    ((char*)dst)[(IR_CAM_WIDTH - x - 1) + IR_CAM_WIDTH * (IR_CAM_HEIGHT - y - 1)] = ((char*)dst)[x + y*IR_CAM_WIDTH];
+                    ((char*)dst)[x + y*IR_CAM_WIDTH] = tmp;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
+{
+    lockIRBuffer();
+    fr_CalcScreenValue(g_irOnData1, IR_SCREEN_GETIMAGE_MODE);
+    unlockIRBuffer();
+    CalcNextExposure();
+    my_usleep(30*1000);
+    if (iFrameCount >= DEFAULT_SNAPIMG_CTRL_CNT)
+    {
+        if(m_iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
+                g_xSS.msg_snap_image_data.start_number + m_iCaptureCount <= N_MAX_SAVE_IMG_NUM)
+        {
+            lockIRBuffer();
+            gammaCorrection_screen(g_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            SaveImage(g_irOnData1, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
+            unlockIRBuffer();
+            m_iCaptureCount ++;
+        }
+
+        if(m_iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
+                g_xSS.msg_snap_image_data.start_number + m_iCaptureCount <= N_MAX_SAVE_IMG_NUM)
+        {
+            lockIRBuffer();
+            gammaCorrection_screen(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            SaveImage(g_irOnData2, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
+            unlockIRBuffer();
+            m_iCaptureCount ++;
+        }
+
+        if(!(m_iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
+             g_xSS.msg_snap_image_data.start_number + m_iCaptureCount <= N_MAX_SAVE_IMG_NUM))
+        {
+            m_iResult = FACE_RESULT_CAPTURED_FACE;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int FaceRecogTask::ProcessCheckCamera1Step()
+{
+    //check camera
+    int res1 = 0, res2 = 0;
+    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
+    unsigned char* pInputImageBuffer2 = fr_GetInputImageBuffer2();
+#if (MY_SAVE_ERROR_IMG)
+    FILE *_fp = NULL;
+#endif // MY_SAVE_ERROR_IMG
+    lockIRBuffer();
+    memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+    unlockIRBuffer();
+    if (m_iCmd == E_VERIFY)
+    {
+        res1 = checkCameraPattern(pInputImageBuffer1);
+        lockIRBuffer();
+        memcpy(pInputImageBuffer2, g_irOnData2, IR_BUFFER_SIZE);
+        unlockIRBuffer();
+        res2 = (ENGINE_USE_TWO_CAM == 1) ? checkCameraPattern(pInputImageBuffer2) : 0;
+        printf("** check camera=%d,%d\n", res1, res2);
+        if (res1 != 0 || res2 != 0)
+        {
+            if (m_iHasIrError == 1)
+            {
+                if (res1 == CAMERA_ERROR || res2 == CAMERA_ERROR)
+                    g_xSS.iCamError |= CAM_ERROR_IR_PATTERN;
+                else
+                    g_xSS.iCamError |= CAM_ERROR_IR_PATTERN_2;
+            }
+        }
+
+        if (res1 != 0 && m_iHasIrError)
+        {
+#if (MY_SAVE_ERROR_IMG)
+            mount(TMP_DEVNAME, "/db1", TMP_FSTYPE, MS_NOATIME, "");
+            _fp = fopen("/db1/f1.bin", "w");
+            printf("going to save ir cam1, %p.\n", _fp);
+            if (_fp != NULL)
+            {
+                fwrite(pInputImageBuffer1, 1, IR_CAM_HEIGHT * IR_CAM_WIDTH, _fp);
+                fsync(fileno(_fp));
+                fclose(_fp);
+            }
+#endif // MY_SAVE_ERROR_IMG
+        }
+
+        if (res2 != 0 && m_iHasIrError)
+        {
+#if (MY_SAVE_ERROR_IMG)
+            mount(TMP_DEVNAME, "/db1", TMP_FSTYPE, MS_NOATIME, "");
+            _fp = fopen("/db1/f2.bin", "w");
+            printf("going to save ir cam2, %p.\n", _fp);
+            if (_fp != NULL)
+            {
+                fwrite(pInputImageBuffer2, 1, IR_CAM_HEIGHT * IR_CAM_WIDTH, _fp);
+                fsync(fileno(_fp));
+                fclose(_fp);
+            }
+#endif // MY_SAVE_ERROR_IMG
+        }
+    }
+
+    if ((res1 == 0 && res2 == 0) || m_iHasIrError == 1)
+    {
+        //read static image.
+        ReadStaticIRImage(pInputImageBuffer1, 0);
+    }
+    else
+    {
+        memset(pInputImageBuffer1, 0, IR_BUFFER_SIZE);
+        m_iHasIrError = 1;
+    }
+    return 0;
+}
+
+int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
+{
+    //in case of 1st IR frame, wait for...
+    if(iUseFirstFrame && !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
+    {
+        WAIT_CAM_FRAME(500, WaitIRTimeout);
+    }
+    //caution: you should not use pInputImageBuffer2 here!!!
+    if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+    {
+        lockIRBuffer();
+        memcpy(pBuffer, g_irOnData2, IR_BUFFER_SIZE);
+        unlockIRBuffer();
+    }
+    else
+    {
+        //read static image.
+        ReadStaticIRImage(pBuffer, 1);
+    }
+    return 0;
+}
+
+int FaceRecogTask::GetFaceState()
+{
+    int isFaceDetected = 0;
+    int iNext = ES_FAILED;
+    int nProcessMode = 0;   //if 0:face process, 1:hand process
+    iNext = fr_ExtractCombo();
+
+    SEngineResult* pxEngineResult;
+    pxEngineResult =  fr_GetEngineResultCombo(&nProcessMode);
+    SEngineParam* pxEngineParam = fr_GetEngineParam();
+    memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
+    memset(&g_xSS.note_data_face, 0, sizeof(g_xSS.note_data_face));
+    m_isFaceDetected[nProcessMode] = FDS_NONE;
+    m_isFaceOcculution = 0;
+    m_iFaceNearFar[nProcessMode] = 0;
+    m_iFacePosition[nProcessMode] = 0;
+    m_rDetectTime[nProcessMode] = Now();
+    if(iNext == ES_FAILED)
+    {
+        if(pxEngineResult && pxEngineParam)
+        {
+            m_isFaceOcculution = pxEngineResult->nOcclusion;
+            m_iFaceNearFar[nProcessMode] = pxEngineResult->nFaceNearFar;
+            m_iFacePosition[nProcessMode] = pxEngineResult->nFacePosition;
+            if (m_isFaceOcculution + m_iFaceNearFar[nProcessMode] + m_iFacePosition[nProcessMode] != 0)
+            {
+                m_iLastDetMode = nProcessMode;
+            }
+        }
+    }
+    else
+    {
+        if (nProcessMode == FMI_FACE)
+            m_isFaceDetected[nProcessMode] = FDS_FACE_DETECTED;
+        else
+            m_isFaceDetected[nProcessMode] = FDS_HAND_DETECTED;
+        if (m_isFaceDetected[nProcessMode] != FDS_NONE)
+            m_iLastDetMode = nProcessMode;
+        if(pxEngineResult && pxEngineParam)
+        {
+            g_xSS.xFaceRect.x = ((float)pxEngineResult->xFaceRect.x + pxEngineParam->nOffsetX) / 2;
+            g_xSS.xFaceRect.y = ((float)pxEngineResult->xFaceRect.y + pxEngineParam->nOffsetY) / 2;
+            g_xSS.xFaceRect.width = ((float)pxEngineResult->xFaceRect.width) / 2;
+            g_xSS.xFaceRect.height = ((float)pxEngineResult->xFaceRect.height) / 2;
+
+            g_xSS.note_data_face.left = g_xSS.xFaceRect.x;
+            g_xSS.note_data_face.top = g_xSS.xFaceRect.y;
+            g_xSS.note_data_face.right = g_xSS.xFaceRect.x + g_xSS.xFaceRect.width - 1;
+            g_xSS.note_data_face.bottom = g_xSS.xFaceRect.y + g_xSS.xFaceRect.height - 1;
+        }
+    }
+    return isFaceDetected;
+}
+
+int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
+{
+    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
+    float arEngineResult[10] = { 0 };
+    SendFaceDetectMsg();
+
+    if(g_xSS.iResetFlag == 1)
+        return 1;
+
+#if (USE_DEMOMODE2)
+    if (g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_OFF &&
+            dbm_GetTotalUserCount() == 0 &&
+            (m_isFaceDetected[FMI_FACE] == FDS_FACE_DETECTED || m_isFaceDetected[FMI_HAND] == FDS_HAND_DETECTED))
+    {
+        m_iResult = m_isFaceDetected[FMI_FACE] == FDS_FACE_DETECTED ? FACE_RESULT_DETECTED : HAND_RESULT_DETECTED;
+#if (USE_FUSHI_PROTO)
+        g_xSS.bVerifying = 0;
+#endif
+        //검출결과와 인증결과가 간격이 없어 조종기판쪽에서 받지 못하는 문제가 있어 지연을 주었음.
+        my_usleep(20*1000);
+        return 1;
+    }
+#endif // USE_DEMOMODE2
+
+    memset(arEngineResult, 0, sizeof(arEngineResult));
+    int iFindIndex = FaceEngine::VerifyFace(arEngineResult);
+
+    if(g_xSS.iResetFlag == 1)
+        return 1;
+
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && iSecondImageReCheck)
+    {
+        //verify time will be greater than 300ms
+        if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        {
+            lockIRBuffer();
+            if(fr_GetSecondImageIsRight())
+            {
+                memcpy(pInputImageBuffer1, g_irOnData2, IR_BUFFER_SIZE);
+            }
+            else
+            {
+                memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+            }
+            unlockIRBuffer();
+        }
+
+        int iCheck = fr_CheckFaceInSecondImage(pInputImageBuffer1);
+        if(iCheck != ES_SUCCESS)
+        {
+            arEngineResult[0] = ES_PROCESS;
+        }
+    }
+
+    if(arEngineResult[0] == ES_PROCESS && m_rFaceFailTime != 0)
+    {
+        if(Now() - m_rFaceFailTime >= N_MAX_FAILED_TIME * 1000)
+            arEngineResult[0] = ES_FAILED;
+    }
+
+    if(arEngineResult[0] != ES_PROCESS)
+    {
+        if(arEngineResult[0] != ES_FAILED)
+        {
+            printf("FRS %d, %f\n", iFindIndex, Now());
+            if (arEngineResult[1] == 0) //face
+                m_iResult = FACE_RESULT_SUCCESS;
+            else if (arEngineResult[1] == 1) //hand
+                m_iResult = HAND_RESULT_SUCCESS;
+            m_iEyeOpened = arEngineResult[6];
+            m_iRecogIndex = iFindIndex;
+
+            if(!m_iEyeOpened)
+            {
+                m_iCmd = E_EYE_CHECK;
+                m_rStartTime = Now();
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        else
+        {
+            dbug_printf("Face Recog Failed!\n");
+            m_iResult = m_iLastDetMode == FMI_HAND ? HAND_RESULT_FAILED : FACE_RESULT_FAILED;
+#if (USE_FUSHI_PROTO)
+            if (g_xSS.iProtocolHeader != FUSHI_HEAD1)
+#endif
+            {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
+{
+    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
+    float arEngineResult[10] = { 0 };
+    int ret = 0;
+    SendFaceDetectMsg();
+    FaceEngine::RegisterFace(arEngineResult, g_xSS.msg_enroll_itg_data.face_direction);
+
+    if(g_xSS.iResetFlag == 1)
+        return 1;
+
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && iSecondImageReCheck)
+    {
+        //register time will be greater than 300ms
+        if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        {
+            lockIRBuffer();
+            if(fr_GetSecondImageIsRight())
+            {
+                memcpy(pInputImageBuffer1, g_irOnData2, IR_BUFFER_SIZE);
+            }
+            else
+            {
+                memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+            }
+            unlockIRBuffer();
+        }
+
+        int iCheck = fr_CheckFaceInSecondImage(pInputImageBuffer1);
+        if(iCheck != ES_SUCCESS)
+        {
+            arEngineResult[0] = ES_PROCESS;
+        }
+    }
+
+    if(arEngineResult[0] != ES_PROCESS)
+    {
+        if(arEngineResult[1] ==  0) //face mode only
+        {
+            if(arEngineResult[0] == ES_SUCCESS)
+            {
+                m_iResult = FACE_RESULT_ENROLLED_FACE;
+                ret = 1;
+            }
+            else if(arEngineResult[0] == ES_DUPLICATED)
+            {
+                m_iResult = FACE_RESULT_DUPLICATED_FACE;
+                ret = 1;
+            }
+            else if(arEngineResult[0] == ES_SPOOF_FACE)
+            {
+                m_iResult = FACE_RESULT_SPOOF_FACE;
+                ret = 1;
+            }
+            if(arEngineResult[0] == ES_ENEXT)
+            {
+                m_iResult = FACE_RESULT_ENROLLED_NEXT;
+                ret = 1;
+            }
+            else if(arEngineResult[0] == ES_DIRECTION_ERROR)
+            {
+                g_xSS.note_data_face.state = FACE_STATE_DIRECTION_ERROR;
+                SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
+            }
+        }
+#if (N_MAX_HAND_NUM)
+        else
+        {
+            if(arEngineResult[0] == ES_SUCCESS)
+            {
+                my_usleep(20*1000);
+                m_iResult = HAND_RESULT_ENROLLED;
+                ret = 1;
+            }
+            else if(arEngineResult[0] == ES_DUPLICATED)
+            {
+                my_usleep(20*1000);
+                m_iResult = HAND_RESULT_ENROLL_DUPLICATED;
+                ret = 1;
+            }
+            else if(arEngineResult[0] == ES_ENEXT)
+            {
+                my_usleep(20*1000);
+                m_iResult = HAND_RESULT_ENROLLED_NEXT;
+                ret = 1;
+            }
+        }
+#endif // N_MAX_HAND_NUM
+    }
+
+    return ret;
+}
+int FaceRecogTask::ProcessCheckEye1Step()
+{
+    float arEngineResult[10] = { 0 };
+    if(m_isFaceDetected[FMI_FACE] == FDS_FACE_DETECTED)
+    {
+        FaceEngine::VerifyFace(arEngineResult);
+
+        if(g_xSS.iResetFlag == 1)
+            return 1;
+
+        if(arEngineResult[6] == 1)
+        {
+            //eye_close_open
+            g_xSS.note_data_eye.eye_state = FACE_STATE_EYE_CLOSE_STATUS_OPEN_EYE;
+            m_iEyeOpened = arEngineResult[6];
+            //                    m_iResult = FACE_RESULT_TIMEOUT;
+            return 1;
+        }
+        else if(Now() - m_rStartTime > 1000)
+        {
+            //eye_close
+            g_xSS.note_data_eye.eye_state = FACE_STATE_EYE_CLOSE_STATUS;
+            m_iEyeOpened = 0;
+            //                    m_iResult = FACE_RESULT_TIMEOUT;
+            return 1;
+        }
+    }
+    else if(Now() - m_rStartTime > 1000)
+    {
+        //eye unkown
+        g_xSS.note_data_eye.eye_state = FACE_STATE_EYE_CLOSE_STATUS;
+        m_iEyeOpened = 0;
+        //                m_iResult = FACE_RESULT_TIMEOUT;
+        return 1;
+    }
+    return 0;
+}
+
+int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
+{
+    if (p_iUseFirstFrame == NULL)
+        return 1;
+    if((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && !(g_iFirstCamFlag & FIRST_IR_PROCESSED))
+    {
+        g_iFirstCamFlag |= FIRST_IR_PROCESSED;
+
+        fr_InitIRCamera_ExpGain();
+
+        *p_iUseFirstFrame = 1;
+    }
+    else
+    {
+#if (ENGINE_USE_TWO_CAM == 1)
+        if((g_iMipiCamInited == -1 || g_iDvpCamInited == -1) &&
+                !((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && (g_iFirstCamFlag & RIGHT_IR_CAM_RECVED)))
+#else // ENGINE_USE_TWO_CAM
+        if(g_iDvpCamInited == -1 && !(g_iFirstCamFlag & LEFT_IR_CAM_RECVED))
+#endif // ENGINE_USE_TWO_CAM
+        {
+            my_usleep(30 * 1000);
+            m_iResult = FACE_RESULT_FAILED_CAMERA;
+            return 1;
+        }
+
+#if (ENGINE_USE_TWO_CAM == 1)
+        if (g_iTwoCamFlag != -1 && !(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
+        {
+            WAIT_CAM_FRAME(500, WaitIROffTimeout);
+        }
+        dbug_printf("g_iTwoCamFlag=%d\n", g_iTwoCamFlag);
+#endif // ENGINE_USE_TWO_CAM
+
+        g_iTwoCamFlag = 0;
+        g_iLedOffFrameFlag = 0;
+#if (IR_LED_ONOFF_MODE == 1)
+        camera_set_irled_on(1);
+        dbug_printf("irled on, %s:%d\n", __FILE__, __LINE__);
+#endif
+        WAIT_CAM_FRAME(500, WaitIRTimeout);
+    }
     return 0;
 }
 

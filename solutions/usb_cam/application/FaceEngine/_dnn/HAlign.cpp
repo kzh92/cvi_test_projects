@@ -1540,7 +1540,6 @@ void handAlign(unsigned char* img, int width, int height, unsigned char* align_b
 {
     int i;
     int scale_width = align_width - align_left - align_right;
-    int scale_height = align_height - align_top - align_bottom;
     float srcPoints[] = {0.f, 0.f, 0.25f, -0.1f, 0.5f, -0.15f, 0.75f, -0.1f, 1.f, 0.f};
 
     float rSigmaAverageValue = 0;

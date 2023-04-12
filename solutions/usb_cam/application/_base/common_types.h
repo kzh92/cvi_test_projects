@@ -80,16 +80,31 @@ typedef void* myi2cdesc_ptr;
 #define DICT_PART_SIZE      (8*1024*1024) //8MB
 #define USERDB_START_ADDR   (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE         0x00100000
-#define FN_WNO_DICT_SIZE    1292988
-#define FN_A1_DICT_SIZE     792992
-#define FN_A2_DICT_SIZE     792992
-#define FN_B_DICT_SIZE      792992
-#define FN_B2_DICT_SIZE     246968
-#define FN_C_DICT_SIZE      767960
-#define FN_DETECT_DICT_SIZE 180992
-#define FN_DLAMK_DICT_SIZE  1153056
-#define FN_ESN_DICT_SIZE    123860
-#define FN_OCC_DICT_SIZE    363416
+#define FN_WNO_DICT_SIZE        1262780
+#if (USE_FP16_ENGINE == 0)
+#define FN_A1_DICT_SIZE         792992
+#define FN_A2_DICT_SIZE         792992
+#define FN_B_DICT_SIZE          792992
+#define FN_B2_DICT_SIZE         246968
+#define FN_C_DICT_SIZE          792992
+#define FN_DETECT_DICT_SIZE     180992
+#define FN_DLAMK_DICT_SIZE      1153056
+#else // USE_FP16_ENGINE == 0
+#define FN_A1_DICT_SIZE         (792992 / 2)
+#define FN_A2_DICT_SIZE         (792992 / 2)
+#define FN_B_DICT_SIZE          (792992 / 2)
+#define FN_B2_DICT_SIZE         (246968 / 2)
+#define FN_C_DICT_SIZE          (792992 / 2)
+#define FN_CH_DICT_SIZE         (792992 / 2)
+#define FN_DETECT_DICT_SIZE     (180992 / 2)
+#define FN_DETECT_H_DICT_SIZE   (180992 / 2)
+#define FN_DLAMK_DICT_SIZE      (1153056 / 2)
+#define FN_DLAMK_H_DICT_SIZE    451356
+#endif // USE_FP16_ENGINE == 0
+#define FN_ESN_DICT_SIZE        123860
+#define FN_OCC_DICT_SIZE        363416
+#define FN_H1_DICT_SIZE         290964
+#define FN_H2_DICT_SIZE         4263260
 
 #define UPGRADER_INFO_ADDR  (DICT_START_ADDR + DICT_PART_SIZE - 8192)
 
@@ -99,32 +114,26 @@ typedef void* myi2cdesc_ptr;
 #define UPGRADER_INFO_SIZE  64
 #define IR_ERROR_SAVE_ADDR  (16*1024*1024 - 1024*1024)
 
-#ifdef __RTK_OS__
-#define FN_WNO_DICT_PATH        "/mnt/MISC/wno.bin"
-#define FN_A1_DICT_PATH         "/mnt/MISC/a1.bin"
-#define FN_A2_DICT_PATH         "/mnt/MISC/a2.bin"
-#define FN_B_DICT_PATH          "/mnt/MISC/b.bin"
-#define FN_B2_DICT_PATH         "/mnt/MISC/b2.bin"
-#define FN_C_DICT_PATH          "/mnt/MISC/c.bin"
-#define FN_DETECT_DICT_PATH     "/mnt/MISC/detect.bin"
-#define FN_DLAMK_DICT_PATH      "/mnt/MISC/dlamk.bin"
-#define FN_ESN_DICT_PATH        "/mnt/MISC/esn.bin"
-#define FN_OCC_DICT_PATH        "/mnt/MISC/occ.bin"
-#else // __RTK_OS__
 #define FN_WNO_DICT_PATH        "/test/wno.bin"
+#define FN_WNOH_DICT_PATH       "/test/wnh.bin"
 #define FN_A1_DICT_PATH         "/test/a1.bin"
 #define FN_A2_DICT_PATH         "/test/a2.bin"
 #define FN_B_DICT_PATH          "/test/b.bin"
 #define FN_B2_DICT_PATH         "/test/b2.bin"
+#define FN_CH_DICT_PATH         "/test/ch.bin"
 #define FN_C_DICT_PATH          "/test/c.bin"
 #define FN_DETECT_DICT_PATH     "/test/detect.bin"
+#define FN_DETECT_H_DICT_PATH   "/test/detect_h.bin"
 #define FN_DLAMK_DICT_PATH      "/test/dlamk.bin"
+#define FN_DLAMK_H_DICT_PATH    "/test/dlamk_h.bin"
 #define FN_ESN_DICT_PATH        "/test/esn.bin"
 #define FN_OCC_DICT_PATH        "/test/occ.bin"
-#endif // __RTK_OS__
+#define FN_H1_DICT_PATH         "/test/hdic_1.bin"
+#define FN_H2_DICT_PATH         "/test/hdic_2.bin"
 
 #define FN_DICT_ALIGN_SIZE      64
-#define FN_HDIC1_DICT_PATH  "hdic_1.bin"
+
+#define FN_FACE_BIN_PATH        "/test/face.bin"
 
 #define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
 #define FN_031TTS_WAV_SIZE  250028

@@ -35,13 +35,6 @@
             ret_len = packet_len; \
     } while(0)
 
-enum {
-    PROTO_EM_NOENCRYPT,
-    PROTO_EM_ENCRYPT,
-    PROTO_EM_ENCRYPT_XOR_LANHENG,
-    PROTO_EM_ENCRYPT_END
-};
-
 class SenseLockTask : public Thread
 {
 public:
@@ -92,7 +85,7 @@ protected:
     static s_msg*       Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd = -1);
     static s_msg*       Get_Reply_Verify(int iResult, int iUserID, int iUnlockState);
     static s_msg*       Get_Reply_GetUserInfo(int iResult, int iUserID);
-    static s_msg*       Get_Reply_GetAllUserID(int iResult);
+    static s_msg*       Get_Reply_GetAllUserID(int iResult, int iFmt);
     static s_msg*       Get_Reply_GetVersion(int iResult);
     static s_msg*       Get_Reply_GetUID(int iResult);
     static s_msg*       Get_Reply_GetStatus(int iResult, int iStatus);
@@ -110,7 +103,7 @@ protected:
     static s_msg*       Get_Image(unsigned char* pbImage, int iImgLen);
 
     static int          Get_MsgLen(s_msg* msg);
-    static int          Set_Key(unsigned char* pbSeed, int iSize, int iMode);
+    static int          Set_Key(unsigned char* pbSeed, int iSize, int iMode, char* strEncKey);
     static int          Set_KeyPos(unsigned char* pbKeyPos);
     static unsigned char    Get_CheckSum(unsigned char* pbData, int iLen);
     static int          Encrypt_Msg(unsigned char* pbSrc, int iSrcLen, unsigned char** pbOut, int* pOutLen = NULL);

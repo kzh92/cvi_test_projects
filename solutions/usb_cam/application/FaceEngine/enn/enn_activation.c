@@ -73,8 +73,8 @@ extern int g_nThreadCount;
 #endif
 			for (int c = 0; c < inch; c++)
 			{
-				float fslope[4], *pfslope;
-				pfslope = fslope;
+				float fslope[4]/*, *pfslope*/;
+				// pfslope = fslope;
 
 				float* ptrc = ((float*)inout_blob->mem) + cstep * c;
 				_gnu_h2f_internal_vector(slope + 4 * c, fslope, 4);

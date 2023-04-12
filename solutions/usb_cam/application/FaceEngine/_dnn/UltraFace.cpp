@@ -217,12 +217,12 @@ int initDetectionEngineParam(unsigned char* pMem)
 
 int initDetectionEngineParam_Hand(unsigned char* pMem)
 {
-    int in_w;
-    int in_h;
+    // int in_w;
+    // int in_h;
     int in_w_base;
     int in_h_base;
     int w_h_list_base[2];
-    float featuremap_size[2][num_featuremap];
+    // float featuremap_size[2][num_featuremap];
     float featuremap_size_base[2][num_featuremap];
     float shrinkage_size[2][num_featuremap];
 
@@ -582,7 +582,7 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
         return 0;
     }
     float rScale = 1;
-    float startTime = Now();
+    // float startTime = Now();
     //int nCropRect[4] = {54, 96, 792, 1408};
     int nCropRect[4] = {0, 0, 900, 1600};
 #if (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
@@ -593,7 +593,7 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
 #endif
     CreateShrinkImage_normalize_FixRate(0, pTempBuffer, bufferWidth, bufferHeight, &rScale, imgBuffer, imageWidth, imageHeight, 127, 1.0f / 128, nCropRect);
     //printf("CreateShrink Time = %f\n", Now() - startTime);
-    startTime = Now();
+    // startTime = Now();
 
     int image_w;
     int image_h;

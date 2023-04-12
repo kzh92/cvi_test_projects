@@ -39,6 +39,31 @@ typedef struct _tagDB_INFO
     DB_UNIT     ax[N_MAX_PERSON_NUM];
 } DB_INFO;
 
+#if (N_MAX_HAND_NUM)
+#define DB_HANDINFO_DAT "/db/handinfo.bin"
+#define BACKUP_HANDINFO_DAT "/backup/handinfo.bin"
+
+typedef struct _tagDB_HAND_UNIT
+{
+    SMetaInfo       xHM;
+    int             iHMetaCheckSum;
+    SHandFeatInfo   xHF;
+    int             iHFCheckSum;
+//    SMetaInfo  xHM;
+//    int        iHMetaCheckSum;
+//    SFeatInfo  xHF;
+//    int        iHFCheckSum;
+
+} DB_HAND_UNIT;
+
+typedef struct _tagDB_HAND_INFO
+{
+    int   aiHandValid[N_MAX_HAND_NUM];
+    DB_HAND_UNIT    ax[N_MAX_HAND_NUM];
+} DB_HAND_INFO;
+
+#endif // N_MAX_HAND_NUM
+
 #pragma pack(pop)
 
 #ifdef __cplusplus
@@ -55,8 +80,9 @@ LIBFOO_DLL_EXPORTED  void		dbm_SetEmptyPersonDB(int* piBlkNum);
 LIBFOO_DLL_EXPORTED int         dbm_AddPerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum);
 LIBFOO_DLL_EXPORTED int			dbm_UpdatePerson(int nIndex, PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonMetaInfo(int nIndex, PSMetaInfo pxUserInfo, int* piBlkNum);
-LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonFeatInfo(int nIndex, PSFeatInfo pxFeatInfo, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonFeatInfo(int nIndex, PSFeatInfo pxFeatInfo, int* piBlkNum, int iUpdateFeatIndex);
 LIBFOO_DLL_EXPORTED  int		dbm_GetPersonCount();
+LIBFOO_DLL_EXPORTED  int		dbm_GetTotalUserCount();
 LIBFOO_DLL_EXPORTED  int        dbm_GetIDOfIndex(int iIndex);
 LIBFOO_DLL_EXPORTED  int        dbm_GetIndexOfID(int iID);
 LIBFOO_DLL_EXPORTED  int        dbm_IsValidOfID(int iID);
@@ -72,13 +98,29 @@ LIBFOO_DLL_EXPORTED  PSFeatInfo	dbm_GetPersonFeatInfoByIndex(int nPos);
 LIBFOO_DLL_EXPORTED  int		dbm_RemovePersonByID(int nID, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int		dbm_RemovePersonByIndex(int nIndex, int* piBlkNum);
 
+//hand userinfo
+#if (N_MAX_HAND_NUM)
+LIBFOO_DLL_EXPORTED int         dbm_LoadHandDB();
+LIBFOO_DLL_EXPORTED int         dbm_AddHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum);
+LIBFOO_DLL_EXPORTED int			dbm_UpdateHand(int nIndex, PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int		dbm_UpdateHandMetaInfo(int nIndex, PSMetaInfo pxUserInfo, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int		dbm_UpdateHandFeatInfo(int nIndex, SHandFeatInfo* pxFeatInfo, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int		dbm_GetHandCount();
+LIBFOO_DLL_EXPORTED  int        dbm_GetHandIDOfIndex(int iIndex);
+LIBFOO_DLL_EXPORTED  int        dbm_GetHandIndexOfID(int iID);
+LIBFOO_DLL_EXPORTED  PSMetaInfo dbm_GetHandMetaInfoByIndex(int nPos);
+LIBFOO_DLL_EXPORTED  SHandFeatInfo*	dbm_GetHandFeatInfoByIndex(int nPos);
+LIBFOO_DLL_EXPORTED  PSMetaInfo dbm_GetHandMetaInfoByID(int iID);
+LIBFOO_DLL_EXPORTED  SHandFeatInfo*	dbm_GetHandFeatInfoByID(int nID);
+LIBFOO_DLL_EXPORTED  int        dbm_GetNewHandUserID();
+LIBFOO_DLL_EXPORTED  void       dbm_SetEmptyHandDB(int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int        dbm_RemoveHandByID(int nID, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int        dbm_CheckHandBackupDBInfos();
+LIBFOO_DLL_EXPORTED  int        dbm_CheckHandBackupDB();
+#endif // N_MAX_HAND_NUM
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-LIBFOO_DLL_EXPORTED  DATETIME_32 dbm_GetCurDateTime();
-LIBFOO_DLL_EXPORTED  double      dbm_GetDiffSec(DATETIME_32 a, DATETIME_32 b);        //a - b
-LIBFOO_DLL_EXPORTED  DATETIME_32 time_tToDATETIME_32(time_t tTime);
-
-//LIBFOO_DLL_EXPORTED  void        LOG_PRINT(const char * format, ...);
 LIBFOO_DLL_EXPORTED  int         CheckFileSystem(int iIndex);
 LIBFOO_DLL_EXPORTED  int*        GetDebugEn();
 LIBFOO_DLL_EXPORTED  int         CopyFile(char* szDstPath, char* szSrcPath);

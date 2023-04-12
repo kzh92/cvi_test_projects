@@ -4263,15 +4263,15 @@ namespace ENNQ
 
 			const signed char* img = data_in + p * size_in; // bottom_blob.channel(p);
 
-			float scale = mem_scale[p];
-			float bias = mem_bias[p];
-
 			const signed char* r0 = img;
 			const signed char* r1 = img + w;
 			const signed char* r2 = img + w * 2;
 
 			int i = 0;
 #if __ARM_NEON 
+			float scale = mem_scale[p];
+			float bias = mem_bias[p];
+
 			int8x16_t _k0123456789x = vld1q_s8(kernel);
 			int16x8_t _k_s16 = vmovl_s8(vget_low_s8(_k0123456789x));
 			int16x8_t _kn_s16 = vmovl_s8(vget_high_s8(_k0123456789x));
@@ -4436,15 +4436,14 @@ namespace ENNQ
 
 			const signed char* img = data_in + p * size_in; // bottom_blob.channel(p);
 
-			float scale = mem_scale[p];
-			float bias = mem_bias[p];
-
 			const signed char* r0 = img;
 			const signed char* r1 = img + w;
 			const signed char* r2 = img + w * 2;
 
 			int i = 0;
 #if __ARM_NEON 
+			float scale = mem_scale[p];
+			float bias = mem_bias[p];
 			int8x16_t _k0123456789x = vld1q_s8(kernel);
 			int16x8_t _k_s16 = vmovl_s8(vget_low_s8(_k0123456789x));
 			int16x8_t _kn_s16 = vmovl_s8(vget_high_s8(_k0123456789x));

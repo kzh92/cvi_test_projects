@@ -92,13 +92,13 @@ enum
 typedef struct _tagPERMANENCE_SETTINGS
 {
     // [14]
-    unsigned char   bDebugEn;
+    unsigned char   bReserved0;         //bDebugEn;
 
-    unsigned char   bCamFlip:1;
-    unsigned char   bSendLastMsg:1;
+    unsigned char   bCamFlip:1;         //bCamFlip:1
+    unsigned char   bReserved02:1;          // bSendLastMsg:1;
     unsigned char   bEnableLogFile:1;
     unsigned char   bHijackEnable:1;
-    unsigned char   bReserved1:4;
+    unsigned char   bReserved1:4;       //bTwinsMode before, 0: twins, 1: non-twins
 
     unsigned char   bUvcImageQuality; // s_msg_uvc_set_compressparam_data
     unsigned char   bUvcBitrateMax:4; // s_msg_uvc_set_compressparam_data
@@ -174,24 +174,27 @@ typedef struct _tagRECOVERY_HEADER
 typedef struct _tagCOMMON_SETTINGS
 {
     //[0]
+#if (N_MAX_PERSON_NUM < 0xFF)
     unsigned char   bUserCount;             //등록된 사용자수
-    unsigned char   bReserved;              //baud rate before
-
+    unsigned char   bHandCount;             //baud rate before
+#else // N_MAX_PERSON_NUM
+    unsigned short  bUserCount;             //등록된 사용자수
+#endif // N_MAX_PERSON_NUM
     unsigned char   bPresentation:1;        //연시방식(0: Off, 1: On)
-    unsigned char   bDupCheck:1;
+    unsigned char   bReserved01:1; // bDupCheck:1;
     unsigned char   bUpgradeFlag:1;
     unsigned char   bUsbHost:1;// 0: USB device mode, 1: USB host mode
     unsigned char   bUVCDir:2;// 0: not rotate 90, 1: rotate 90
     unsigned char   bCheckFirmware:1;
     unsigned char   bOtaMode:1;// 0: OTA UART mode, 1: OTA USB mode
 
-    unsigned char   bLivenessMode:2;
-    unsigned char   bTwinsMode:2; //0: twins, 1: normal
+    unsigned char   bReserved04:2; // bLivenessMode:2;
+    unsigned char   bReserved05:2; // bTwinsMode:2; //0: twins, 1: normal
     unsigned char   bUpgradeBaudrate:3;
     unsigned char   bReserved2:1;
     unsigned char   bSecureFlag;
 
-    unsigned char   bProtoEncMode:4; //0: default,
+    unsigned char   bReserved06:4; //bProtoEncMode:4; //0: default,
     unsigned char   bReserved3:4;
     
     unsigned char   bReserved4[9];
@@ -257,6 +260,7 @@ typedef struct _tagTEST_RESULT
     int             fIRCamOk;
     unsigned int    dwIRCamCur;
 } TEST_RESULT;
+
 typedef struct _tagENCRYPT_SETTINGS
 {
     //[0]
@@ -319,6 +323,7 @@ typedef struct _tagSYSTEM_STATE
     int             iRegisterID;
     int             iRegsterAuth;
     int             iRegisterDir;
+    int             iRegisterHand;
 
     int             iVerifyRole;
 
@@ -354,6 +359,7 @@ typedef struct _tagSYSTEM_STATE
     int                         iOtaError;
 
     int                         iResetFlag;
+    float                       rResetFlagTime;
     int                         iMState;
     int                         iDemoMode;
 
@@ -372,14 +378,21 @@ typedef struct _tagSYSTEM_STATE
     int                         iUvcHeight;
     int                         iCurUvcWidth;
     int                         iCurUvcHeight;
+    int                         iProtoMode; // 0: no encryption, 1:sanjiang mode
 
     int                         iSendLastMsgMode;
+    unsigned char               iMidPowerdown;
+#if (USE_FUSHI_PROTO)
+    unsigned char               iProtocolHeader;
+    int16_t                     iFaceState;
+    float                       rVerifyStartTime;
+    float                       rLastVerifyAckSendTime;
+    unsigned char               bVerifying;
+#endif // USE_FUSHI_PROTO
     int                         bCheckFirmware;
     int                         bUVCRunning;
-#ifdef __RTK_OS__
     unsigned char               *bSnapImageData;
-    unsigned int               iSnapImageLen[SI_MAX_IMAGE_COUNT];
-#endif // __RTK_OS__
+    unsigned int                iSnapImageLen[SI_MAX_IMAGE_COUNT];
 
     s_msg_verify_data   msg_verify_data;
     s_msg_enroll_itg    msg_enroll_itg_data;
@@ -456,6 +469,8 @@ int     IsModifyUser();
 int     setUvcWindow(int width, int height);
 void    lockUvcWindow();
 void    unlockUvcWindow();
+void    ClearSenseResetFlag();
+void    MarkSenseResetFlag();
 
 #ifdef __cplusplus
 }
@@ -468,15 +483,7 @@ extern ROK_LOG g_xROKLog;
 extern HEAD_INFO g_xHD;
 extern HEAD_INFO2 g_xHD2;
 extern SYSTEM_STATE g_xSS;
-//extern TEST_RESULT g_xTR;
-//extern RECOVERY_HADER g_xRecvHdr;
 extern ENCRYPT_SETTINGS g_xES;
 #endif // _APP_UPGRADE
-
-// extern int g_iLangCount;
-// extern int g_aLangValue[];
-
-// extern int g_iKeyCount;
-// extern int g_aKeyValue[];
 
 #endif // SETTINGS_H

@@ -30,8 +30,8 @@ extern "C"{
 // #define WIDTH_640 640
 // #define HEIGHT_480 480
 
-// #define WIDTH_1280  1280
-// #define HEIGHT_720  720
+#define WIDTH_1280  1280
+#define HEIGHT_720  720
 // #define HEIGHT_800  720
 
 // #define WIDTH_960   960

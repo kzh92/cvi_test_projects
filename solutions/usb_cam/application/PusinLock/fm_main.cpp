@@ -78,12 +78,15 @@ extern int             g_iJpgDataLen;
 extern mymutex_ptr g_FlashReadWriteLock;
 extern mymutex_ptr g_MyPrintfLock;
 
-unsigned char raw_msg_enroll_middle[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x04, 0x0D};
-unsigned char raw_msg_enroll_right[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x0E};
-unsigned char raw_msg_enroll_left[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x02, 0x08};
-unsigned char raw_msg_enroll_down[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x02, 0x04};
-unsigned char raw_msg_enroll_up[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x02, 0x1C};
+unsigned char raw_msg_enroll_middle[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x06, 0x0F};
+unsigned char raw_msg_enroll_right[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x06, 0x12};
+unsigned char raw_msg_enroll_left[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x06, 0x0C};
+unsigned char raw_msg_enroll_down[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x06, 0x08};
+unsigned char raw_msg_enroll_up[] = {0x13, 0x00, 0x23, 0x00, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x06, 0x20};
+unsigned char raw_msg_verify[] = {0x12, 0x00, 0x02, 0x00, 0x08, 0x18};
+#if (USE_AUTO_50_REPLY)
 unsigned char raw_msg_init_enc[] = {0x50, 0x00, 0x05, 0x30, 0x31, 0x32, 0x33, 0x00, 0x55};
+#endif
 
 int GotoMain();
 int MsgProcTimer(MSG* pMsg);
@@ -102,9 +105,6 @@ extern int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* bu
 extern int fr_GetAppLogLen();
 
 extern float g_rAppStartTime;
-//extern unsigned char g_abCapturedFace[(WIDTH_1280 / 4) * (HEIGHT_720 / 4) * 3];
-//extern unsigned char*  g_abJpgData;
-//extern int             g_iJpgDataLen;
 
 int g_iEnrollInit = 0;
 
@@ -116,7 +116,7 @@ void SystemReboot(void)
     //kkk
 }
 
-void ResetPersonDB()
+void ResetPersonDB(int flag)
 {
     SetModifyUser(1);
 
@@ -124,30 +124,29 @@ void ResetPersonDB()
     if (dbfs_get_cur_part() == DB_PART_BACKUP)
     {
         end_restore_dbPart();
-#ifndef __RTK_OS__
-        umount_dbfs();
-        mount_backupdbfs(1);
-        mount(dbfs_get_part_name_by_id(DB_PART1), "/backup", DB_FSTYPE, 0, "");
-#else // ! __RTK_OS__
-        dbfs_set_cur_part(DB_PART1);
-#endif // ! __RTK_OS__
         iBackupState = 0;
     }
 
-    dbm_SetEmptyPersonDB(&iBackupState);
+    if (flag == SM_DEL_ALL_TYPE_DEFAULT)
+    {
+        dbm_SetEmptyPersonDB(&iBackupState);
+#if (N_MAX_HAND_NUM)
+        dbm_SetEmptyHandDB(&iBackupState);
+#endif // N_MAX_HAND_NUM
+    }
+    else if (flag == SM_DEL_ALL_TYPE_FACE)
+    {
+        dbm_SetEmptyPersonDB(&iBackupState);
+    }
+#if (N_MAX_HAND_NUM)
+    else if (flag == SM_DEL_ALL_TYPE_HAND)
+    {
+        dbm_SetEmptyHandDB(&iBackupState);
+    }
+#endif // N_MAX_HAND_NUM
 
     umount_backup_db();
     UpdateUserCount();
-
-#ifndef __RTK_OS__
-#if (USE_16M_FLASH == 0)
-    char szCmd[256] = {0};
-    sprintf(szCmd, "mount -t %s %s /db1", TMP_FSTYPE, TMP_DEVNAME);
-    my_system(szCmd);
-    my_system("rm -rf /db1/*");
-    my_sync();
-#endif // USE_16M_FLASH
-#endif // !__RTK_OS__
 
     ResetFaceRegisterStates();
 }
@@ -159,6 +158,9 @@ void ResetFMStates()
     FaceEngine::UnregisterFace(-1);
     g_xSS.iRegisterDir = 0;
     g_xSS.iRegisterID = 0;
+#if (N_MAX_HAND_NUM)
+    g_xSS.iRegisterHand = 0;
+#endif
 
     g_xSS.iRegsterAuth = 0;
 
@@ -174,6 +176,9 @@ void ResetFaceRegisterStates()
     FaceEngine::UnregisterFace(-1);
     g_xSS.iRegisterDir = 0;
     g_xSS.iRegisterID = 0;
+#if (N_MAX_HAND_NUM)
+    g_xSS.iRegisterHand = 0;
+#endif
 
     g_xSS.iRegsterAuth = 0;
     g_xSS.iAutoUserAdd = 0;
@@ -342,7 +347,7 @@ int GotoMain()
     s_msg* msg = SenseLockTask::Get_Note(NID_READY);
     g_pSenseTask->SetActive(1);
     g_pSenseTask->Send_Msg(msg);
-    my_printf("Send Ready: %f\n", Now());
+    my_printf("Send Ready2: %f\n", Now());
 
     iRet = g_pSenseTask->doProcess();
 #endif // ! NOTHREAD_MUL
@@ -388,7 +393,6 @@ int processGlobalMsg()
         }
         else if(pMsg->type == MSG_SENSE)
         {
-            // s_darkhorse
             s_msg* pSenseMsg = (s_msg*)pMsg->data1;
             if(g_xSS.iMState == MS_OTA)
             {
@@ -427,11 +431,13 @@ int processGlobalMsg()
                 iRet = 0;
                 break;
             }
-            // e_darkhorse
-            iRet = MsgProcSense(pMsg);
-            if(iRet == 0 || iRet == RET_REBOOT)
-                break;
-            iRet = 0;
+            if (USE_NEW_RST_PROTO == 0 || pSenseMsg == NULL || g_xSS.rResetFlagTime <= pMsg->time_ms)
+            {
+                iRet = MsgProcSense(pMsg);
+                if(iRet == 0 || iRet == RET_REBOOT)
+                    break;
+                iRet = 0;
+            }
         }
         else if(pMsg->type == MSG_ERROR)
         {
@@ -529,15 +535,9 @@ int GotoActivation()
 void UART_Create()
 {
     UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
-#if (FM_PROTOCOL == FM_EASEN)
-    //g_pFMTask = new FaceModuleTask();
-    g_pFMTask = &g_FMTask;
-    g_pFMTask->Start();
-#elif (FM_PROTOCOL == FM_DESMAN)
     //g_pSenseTask = new SenseLockTask();
     g_pSenseTask = &g_SenseTask;
     g_pSenseTask->Start();
-#endif
 }
 
 void UART_Release()
@@ -561,16 +561,6 @@ void UART_Release()
 
 void* ProcessInsmod(void *param)
 {
-    ReadPermanenceSettings();
-    ReadROKLogs();
-    ReadHeadInfos();
-    ReadHeadInfos2();
-    recvReadHeader();
-    ReadEncryptSettings();
-
-    ResetSystemState(APP_MAIN);
-
-    g_xSS.iSendLastMsgMode = g_xPS.x.bSendLastMsg;
     StartFirstCam();
 
     my_thread_exit(NULL);
@@ -720,7 +710,13 @@ int main0(int argc, char** argv)
     }
 
     ReadCommonSettings();
-
+    ReadPermanenceSettings();
+    ReadROKLogs();
+    ReadHeadInfos();
+    ReadHeadInfos2();
+    recvReadHeader();
+    ReadEncryptSettings();
+    ResetSystemState(APP_MAIN);
     ResetEngineParams();
 
 #if 1
@@ -760,7 +756,8 @@ int main0(int argc, char** argv)
         //g_pFMTask = new FaceModuleTask;
         g_pFMTask->Start();
 
-        g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_NO_ACTIVATED);
+        //send uart baudrate info ?
+        g_pFMTask->SendCmd(FM_CMD_STATUS, DEFAULT_UART0_BAUDRATE, 0, STATUS_NO_ACTIVATED);
 
         EndIns();
         StopCamSurface();
@@ -851,33 +848,21 @@ int main0(int argc, char** argv)
                 unsigned char abOtaCmd[] = {0xEF, 0xAA, 0x01, 0x00, 0x02, 0x03, 0x00, 0x00};
                 //abOtaCmd[7] = SenseLockTask::Get_CheckSum(abOtaCmd + 2, sizeof(abOtaCmd) - 3);
 
-                ///Ota Done을 받지 못하는 문제가 있어서 100ms지연을 줌
-
-                if(iUpgradeBaudrate == 1)
+                if (BR_IS_VALID(iUpgradeBaudrate))
                 {
-                    UART_SetBaudrate(B115200);
-                }
-                else if(iUpgradeBaudrate == 2)
-                {
-                    UART_SetBaudrate(B230400);
-                    my_usleep(10 * 1000);
-                }
-                else if(iUpgradeBaudrate == 3)
-                {
-                    UART_SetBaudrate(B460800);
-                    my_usleep(10 * 1000);
-                }
-                else if(iUpgradeBaudrate == 4)
-                {
-                    UART_SetBaudrate(B1500000);
+                    UART_SetBaudrate(UART_Baudrate(iUpgradeBaudrate));
+                    usleep(10 * 1000);
                 }
                 else
-                    UART_SetBaudrate(B115200);
+                {
+                    UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
+                }
 
+                ///Ota Done을 받지 못하는 문제가 있어서 100ms지연을 줌
                 my_usleep(100 * 1000);
                 UART_Send(abOtaCmd, sizeof(abOtaCmd));
                 my_usleep(10 * 1000);
-                my_printf("Send Ota Finished! ok\n");
+                my_printf("Send Ota Finished! ok, %d\n", iOldUsbHost);
                 if (iOldUsbHost == 1)
                 {
                     EndIns();
@@ -930,15 +915,10 @@ int main0(int argc, char** argv)
             else
                 return RET_REBOOT;
         }
-
-//        ReadFactorySettings();
-//        ReadGeneralSettings();
     }
     else
     {
         set_kernel_flag_action(0);
-//        ReadFactorySettings();
-//        ReadGeneralSettings();
     }
 
     if (g_xCS.x.bUsbHost != 0)
@@ -946,8 +926,6 @@ int main0(int argc, char** argv)
         g_xCS.x.bUsbHost = 0;
         UpdateCommonSettings();
     }
-
-//    system("mount -o remount, rw /");
 
     iRet = main1(argc, argv);
 
@@ -991,7 +969,10 @@ int main0(int argc, char** argv)
         }
         else
         {
-            //g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN_ED, MR_SUCCESS));
+            if(g_xSS.iMidPowerdown == 0)
+                g_xSS.iMidPowerdown = MID_POWERDOWN;
+
+            g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(g_xSS.iMidPowerdown, MR_SUCCESS));
         }
     }
 #endif
@@ -1028,8 +1009,6 @@ static int main1(int argc, char** argv)
     //g_xSS.bPresentation = g_xCS.x.bPresentation;
     if(argc == 1)
         IncreaseSystemRunningCount();
-
-    fr_SetMaxThresholdValue(g_xCS.x.bSecureFlag);
 
     g_pWatchTask->Start(0);
 
@@ -1085,7 +1064,7 @@ static int main1(int argc, char** argv)
     s_msg* msg = SenseLockTask::Get_Note(NID_READY);
     g_pSenseTask->SetActive(1);
     g_pSenseTask->Send_Msg(msg);
-    my_printf("Send Ready: %f\n", Now());
+    my_printf("Send Ready1: %f\n", Now());
 #endif // ! NOTHREAD_MUL
 #endif // FM_PROTOCOL
 
@@ -1102,24 +1081,16 @@ static int main1(int argc, char** argv)
     psMsg = (s_msg*)malloc(sizeof(raw_msg_init_enc));
     memcpy(psMsg, raw_msg_init_enc, sizeof(raw_msg_init_enc));
     SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
-#endif // FRM_PRODUCT_TYPE
+#endif // USE_AUTO_50_REPLY
 
-    ///////////////////////////Key Init///////////////////////////
-
-    //EndIns();
-    //기동하자 마자 적외선카메라를 구동한데서 왼쪽카메라화상을 먼저 받을때까지 기다린다.
-#if 0
-    for(int i = 0; i < 50; i ++)
-    {
-        if(g_iMipiCamInited == -1)
-            break;
-
-        if(g_iFirstCamFlag & LEFT_IR_CAM_RECVED)
-            break;
-
-        my_usleep(10 * 1000);
-    }
-#endif
+#ifdef USE_TWIN_ENGINE
+#ifdef PROTECT_ENGINE
+    ///STM으로부터 읽은 사전자료를 설정한다.
+    unsigned char abDict[160] = { 0 };
+    MainSTM_GetDict(abDict, sizeof(abDict));
+    fr_SetDecodedData(0, abDict);
+#endif // PROTECT_ENGINE
+#endif // USE_TWIN_ENGINE
 
     //caution: iRet must be zero(power off) or RET_REBOOT
     //be careful when you modify return value.
@@ -1349,7 +1320,11 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.msg_enroll_itg_data.enable_duplicate = FACE_ENROLL_DCM_NFACE_NAME;
 
         g_xSS.iEnrollMutiDirMode = 1;
-        g_xSS.iEnrollFaceDupCheck = g_xCS.x.bDupCheck;
+        g_xSS.iEnrollFaceDupCheck = ENROLL_DUPLICATION_CHECK;
+#if (USE_SANJIANG3_MODE)
+        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+            g_xSS.iEnrollFaceDupCheck = 0;
+#endif // USE_SANJIANG3_MODE
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
@@ -1369,6 +1344,11 @@ int MsgProcSense(MSG* pMsg)
         }
         s_msg_enroll_data d;
         memcpy(&d, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+#if (N_MAX_HAND_NUM)
+        g_xSS.iRegisterHand = 0;
+        if (d.face_direction == FACE_DIRECTION_HAND)
+            g_xSS.iRegisterHand = 1;
+#endif // N_MAX_HAND_NUM
         //ignores face direction
         d.face_direction = FACE_DIRECTION_UNDEFINE;
         if (d.timeout == 0)
@@ -1379,7 +1359,27 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.msg_enroll_itg_data.enable_duplicate = FACE_ENROLL_DCM_NFACE_NAME;
 
         g_xSS.iEnrollMutiDirMode = 0;
-        g_xSS.iEnrollFaceDupCheck = 0;
+#if (USE_FUSHI_PROTO)
+        if (g_xSS.iProtocolHeader == FUSHI_HEAD1)
+            g_xSS.iEnrollFaceDupCheck = 1;
+        else
+#endif // USE_FUSHI_PROTO
+            g_xSS.iEnrollFaceDupCheck = 0;
+
+#if (N_MAX_HAND_NUM)
+#if (USE_SANJIANG3_MODE)
+        if (g_xSS.iRegisterHand)
+        {
+            g_xSS.iEnrollFaceDupCheck = ENROLL_HAND_DUP_CHECK;
+            if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+                g_xSS.iEnrollFaceDupCheck = 0;
+        }
+#else // USE_SANJIANG3_MODE
+        if (g_xSS.iRegisterHand)
+            g_xSS.iEnrollFaceDupCheck = ENROLL_HAND_DUP_CHECK;
+#endif // USE_SANJIANG3_MODE
+#endif // N_MAX_HAND_NUM
+
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
@@ -1435,6 +1435,9 @@ int MsgProcSense(MSG* pMsg)
 #endif // ENROLL_ITG
     else if(pSenseMsg->mid == MID_VERIFY)
     {
+#if (USE_FUSHI_PROTO)
+        g_xSS.bVerifying = 1;
+#endif
         dbug_printf("MID_VERIFY %f\n", Now());
 
         if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_verify_data))
@@ -1463,20 +1466,30 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_DELUSER)
     {
         dbug_printf("MID_DELUSER\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_deluser_data))
+        memset(&g_xSS.msg_deluser_data, 0, sizeof(g_xSS.msg_deluser_data));
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) > 0)
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
+            int len = __min(SenseLockTask::Get_MsgLen(pSenseMsg), (int)sizeof(g_xSS.msg_deluser_data));
+            memcpy(&g_xSS.msg_deluser_data, pSenseMsg->data, len);
+            if (g_xSS.msg_deluser_data.user_type >= SM_DEL_USER_TYPE_END)
+            {
+                s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+                g_pSenseTask->Send_Msg(reply_msg);
 
-            my_free(pSenseMsg);
-            g_xSS.iMState = MS_STANDBY;
-            return -1;
+                free(pSenseMsg);
+                g_xSS.iMState = MS_STANDBY;
+                return -1;
+            }
         }
-
-        memcpy(&g_xSS.msg_deluser_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
 
         int iUserID = TO_SHORT(g_xSS.msg_deluser_data.user_id_heb, g_xSS.msg_deluser_data.user_id_leb);
         PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iUserID - 1);
+#if (N_MAX_HAND_NUM)
+        if (iUserID > N_MAX_PERSON_NUM)
+            pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - N_MAX_PERSON_NUM - 1);
+        else if (g_xSS.msg_deluser_data.user_type == SM_DEL_USER_TYPE_HAND)
+            pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - 1);
+#endif // N_MAX_HAND_NUM
         if(pxMetaInfo == NULL)
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_FAILED4_UNKNOWNUSER);
@@ -1492,11 +1505,19 @@ int MsgProcSense(MSG* pMsg)
         }
         else
         {
-            int iPrivielge = pxMetaInfo->fPrivilege;
             SetModifyUser(1);
 
             int iBackupState = mount_backup_db(0);
-            dbm_RemovePersonByID(iUserID - 1, &iBackupState);
+#if (N_MAX_HAND_NUM)
+            if (iUserID > N_MAX_PERSON_NUM)
+                dbm_RemoveHandByID(iUserID - N_MAX_PERSON_NUM - 1, &iBackupState);
+            else if (g_xSS.msg_deluser_data.user_type == SM_DEL_USER_TYPE_HAND)
+                dbm_RemoveHandByID(iUserID - 1, &iBackupState);
+            else
+#endif // N_MAX_HAND_NUM
+            {
+                dbm_RemovePersonByID(iUserID - 1, &iBackupState);
+            }
             umount_backup_db();
 
             UpdateUserCount();
@@ -1505,17 +1526,10 @@ int MsgProcSense(MSG* pMsg)
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_SUCCESS);
             if(g_xSS.iSendLastMsgMode)
             {
-                if(iPrivielge == 0 && dbm_GetUserCount(0) > 0)
-                {
-                    g_pSenseTask->Send_Msg(reply_msg);
-                }
-                else
-                {
-                    g_xSS.pLastMsg = reply_msg;
-                    my_free(pSenseMsg);
-                    g_xSS.iMState = MS_STANDBY;
-                    return 0;
-                }
+                g_xSS.pLastMsg = reply_msg;
+                free(pSenseMsg);
+                g_xSS.iMState = MS_STANDBY;
+                return 0;
             }
             else
                 g_pSenseTask->Send_Msg(reply_msg);
@@ -1524,10 +1538,34 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_DELALL)
     {
         dbug_printf("MID_DELALL\n");
-        ResetPersonDB();
 
-        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELALL, MR_SUCCESS);
-        g_pSenseTask->Send_Msg(reply_msg);
+        s_msg_del_all_data d;
+        memset(&d, 0, sizeof(d));
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) > 0)
+        {
+            int len = __min(SenseLockTask::Get_MsgLen(pSenseMsg), (int)sizeof(d));
+            memcpy(&d, pSenseMsg->data, len);
+            if (d.type >= SM_DEL_ALL_TYPE_END)
+            {
+                s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+                g_pSenseTask->Send_Msg(reply_msg);
+
+                free(pSenseMsg);
+                g_xSS.iMState = MS_STANDBY;
+                return -1;
+            }
+        }
+#if (DESMAN_ENC_MODE == 0)
+        //disable hijack function
+        g_xPS.x.bHijackEnable = 0;
+        UpdatePermanenceSettings();
+#endif
+        {
+            ResetPersonDB(d.type);
+
+            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELALL, MR_SUCCESS);
+            g_pSenseTask->Send_Msg(reply_msg);
+        }
     }
     else if(pSenseMsg->mid == MID_GETUSERINFO)
     {
@@ -1585,7 +1623,41 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_GET_ALL_USERID)
     {
         dbug_printf("MID_GET_ALL_USERID\n");
-        s_msg* reply_msg = SenseLockTask::Get_Reply_GetAllUserID(MR_SUCCESS);
+        int failed_code = MR_SUCCESS;
+        int fmt = SM_USERID_DATA_FMT_DEFAULT;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) == sizeof(s_msg_get_all_userid_data))
+        {
+            s_msg_get_all_userid_data d;
+            memcpy(&d, pSenseMsg->data, sizeof(d));
+            fmt = d.fmt;
+#if (N_MAX_PERSON_NUM >= 0xFF)
+            if (fmt != SM_USERID_DATA_FMT_BIT_EXT)
+            {
+                failed_code = MR_FAILED4_INVALIDPARAM;
+            }
+#endif // N_MAX_PERSON_NUM
+        }
+#if (N_MAX_PERSON_NUM >= 0xFF)
+        else
+        {
+            failed_code = MR_FAILED4_INVALIDPARAM;
+        }
+#endif // N_MAX_PERSON_NUM
+
+        s_msg* reply_msg = NULL;
+        if (failed_code == MR_SUCCESS)
+        {
+            reply_msg = SenseLockTask::Get_Reply_GetAllUserID(MR_SUCCESS, fmt);
+        }
+        else
+            reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, failed_code);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+#if (USE_FUSHI_PROTO)
+    else if(pSenseMsg->mid == MID_GET_FREE_USERID)
+    {
+        dbug_printf("MID_GET_FREE_USERID\n");
+        s_msg* reply_msg = SenseLockTask::Get_Reply_GetFreeUserID(MR_SUCCESS);
         if(g_xSS.iSendLastMsgMode)
         {
             g_xSS.pLastMsg = reply_msg;
@@ -1596,6 +1668,7 @@ int MsgProcSense(MSG* pMsg)
         else
             g_pSenseTask->Send_Msg(reply_msg);
     }
+#endif // USE_FUSHI_PROTO
     else if(pSenseMsg->mid == MID_GET_VERSION)
     {
         dbug_printf("MID_GET_VERSION\n");
@@ -1625,6 +1698,7 @@ int MsgProcSense(MSG* pMsg)
         GET_SENSE_MSG_LEN(SenseLockTask::Get_MsgLen(pSenseMsg),
                           g_xSS.msg_init_encryption_data,
                           copy_len);
+        memset(&g_xSS.msg_init_encryption_data, 0, sizeof(g_xSS.msg_init_encryption_data));
         if (copy_len >= 4)
         {
             memcpy(&g_xSS.msg_init_encryption_data, pSenseMsg->data, copy_len);
@@ -1633,8 +1707,41 @@ int MsgProcSense(MSG* pMsg)
                 iMode = g_xSS.msg_init_encryption_data.mode;
             else
                 iMode = SenseLockTask::EM_AES;
+#if (DEFAULT_PROTO_ENC_MODE == PROTO_EM_ENCRYPT_AES_DEFAULT)
+            if (g_xSS.msg_init_encryption_data.mode == 0)
+                iMode = SenseLockTask::EM_AES;
+#endif // DEFAULT_PROTO_ENC_MODE
 
-            if (SenseLockTask::Set_Key((unsigned char*)g_xSS.msg_init_encryption_data.seed, 4, iMode))
+            char* strEncKey = NULL;
+#if (USE_SANJIANG3_MODE)
+            unsigned char sj_seed[4] = {0x30, 0x31, 0x32, 0x33};
+            unsigned char sj_seed_lanheng[4] = {0x3C, 0x56, 0xB3, 0x85};
+            strEncKey = (char*)PROTO_EM_XOR1_KEY_SANJIANG;
+            g_xSS.iProtoMode = 1;
+            if (memcmp(g_xSS.msg_init_encryption_data.seed, sj_seed, sizeof(sj_seed)))
+            {
+                if (memcmp(g_xSS.msg_init_encryption_data.seed, sj_seed_lanheng, sizeof(sj_seed_lanheng)) == 0)
+                {
+                    //lanheng mode
+                    strEncKey = (char*)PROTO_EM_XOR1_KEY_LANHENG;
+                    g_xSS.iProtoMode = 0;
+                }
+                else
+                {
+                    //qixin mode, force no encryption
+                    iMode = SenseLockTask::EM_NOENCRYPT;
+                }
+            }
+#elif (USE_AES_NOENC_MODE)
+            unsigned char sj_seed[4] = {0x30, 0x31, 0x32, 0x33};
+            if (memcmp(g_xSS.msg_init_encryption_data.seed, sj_seed, sizeof(sj_seed)) == 0)
+            {
+                //qixin mode, force no encryption
+                iMode = SenseLockTask::EM_NOENCRYPT;
+            }
+#endif // USE_AES_NOENC_MODE
+
+            if (SenseLockTask::Set_Key((unsigned char*)g_xSS.msg_init_encryption_data.seed, 4, iMode, strEncKey))
             {
                 failed_code = MR_FAILED4_INVALIDPARAM;
             }
@@ -1653,9 +1760,9 @@ int MsgProcSense(MSG* pMsg)
             g_pSenseTask->Send_Msg(reply_msg);
         }
     }
-    else if(pSenseMsg->mid == MID_SET_ENC_KEY || pSenseMsg->mid == MID_SET_RELEASE_ENC_KEY)
+    else if(pSenseMsg->mid == MID_SET_ENC_KEY)
     {
-        dbug_printf("mid=%02x\n", pSenseMsg->mid);
+        dbug_printf("MID_SET_ENC_KEY\n");
         int failed_code = MR_SUCCESS;
         int copy_len = 0;
         s_msg_enc_key_number_data data;
@@ -1679,7 +1786,53 @@ int MsgProcSense(MSG* pMsg)
         else
             failed_code = MR_FAILED4_INVALIDPARAM;
 
-        s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, failed_code);
+        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_ENC_KEY, failed_code);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+    else if(pSenseMsg->mid == MID_SET_RELEASE_ENC_KEY)
+    {
+        dbug_printf("MID_SET_RELEASE_ENC_KEY\n");
+        int failed_code = MR_SUCCESS;
+        int copy_len = 0;
+        s_msg_enc_key_number_data data;
+        GET_SENSE_MSG_LEN(SenseLockTask::Get_MsgLen(pSenseMsg),
+                          data,
+                          copy_len);
+        if (copy_len == sizeof(data))
+        {
+            memcpy(&data, pSenseMsg->data, copy_len);
+
+#if (DEFAULT_PROTO_ENC_MODE == PROTO_EM_ENCRYPT_AES_DEFAULT)
+            if (g_xES.x.bEncKeyPos[0] == 0xff) // never set before
+            {
+                if (SenseLockTask::Set_KeyPos(data.enc_key_number))
+                {
+                    failed_code = MR_FAILED4_INVALIDPARAM;
+                }
+                else
+                {
+                    memcpy(g_xES.x.bEncKeyPos, data.enc_key_number, sizeof(g_xES.x.bEncKeyPos));
+                    UpdateEncryptSettings();
+                }
+            }
+            else // already set
+                failed_code = MR_REJECTED;
+#else // DEFAULT_PROTO_ENC_MODE
+            if (SenseLockTask::Set_KeyPos(data.enc_key_number))
+            {
+                failed_code = MR_FAILED4_INVALIDPARAM;
+            }
+            else
+            {
+                memcpy(g_xES.x.bEncKeyPos, data.enc_key_number, sizeof(g_xES.x.bEncKeyPos));
+                UpdateEncryptSettings();
+            }
+#endif // DEFAULT_PROTO_ENC_MODE
+        }
+        else
+            failed_code = MR_FAILED4_INVALIDPARAM;
+
+        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_RELEASE_ENC_KEY, failed_code);
         g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_RESET)
@@ -1720,6 +1873,7 @@ int MsgProcSense(MSG* pMsg)
         else
         {
             iRet = ProcessSenseFace(FaceRecogTask::E_GET_IMAGE);
+            ResetFaceRegisterStates();
         }
     }
     else if(pSenseMsg->mid == MID_GETSAVEDIMAGE)
@@ -1743,34 +1897,9 @@ int MsgProcSense(MSG* pMsg)
 
         if(iImgNum > 0)
         {
-#ifndef __RTK_OS__
-            char szPath[256] = { 0 };
-            sprintf(szPath, "/db1/img_%d.jpg", iImgNum);
-
-            int iImgLen = 0;
-            FILE* fp = fopen(szPath, "rb");
-            if(fp)
-            {
-                fseek(fp, 0, SEEK_END);
-                iImgLen = ftell(fp);
-                fclose(fp);
-            }
-
-            if(iImgLen > 0)
-            {
-                s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(MR_SUCCESS, iImgLen);
-                g_pSenseTask->Send_Msg(reply_msg);
-            }
-            else
-            {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, MR_FAILED4_UNKNOWNREASON);
-                g_pSenseTask->Send_Msg(reply_msg);
-            }
-#else // !__RTK_OS__
-            int iImgLen = 0;
+			int iImgLen = 0;
             if (iImgNum > 0 && iImgNum <= SI_MAX_IMAGE_COUNT)
                 iImgLen = g_xSS.iSnapImageLen[iImgNum - 1];
-
             dbug_printf("iImgLen = %d, %d\n", iImgNum, g_xSS.iSnapImageLen[iImgNum - 1]);
             if(iImgLen > 0)
             {
@@ -1782,7 +1911,6 @@ int MsgProcSense(MSG* pMsg)
                 s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, MR_FAILED4_INVALIDPARAM);
                 g_pSenseTask->Send_Msg(reply_msg);
             }
-#endif // __RTK_OS__
         }
 #if (USE_VDBTASK)
         else
@@ -1953,43 +2081,18 @@ int MsgProcSense(MSG* pMsg)
         {
             if(iImgNum > 0)
             {
-#ifndef __RTK_OS__
-                char szPath[256] = { 0 };
-                sprintf(szPath, "/db1/img_%d.jpg", iImgNum);
-
-                FILE* fp = fopen(szPath, "rb");
-                if(fp)
-                {
-                    unsigned char* pbImageData = (unsigned char*)my_malloc(iImageSize);
-
-                    fseek(fp, iImageOffset, SEEK_SET);
-                    fread(pbImageData, iImageSize, 1, fp);
-                    fclose(fp);
-
-                    s_msg* reply_msg = SenseLockTask::Get_Image(pbImageData, iImageSize);
-                    g_pSenseTask->Send_Msg(reply_msg);
-
-                    my_free(pbImageData);
-                }
-                else
-                {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UPLOADIMAGE, MR_FAILED4_UNKNOWNREASON);
-                    g_pSenseTask->Send_Msg(reply_msg);
-                }
-#else // !__RTK_OS__
-                unsigned char* pbImageData = g_xSS.bSnapImageData + SI_MAX_IMAGE_SIZE * (iImgNum - 1) + iImageOffset;
-                if (g_xSS.bSnapImageData != NULL && pbImageData >= g_xSS.bSnapImageData && pbImageData + iImageSize < g_xSS.bSnapImageData + SI_MAX_IMAGE_COUNT * SI_MAX_IMAGE_SIZE)
-                {
-                    s_msg* reply_msg = SenseLockTask::Get_Image(pbImageData, iImageSize);
-                    g_pSenseTask->Send_Msg(reply_msg);
-                }
-                else
-                {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UPLOADIMAGE, MR_FAILED4_UNKNOWNREASON);
-                    g_pSenseTask->Send_Msg(reply_msg);
-                }
-#endif // !__RTK_OS__
-            }
+	            unsigned char* pbImageData = g_xSS.bSnapImageData + SI_MAX_IMAGE_SIZE * (iImgNum - 1) + iImageOffset;
+	            if (g_xSS.bSnapImageData != NULL && pbImageData >= g_xSS.bSnapImageData && pbImageData + iImageSize < g_xSS.bSnapImageData + SI_MAX_IMAGE_COUNT * SI_MAX_IMAGE_SIZE)
+	            {
+	                s_msg* reply_msg = SenseLockTask::Get_Image(pbImageData, iImageSize);
+	                g_pSenseTask->Send_Msg(reply_msg);
+	            }
+	            else
+	            {
+	                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UPLOADIMAGE, MR_FAILED4_UNKNOWNREASON);
+	                g_pSenseTask->Send_Msg(reply_msg);
+	            }
+	        }
 #if (USE_VDBTASK)
             else
             {
@@ -2083,47 +2186,6 @@ int MsgProcSense(MSG* pMsg)
             g_pSenseTask->Send_Msg(reply_msg);
         }
     }
-    else if(pSenseMsg->mid == MID_SET_TWINS_MODE)
-    {
-        dbug_printf("MID_SET_TWINS_MODE\n");
-        s_msg_set_twins_mode_data data;
-        int failed_code = MR_SUCCESS;
-        int old_mode = g_xCS.x.bTwinsMode;
-        if(dbm_GetPersonCount() > 0)
-        {
-            failed_code = MR_ABORTED;
-        }
-        else if(SenseLockTask::Get_MsgLen(pSenseMsg) != sizeof(data))
-        {
-            failed_code = MR_FAILED4_INVALIDPARAM;
-        }
-        else
-        {
-            memcpy(&data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-            if (data.enable == 0)
-                g_xCS.x.bTwinsMode = SECURITY_LEVEL_COMMON;
-            else
-                g_xCS.x.bTwinsMode = SECURITY_LEVEL_TWIN;
-            if (old_mode != g_xCS.x.bTwinsMode)
-                UpdateCommonSettings();
-        }
-
-        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_TWINS_MODE, failed_code);
-        g_pSenseTask->Send_Msg(reply_msg);
-
-        if (failed_code == MR_SUCCESS && old_mode != g_xCS.x.bTwinsMode)
-        {
-            //must reboot for reinit engine.
-            iRet = RET_REBOOT;
-        }
-    }
-    else if(pSenseMsg->mid == MID_GET_TWINS_MODE)
-    {
-        dbug_printf("MID_GET_TWINS_MODE\n");
-        unsigned char bMode = g_xCS.x.bTwinsMode;
-        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_TWINS_MODE, MR_SUCCESS, &bMode, 1);
-        g_pSenseTask->Send_Msg(reply_msg);
-    }
 #if (USE_VDBTASK)
     else if(pSenseMsg->mid == MID_UVC_DIR)
     {
@@ -2208,18 +2270,8 @@ int MsgProcSense(MSG* pMsg)
             }
             if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
+                //use default camera direction in factory test mode.
                 g_xSS.iCameraRotate = CAM_RM_DEFAULT;
-                //test pattern
-                // if(g_iMipiCamInited == 0)
-                // {
-                //     camera_set_pattern_mode(CAM_ID_IR1, 1);
-                //     camera_set_pattern_mode(CAM_ID_IR2, 1);
-                // }
-
-                // if(g_iDvpCamInited == 0)
-                // {
-                //     camera_set_pattern_mode(CAM_ID_CLR, 1);
-                // }
                 ResetFaceRegisterStates();
 #if 1
                 if (dbm_GetUserCount() == 0)
@@ -2237,33 +2289,6 @@ int MsgProcSense(MSG* pMsg)
                     g_pSenseTask->Send_Msg(reply_msg);
                 }
 #endif
-            }
-        }
-    }
-    else if(pSenseMsg->mid == MID_SET_LIVENESS_MODE)
-    {
-        dbug_printf("MID_SET_LIVENESS_MODE\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_livenessmode_data))
-        {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_LIVENESS_MODE, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
-        }
-        else
-        {
-            s_msg_livenessmode_data d;
-            memcpy(&d, pSenseMsg->data, sizeof(s_msg_livenessmode_data));
-            if (d.mode !=0 && d.mode != 1)
-            {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_LIVENESS_MODE, MR_FAILED4_INVALIDPARAM);
-                g_pSenseTask->Send_Msg(reply_msg);
-            }
-            else
-            {
-                g_xCS.x.bLivenessMode = d.mode;
-                UpdateCommonSettings();
-
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_LIVENESS_MODE, MR_SUCCESS);
-                g_pSenseTask->Send_Msg(reply_msg);
             }
         }
     }
@@ -2289,53 +2314,45 @@ int MsgProcSense(MSG* pMsg)
         }
     }
 #endif // DESMAN_ENC_MODE
-    else if(pSenseMsg->mid == MID_SET_ENCRYPTION_MODE)
+#if (USE_TWIN_ENGINE)
+    else if(pSenseMsg->mid == MID_SET_THRESHOLD_LEVEL)
     {
-        dbug_printf("MID_SET_ENCRYPTION_MODE\n");
-        int res = MR_SUCCESS;
-        s_msg_encryption_mode_data d;
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_encryption_mode_data))
+        dbug_printf("MID_SET_THRESHOLD_LEVEL\n");
+        int iOldValue = g_xPS.x.bTwinsMode;
+        int iUpdate = 0;
+        int iSuccCode = MR_SUCCESS;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_algo_threshold_level))
         {
-            res = MR_FAILED4_INVALIDPARAM;
+            iSuccCode = MR_FAILED4_INVALIDPARAM;
         }
         else
         {
-            memcpy(&d, pSenseMsg->data, sizeof(s_msg_encryption_mode_data));
-            if (d.mode >= PROTO_EM_ENCRYPT_END)
+            s_msg_algo_threshold_level hdata;
+
+            memcpy(&hdata, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+            if (hdata.verify_threshold_level == S_VERIFY_LEVEL_HIGH && iOldValue != S_VERIFY_LEVEL_HIGH)
             {
-                res = MR_FAILED4_INVALIDPARAM;
+                iUpdate = 1;
             }
-            else
+            else if (hdata.verify_threshold_level != S_VERIFY_LEVEL_HIGH && iOldValue == S_VERIFY_LEVEL_HIGH)
             {
-                g_xCS.x.bProtoEncMode = d.mode;
-                UpdateCommonSettings();
+                iUpdate = 1;
+            }
+            if (iUpdate)
+            {
+                //delete all users
+                {
+                    ResetPersonDB(SM_DEL_ALL_TYPE_DEFAULT);
+                    //save config
+                    g_xPS.x.bTwinsMode = hdata.verify_threshold_level;
+                    UpdatePermanenceSettings();
+                }
             }
         }
-        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_ENCRYPTION_MODE, res);
+        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_THRESHOLD_LEVEL, iSuccCode);
         g_pSenseTask->Send_Msg(reply_msg);
     }
-#if 0
-    else if(pSenseMsg->mid == MID_SEND_LAST_MSG)
-    {
-        dbug_printf("MID_SEND_LAST_MSG\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_demomode_data))
-        {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SEND_LAST_MSG, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
-        }
-        else
-        {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SEND_LAST_MSG, MR_SUCCESS);
-
-            memcpy(&g_xSS.msg_send_msg_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-            g_xPS.x.bSendLastMsg = g_xSS.msg_send_msg_data.enable;
-            g_xSS.iSendLastMsgMode = g_xPS.x.bSendLastMsg;
-            UpdatePermanenceSettings();
-
-            g_pSenseTask->Send_Msg(reply_msg);
-        }
-    }
-#endif
+#endif // USE_TWIN_ENGINE
     else if(pSenseMsg->mid == MID_ENABLE_LOGFILE)
     {
         dbug_printf("MID_ENABLE_LOGFILE\n");
@@ -2377,14 +2394,14 @@ int MsgProcSense(MSG* pMsg)
             }
             else
             {
+                g_xSS.iCameraRotate = !g_xSS.msg_send_msg_data.enable;
+                if (g_xPS.x.bCamFlip != g_xSS.msg_send_msg_data.enable)
+                {
+                    g_xPS.x.bCamFlip = g_xSS.msg_send_msg_data.enable;
+                    UpdatePermanenceSettings();
+                }
                 s_msg* reply_msg = SenseLockTask::Get_Reply(MID_CAMERA_FLIP, MR_SUCCESS);
                 g_pSenseTask->Send_Msg(reply_msg);
-
-                g_xPS.x.bCamFlip = g_xSS.msg_send_msg_data.enable;
-                UpdatePermanenceSettings();
-
-                g_xSS.iCameraRotate = g_xPS.x.bCamFlip;
-                fr_SetCameraFlip(g_xSS.iCameraRotate);
             }
         }
     }
@@ -2470,8 +2487,8 @@ int MsgProcSense(MSG* pMsg)
 
 int ProcessSenseFace(int iCmd)
 {
-    g_xSS.iResetFlag = 0;
-    g_xSS.rFaceEngineTime = Now();
+    ClearSenseResetFlag();
+
     ///기동하면서 켠 카메라에서 첫 프레임을 받은 상태이라면
     if((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) || (g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
     {
@@ -2488,6 +2505,12 @@ int ProcessSenseFace(int iCmd)
         my_usleep(20 * 1000);
 #endif
         int iUserID = dbm_GetNewUserID();
+#if (N_MAX_HAND_NUM)
+        if (g_xSS.iRegisterHand)
+        {
+            iUserID = dbm_GetNewHandUserID();
+        }
+#endif // N_MAX_HAND_NUM
         if(iUserID == -1)
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_FAILED4_MAXUSER);
@@ -2560,8 +2583,13 @@ int ProcessSenseFace(int iCmd)
 #if (!USE_DEMOMODE2)
         if(dbm_GetPersonCount() == 0 && g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_OFF)
         {
+#if (DESMAN_ENC_MODE == 0)
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_UNKNOWNUSER);
             g_pSenseTask->Send_Msg(reply_msg);
+#else // DESMAN_ENC_MODE == 0
+            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_ABORTED);
+            g_pSenseTask->Send_Msg(reply_msg);
+#endif // DESMAN_ENC_MODE == 0
 #if (USE_VDBTASK && IR_LED_ONOFF_MODE == 1)
             if (VDBTask::CaptureCam != TC_MIPI_CAM)
                 camera_set_irled(0, 0);
@@ -2589,27 +2617,6 @@ int ProcessSenseFace(int iCmd)
     camera_set_irled(2, 0);
 #endif
 
-#if 0
-    if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iCmd == FaceRecogTask::E_VERIFY)
-    {
-        for (int k = 0; k < 2; k ++)
-        {
-            for(int i = 0; i < 10; i ++)
-            {
-                if(g_iTwoCamFlag == -1)
-                    break;
-
-                my_usleep(10 * 1000);
-            }
-            g_iTwoCamFlag = 0;
-    #if (IR_LED_ONOFF_MODE == 1)
-            camera_set_irled_on(1);
-    #endif
-            WaitIRTimeout(500);
-            my_printf("xxxxx wait ir %d, %0.3f\n", k, Now());
-        }
-    }
-#endif
 #endif // USE_VDBTASK
 
     g_xSS.iResetFlag = 0;
@@ -2658,7 +2665,7 @@ int ProcessSenseFace(int iCmd)
                         {
                             if (g_xSS.iCamError & CAM_ERROR_CLR_CHECKED)
                                 break;
-                            my_usleep(100*1000);
+                            my_usleep(10*1000);
                         }
                         my_usleep(50*1000);
                         if (!(g_xSS.iCamError & CAM_ERROR_CLR_CHECKED))
@@ -2688,34 +2695,14 @@ int ProcessSenseFace(int iCmd)
                         UpdateHeadInfos2();
 #endif // PROTECT_ENGINE
 
-#if 0
+                    ResetFaceRegisterStates();
                     if(g_xSS.iSendLastMsgMode)
                         g_xSS.pLastMsg = msg;
                     else
-                    {
                         g_pSenseTask->Send_Msg(msg);
 
-                        my_usleep(200 * 1000);
-                        if(g_iCapturedClrFlag == CLR_CAPTURE_END)
-                            g_iCapturedClrFlag = CLR_CAPTURE_OK;
-                        else
-                            g_iCapturedClrFlag = IR_CAPTURE_OK;
-                    }
-
-#endif
-
-#if (NO_ENCRYPT_FRM3_4)
-                    g_pSenseTask->Send_Msg(msg);
-#endif
-
-//                    if(g_xPS.x.bSendLastMsg == 0 && iEyeOpened == 0)
-//                    {
-//                        iCmd = FaceRecogTask::E_EYE_CHECK;
-//                        pFaceTask->Start(iCmd);
-//                        continue;
-//                    }
                 }
-                else if(iResult == FACE_RESULT_FAILED)
+                else if(iResult == FACE_RESULT_FAILED || iResult == HAND_RESULT_FAILED)
                 {
                     dbug_printf("FACE_RESULT_FAILED\n");
 
@@ -2731,7 +2718,15 @@ int ProcessSenseFace(int iCmd)
                         UpdateHeadInfos2();
 #endif // PROTECT_ENGINE
 
-                    s_msg* msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_UNKNOWNUSER);
+                    s_msg* msg = NULL;
+#if (DESMAN_ENC_MODE == 0)
+                    if (g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON)
+                        msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_LIVENESSCHECK);
+                    else
+#endif
+                    {
+                        msg = SenseLockTask::Get_Reply(MID_VERIFY, iResult == FACE_RESULT_FAILED ? MR_FAILED4_UNKNOWNUSER : MR_FAILED4_UNKNOWN_HANDUSER);
+                    }
                     if(g_xSS.iSendLastMsgMode)
                         g_xSS.pLastMsg = msg;
                     else
@@ -2821,9 +2816,16 @@ int ProcessSenseFace(int iCmd)
                     if(iFaceDir == 0)
                         iFaceDir = 1;
 
+#if (ENROLL_DUPLICATION_CHECK != EDC_ENABLE_NO_SKIP)
                     g_xSS.iRegisterDir |= iFaceDir;
+#endif // ENROLL_DUPLICATION_CHECK
 
                     s_msg* msg = SenseLockTask::Get_Reply_Enroll(MR_FAILED4_FACEENROLLED, -1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+
+#if (ENROLL_DUPLICATION_CHECK == EDC_ENABLE_NO_SKIP)
+                    ResetFaceRegisterStates();
+#endif // ENROLL_DUPLICATION_CHECK
+
                     g_pSenseTask->Send_Msg(msg);
                 }
                 else if(iResult == FACE_RESULT_SPOOF_FACE)
@@ -2880,7 +2882,7 @@ int ProcessSenseFace(int iCmd)
                         g_pSenseTask->Send_Msg(msg);
                     }
                 }
-                else if(iResult == FACE_RESULT_ENROLLED_NEXT)
+                else if(iResult == FACE_RESULT_ENROLLED_NEXT || iResult == HAND_RESULT_ENROLLED_NEXT)
                 {
                     dbug_printf("FACE_RESULT_ENROLLED_NEXT\n");
                     int iFaceDir = g_xSS.msg_enroll_itg_data.face_direction;
@@ -2938,6 +2940,7 @@ int ProcessSenseFace(int iCmd)
                 }
                 else if(iResult == FACE_RESULT_FAILED_CAMERA)
                 {
+                    ResetFaceRegisterStates();
                     if(iCmd == FaceRecogTask::E_REGISTER)
                     {
                         s_msg* msg = SenseLockTask::Get_Reply_CamError(g_xSS.iRunningCmd, MR_FAILED4_CAMERA, g_xSS.iCamError);
@@ -2968,10 +2971,126 @@ int ProcessSenseFace(int iCmd)
                     s_msg* msg = SenseLockTask::Get_Reply(MID_SNAPIMAGE, MR_SUCCESS);
                     g_pSenseTask->Send_Msg(msg);
                 }
-#if (USE_DEMOMODE2)
-                else if(iResult == FACE_RESULT_DETECTED)
+#if (N_MAX_HAND_NUM)
+                else if(iResult == HAND_RESULT_SUCCESS)
                 {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_UNKNOWNUSER);
+                    dbug_printf("HAND_RESULT_SUCCESS\n");
+
+                    int iID = -1, iPrivilege = 0;
+                    int iFindIdx = pFaceTask->GetRecogIndex();
+                    PSMetaInfo pxMetaInfo = dbm_GetHandMetaInfoByIndex(iFindIdx);
+                    dbug_printf("iFindIdx = %d, %p\n", iFindIdx, pxMetaInfo);
+                    if(pxMetaInfo)
+                    {
+                        iID = pxMetaInfo->iID;
+                        iPrivilege = pxMetaInfo->fPrivilege;
+                    }
+
+                    s_msg* msg = NULL;
+                    msg = SenseLockTask::Get_Reply_Verify(MR_SUCCESS, iID + N_MAX_PERSON_NUM + 1, ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK);
+
+#if PROTECT_ENGINE
+                    unsigned char _tmp_buf_cs[sizeof(g_xCS)];
+                    unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
+                    memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
+                    memcpy(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2));
+                    fr_resetThresholdState(&g_xHD, &g_xCS, &g_xHD2);
+                    if (memcmp(_tmp_buf_cs, &g_xCS, sizeof(g_xCS)))
+                        UpdateCommonSettings();
+                    if (memcmp(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2)))
+                        UpdateHeadInfos2();
+#endif // PROTECT_ENGINE
+
+                    if (msg != NULL)
+                        g_pSenseTask->Send_Msg(msg);
+                }
+                else if(iResult == HAND_RESULT_ENROLLED || (iResult == HAND_RESULT_ENROLL_DUPLICATED && g_xSS.iEnrollFaceDupCheck == 0))
+                {
+                    dbug_printf(iResult == HAND_RESULT_ENROLLED ? "Hand Enrolled!\n" : "Hand Duplicated!\n");
+                    SMetaInfo xMetaInfo;
+                    SHandFeatInfo xFeatInfo;
+                    int iSuccessCode = MR_SUCCESS;
+                    CLEAR(xMetaInfo);
+                    CLEAR(xFeatInfo);
+                    //get new user id because of mixed enroll mode
+                    int iUserID = dbm_GetNewHandUserID();
+                    if (iUserID >= 0)
+                    {
+                        g_xSS.iRegisterID = iUserID + 1;
+                        xMetaInfo.iID = g_xSS.iRegisterID - 1;
+                        strncpy(xMetaInfo.szName, (char*)g_xSS.msg_enroll_itg_data.user_name, N_MAX_NAME_LEN - 1);
+                        xMetaInfo.fPrivilege = g_xSS.iRegsterAuth;
+
+                        dbug_printf("Endroll Hand: ID=%d, Privilege=%d, Name: %s, Len=%d\n", xMetaInfo.iID, xMetaInfo.fPrivilege, xMetaInfo.szName, strlen(xMetaInfo.szName));
+
+                        FaceEngine::GetRegisteredFeatInfo_Hand(&xFeatInfo);
+
+                        SetModifyUser(1);
+
+                        int iBackupState = mount_backup_db(0);
+                        if (iBackupState < 0)
+                        {
+                            iSuccessCode = MR_FAILED4_WRITE_FILE;
+                            SetModifyUser(0);
+                        }
+                        else
+                        {
+                            int ret = FaceEngine::SaveHand(&xMetaInfo, &xFeatInfo, &iBackupState);
+                            umount_backup_db();
+                            if (ret != ES_SUCCESS)
+                            {
+                                iSuccessCode = MR_FAILED4_WRITE_FILE;
+                                SetModifyUser(0);
+                            }
+                            else
+                            {
+                                UpdateUserCount();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        iSuccessCode = MR_FAILED4_MAXUSER;
+                    }
+
+                    s_msg* msg = NULL;
+                    if (iSuccessCode == MR_SUCCESS)
+                    {
+                        msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID + N_MAX_PERSON_NUM, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+#if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
+                        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+                        {
+                            free(msg);
+                            msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+                        }
+#endif // USE_SANJIANG3_MODE
+                    }
+                    else
+                        msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, iSuccessCode);
+                    if(g_xSS.iSendLastMsgMode)
+                        g_xSS.pLastMsg = msg;
+                    else
+                    {
+                        g_pSenseTask->Send_Msg(msg);
+                    }
+
+                    ResetFaceRegisterStates();
+                }
+                else if(iResult == HAND_RESULT_ENROLL_DUPLICATED)
+                {
+                    s_msg* msg = NULL;
+                    msg = SenseLockTask::Get_Reply_Enroll(MR_FAILED4_HANDENROLLED, -1, 0, g_xSS.iRunningCmd);
+                    g_pSenseTask->Send_Msg(msg);
+
+                    ResetFaceRegisterStates();
+                }
+#endif // N_MAX_HAND_NUM
+#if (USE_DEMOMODE2)
+                else if(iResult == FACE_RESULT_DETECTED || iResult == HAND_RESULT_DETECTED)
+                {
+                    ResetFaceRegisterStates();
+                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VERIFY,
+                                                                iResult == FACE_RESULT_DETECTED ? MR_FAILED4_UNKNOWNUSER : MR_FAILED4_UNKNOWN_HANDUSER);
                     g_pSenseTask->Send_Msg(reply_msg);
                 }
 #endif // USE_DEMOMODE2
@@ -2981,13 +3100,51 @@ int ProcessSenseFace(int iCmd)
             {
                 if(iCmd == FaceRecogTask::E_REGISTER)
                 {
-                    s_msg* msg = SenseLockTask::Get_Note_FaceState(NID_FACE_STATE);
-                    g_pSenseTask->Send_Msg(msg);
+#if (USE_FUSHI_PROTO)
+                    if (g_xSS.iProtocolHeader == FUSHI_HEAD1)
+                    {
+                        g_xSS.iFaceState = g_xSS.note_data_face.state;
+                    }
+                    else
+#endif // USE_FUSHI_PROTO
+                    {
+                        s_msg* msg = SenseLockTask::Get_Note_FaceState(NID_FACE_STATE);
+                        g_pSenseTask->Send_Msg(msg);
+                    }
                 }
                 else if(iCmd == FaceRecogTask::E_VERIFY)
                 {
-                    s_msg* msg = SenseLockTask::Get_Note_FaceState(NID_FACE_STATE);
-                    g_pSenseTask->Send_Msg(msg);
+#if (USE_FUSHI_PROTO)
+                    if (g_xSS.iProtocolHeader == FUSHI_HEAD1)
+                    {
+                        if (g_xSS.rVerifyStartTime > 0 && (Now() - g_xSS.rVerifyStartTime) >= FUSHI_VERIFY_ACK_TIMEOUT)
+                        {
+                            if (g_xSS.iFaceState == FACE_STATE_NOFACE)
+                            {
+                                s_msg* msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_TIMEOUT);
+                                g_pSenseTask->Send_Msg(msg);
+                            }
+                            else if (g_xSS.iFaceState == FACE_STATE_NORMAL)
+                            {
+                                s_msg* msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_UNKNOWNUSER);
+                                g_pSenseTask->Send_Msg(msg);
+                            }
+                            else
+                            {
+                                s_msg* msg = SenseLockTask::Get_Reply(MID_VERIFY, MR_FAILED4_TIMEOUT);
+                                g_pSenseTask->Send_Msg(msg);
+                            }
+                            g_xSS.rVerifyStartTime = 0;
+                            g_xSS.rLastVerifyAckSendTime = Now();
+                        }
+                        g_xSS.iFaceState = g_xSS.note_data_face.state;
+                    }
+                    else
+#endif // USE_FUSHI_PROTO
+                    {
+                        s_msg* msg = SenseLockTask::Get_Note_FaceState(NID_FACE_STATE);
+                        g_pSenseTask->Send_Msg(msg);
+                    }
                 }
             }
         }
@@ -3270,16 +3427,22 @@ int ProcessActivation(char* pbUID, int iUniqueID)
         #define FOLDER_PATH "/test"
 
         int iResult = 1;
-        const char* szDictNames[2] = { FN_WNO_DICT_PATH, FN_HDIC1_DICT_PATH};
-        const unsigned long szDictLength[2] = {FN_WNO_DICT_SIZE, 0};
-        int len = 1;
-#ifdef USE_TWIN_ENGINE
-        len = 2;
-#else
-        len = 1;
-#endif
+        const char* szDictNames[] = {
+            FN_WNO_DICT_PATH,
+#if (N_MAX_HAND_NUM)
+            FN_WNOH_DICT_PATH,
+#endif // N_MAX_HAND_NUM
+            FN_H1_DICT_PATH, NULL};
+        const unsigned long szDictLength[] = {
+            FN_WNO_DICT_SIZE,
+#if (N_MAX_HAND_NUM)
+            FN_WNOH_DICT_SIZE,
+#endif // N_MAX_HAND_NUM
+            FN_H1_DICT_SIZE,
+            0 };
+        const unsigned long szDictLength[] = {FN_WNO_DICT_SIZE, 0};
 
-        for(int i = 0; i < len; i ++)
+        for(int i = 0; szDictNames[i] != NULL; i ++)
         {
             int iFileLen = szDictLength[i];
             unsigned char* pbData = (unsigned char*)my_malloc(szDictLength[i]);
@@ -3366,23 +3529,6 @@ int ProcessActivation(char* pbUID, int iUniqueID)
                         pbData[a * SHA_LEN + b] = pbData[a * SHA_LEN + b] ^ pDig1[b];
                     }
                 }
-
-    #if 0
-                my_printf("\nSHA  = %d: ", 20);
-                for (int k = 0; k < 20; k++)
-                    my_printf("0x%02x,", pDig1[k]);
-                my_printf("\n");
-
-                // my_printf("SHA AFTER = %d: %d", ENGINE_DATA_PACKET_SIZE * 2, iFileLen);
-                // for (int k = 0; k < ENGINE_DATA_PACKET_SIZE * 2; k++)
-                //     my_printf("0x%02x,", pbData[k]);
-                // my_printf("\n");
-    #endif
-
-#if 0
-                fseek(fp, 0, SEEK_SET);
-                fwrite(pbData, iFileLen, 1, fp);
-#endif
 
                 fr_WriteFileData(szDictNames[i], 0, pbData, szDictLength[i]);
                 my_free(pDig1);

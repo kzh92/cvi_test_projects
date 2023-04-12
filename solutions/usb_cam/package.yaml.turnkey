@@ -146,6 +146,7 @@ build_config:
     - application/FaceEngine/_dnn
     - application/FaceEngine/enn
     - application/FaceEngine/ennq
+    - application/FaceEngine/hand
 
   internal_include:
 

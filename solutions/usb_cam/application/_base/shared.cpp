@@ -1,73 +1,19 @@
 #include "shared.h"
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <fcntl.h>
-//#include <unistd.h>
 #include <string.h>
-//#include <ctype.h>
-//#include <time.h>
-//#include <sys/time.h>
-//#include <sys/mman.h>
-//#include <sys/select.h>
-//#include <wchar.h>
 
 #include "DBManager.h"
 #include "i2cbase.h"
-//#include "mount_fs.h"
 #include "drv_gpio.h"
 #include "sha1.h"
 #include "mutex.h"
-//#include "camera_api.h"
-//#include "desinterface.h"
+#include <debug/debug_overview.h>
 
 #define SUNXI_SID_BASE		(0x01c23800)
 
 mymutex_ptr   g_xLastDetectMutex = my_mutex_init();
 float   g_rLastDetectTime = 0;
 int     g_iUniqueID = 0;
-
-// const char* g_szNamePrefix_En[] = {
-//     "Manager",
-//     "User",
-//     "Guest",
-//     "Key"
-// };
-
-// const char* g_szNamePrefix_Kp[] = {
-//     "\xEA\xB4\x80\xEB\xA6\xAC\xEC\x9E\x90",
-//     "\xEC\x82\xAC\xEC\x9A\xA9\xEC\x9E\x90",
-//     "\xEC\x86\x90\xEB\x8B\x98",
-//     "\xEA\xB8\xB0\xEA\xB3\x84\xEC\x97\xB4\xEC\x87\xA0"
-// };
-
-// const char* g_szNamePrefix_Ch[] = {
-//     "\xE7\xAE\xA1\xE7\x90\x86\xE5\x91\x98",
-//     "\xE7\x94\xA8\xE6\x88\xB7",
-//     "\xE5\xAE\xA2\xE6\x88\xB7",
-//     "\xE9\x94\x81"
-// };
-
-// const char* g_szNamePrefix_Tw[] = {
-//     "\xE7\xAE\xA1\xE7\x90\x86\xE5\x93\xA1",
-//     "\xE7\x94\xA8\xE6\x88\xB6",
-//     "\xE5\xAE\xA2\xE6\x88\xB6",
-//     "\xE9\x8E\x96"
-// };
-
-// const char* g_szNamePrefix_Ru[] = {
-//     "\xD0\x9C\xD0\xB5\xD0\xBD\xD0\xB5\xD0\xB4\xD0\xB6\xD0\xB5\xD1\x80",
-//     "\xD0\xAE\xD0\xB7\xD0\xB5\xD1\x80",
-//     "\xD0\x93\xD0\xBE\xD1\x81\xD1\x82\xD1\x8C",
-//     "\xD0\xBA\xD0\xBB\xD1\x8E\xD1\x87\xD0\xB0"
-// };
-
-// const char* g_szNamePrefix_Pt[] = {
-//     "Administrador",
-//     "Utilizador",
-//     "Convidado",
-//     "Chave"     //???
-// };
 
 #if 0
 void WriteAverageBatt(int batt)
@@ -451,16 +397,14 @@ void GetMemInfo(MEMINFO* pxMemInfo)
     pxMemInfo->iRealFreeMem = pxMemInfo->iTotalMem - iUsedMem;
 #endif
 }
+#endif
 
 void PrintFreeMem()
 {
-#if 0
-    MEMINFO xMemInfo = { 0 };
-    GetMemInfo(&xMemInfo);
-    CamOsPrintf("Real Free Mem: %d\n", xMemInfo.iRealFreeMem);
-#endif
+    debug_mm_overview(printf);
+    printf("\n");
 }
-#endif
+
 /**
  * @brief UpdateUserCount
  * 전체 카드기록개수를 갱신한다.
@@ -662,4 +606,23 @@ void GetSN(char* serialData)
 #endif
 }
 
-
+#ifdef USE_TWIN_ENGINE
+int MainSTM_GetDict(unsigned char *pbData, int len)
+{
+    unsigned char g_abEncData[0xa0] =
+    {
+      0x5C, 0x21, 0x00, 0x00, 0x01, 0xA8, 0x73, 0xFD, 0xFF, 0xFF, 0xFF, 0xFF, 0x5D, 0xFF, 0xFF, 0xFF,
+      0x94, 0xFF, 0xFF, 0xFF, 0x10, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00,
+      0xFE, 0xFF, 0xFF, 0xFF, 0x6B, 0xFF, 0xFF, 0xFF, 0x81, 0xFF, 0xFF, 0xFF, 0xEB, 0xFF, 0xFF, 0xFF,
+      0x1B, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xA0, 0xFF, 0xFF, 0xFF,
+      0x87, 0xFF, 0xFF, 0xFF, 0xAD, 0xFF, 0xFF, 0xFF, 0xDF, 0xFF, 0xFF, 0xFF, 0xFA, 0xFF, 0xFF, 0xFF,
+      0x01, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x26, 0x00, 0x3E, 0x00, 0x9E, 0x00, 0xB6, 0x00, 0xCE, 0x00,
+      0x2E, 0x01, 0x46, 0x01, 0x5E, 0x01, 0xBE, 0x01, 0xD6, 0x01, 0xEE, 0x01, 0x4E, 0x02, 0x66, 0x02,
+      0x7E, 0x02, 0xDE, 0x02, 0xF6, 0x02, 0x0E, 0x03, 0x6E, 0x03, 0x86, 0x03, 0x9E, 0x03, 0xFE, 0x03,
+      0x16, 0x04, 0x2E, 0x04, 0x8E, 0x04, 0xA6, 0x04, 0xBE, 0x04, 0x1E, 0x05, 0x36, 0x05, 0x4E, 0x05,
+      0xAE, 0x05, 0xC6, 0x05, 0x0E, 0x10, 0x14, 0x17, 0x1B, 0x20, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+    memcpy(pbData, g_abEncData, len);
+    return 0;
+}
+#endif // USE_TWIN_ENGINE
