@@ -179,12 +179,12 @@ void GetSerialNumber(char* serialData)
     }
 #endif
 #if 1
-    char tok[20] = { 0 };
+    char tok[128] = { 0 };
     unsigned int anUID[10] = { 0 };
     unsigned long long uuid = GetSSDID(anUID);
     sprintf(tok, "%llx", uuid);
 
-    LOG_PRINT("=======get serail num %s\n", tok);
+    dbug_printf("=======get serial num %s\n", tok);
     SHA1 sha1;
     sha1.addBytes(tok, strlen(tok));
 
@@ -210,11 +210,12 @@ void GetSerialNumber(char* serialData)
             index ++;
         }
     }
+    serialData[index] = 0;
 
     my_free(digest);
     my_free(szEncData);
 
-    LOG_PRINT("serial: %s\n", serialData);
+    dbug_printf("serial: %s\n", serialData);
 #endif
 }
 

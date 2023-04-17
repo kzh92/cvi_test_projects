@@ -1020,7 +1020,9 @@ s_msg* SenseLockTask::Get_Reply_Init_Encryption_Data(int iResult)
     msg_reply_data->mid = MID_INIT_ENCRYPTION;
     msg_reply_data->result = iResult;
 
-    char* szSN = (char*)my_malloc(256);
+    int szLen = 64;
+    char* szSN = (char*)my_malloc(szLen);
+    memset(szSN, 0, szLen);
     GetSerialNumber(szSN);
 
     s_msg_reply_init_encryption_data* msg_reply_init_encryption_data =
