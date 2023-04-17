@@ -18,27 +18,32 @@ extern	"C"
 {
 #endif
 
-#if (USE_SSD210)
-#define IR_LED          23 /* PAD_TTL0 */
-#define M24C64_WP       34 /* PAD_GPIO0 */
-#define PSENSE_DET      33 /* PAD_SD_GPIO0 */
-#define GPIO_USBSense   32 /* PAD_SD_GPIO1 */
-#else
-#if (!NFS_DEBUG_EN)
-#define IR_LED          17 /* PAD_TTL0 */
-#else
-#define IR_LED          16 /* PAD_TTL0 */
-#endif
-#define M24C64_WP       61 /* PAD_GPIO0 */
-#define PSENSE_DET      59 /* PAD_SD_GPIO0 */
-#define GPIO_USBSense   60 /* PAD_SD_GPIO1 */
-#define UART_EN     	44 /* PAD_KEY5 */
-#if (USE_WIFI_MODULE)
-#define IOCtl           43 /* PAD_KEY4 */
-#define SPI_CS          49 /* PAD_KEY10 */
-#define AUDIO_EN        69 /* PAD_GPIO8 */
-#endif // USE_WIFI_MODULE
-#endif
+// #if (USE_SSD210)
+// #define IR_LED          23 /* PAD_TTL0 */
+// #define M24C64_WP       34 /* PAD_GPIO0 */
+// #define PSENSE_DET      33 /* PAD_SD_GPIO0 */
+// #define GPIO_USBSense   32 /* PAD_SD_GPIO1 */
+// #else
+// #if (!NFS_DEBUG_EN)
+// #define IR_LED          17 /* PAD_TTL0 */
+// #else
+// #define IR_LED          16 /* PAD_TTL0 */
+// #endif
+// #define M24C64_WP       61 /* PAD_GPIO0 */
+// #define PSENSE_DET      59 /* PAD_SD_GPIO0 */
+// #define GPIO_USBSense   60 /* PAD_SD_GPIO1 */
+// #define UART_EN     	44 /* PAD_KEY5 */
+// #if (USE_WIFI_MODULE)
+// #define IOCtl           43 /* PAD_KEY4 */
+// #define SPI_CS          49 /* PAD_KEY10 */
+// #define AUDIO_EN        69 /* PAD_GPIO8 */
+// #endif // USE_WIFI_MODULE
+// #endif
+
+#define IR_LED          19 /* XGPIOA_19 Group:0 Num:19 */
+#define PSENSE_DET      106 /* XGPIOB_6 Group:1 Num:6*/
+#define GPIO_USBSense   106 /* XGPIOB_6 Group:1 Num:6*/
+#define CAM_PWDN		213 /* XGPIOC_13 Group:2 Num:13*/
 
 #define IN  0
 #define OUT 1
@@ -155,7 +160,7 @@ void GPIO_fast_deinit();
 
 int GPIO_fast_config(int gpio, int inout);
 
-int GPIO_fast_setvalue(int gpio, int value);
+int GPIO_fast_setvalue(int gpio_pin, int value);
 
 int GPIO_fast_getvalue(int gpio);
 

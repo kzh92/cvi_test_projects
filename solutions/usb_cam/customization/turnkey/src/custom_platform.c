@@ -2,6 +2,7 @@
 #include <drv/pin.h>
 #include <pinctrl-mars.h>
 #include "cvi_type.h"
+#include "drv_gpio.h"
 
 static void _SensorPinmux()
 {
@@ -43,6 +44,7 @@ static void _MipiTxPinmux(void)
 
 void PLATFORM_IoInit(void)
 {
+	GPIO_fast_init();
 //pinmux 切换接口
     _MipiRxPinmux();
     _MipiTxPinmux();
