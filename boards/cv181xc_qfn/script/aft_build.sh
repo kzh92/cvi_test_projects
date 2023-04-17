@@ -77,10 +77,10 @@ fi
 cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
 
 echo "Creating temp partitions..."
-cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/misc.bin
-cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/partwx.bin
-cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/pusr1.bin
-cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/pusr2.bin
+dd if=/dev/zero of=${MK_GENERATED_PATH}/data/misc.bin bs=1024 count=328
+dd if=/dev/zero of=${MK_GENERATED_PATH}/data/partwx.bin bs=1024 count=4096
+dd if=/dev/zero of=${MK_GENERATED_PATH}/data/pusr1.bin bs=1024 count=256
+dd if=/dev/zero of=${MK_GENERATED_PATH}/data/pusr2.bin bs=1024 count=256
 
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -e ${MK_GENERATED_PATH} -x

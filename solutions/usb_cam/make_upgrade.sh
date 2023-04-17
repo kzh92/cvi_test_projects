@@ -7,5 +7,5 @@ python3 ../../boards/tools/common/raw2cimg.py ./generated/images/boot0 ./generat
 python3 ../../boards/tools/common/raw2cimg.py ./generated/images/imtb ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
 python3 ../../boards/tools/common/raw2cimg.py ./generated/images/misc.bin ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
 python3 ../../boards/tools/common/raw2cimg.py ./generated/images/partwx.bin ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
-python3 ../../boards/tools/common/raw2cimg.py ./generated/images/partuser1.bin ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
-python3 ../../boards/tools/common/raw2cimg.py ./generated/images/partuser2.bin ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
+python3 ../../boards/tools/common/raw2cimg.py ./generated/images/pusr1.bin ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
+python3 ../../boards/tools/common/raw2cimg.py ./generated/images/pusr2.bin ./generated/upgrade ./generated/upgrade/partition_alios_spinor.xml
