@@ -3,36 +3,24 @@
 
 #include <stdio.h>
 #include <unistd.h>
-// #include <stdlib.h>
-// #include <errno.h>
 #include <string.h>
 #include <stdarg.h>
-// #include <cam_os_wrapper.h>
-// #include <cam_fs_wrapper.h>
-// #include "mi_sys.h"
-// #include "mi_common_datatype.h"
-// #include "cam_drv_i2c.h" //i2c
-// #include "mem_backtrace.h"
-// #include "drv_mspi.h"
-// #include "padmux.h"
 #include <malloc.h>
 #include <aos/kernel.h>
 #include <fcntl.h>
+#include <yoc/partition.h>
+
+#define MY_PART_MISC        "misc"
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
-// #include <sys/types.h>
-// #include <sys/ipc.h>
-// #include <sys/shm.h>
-// #include <signal.h>
 
-// const char* dbfs_part_names[DB_PART_END+1] =
-// {
-//     "/dev/mtdblock5",
-// //    "/dev/mmcblk0p3",
-//     "/dev/mtdblock6",
-//     "null"
-// };
+const char* dbfs_part_names[DB_PART_END+1] =
+{
+    "pusr1",
+    "pusr2",
+    "null"
+};
 
 SHARED_MEM* g_pxSharedMem = NULL;
 SHARED_MEM* g_pxSharedLCD = NULL;
@@ -42,35 +30,10 @@ int g_iShmidLCD;
 
 int bSetKernelFlag = 1;
 
-// const char* rfs_exec_filenames[] = {
-//     "cp",
-//     "rm",
-//     "e2fsck",
-//     "tune2fs",
-//     "mount",
-//     "umount",
-//     "dd",
-//     "hwclock",
-//     "insmod",
-//     "aplay",
-//     "touch",
-//     "fdisk",
-//     "/usr/bin/mke2fs1",
-//     "date",
-//     "touch",
-//     NULL
-// };
-// const char* rfs_dir_names[] = {
-//     "/sbin",
-//     "/bin",
-//     "/usr/bin",
-//     "/usr/sbin",
-//     NULL
-// };
-
+int my_misc_read(unsigned int offset, void* buf, unsigned int length);
+int my_misc_write(unsigned int offset, void* buf, unsigned int length);
 //prebuilt functions
 
-#ifdef UPGRADE_MODE
 int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
 {
 #if(MY_DICT_FLASH)
@@ -120,36 +83,6 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     file_offset += FN_WNO_DICT_SIZE;
 
     file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_031TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_031TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_032TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_032TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_033TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_033TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_034TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_034TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_035TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_035TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_036TTS_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_036TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
     if (strstr(filename, FN_TEST_WAV_PATH))
         goto off_read_file;
     file_offset += FN_TEST_WAV_SIZE;
@@ -170,7 +103,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     return -1;
 
 off_read_file:
-    read_len = my_flash_read(file_offset + u32_offset, u32_length, buf, u32_length);
+    read_len = my_misc_read(file_offset + u32_offset, buf, u32_length);
     return read_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -233,36 +166,6 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
     file_offset += FN_WNO_DICT_SIZE;
 
     file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_031TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_031TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_032TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_032TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_033TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_033TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_034TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_034TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_035TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_035TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_036TTS_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_036TTS_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
     if (strstr(filename, FN_TEST_WAV_PATH))
         goto off_write_file;
     file_offset += FN_TEST_WAV_SIZE;
@@ -283,7 +186,7 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
     return -1;
 
 off_write_file:
-    write_len = my_flash_write(file_offset + u32_offset, (unsigned int)buf, u32_length);
+    write_len = my_misc_write(file_offset + u32_offset, buf, u32_length);
     return write_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -297,10 +200,6 @@ off_write_file:
     return ret;
 #endif // MY_DICT_FLASH
 }
-#else //UPGRADE_MODE
-extern int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
-extern int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
-#endif //UPGRADE_MODE
 
 #if (USE_WIFI_MODULE)
 struct spi_slave *spi_dev;
@@ -697,19 +596,19 @@ void my_usleep(int nUsec)
 //     my_mutex_unlock(g_MyPrintfLock);
 // }
 
-void LOG_PRINT(const char * format, ...)
-{
-#if 0
-    my_mutex_lock(g_MyPrintfLock);
-    char buf[1024] = {0};
-    va_list args;
-    va_start (args, format);
-    vsnprintf(buf, 1023, format, args);
-    va_end (args);
-    CamOsPrintf(KERN_ERR "%s", buf);
-    my_mutex_unlock(g_MyPrintfLock);
-#endif
-}
+// void LOG_PRINT(const char * format, ...)
+// {
+// #if 0
+//     my_mutex_lock(g_MyPrintfLock);
+//     char buf[1024] = {0};
+//     va_list args;
+//     va_start (args, format);
+//     vsnprintf(buf, 1023, format, args);
+//     va_end (args);
+//     CamOsPrintf(KERN_ERR "%s", buf);
+//     my_mutex_unlock(g_MyPrintfLock);
+// #endif
+// }
 
 float Now(void)
 {
@@ -1273,7 +1172,7 @@ unsigned int my_flash_write(unsigned int u32_bytes_offset, void* u32_address, un
     unsigned int write_len;
     unsigned int write_off;
     unsigned int total_len = 0;
-    LOG_PRINT("[%s] %08x, %08x, %p, p=%d, s=%08x, e=%08x\n", __func__, 
+    LOG_PRINT("[%s] %08x, %p, %08x, p=%d, s=%08x, e=%08x\n", __func__, 
         u32_bytes_offset, u32_address, u32_size, 
         page_count, start_off, end_off);
     _tmp_buf = (unsigned char*)my_malloc(flash_page_size);
@@ -1475,4 +1374,143 @@ off_write_file:
     }
     return ret;
 #endif // MY_DICT_FLASH
+}
+
+int g_userdb_cur = DB_PART1;
+
+int my_userdb_open(int part_no)
+{
+    my_mutex_lock(g_FlashReadWriteLock);
+    g_userdb_cur = part_no;
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return 0;
+}
+
+int my_userdb_read_real(int p_type, unsigned int offset, void* buf, unsigned int length)
+{
+    int ret;
+    my_mutex_lock(g_FlashReadWriteLock);
+    partition_t partition = partition_open(dbfs_part_names[p_type]);
+    ret = partition_read(partition, offset, buf, length);
+    partition_close(partition);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    // dbug_printf("[%s] %d, %d, %d, res=%d\n", __func__, p_type, offset, length, ret);
+    // printf("buf: ");
+    // for (int i = 0; i < 16 && i < length; i ++)
+    //     printf("%02x ", ((unsigned char*)buf)[i]);
+    // printf("\n");
+    if (ret)
+        return 0;
+    else
+        return length;
+}
+
+int my_userdb_write_real(int p_type, unsigned int offset, void* buf, unsigned int length)
+{
+    my_mutex_lock(g_FlashReadWriteLock);
+    partition_t partition = partition_open(dbfs_part_names[p_type]);
+
+    const int flash_page_size = 4*1024;
+    unsigned int start_off = offset - (offset % flash_page_size);
+    unsigned int page_count = (((offset + length) - start_off) + (flash_page_size - 1)) / flash_page_size;
+    unsigned int end_off = start_off + page_count * flash_page_size;
+    unsigned char* _tmp_buf;
+    unsigned int write_len;
+    unsigned int write_off;
+    unsigned int total_len = 0;
+    LOG_PRINT("[%s] %08x, %p, %08x, p=%d, s=%08x, e=%08x\n", __func__, 
+        offset, buf, length, 
+        page_count, start_off, end_off);
+    _tmp_buf = (unsigned char*)my_malloc(flash_page_size);
+    if (_tmp_buf == NULL)
+        return 0;
+    for (; start_off < end_off; start_off += flash_page_size)
+    {
+        partition_read(partition, start_off, _tmp_buf, flash_page_size);
+        write_len = flash_page_size;
+        write_off = 0;
+        if (start_off + flash_page_size > offset + length)
+            write_len = offset + length - start_off;
+        if (start_off < offset)
+        {
+            write_off = offset - start_off;
+            write_len = write_len - write_off;
+        }
+        if (memcmp(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len))
+        {
+            memcpy(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len);
+            partition_erase_size(partition, start_off, flash_page_size);
+            partition_write(partition, start_off, _tmp_buf, flash_page_size);
+        }
+        total_len += write_len;
+    }
+    my_free(_tmp_buf);
+    partition_close(partition);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return total_len;
+}
+
+int my_userdb_read(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_userdb_read_real(g_userdb_cur, offset, buf, length);
+}
+
+int my_userdb_write(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_userdb_write_real(g_userdb_cur, offset, buf, length);
+}
+
+int my_userdb_close()
+{
+    return 0;
+}
+
+int my_backupdb_read(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_userdb_read_real(DB_PART_BACKUP, offset, buf, length);
+}
+
+int my_backupdb_write(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_userdb_write_real(DB_PART_BACKUP, offset, buf, length);
+}
+
+int my_misc_read(unsigned int offset, void* buf, unsigned int length)
+{
+    int ret;
+    my_mutex_lock(g_FlashReadWriteLock);
+    partition_t partition = partition_open(MY_PART_MISC);
+    ret = partition_read(partition, offset, buf, length);
+    partition_close(partition);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    if (ret)
+        return 0;
+    else
+        return length;
+}
+
+int my_misc_write(unsigned int offset, void* buf, unsigned int length)
+{
+    int ret;
+    my_mutex_lock(g_FlashReadWriteLock);
+    partition_t partition = partition_open(MY_PART_MISC);
+    ret = partition_write(partition, offset, buf, length);
+    partition_close(partition);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    if (ret)
+        return 0;
+    else
+        return length;
+}
+
+int dbfs_get_cur_part()
+{
+    my_printf("[%s]mount_point=%d,\n", __FUNCTION__, g_pxSharedLCD->iMountPoints);
+    return g_pxSharedLCD->iMountPoints;
+}
+
+void dbfs_set_cur_part(int part_no)
+{
+    if (part_no >= DB_PART1 && part_no <= DB_PART_END)
+        g_pxSharedLCD->iMountPoints = part_no;
 }

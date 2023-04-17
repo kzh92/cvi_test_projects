@@ -729,6 +729,8 @@ enum E_Baud_Rate
 #undef DEFAULT_LIVENESS_MODE
 #define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
 #define _SENSOR_GC2145_
+#undef N_MAX_PERSON_NUM
+#define N_MAX_PERSON_NUM                    10
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_3_4_XIAODIAN_MODE)

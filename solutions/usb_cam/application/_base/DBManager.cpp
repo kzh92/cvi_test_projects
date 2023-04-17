@@ -87,17 +87,6 @@ void deinitDBPtr()
 
 #endif // __RTK_OS__
 
-static int dbfs_get_cur_part()
-{
-    //my_printf("[%s][%s]\n", __FILE__, __func__);
-    CreateSharedLCD();
-
-    if(g_pxSharedLCD == NULL)
-        return -1;
-
-    return g_pxSharedLCD->iMountPoints;
-}
-
 UserPosInfo CreateNewUserPosInfo()
 {
     UserPosInfo xPosInfo = { 0 };
@@ -381,14 +370,11 @@ int	dbm_LoadPersonDB()
     int FILESIZE = sizeof(DB_INFO);
     int real_file_len;
 
-    LOG_PRINT("[%s] start, %d, %d, %d\n", __func__, FILESIZE, sizeof(DB_UNIT), sizeof(g_xDB->aiValid));
+    LOG_PRINT("[%s] start, %d, %ld, %ld\n", __func__, FILESIZE, sizeof(DB_UNIT), sizeof(g_xDB->aiValid));
 
-    if (dbfs_get_cur_part() == DB_PART1)
-        g_iUserdbAddr = USERDB_START_ADDR;
-    else
-        g_iUserdbAddr = USERDB_START_ADDR + USERDB_SIZE;
+    my_userdb_open(dbfs_get_cur_part());
 
-    real_file_len = my_flash_read(g_iUserdbAddr, FILESIZE, g_xDB, FILESIZE);
+    real_file_len = my_userdb_read(0, g_xDB, FILESIZE);
 
     if (real_file_len != FILESIZE)
     {
@@ -1104,28 +1090,30 @@ int dbm_FlushUserDB(int nUserID, int nFlushData)
     {
         if (nUserID == -1)
         {
-            my_flash_write(USERDB_START_ADDR, g_xDB, FILESIZE);
+            my_userdb_write(0, g_xDB, FILESIZE);
             //backup
-            my_flash_write(USERDB_START_ADDR + USERDB_SIZE, g_xDB, FILESIZE);
+            my_backupdb_write(0, g_xDB, FILESIZE);
         }
         else
         {
             if (nFlushData & DB_FLUSH_FLAG_DATA)
             {
-                my_flash_write(USERDB_START_ADDR + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
+                my_userdb_write(sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
                     ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
             }
             if (nFlushData & DB_FLUSH_FLAG_BIT)
-                my_flash_write(USERDB_START_ADDR, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+            {
+                my_userdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+            }
             //backup
             if (nFlushData & DB_FLUSH_FLAG_BACKUP)
             {
-                my_flash_write(USERDB_START_ADDR + USERDB_SIZE + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
+                my_backupdb_write(sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
                     ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
             }
             if (nFlushData & DB_FLUSH_FLAG_BACKUP_BIT)
             {
-                my_flash_write(USERDB_START_ADDR + USERDB_SIZE, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+                my_backupdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
             }
         }
         LOG_PRINT("[%s] write end, %0.3f\n", __func__, Now());

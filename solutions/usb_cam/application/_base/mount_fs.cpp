@@ -24,21 +24,6 @@ int ss_values[10] = {0};
 
 int g_lcdInited = 0;
 
-//int usercount_backup = 0;
-//int users_backup[N_MAX_PERSON_NUM];
-
-int dbfs_get_cur_part()
-{
-    my_printf("[%s]mount_point=%d,\n", __FUNCTION__, g_pxSharedLCD->iMountPoints);
-    return g_pxSharedLCD->iMountPoints;
-}
-
-void dbfs_set_cur_part(int part_no)
-{
-    if (part_no >= DB_PART1 && part_no <= DB_PART_END)
-        g_pxSharedLCD->iMountPoints = part_no;
-}
-
 const char* dbfs_get_part_name_by_id(int id)
 {
     if (id >= DB_PART1 && id <= DB_PART_END)

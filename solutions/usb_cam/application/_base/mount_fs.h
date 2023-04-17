@@ -17,8 +17,6 @@ int             umount_backup_db();
 
 
 int             fsck_dbfs_part(int part_id, int opt = 0);
-int             dbfs_get_cur_part();
-void            dbfs_set_cur_part(int part_no);
 const char*     dbfs_get_part_name_by_id(int id);
 const char*     dbfs_get_cur_part_name();
 int             do_make_ext4(const char* dev_path);

@@ -177,7 +177,8 @@ void            my_free_real(void* pPtr);
 void            my_free_real_debug(void* pPtr, const char*, int);
 void            my_usleep(int nUsec);
 // void            my_printf(const char * format, ...);
-void            LOG_PRINT(const char * format, ...);
+//void            LOG_PRINT(const char * format, ...);
+#define LOG_PRINT(...)
 myfdesc_ptr     my_open(const char *szpath, unsigned int nflag, unsigned int nmode);
 int             my_close(myfdesc_ptr _fd);
 int             my_read(myfdesc_ptr fd, void *buf, unsigned int count);
@@ -230,12 +231,19 @@ int             fr_ReadAppLog(const char* filename, unsigned int u32_offset, voi
 int             fr_WriteAppLog(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 int             fr_WriteUSBScanEnableState(void);
 //read, write flash pages
-unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
-unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
-unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
-unsigned int my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size);
-unsigned int my_flash_write(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
+unsigned int    my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
+unsigned int    my_flash_write_pages(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
+unsigned int    my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
+unsigned int    my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size);
+unsigned int    my_flash_write(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
 int             my_memstat();
+int             my_userdb_open(int part_no);
+int             my_userdb_read(unsigned int offset, void* buf, unsigned int length);
+int             my_userdb_write(unsigned int offset, void* buf, unsigned int length);
+int             my_backupdb_read(unsigned int offset, void* buf, unsigned int length);
+int             my_backupdb_write(unsigned int offset, void* buf, unsigned int length);
+int             dbfs_get_cur_part();
+void            dbfs_set_cur_part(int part_no);
 
 int my_msync(void*, int);
 int my_munmap(void*, int);
@@ -245,8 +253,8 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 #endif
 #define my_printf printf
-#define dbug_printf my_printf
-// #define dbug_printf(...)
+//#define dbug_printf printf
+#define dbug_printf(...)
 #define dbug_line dbug_printf("[%s] %s:%d, %0.3f\n", __func__, __FILE__, __LINE__, Now())
 
 #ifdef __cplusplus
