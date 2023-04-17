@@ -14,13 +14,13 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
         .u32Rst_port_idx = 2,
         .u32Rst_pin = 8,
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
-        .bSetDevAttrMipi = CVI_TRUE,
-        .as16LaneId = {3, 4, 2, -1, -1},
-        .as8PNSwap = {1, 1, 1, 0, 0},
-        .bSetDevAttr = CVI_TRUE,
-        .s16MacClk = RX_MAC_CLK_200M,
-        .u8MclkCam = 0,
-        .u8MclkFreq = CAMPLL_FREQ_27M,
+        // .bSetDevAttrMipi = CVI_TRUE,
+        // .as16LaneId = {3, 4, 2, -1, -1},
+        // .as8PNSwap = {1, 1, 1, 0, 0},
+        // .bSetDevAttr = CVI_TRUE,
+        // .s16MacClk = RX_MAC_CLK_200M,
+        // .u8MclkCam = 0,
+        // .u8MclkFreq = CAMPLL_FREQ_27M,
     }
 };
 

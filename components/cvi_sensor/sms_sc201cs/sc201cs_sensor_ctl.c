@@ -11,9 +11,14 @@
 #define SC201CS_CHIP_ID_ADDR_L	0x3108
 #define SC201CS_CHIP_ID		0xeb2c
 
+#define LEFT_CAM		0
+#define RIGHT_CAM		1
+
+CVI_U8 iCurrentCam = LEFT_CAM;
+
 static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe);
 
-CVI_U8 sc201cs_i2c_addr = 0x32;
+CVI_U8 sc201cs_i2c_addr = 0x30;
 const CVI_U32 sc201cs_addr_byte = 2;
 const CVI_U32 sc201cs_data_byte = 1;
 
@@ -35,6 +40,11 @@ int sc201cs_read_register(VI_PIPE ViPipe, int addr)
 {
 	CVI_U8 i2c_id = (CVI_U8)g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
 
+	if(iCurrentCam == LEFT_CAM)
+		sc201cs_i2c_addr = 0x30;
+	else
+		sc201cs_i2c_addr = 0x32;
+
 	return sensor_i2c_read(i2c_id, sc201cs_i2c_addr, (CVI_U32)addr, sc201cs_addr_byte,
 		sc201cs_data_byte);
 }
@@ -42,6 +52,11 @@ int sc201cs_read_register(VI_PIPE ViPipe, int addr)
 int sc201cs_write_register(VI_PIPE ViPipe, int addr, int data)
 {
 	CVI_U8 i2c_id = (CVI_U8)g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
+
+	if(iCurrentCam == LEFT_CAM)
+		sc201cs_i2c_addr = 0x30;
+	else
+		sc201cs_i2c_addr = 0x32;
 
 	return sensor_i2c_write(i2c_id, sc201cs_i2c_addr, (CVI_U32)addr, sc201cs_addr_byte,
 		(CVI_U32)data, sc201cs_data_byte);
@@ -70,6 +85,7 @@ void sc201cs_restart(VI_PIPE ViPipe)
 
 void sc201cs_default_reg_init(VI_PIPE ViPipe)
 {
+	return;
 	CVI_U32 i;
 
 	for (i = 0; i < g_pastSc201cs[ViPipe]->astSyncInfo[0].snsCfg.u32RegNum; i++) {
@@ -126,11 +142,37 @@ int sc201cs_probe(VI_PIPE ViPipe)
 	return CVI_SUCCESS;
 }
 
+int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
+{
+	if (switchCam == iCurrentCam)
+	return CVI_SUCCESS;
+
+	sc201cs_write_register(ViPipe, 0x3019,0xff);
+	sc201cs_write_register(ViPipe, 0x0100,0x00);
+
+	iCurrentCam = switchCam;
+
+	sc201cs_write_register(ViPipe, 0x0100,0x01);
+	sc201cs_write_register(ViPipe, 0x3019,0xfe);
+
+	return CVI_SUCCESS;
+}
+
 void sc201cs_init(VI_PIPE ViPipe)
 {
 	// sc201cs_i2c_init(ViPipe);
 
-	sc201cs_linear_1200p30_init(ViPipe);
+	for (int i = 0 ; i < 2; i++)
+	{
+		iCurrentCam = i;
+		sc201cs_linear_1200p30_init(ViPipe);
+		if (i == 0)
+		{
+			sc201cs_write_register(ViPipe, 0x0100,0x01);
+			sc201cs_write_register(ViPipe, 0x3019,0xfe);
+		}
+	}
+	iCurrentCam = LEFT_CAM;
 
 	g_pastSc201cs[ViPipe]->bInit = CVI_TRUE;
 }
@@ -149,6 +191,7 @@ static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe)
 	sc201cs_write_register(ViPipe, 0x36eb, 0x25);
 	sc201cs_write_register(ViPipe, 0x36ed, 0x04);
 	sc201cs_write_register(ViPipe, 0x36e9, 0x01);
+	sc201cs_write_register(ViPipe, 0x3019, 0xff);
 	sc201cs_write_register(ViPipe, 0x301f, 0x01);
 	sc201cs_write_register(ViPipe, 0x3248, 0x02);
 	sc201cs_write_register(ViPipe, 0x3253, 0x0a);
@@ -220,7 +263,7 @@ static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe)
 	sc201cs_write_register(ViPipe, 0x3e02, 0xe0);
 	sc201cs_write_register(ViPipe, 0x4502, 0x34);
 	sc201cs_write_register(ViPipe, 0x4509, 0x30);
-	sc201cs_write_register(ViPipe, 0x0100, 0x01);
+	sc201cs_write_register(ViPipe, 0x0100, 0x00);
 
 	sc201cs_default_reg_init(ViPipe);
 

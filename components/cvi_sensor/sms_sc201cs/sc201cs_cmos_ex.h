@@ -74,6 +74,7 @@ extern void sc201cs_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMi
 extern int  sc201cs_write_register(VI_PIPE ViPipe, int addr, int data);
 extern int  sc201cs_read_register(VI_PIPE ViPipe, int addr);
 extern int  sc201cs_probe(VI_PIPE ViPipe);
+extern int  sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam);
 
 #ifdef __cplusplus
 #if __cplusplus

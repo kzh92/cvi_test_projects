@@ -13,6 +13,8 @@ static void _SensorPinmux()
 	PINMUX_CONFIG(PAD_MIPIRX1P, IIC1_SDA);
 	PINMUX_CONFIG(PAD_MIPIRX0N, IIC1_SCL);
     PINMUX_CONFIG(PAD_MIPIRX1N, XGPIOC_8);
+
+    PINMUX_CONFIG(SD1_D1, PWR_GPIO_20); //IR LED pin
 }
 
 static void _MipiRxPinmux(void)
@@ -22,8 +24,8 @@ static void _MipiRxPinmux(void)
     PINMUX_CONFIG(PAD_MIPIRX4N, XGPIOC_2);
     PINMUX_CONFIG(PAD_MIPIRX3P, XGPIOC_5);
     PINMUX_CONFIG(PAD_MIPIRX3N, XGPIOC_4);
-    PINMUX_CONFIG(PAD_MIPIRX2P, XGPIOC_7);
-    PINMUX_CONFIG(PAD_MIPIRX2N, XGPIOC_6);
+    // PINMUX_CONFIG(PAD_MIPIRX2P, XGPIOC_7);
+    // PINMUX_CONFIG(PAD_MIPIRX2N, XGPIOC_6);
 }
 
 static void _MipiTxPinmux(void)
@@ -87,6 +89,13 @@ void PLATFORM_IoInit(void)
     _MipiRxPinmux();
     _MipiTxPinmux();
     _SensorPinmux();
+
+    //config UART1(IIC0 pins)
+    PINMUX_CONFIG(IIC0_SCL, UART1_TX);
+    PINMUX_CONFIG(IIC0_SDA, UART1_RX);
+
+    //turn off ir led
+    _GPIOSetValue(4, 20, 0);
 }
 
 void PLATFORM_PowerOff(void)

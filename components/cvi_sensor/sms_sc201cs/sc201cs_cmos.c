@@ -43,7 +43,7 @@ ISP_SNS_STATE_S *g_pastSc201cs[VI_MAX_PIPE_NUM] = {CVI_NULL};
 #define SC201CS_SENSOR_RESET_CTX(dev)         (g_pastSc201cs[dev] = CVI_NULL)
 
 ISP_SNS_COMMBUS_U g_aunSc201cs_BusInfo[VI_MAX_PIPE_NUM] = {
-	[0] = { .s8I2cDev = 2},
+	[0] = { .s8I2cDev = 1},
 	[1 ... VI_MAX_PIPE_NUM - 1] = { .s8I2cDev = -1}
 };
 
@@ -860,6 +860,11 @@ static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 	return sc201cs_probe(ViPipe);
 }
 
+static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
+{
+	return sc201cs_switch(ViPipe, switchCam);
+}
+
 ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnRegisterCallback    = sensor_register_callback,
 	.pfnUnRegisterCallback  = sensor_unregister_callback,
@@ -876,5 +881,6 @@ ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnExpSensorCb         = cmos_init_sensor_exp_function,
 	.pfnExpAeCb             = cmos_init_ae_exp_function,
 	.pfnSnsProbe            = sensor_probe,
+	.pfnSnsSwitch			= sensor_switch,
 };
 

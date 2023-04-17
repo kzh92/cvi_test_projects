@@ -113,6 +113,7 @@ typedef struct _ISP_SNS_OBJ_S {
 	CVI_S32 (*pfnExpSensorCb)(ISP_SENSOR_EXP_FUNC_S *);
 	CVI_S32 (*pfnExpAeCb)(AE_SENSOR_EXP_FUNC_S *);
 	CVI_S32 (*pfnSnsProbe)(VI_PIPE ViPipe);
+	CVI_S32 (*pfnSnsSwitch)(VI_PIPE ViPipe, CVI_U8 switchCam);
 } ISP_SNS_OBJ_S;
 
 typedef enum _SNS_TYPE_E {
