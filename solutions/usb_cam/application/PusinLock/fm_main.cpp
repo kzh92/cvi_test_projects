@@ -330,7 +330,6 @@ int GotoMain()
 
 #if (USE_VDBTASK)
     StartVDB();
-    startUVC();
 #endif // USE_VDBTASK
 #if (USE_WIFI_MODULE)
     g_pMySpiThread->Init();
@@ -449,7 +448,7 @@ int processGlobalMsg()
         {            
             if(pMsg->data1 == VDB_CAPTURED_IMAGE /*&& pMsg->data3 == g_pVDBTask->GetCounter()*/)
             {
-                dbug_printf("capture image result %d\n", pMsg->data2);
+                dbug_printf("capture image result %ld\n", pMsg->data2);
                 if(g_iJpgDataLen > 0)
                 {
                     s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(MR_SUCCESS, g_iJpgDataLen);

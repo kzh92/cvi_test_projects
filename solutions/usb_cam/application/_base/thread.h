@@ -18,7 +18,7 @@ public:
     void ThreadProc();
 
 protected:
-    void run();
+    virtual void run();
 
     mythread_ptr   m_thread;
 };

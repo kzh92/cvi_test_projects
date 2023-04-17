@@ -340,7 +340,7 @@ enum E_Baud_Rate
 
 #define FRM_PT_DEFAULT_3_3          200   //3.3 default
 #define FRM_PT_DEFAULT_3_3_720P     201   //3.3 720p
-#define FRM_PRODUCT_TYPE            FRM_PT_S22_DEFAULT
+#define FRM_PRODUCT_TYPE            FRM_PT_S22_DEFAULT_3_4
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT)
@@ -723,10 +723,11 @@ enum E_Baud_Rate
 #define CHECK_CLR_IR_SWITCH_THR             20
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
-#undef USE_UVC_PAUSE_MODE
-#define USE_UVC_PAUSE_MODE                  1
+// #undef USE_UVC_PAUSE_MODE
+// #define USE_UVC_PAUSE_MODE                  1
 #undef DEFAULT_LIVENESS_MODE
 #define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
+#define _SENSOR_GC2145_
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_3_4_XIAODIAN_MODE)

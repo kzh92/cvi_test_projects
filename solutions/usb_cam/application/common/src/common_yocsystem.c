@@ -83,19 +83,19 @@ extern void cli_reg_cmd_ifconfig(void);
 void YOC_SYSTEM_ToolInit()
 {
     //CLI放后面注册 先起流媒体
-    aos_cli_init();
-    debug_cli_cmd_init();
-    cli_reg_cmd_ps();
-    cli_reg_cmd_ls();
-#if (CONFIG_EXT4VFS_SUPPORT == 1)
-    cli_reg_cmd_rm();
-    cli_reg_cmd_cat();
-    cli_reg_cmd_mkdir();
-    cli_reg_cmd_mv();
-    cli_reg_cmd_ext4();
-#endif
-    cli_reg_cmd_iperf();
-    cli_reg_cmd_ifconfig();
+//     aos_cli_init();
+//     debug_cli_cmd_init();
+//     cli_reg_cmd_ps();
+//     cli_reg_cmd_ls();
+// #if (CONFIG_EXT4VFS_SUPPORT == 1)
+//     cli_reg_cmd_rm();
+//     cli_reg_cmd_cat();
+//     cli_reg_cmd_mkdir();
+//     cli_reg_cmd_mv();
+//     cli_reg_cmd_ext4();
+// #endif
+//     cli_reg_cmd_iperf();
+//     cli_reg_cmd_ifconfig();
     ulog_init();
     aos_set_log_level(AOS_LL_INFO);
     event_service_init(NULL);

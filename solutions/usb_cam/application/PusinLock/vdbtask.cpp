@@ -14,6 +14,7 @@
 #include "jpge.h"
 #include "check_camera_pattern.h"
 #include "sn.h"
+#include "uvc_func.h"
 #if (USE_WIFI_MODULE)
 #include "audiotask.h"
 #include "uartcomm.h"
@@ -187,6 +188,9 @@ int VDBTask::IsStreaming()
 
 void VDBTask::run()
 {
+    dbug_printf("before uvc init\n");
+    MEDIA_UVC_Init();
+    dbug_printf("after uvc init\n");
 #if 0
     float rOld = Now();
 

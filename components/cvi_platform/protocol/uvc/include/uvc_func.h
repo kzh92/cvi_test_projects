@@ -17,7 +17,17 @@
 		}																		 \
 	} while (0)
 
+#ifdef __cplusplus
+extern  "C"
+{
+#endif
+
 int MEDIA_UVC_Init();
 int MEDIA_UVC_DEInit();
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

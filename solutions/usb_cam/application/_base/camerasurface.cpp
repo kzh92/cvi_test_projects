@@ -800,8 +800,9 @@ int WaitClrCancel()
 
 void* ProcessDVPCapture(void */*param*/)
 {
-    int iTestMode = 0;
     dbug_printf("ProcessDVPCapture\n");
+#if 0
+    int iTestMode = 0;
     g_iClrAuto = 0;
     int ret;
     //int iCheckFPS = 0;
@@ -1131,11 +1132,14 @@ void* ProcessDVPCapture(void */*param*/)
     WaitClrCancel();
 
     my_thread_exit(NULL);
+#endif
     return NULL;
 }
 
 void* ProcessTCMipiCapture(void */*param*/)
 {
+    dbug_printf("[%s]\n", __func__);
+#if 0
     int ret;
 
     MI_SYS_ChnPort_t stChnPort;
@@ -1269,7 +1273,7 @@ void* ProcessTCMipiCapture(void */*param*/)
     //적외선카메라를 끄기 전에 sub0으로 절환하여 끄게 함, 카메라끄기할때 카메라오유가 나오는 문제가 있음
     g_xSS.iShowIrCamera = 0;
     my_thread_exit(NULL);
-
+#endif
     return NULL;
 }
 

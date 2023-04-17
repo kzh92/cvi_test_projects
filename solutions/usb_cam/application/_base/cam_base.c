@@ -529,6 +529,7 @@ int camera_set_irled(int enable, int count)
 // #include "cam_base_vdb.c"
 int camera_init(int id, int width, int height, int switchIR_to)
 {
+#if 0
     my_mi_use_lock();
     if (g_cam_inited[id] != 0)
     {
@@ -780,10 +781,13 @@ err_snr:
     STCHECKRESULT(MI_SNR_Disable(ePADId));
     my_mi_use_unlock();
     return -1;
+#endif
+    return 0;
 }
 
 int camera_release(int id)
 {
+#if 0
     my_mi_use_lock();
     if (!g_cam_inited[id])
     {
@@ -840,18 +844,21 @@ int camera_release(int id)
     g_cam_inited[id] = 0;
     my_mi_use_unlock();
     return MI_SUCCESS;
+#endif
+    return 0;
 }
 
 #define I2C_ADDR_MIPI0_CAMERA 0x34
 #define I2C_ADDR_MIPI1_CAMERA 0x36
 #define I2C_ADDR_DVP_CAMERA   0x3C
 
-static myi2cdesc_ptr g_iMipiCam0 = 0;
-static myi2cdesc_ptr g_iMipiCam1 = 0;
-static myi2cdesc_ptr g_iDvpCam = 0;
+// static myi2cdesc_ptr g_iMipiCam0 = 0;
+// static myi2cdesc_ptr g_iMipiCam1 = 0;
+// static myi2cdesc_ptr g_iDvpCam = 0;
 
 int camera_mipi0_set_regval(unsigned char regaddr, unsigned char regval)
 {
+#if 0
     unsigned char szBuf[2] = { 0 };
     if (g_iMipiCam0 == 0) {
         my_i2c_open(MIPI1_I2C_PORT, &g_iMipiCam0);
@@ -863,11 +870,13 @@ int camera_mipi0_set_regval(unsigned char regaddr, unsigned char regval)
         my_i2c_write8(g_iMipiCam0, I2C_ADDR_MIPI0_CAMERA, szBuf, 2);
     }
     my_usleep(1000);
+#endif    
     return 0;
 }
 
 int camera_mipi0_get_regval(unsigned char regaddr)
 {
+#if 0
     unsigned char szBuf[2] = { 0 };
     if (g_iMipiCam0 == 0) {
         my_i2c_open(MIPI1_I2C_PORT, &g_iMipiCam0);
@@ -879,11 +888,14 @@ int camera_mipi0_get_regval(unsigned char regaddr)
         my_i2c_read8(g_iMipiCam0, I2C_ADDR_MIPI0_CAMERA, szBuf, 1);
     }
     return szBuf[0];
+#endif
+    return 0;
 }
 
 
 int camera_mipi1_set_regval(unsigned char regaddr, unsigned char regval)
 {
+#if 0
     unsigned char szBuf[2] = { 0 };
     if (g_iMipiCam1 == 0) {
         my_i2c_open(MIPI1_I2C_PORT, &g_iMipiCam1);
@@ -895,11 +907,13 @@ int camera_mipi1_set_regval(unsigned char regaddr, unsigned char regval)
         my_i2c_write8(g_iMipiCam1, I2C_ADDR_MIPI1_CAMERA, szBuf, 2);
     }
     my_usleep(1000);
+#endif
     return 0;
 }
 
 int camera_mipi1_get_regval(unsigned char regaddr)
 {
+#if 0
     unsigned char szBuf[2] = { 0 };
     if (g_iMipiCam1 == 0) {
         my_i2c_open(MIPI1_I2C_PORT, &g_iMipiCam1);
@@ -911,10 +925,13 @@ int camera_mipi1_get_regval(unsigned char regaddr)
         my_i2c_read8(g_iMipiCam1, I2C_ADDR_MIPI1_CAMERA, szBuf, 1);
     }
     return szBuf[0];
+#endif
+    return 0;
 }
 
 int camera_dvp_set_regval(unsigned char regaddr, unsigned char regval)
 {
+#if 0
     unsigned char szBuf[2] = { 0 };
     if (g_iDvpCam == 0) {
         my_i2c_open(MIPI0_I2C_PORT, &g_iDvpCam);
@@ -925,11 +942,13 @@ int camera_dvp_set_regval(unsigned char regaddr, unsigned char regval)
         szBuf[1] = regval;
         my_i2c_write8(g_iDvpCam, I2C_ADDR_DVP_CAMERA, szBuf, 2);
     }
+#endif
     return 0;
 }
 
 int camera_dvp_get_regval(unsigned char regaddr)
 {
+#if 0
     unsigned char szBuf[2] = { 0 };
     if (g_iDvpCam == 0) {
         my_i2c_open(MIPI0_I2C_PORT, &g_iDvpCam);
@@ -941,6 +960,8 @@ int camera_dvp_get_regval(unsigned char regaddr)
         my_i2c_read8(g_iDvpCam, I2C_ADDR_DVP_CAMERA, szBuf, 1);
     }
     return szBuf[0];
+#endif
+    return 0;
 }
 
 int camera_set_regval(int id, unsigned char regaddr, unsigned char regval)

@@ -37,7 +37,7 @@ int Get_Camera_my_Image(int PADId, unsigned char** buf)
     {
         *buf = g_irOnData1;
     }
-    return MI_SUCCESS;
+    return 0;
 }
 
 int camera_IR_led_on(int on)
