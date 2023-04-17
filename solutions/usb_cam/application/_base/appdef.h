@@ -107,6 +107,7 @@ enum E_Baud_Rate
 #define USE_FP16_ENGINE             1
 #define NOTE_INTERVAL_MS            0
 #define USE_NEW_RST_PROTO           1
+#define USE_16M_FLASH               1
 #define ENROLL_ANGLE_MODE           0
 #define ENGINE_USE_TWO_CAM          1
 #define YAOYANG_MODE                0
@@ -308,12 +309,20 @@ enum E_Baud_Rate
 #define ENROLL_DUPLICATION_CHECK            1
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              0
-#undef USE_WAEL_MODE
-#define USE_WAEL_MODE                       0
 #undef USE_DEMOMODE2
 #define USE_DEMOMODE2                       1
 #undef DEFAULT_LIVENESS_MODE
 #define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
+#undef N_MAX_PERSON_NUM
+#define N_MAX_PERSON_NUM                    10
+#undef USE_IRSNR_SC2355
+#define USE_IRSNR_SC2355                    1
+#undef IR_CAM_WIDTH
+#define IR_CAM_WIDTH                        1600
+#undef IR_CAM_HEIGHT
+#define IR_CAM_HEIGHT                       900
+#undef ENGINE_LENS_TYPE
+#define ENGINE_LENS_TYPE                    ENGINE_LENS_M277_2409
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)

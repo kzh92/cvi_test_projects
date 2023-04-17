@@ -28,7 +28,7 @@ static int iActiveIRCam = -1;
 mymutex_ptr g_clrBufLocker = 0;
 #endif // USE_VDBTASK
 mymutex_ptr g_camBufLock = 0;
-static int g_cam_inited[3] = {0};
+// static int g_cam_inited[3] = {0};
 
 #if 0
 #define RED_BOLD "\x1b[;31;1m"

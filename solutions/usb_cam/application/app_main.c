@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
 	YOC_SYSTEM_Init();
 	//board pinmux init
-	// PLATFORM_IoInit();
+	PLATFORM_IoInit();
 	//Fs init
 	YOC_SYSTEM_FsVfsInit();
 	//load cfg

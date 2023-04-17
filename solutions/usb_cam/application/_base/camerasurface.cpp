@@ -168,6 +168,9 @@ void StopClrCam()
 
 void StartCamSurface(int iMode)
 {
+    //kkk test
+    if (g_xSS.iRunningCamSurface == 1)
+        return;
 #if (USE_VDBTASK)
     g_xSS.iRunningCamSurface = 1;
 
@@ -265,11 +268,6 @@ void StartCamSurface(int iMode)
         if(g_iMipiCamInited == -1)
         {
             g_xSS.iCamError |= CAM_ERROR_MIPI1;
-
-#if 0
-            if(g_xSS.iAppType == APP_MAIN)
-                SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_TCMIPI, 0, 0);
-#endif
         }
     }
 
@@ -294,11 +292,6 @@ void StartCamSurface(int iMode)
         if(g_iDvpCamInited == -1)
         {
             g_xSS.iCamError |= CAM_ERROR_DVP1;
-
-#if 0
-            if(g_xSS.iAppType == APP_MAIN)
-                SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_DVP, 0, 0);
-#endif
         }
     }
 
@@ -325,6 +318,7 @@ void StartCamSurface(int iMode)
 
 void StopCamSurface()
 {
+    return; //kkk test
     g_xSS.iRunningCamSurface = 0;
 #if (USE_VDBTASK)
     if(g_capture0)
@@ -859,17 +853,17 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         if (iFrameCount == 0)
             printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
+        if (frm_num >= 2)
+            printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
         size_t image_size = stVideoFrame[0].stVFrame.u32Length[0];
 
         stVideoFrame[j].stVFrame.pu8VirAddr[0] =
         (CVI_U8 *)stVideoFrame[j].stVFrame.u64PhyAddr[0];
-        printf("paddr(%ld) vaddr(%p)\n",
-            stVideoFrame[j].stVFrame.u64PhyAddr[0],
-            stVideoFrame[j].stVFrame.pu8VirAddr[0]);
+        // printf("paddr(%ld) vaddr(%p)\n",
+        //     stVideoFrame[j].stVFrame.u64PhyAddr[0],
+        //     stVideoFrame[j].stVFrame.pu8VirAddr[0]);
 
         unsigned char *ptr = (unsigned char*)stVideoFrame[j].stVFrame.pu8VirAddr[0];
-        memcpy(ptr, (const void *)stVideoFrame[j].stVFrame.pu8VirAddr[0],
-            stVideoFrame[j].stVFrame.u32Length[0]);
 
         lockIRBuffer();
         size_t test_pos = 0;
@@ -885,7 +879,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         WaitIRCancel();
         g_iTwoCamFlag = -1;
-
 
         CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
         iFrameCount ++;
