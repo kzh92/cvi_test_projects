@@ -498,21 +498,6 @@ int GetIntCheckSum(int* piData, int iSize)
     return iCheckSum;
 }
 
-int UART_Baudrate(int iBaudRate)
-{
-    int iInBaudrate = B9600;
-    if(iBaudRate == Baud_Rate_19200)
-        iInBaudrate = B19200;
-    else if(iBaudRate == Baud_Rate_38400)
-        iInBaudrate = B38400;
-    else if(iBaudRate == Baud_Rate_57600)
-        iInBaudrate = B57600;
-    else if(iBaudRate == Baud_Rate_115200)
-        iInBaudrate = B115200;
-
-    return iInBaudrate;
-}
-
 int setUvcWindow(int width, int height)
 {
     int ret = 0;

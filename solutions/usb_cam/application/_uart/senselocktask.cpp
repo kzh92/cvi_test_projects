@@ -390,16 +390,18 @@ void SenseLockTask::run()
             int iRet = UART_Recv(abMsgHead, 1);
             if(iRet > 0 && abMsgHead[0] == SENSE_HEAD1)
             {
-                iRet = UART_Recv(abMsgHead + 1, 1);
+                iRet = UART_RecvDataForWait(abMsgHead + 1, 1, 10, 0);
                 if(iRet > 0 && abMsgHead[1] == SENSE_HEAD2)
                 {
                     iRecvHead = 1;
                     break;
                 }
+                else
+                    iSleepTime = 0;
             }
             else if(iRet > 0 && abMsgHead[0] == FM_HEADER)
             {
-                iRet = UART_Recv((unsigned char*)&xRecvEasenCmd + 1, sizeof(FM_CMD) - 1);
+                iRet = UART_RecvDataForWait((unsigned char*)&xRecvEasenCmd + 1, sizeof(FM_CMD) - 1, 100, 0);
                 if((iRet == sizeof(FM_CMD) - 1) && (xRecvEasenCmd.bChk == FaceModuleTask::GetCheckSum(&xRecvEasenCmd)))
                 {
                     iRecvEasenHead = 1;
@@ -407,6 +409,7 @@ void SenseLockTask::run()
                 }
                 else
                 {
+                    iSleepTime = 0;
                     if(iRet != sizeof(FM_CMD) - 1)
                         my_printf("[FM] Incomplete Easen Packet\n");
                     else if(xRecvEasenCmd.bChk == FaceModuleTask::GetCheckSum(&xRecvEasenCmd))

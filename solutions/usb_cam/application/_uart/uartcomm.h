@@ -52,6 +52,7 @@ int     UART_Recv(unsigned char * pBuf, int nBufLen);
 int     UART_Recv2(unsigned char * pBuf, int nBufLen);
 int     UART_NDelay();
 
+int     UART_Baudrate(int iBaudRate);
 void    UART_SetBaudrate(int iBaudrate);
 void    UART_SetBaudrate2(int iBaudrate);
 

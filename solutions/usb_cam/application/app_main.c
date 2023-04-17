@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
 	usleep(12 * 1000);
 	isp_daemon2_init(5566);
 	#endif
-	LOGI(TAG, "app start........\n");
 	fmMain();
 	APP_CustomEventStart();
 	while (1) {

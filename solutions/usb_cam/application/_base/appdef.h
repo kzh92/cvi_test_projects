@@ -55,6 +55,23 @@
     #define FP_MODE             FP_GOWEI
 #endif
 
+//uart baud rate
+enum E_Baud_Rate
+{
+    Baud_Rate_Min = 0,
+    Baud_Rate_115200 = 1, // 115200
+    Baud_Rate_230400 = 2, // 230400
+    Baud_Rate_460800 = 3, // 460800
+    Baud_Rate_1500000 = 4, // 1500000
+    Baud_Rate_9600 = 5, // 9600
+    Baud_Rate_19200 = 6, // 19200
+    Baud_Rate_38400 = 7, // 38400
+    Baud_Rate_57600 = 8, // 57600
+    Baud_Rate_End = 9,
+};
+
+#define BR_IS_VALID(b) ((b) > Baud_Rate_Min && (b) < Baud_Rate_End)
+
 //batt test
 #define AUTO_TEST           0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE       0

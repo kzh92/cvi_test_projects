@@ -72,15 +72,6 @@ enum
     KEY_FUNC_LONG_CLICK = 1032
 };
 
-enum E_Baud_Rate
-{
-    Baud_Rate_9600 = 1, // 9600
-    Baud_Rate_19200 = 2, // 19200
-    Baud_Rate_38400 = 3, // 38400
-    Baud_Rate_57600 = 4, // 57600
-    Baud_Rate_115200 = 5, // 115200
-};
-
 enum
 {
     E_TEST_FAILED,
@@ -462,7 +453,6 @@ int     GetZigbeeMode(int iZigbeeIdx);
 void    SetModifyUser(int iModify);
 void    SetMountStatus(int iSuccess);
 int     IsModifyUser();
-int     UART_Baudrate(int iBaudRate);
 int     setUvcWindow(int width, int height);
 void    lockUvcWindow();
 void    unlockUvcWindow();

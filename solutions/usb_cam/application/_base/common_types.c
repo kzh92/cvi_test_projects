@@ -682,7 +682,7 @@ void my_free_real_debug(void* pPtr, const char* strFile, int nLine)
 
 void my_usleep(int nUsec)
 {
-    aos_msleep((unsigned int)nUsec);
+    aos_msleep((unsigned int)nUsec / 1000);
 }
 
 // void my_printf(const char * format, ...)

@@ -698,7 +698,7 @@ int Upgrade_Firmware(void)
 static int main1(int argc, char** argv);
 int main0(int argc, char** argv)
 {
-    my_printf("Main: %0.3f\n", GetMonoTime());
+    my_printf("Main: %0.3f\n", Now());
 //    process_seg_fault();
 
     if (argc != 1 && argc != 2)
@@ -709,10 +709,7 @@ int main0(int argc, char** argv)
 
     DriverInit();
 
-    dbug_line;
-
     message_queue_init(&g_worker, sizeof(MSG), MAX_MSG_NUM);
-    dbug_line;
 
     if (CreateSharedLCD())
     {        
@@ -722,13 +719,10 @@ int main0(int argc, char** argv)
 
         return RET_POWEROFF;
     }
-    dbug_line;
 
     ReadCommonSettings();
-    dbug_line;
 
     ResetEngineParams();
-    dbug_line;
 
 #if 1
     ProcessInsmod(NULL);
@@ -1090,8 +1084,8 @@ static int main1(int argc, char** argv)
 #endif
 #ifndef NOTHREAD_MUL
     s_msg* msg = SenseLockTask::Get_Note(NID_READY);
-    g_pSenseTask->Send_Msg(msg);
     g_pSenseTask->SetActive(1);
+    g_pSenseTask->Send_Msg(msg);
     my_printf("Send Ready: %f\n", Now());
 #endif // ! NOTHREAD_MUL
 #endif // FM_PROTOCOL
@@ -1138,7 +1132,6 @@ static int main1(int argc, char** argv)
 int fmMain()
 {
     int ret = 0;
-    my_printf("app start!!!!!!!!!!\n");
     g_FlashReadWriteLock = my_mutex_init();
     g_MyPrintfLock = my_mutex_init();
 #if USE_VDBTASK
@@ -1291,8 +1284,8 @@ int MsgProcSense(MSG* pMsg)
             UART_Create();
             my_usleep(100*1000);
             s_msg* msg = SenseLockTask::Get_Note(NID_READY);
-            g_pSenseTask->Send_Msg(msg);
             g_pSenseTask->SetActive(1);
+            g_pSenseTask->Send_Msg(msg);
             my_printf("Send Ready, running, %0.3f\n", Now());
             return -1;
         }
