@@ -53,17 +53,19 @@ MK_GENERATED_PATH=${MK_SOLUTION_PATH}/generated
 rm -fr $MK_GENERATED_PATH
 mkdir -p $MK_GENERATED_PATH/data/
 
-echo $MK_SOLUTION_PATH
-echo $MK_BOARD_PATH
-echo $MK_CHIP_PATH
-echo $MK_GENERATED_PATH
+echo "[SOLUTION_PATH] $MK_SOLUTION_PATH"
+echo "[BOARD_PATH] $MK_BOARD_PATH"
+echo "[CHIP_PATH] $MK_CHIP_PATH"
+echo "[GENERATED_PATH] $MK_GENERATED_PATH"
 
+echo "Creating lfs partition..."
 if [ -d data ]; then
     LFS_SIZE=$(cat $MK_BOARD_PATH/configs/config.yaml | grep lfs | sed 's/[[:space:]\"]//g' | awk -F 'size:|}' '{print $2}' | xargs printf "%d\n")
 	$PRODUCT lfs ${MK_GENERATED_PATH}/data/lfs -c data -b 4096 -s ${LFS_SIZE}
 	cp -arf ${MK_GENERATED_PATH}/data/lfs  ${MK_GENERATED_PATH}/littlefs.bin
 fi
 
+echo "Copying bin to data..."
 if [ -d bin ]; then
 	cp -arf bin/*  ${MK_GENERATED_PATH}/data/
 fi
@@ -73,12 +75,19 @@ fi
 
 [ -f yoc.bin ] && cp -arf yoc.bin ${MK_GENERATED_PATH}/data/prim
 cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
+
+echo "Creating temp partitions..."
+cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/misc.bin
+cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/partwx.bin
+cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/pusr1.bin
+cp -f ${MK_GENERATED_PATH}/data/config.yaml ${MK_GENERATED_PATH}/data/pusr2.bin
+
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -e ${MK_GENERATED_PATH} -x
 
 #fota image
-echo "fota image generate..."
-$PRODUCT diff -f ${MK_GENERATED_PATH}/images.zip ${MK_GENERATED_PATH}/images.zip -r -v "1.1" -o ${MK_GENERATED_PATH}/fota.bin
+# echo "fota image generate..."
+# $PRODUCT diff -f ${MK_GENERATED_PATH}/images.zip ${MK_GENERATED_PATH}/images.zip -r -v "1.1" -o ${MK_GENERATED_PATH}/fota.bin
 
 if [ ! -f gdbinitflash ]; then
     cp -arf $MK_BOARD_PATH/script/gdbinitflash $BASE_PWD
