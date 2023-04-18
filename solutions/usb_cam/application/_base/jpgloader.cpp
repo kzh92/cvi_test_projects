@@ -1,5 +1,5 @@
 #include "jpgloader.h"
-
+#include "common_types.h"
 
 
 
@@ -96,8 +96,8 @@ int main(int argc, char* argv[]) {
 #if NJ_USE_LIBC
     #include <stdlib.h>
     #include <string.h>
-    #define njAllocMem malloc
-    #define njFreeMem  free
+    #define njAllocMem my_malloc
+    #define njFreeMem  my_free
     #define njFillMem  memset
     #define njCopyMem  memcpy
 #elif NJ_USE_WIN32

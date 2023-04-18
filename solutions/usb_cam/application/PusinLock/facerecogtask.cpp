@@ -473,10 +473,10 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
     unsigned char* pbJpgData = NULL;
     unsigned char* g_abCapturedFace = NULL;
 
-    g_abCapturedFace = (unsigned char*)malloc(CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
+    g_abCapturedFace = (unsigned char*)my_malloc(CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
     if (!g_abCapturedFace)
     {
-        printf("[%s] malloc fail1.\n", __func__);
+        my_printf("[%s] malloc fail1.\n", __func__);
         return -1;
     }
 
@@ -486,18 +486,18 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
     jpge::params params;
 #if (USE_NEW_SNAPIMAGE_MODE)
     if (g_xSS.bSnapImageData == NULL)
-        g_xSS.bSnapImageData = (unsigned char*)malloc(SI_MAX_IMAGE_SIZE * SI_MAX_IMAGE_COUNT);
+        g_xSS.bSnapImageData = (unsigned char*)my_malloc(SI_MAX_IMAGE_SIZE * SI_MAX_IMAGE_COUNT);
     if (g_xSS.bSnapImageData == NULL)
     {
-        printf("[%s] malloc fail2.\n", __func__);
+        my_printf("[%s] malloc fail2.\n", __func__);
         return -1;
     }
 #endif
-    pbJpgData = (unsigned char*)malloc(iMaxLen);
+    pbJpgData = (unsigned char*)my_malloc(iMaxLen);
     if (!pbJpgData)
     {
-        printf("[%s] malloc fail3.\n", __func__);
-        free(g_abCapturedFace);
+        my_printf("[%s] malloc fail3.\n", __func__);
+        my_free(g_abCapturedFace);
         return -1;
     }
 
@@ -517,7 +517,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
 
         if(iWriteLen < SI_MAX_IMAGE_SIZE)
         {
-            printf("Jpeg Quality: %d\n", i);
+            my_printf("Jpeg Quality: %d\n", i);
             break;
         }
     }
@@ -526,9 +526,9 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
         memcpy((unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE, pbJpgData, iWriteLen);
         g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
     }
-    printf("[%s]: %d, %d\n", __func__, iSaveIdx, iWriteLen);
+    my_printf("[%s]: %d, %d\n", __func__, iSaveIdx, iWriteLen);
     if (pbJpgData)
-        free(pbJpgData);
+        my_free(pbJpgData);
     return 0;
 }
 
@@ -619,7 +619,7 @@ int FaceRecogTask::ProcessCheckCamera1Step()
         memcpy(pInputImageBuffer2, g_irOnData2, IR_BUFFER_SIZE);
         unlockIRBuffer();
         res2 = (ENGINE_USE_TWO_CAM == 1) ? checkCameraPattern(pInputImageBuffer2) : 0;
-        printf("** check camera=%d,%d\n", res1, res2);
+        my_printf("** check camera=%d,%d\n", res1, res2);
         if (res1 != 0 || res2 != 0)
         {
             if (m_iHasIrError == 1)
@@ -636,7 +636,7 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 #if (MY_SAVE_ERROR_IMG)
             mount(TMP_DEVNAME, "/db1", TMP_FSTYPE, MS_NOATIME, "");
             _fp = fopen("/db1/f1.bin", "w");
-            printf("going to save ir cam1, %p.\n", _fp);
+            my_printf("going to save ir cam1, %p.\n", _fp);
             if (_fp != NULL)
             {
                 fwrite(pInputImageBuffer1, 1, IR_CAM_HEIGHT * IR_CAM_WIDTH, _fp);
@@ -651,7 +651,7 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 #if (MY_SAVE_ERROR_IMG)
             mount(TMP_DEVNAME, "/db1", TMP_FSTYPE, MS_NOATIME, "");
             _fp = fopen("/db1/f2.bin", "w");
-            printf("going to save ir cam2, %p.\n", _fp);
+            my_printf("going to save ir cam2, %p.\n", _fp);
             if (_fp != NULL)
             {
                 fwrite(pInputImageBuffer2, 1, IR_CAM_HEIGHT * IR_CAM_WIDTH, _fp);
@@ -815,7 +815,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     {
         if(arEngineResult[0] != ES_FAILED)
         {
-            printf("FRS %d, %f\n", iFindIndex, Now());
+            my_printf("FRS %d, %f\n", iFindIndex, Now());
             if (arEngineResult[1] == 0) //face
                 m_iResult = FACE_RESULT_SUCCESS;
             else if (arEngineResult[1] == 1) //hand

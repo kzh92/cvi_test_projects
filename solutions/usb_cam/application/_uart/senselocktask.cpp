@@ -1182,7 +1182,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data);
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
-            msg = (s_msg*)malloc(iMsgLen);
+            msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
 
             msg->mid = MID_REPLY;
@@ -1211,7 +1211,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt1);
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
-            msg = (s_msg*)malloc(iMsgLen);
+            msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
 
             msg->mid = MID_REPLY;
@@ -1241,7 +1241,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt_ext);
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
-            msg = (s_msg*)malloc(iMsgLen);
+            msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
 
             msg->mid = MID_REPLY;
@@ -1275,7 +1275,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt1);
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
-            msg = (s_msg*)malloc(iMsgLen);
+            msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
 
             msg->mid = MID_REPLY;

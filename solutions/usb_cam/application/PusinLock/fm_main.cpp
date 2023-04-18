@@ -1078,7 +1078,7 @@ static int main1(int argc, char** argv)
 
 #if (USE_AUTO_50_REPLY)
     s_msg* psMsg = NULL;
-    psMsg = (s_msg*)malloc(sizeof(raw_msg_init_enc));
+    psMsg = (s_msg*)my_malloc(sizeof(raw_msg_init_enc));
     memcpy(psMsg, raw_msg_init_enc, sizeof(raw_msg_init_enc));
     SendGlobalMsg(MSG_SENSE, (long)psMsg, 0, 0);
 #endif // USE_AUTO_50_REPLY
