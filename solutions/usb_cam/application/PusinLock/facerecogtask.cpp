@@ -99,7 +99,7 @@ void FaceRecogTask::Start(int iCmd)
     message_queue_init(&g_queue_face, sizeof(MSG), MAX_MSG_NUM);
 
 #if 1
-    if(my_thread_create_ext(&m_thread, NULL, faceRecogTask_ThreadProc1, this, (char*)"fatk", 8192, MYTHREAD_PRIORITY_HIGH))
+    if(my_thread_create_ext(&m_thread, NULL, faceRecogTask_ThreadProc1, this, (char*)"fatk", 16384, MYTHREAD_PRIORITY_HIGH))
         my_printf("[FRTask]create thread error.\n");
 #else
     run();
@@ -460,7 +460,7 @@ void FaceRecogTask::run()
 #endif // PROTECT_ENGINE
 
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
-    LOG_PRINT("[Recog] Verify Face End!\n");
+    dbug_printf("[Recog] Verify Face End!\n");
     g_xSS.rFaceEngineTime = 0;
     g_iFirstCamFlag = 0;
     reset_ir_exp_gain();
