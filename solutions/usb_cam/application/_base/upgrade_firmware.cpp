@@ -174,7 +174,10 @@ void doUpgradeFirmware()
         UpdateHeadInfos();
     }
 #endif
-    int iUsbHost = !GPIO_fast_getvalue(GPIO_USBSense);
+    int iUsbHost = 0;
+#ifdef GPIO_USBSense
+    iUsbHost = !GPIO_fast_getvalue(GPIO_USBSense);
+#endif // GPIO_USBSense
     if (iUsbHost)
     {
         int i = 0;

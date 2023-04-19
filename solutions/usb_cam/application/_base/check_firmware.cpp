@@ -331,7 +331,10 @@ void doCheckFirmware()
 
     //int iUpgradeFlag = g_xCS.x.bUpgradeFlag;
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;
-    int iUsbHost = !GPIO_fast_getvalue(GPIO_USBSense);
+    int iUsbHost = 0;
+#ifdef GPIO_USBSense
+    iUsbHost = !GPIO_fast_getvalue(GPIO_USBSense);
+#endif // GPIO_USBSense
     my_printf("UsbHost = %d\n", iUsbHost);
 
     {

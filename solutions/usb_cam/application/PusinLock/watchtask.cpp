@@ -299,13 +299,12 @@ void WatchTask::ScanBattery(int iSendFlag)
 void WatchTask::run()
 {
     int iROKCounter = 0;
-    int iPowerOnFlag = 0;
     my_printf("=========== WatchTask start\n");
-#if (YAOYANG_MODE)
-    iPowerOnFlag = !GPIO_fast_getvalue(PSENSE_DET);
-#else
-    iPowerOnFlag = GPIO_fast_getvalue(PSENSE_DET);
-#endif
+#ifdef PSENSE_DET
+    int iPowerOnFlag = 0;
+    iPowerOnFlag = YAOYANG_MODE ? (!GPIO_fast_getvalue(PSENSE_DET)) : GPIO_fast_getvalue(PSENSE_DET);
+#endif // PSENSE_DET
+
     while(m_iRunning)
     {
         float rNow = Now();
@@ -319,14 +318,14 @@ void WatchTask::run()
             }
         }
         my_mutex_unlock(m_xTimerMutex);
+#ifdef PSENSE_DET
         int bFlag = YAOYANG_MODE ? !GPIO_fast_getvalue(PSENSE_DET): GPIO_fast_getvalue(PSENSE_DET);
         if (bFlag == 0 && iPowerOnFlag != 0)
         {
             SendGlobalMsg(MSG_SENSE, 0, SENSE_READY_DETECTED, 0);
         }
-//        if (iPowerOnFlag != bFlag)
-//            my_printf("bFlag = %d\n", bFlag);
         iPowerOnFlag = (bFlag != 0);
+#endif // PSENSE_DET
 
         if((iROKCounter % 10) == 0)
         {
