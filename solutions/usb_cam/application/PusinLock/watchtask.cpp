@@ -361,8 +361,8 @@ void WatchTask::run()
                 if (g_xSS.iStartOta == 0 && g_xSS.rAppStartTime != 0 && Now() - g_xSS.rAppStartTime >= USB_UPGRADE_TIMEOUT * 1000)
                 {
                     //power off module
-                    SendGlobalMsg(MSG_SENSE, 0, OTA_USB_DETECTED, 1);
-                    my_printf("ota: send OTA_USB_DETECTED\n");
+                    // SendGlobalMsg(MSG_SENSE, 0, OTA_USB_DETECTED, 1);
+                    // my_printf("ota: send OTA_USB_DETECTED\n");
                 }
                 else if (g_xSS.rAppStartTime != 0 && Now() - g_xSS.rAppStartTime >= USB_DETECT_TIMEOUT * 1000)
                 {
