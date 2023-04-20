@@ -18,6 +18,8 @@
 #include "cvi_vi.h"
 #include "cvi_isp.h"
 #include "cvi_buffer.h"
+#include "vfs.h"
+#include <fcntl.h>
 
 #include <errno.h>
 #include <string.h>
@@ -703,7 +705,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         frm_num = 1;
 
-        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 1000);
+        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)
         {
             g_xSS.iCamError = CAM_ERROR_MIPI2;
@@ -724,7 +726,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         unsigned char *ptr = (unsigned char*)stVideoFrame[0].stVFrame.pu8VirAddr[0];
 
-        dbug_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
+        // dbug_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 
         if(iFrameCount == 0 && camera_get_actIR() == MIPI_CAM_S2LEFT)
@@ -760,7 +762,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 
             lockIRBuffer();
             size_t test_pos = 0;
-            for (int k = 0 ; k < (int)image_size; k+=3)
+            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
             {
                 g_irOnData2[test_pos++] = ptr[k];
                 g_irOnData2[test_pos++] = ptr[k+1];
@@ -783,7 +785,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
             lockIRBuffer();
             size_t test_pos = 0;
-            for (int k = 0 ; k < (int)image_size; k+=3)
+            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
             {
                 g_irOnData1[test_pos++] = ptr[k];
                 g_irOnData1[test_pos++] = ptr[k+1];
@@ -791,6 +793,23 @@ void* ProcessTCMipiCapture(void */*param*/)
                     break;
             }
             unlockIRBuffer();
+#if 0
+            char szFileName[256];
+            //save image
+            int fd;
+            sprintf(szFileName, "/mnt/sd/frame%03d.bin", iFrameCount);
+            fd = aos_open(szFileName, O_CREAT | O_RDWR | O_TRUNC);
+            if (fd > -1)
+            {
+                aos_write(fd, g_irOnData1, IR_BUFFER_SIZE);
+                aos_close(fd);
+                my_printf("write ok: %s\n", szFileName);
+            }
+            else
+            {
+                my_printf("open failed: %s\n", szFileName);
+            }
+#endif
 
             if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             {
@@ -833,7 +852,6 @@ void* ProcessTCMipiCapture(void */*param*/)
         iFrameCount ++;
     }
 
-    //적외선카메라를 끄기 전에 sub0으로 절환하여 끄게 함, 카메라끄기할때 카메라오유가 나오는 문제가 있음
     g_xSS.iShowIrCamera = 0;
     my_thread_exit(NULL);
 
