@@ -18,13 +18,14 @@
 // #include <sys/ioctl.h>
 // #include <linux/i2c-dev.h>
 #include "engineparam.h"
+#include "common_vi.h"
 
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t g_i2c1_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 mymutex_ptr g_cam_init_mutex = NULL;
+static int iActiveIRCam = -1;
 
 #if (USE_VDBTASK)
-static int iActiveIRCam = -1;
 mymutex_ptr g_clrBufLocker = 0;
 #endif // USE_VDBTASK
 mymutex_ptr g_camBufLock = 0;
@@ -1088,46 +1089,6 @@ int camera_clr_get_gain()
     return b1;
 }
 
-int camera_switch(int id, int camid)
-{
-    int ret = -1;
-
-//    printf("camera_switch: %d\n", camid);
-    do
-    {
-        if(camid == MIPI_CAM_SUB0) // right cam
-        {
-            if(camera_set_regval(TC_MIPI_CAM, 0x7A, 0xCC) < 0) //pause
-                break;
-            if(camera_set_regval(TC_MIPI_CAM1, 0x7A, 0x4C) < 0) //resume
-                break;
-        }
-        else if(camid == MIPI_CAM_SUB1) // left cam
-        {
-            if(camera_set_regval(TC_MIPI_CAM1, 0x7A, 0xCC) < 0)
-                break;
-            if(camera_set_regval(TC_MIPI_CAM, 0x7A, 0x4C) < 0)
-                break;
-        }
-
-        ret = 0;
-    } while(0);
-
-    if(ret < 0)
-    {
-        my_printf("switch err  %d\n", camid);
-        return ret;
-    }
-
-    iActiveIRCam = camid;
-    return ret;
-}
-
-int camera_get_actIR()
-{
-    return iActiveIRCam;
-}
-
 void lockClrBuffer()
 {
     if (g_clrBufLocker == NULL)
@@ -1243,4 +1204,21 @@ void unlockIRBuffer()
     if (g_camBufLock == NULL)
         g_camBufLock = my_mutex_init();
     my_mutex_unlock(g_camBufLock);
+}
+
+int camera_switch(int id, int camid)
+{
+    // ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    // pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    // if (!pSnsObj)
+    //     return -1;
+    // pSnsObj->pfnSnsSwitch(0, camid);
+    iActiveIRCam = camid;
+    return 0;
+}
+
+int camera_get_actIR()
+{
+    return iActiveIRCam;
 }

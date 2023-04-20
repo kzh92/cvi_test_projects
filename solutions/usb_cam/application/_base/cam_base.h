@@ -19,6 +19,7 @@ extern "C"{
 #else // USE_VDBTASK
 #define MIPI_0_CAM              0
 #define MIPI_1_CAM              1
+#define TC_MIPI_CAM             MIPI_0_CAM   //left IR
 #endif // USE_VDBTASK
 
 #define MIPI_CAM_SUB0           0 // right IR
@@ -86,8 +87,6 @@ int camera_mipi1_set_regval(unsigned char regaddr, unsigned char regval);
 int camera_mipi1_get_regval(unsigned char regaddr);
 int camera_dvp_set_regval(unsigned char regaddr, unsigned char regval);
 int camera_dvp_get_regval(unsigned char regaddr);
-int camera_switch(int id, int camid);
-int camera_get_actIR();
 int camera_clr_set_exp(int value);
 int camera_clr_set_gain(int value);
 int camera_clr_get_exp();
@@ -97,6 +96,8 @@ void unlockClrBuffer();
 #else // USE_VDBTASK
 int camera_init(int id, int width, int height);
 #endif // USE_VDBTASK
+int camera_switch(int id, int camid);
+int camera_get_actIR();
 
 #ifdef __cplusplus
 }
