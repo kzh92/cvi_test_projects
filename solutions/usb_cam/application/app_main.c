@@ -15,6 +15,7 @@
 #include "wifi_if.h"
 #include "ethernet_init.h"
 #include "fm_main.h"
+#include "uvc_func.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
+	MEDIA_UVC_Init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();
