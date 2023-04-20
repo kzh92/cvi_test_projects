@@ -42,4 +42,4 @@ partitions:
   # - { name: cxrot,  address: 0xFBE000, size: 0x001000, index: 0  }                                # 4 KB
   # - { name: cxuser, address: 0xFBF000, size: 0x004000, index: 0  }                                # 16 KB
   # - { name: cxface, address: 0xFC3000, size: 0x03C000, index: 0  }                                # 240 KB
-  # - { name: fatfs,  address: 0x000000, size: 0, index: 2 }                                        # size = 0 let device decide size
+  - { name: fatfs,  address: 0x000000, size: 0, index: 2 }                                        # size = 0 let device decide size
