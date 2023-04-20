@@ -502,7 +502,8 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
     }
 
     int iWriteLen = 0;
-    for(int i = 90; i >= 10; i -= 10)
+    float rOld = Now();
+    for(int i = 60; i >= 10; i -= 10)
     {
         jpge::params params;
         params.m_quality = i;
@@ -526,7 +527,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
         memcpy((unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE, pbJpgData, iWriteLen);
         g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
     }
-    my_printf("[%s]: %d, %d\n", __func__, iSaveIdx, iWriteLen);
+    my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
     if (pbJpgData)
         my_free(pbJpgData);
     return 0;
