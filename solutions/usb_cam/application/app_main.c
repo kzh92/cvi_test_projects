@@ -16,6 +16,7 @@
 #include "ethernet_init.h"
 #include "fm_main.h"
 #include "uvc_func.h"
+#include "cvi_tpu_interface.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -54,7 +55,11 @@ int main(int argc, char *argv[])
 	usleep(12 * 1000);
 	isp_daemon2_init(5566);
 	#endif
+	//init tpu
+	cvi_tpu_init();
+	
 	fmMain();
+	
 	APP_CustomEventStart();
 	while (1) {
 		aos_msleep(3000);
