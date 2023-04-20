@@ -33,6 +33,7 @@
 #include "check_firmware.h"
 #include "upgrade_firmware.h"
 #include "vdbtask.h"
+#include "uvc_func.h"
 
 #include <fcntl.h>
 #include <string.h>
@@ -562,6 +563,8 @@ void UART_Release()
 void* ProcessInsmod(void *param)
 {
     StartFirstCam();
+    //start uvc
+    MEDIA_UVC_Init();
 
     my_thread_exit(NULL);
     return NULL;
@@ -719,12 +722,7 @@ int main0(int argc, char** argv)
     ResetSystemState(APP_MAIN);
     ResetEngineParams();
 
-#if 1
-    ProcessInsmod(NULL);
-#else
     my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 4096, MYTHREAD_PRIORITY_MEDIUM);
-    //feTaskCustomFunction_arg1((void*)ProcessInsmod, NULL);
-#endif
 
 #if (USE_VDBTASK)
     StartClrCam();

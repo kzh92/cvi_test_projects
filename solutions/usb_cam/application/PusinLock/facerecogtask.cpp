@@ -354,7 +354,7 @@ void FaceRecogTask::run()
         iTimeout = DETECTION_TIMEOUT;
 
     dbug_printf("Timeout: %d\n", iTimeout);
-    test_tpu();
+    // test_tpu();
 
     if(g_xSS.iRestoreRootfs)
     {
