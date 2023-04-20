@@ -19,6 +19,8 @@
 // #include "shared.h"
 #include "check_camera_pattern.h"
 #include "sn.h"
+#include <cviruntime.h>
+#include <vfs.h>
 
 // #include <unistd.h>
 // #include <stdlib.h>
@@ -52,6 +54,150 @@ void* faceRecogTask_ThreadProc1(void* param);
 message_queue g_queue_face;
 
 extern void EndIns();
+
+
+void* test_thread1(void* param)
+{
+    my_printf("test1\n");
+    float sum = 0;
+    float rOld = Now();
+    for (int i = 0; i < 10000000; i ++)
+        sum += i * 1.0;
+    my_printf("test1 sum=%0.3f, %0.3f, %0.3f, %0.3f\n\n", sum, Now() - rOld, rOld, Now());
+    return NULL;
+}
+
+void* test_thread2(void* param)
+{
+    my_printf("test2 \n");
+    float sum = 0;
+    float rOld = Now();
+    for (int i = 0; i < 10000000; i ++)
+        sum += i * 1.0;
+    my_printf("test2 sum=%0.3f, %0.3f, %0.3f, %0.3f\n\n", sum, Now() - rOld, rOld, Now());
+    return NULL;
+}
+
+void* test_thread3(void* param)
+{
+    my_printf("test2 \n");
+    float sum = 0;
+    float rOld = Now();
+    for (int i = 0; i < 10000000; i ++)
+        sum += i * 1.0;
+    my_printf("test3 sum=%0.3f, %0.3f, %0.3f, %0.3f\n\n", sum, Now() - rOld, rOld, Now());
+    return NULL;
+}
+
+void* test_thread4(void* param)
+{
+    my_printf("test2 \n");
+    float sum = 0;
+    float rOld = Now();
+    for (int i = 0; i < 10000000; i ++)
+        sum += i * 1.0;
+    my_printf("test4 sum=%0.3f, %0.3f, %0.3f, %0.3f\n\n", sum, Now() - rOld, rOld, Now());
+    return NULL;
+}
+
+void test_tpu()
+{
+    my_printf("[%s] start\n", __func__);
+    mythread_ptr t1, t2, t3, t4;
+    my_thread_create_ext(&t1, NULL, test_thread1, NULL, (char*)"fatk", 8192, MYTHREAD_PRIORITY_HIGH);
+    my_thread_create_ext(&t2, NULL, test_thread2, NULL, (char*)"fatk", 8192, MYTHREAD_PRIORITY_HIGH);
+    my_thread_create_ext(&t3, NULL, test_thread2, NULL, (char*)"fatk", 8192, MYTHREAD_PRIORITY_HIGH);
+    my_thread_create_ext(&t4, NULL, test_thread2, NULL, (char*)"fatk", 8192, MYTHREAD_PRIORITY_HIGH);
+    my_printf("[%s] end\n", __func__);
+    return;
+    CVI_MODEL_HANDLE model_model = nullptr;
+
+    CVI_TENSOR *input_tensors_model;
+    CVI_TENSOR *output_tensors_model;
+    CVI_TENSOR *model_input;
+    CVI_TENSOR *model_output;
+
+    float* ptr_model_input = 0;
+    float* ptr_model_output = 0;
+    int32_t input_num_model;
+    int32_t output_num_model;
+    int iter = 10;
+    char fn_model[256];
+    char im_model[256];
+    unsigned char* img_model = NULL;
+    int fd = -1;
+    sprintf(fn_model, "%s", "/mnt/sd/models/model1.bin");
+    sprintf(im_model, "%s", "/mnt/sd/models/m_img1.bin");
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+
+    fd = aos_open(fn_model, O_RDONLY);
+    if (fd > -1)
+    {
+        my_printf("open ok: %s\n", fn_model);
+        aos_close(fd);
+    }
+    else
+    {
+        my_printf("open fail: %s\n", fn_model);
+        return;
+    }
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+
+    int ret = CVI_NN_RegisterModel(fn_model, &model_model);
+    if (CVI_RC_SUCCESS != ret) {
+        my_printf("CVI_NN_RegisterModel failed, err %d : %s\n", ret, fn_model);
+        return;
+    }
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    CVI_NN_GetInputOutputTensors(model_model, &input_tensors_model, &input_num_model, &output_tensors_model, &output_num_model);
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    img_model = (unsigned char*)my_malloc(64 * 64);
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    fd = aos_open(im_model, O_RDONLY);
+    if (fd > -1)
+    {
+        aos_read(fd, img_model, 64*64);
+        aos_close(fd);
+        my_printf("open ok: %s\n", im_model);
+    }
+    else
+    {
+        my_printf("open fail: %s\n", im_model);
+    }
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+
+    model_input = CVI_NN_GetTensorByName(CVI_NN_DEFAULT_TENSOR, input_tensors_model, input_num_model);
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    model_output = CVI_NN_GetTensorByName(CVI_NN_DEFAULT_TENSOR, output_tensors_model, output_num_model);
+
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    ptr_model_input = (float*)CVI_NN_TensorPtr(model_input);
+    ptr_model_output = (float*)CVI_NN_TensorPtr(model_output);
+
+    for (int i = 0; i < 4096; i++)
+    {
+        ptr_model_input[i] = img_model[i] * 0.00390625f;
+    }
+
+    for (int i = 0; i <iter; i++)
+    {
+        float t0 = Now();
+        CVI_NN_Forward(model_model, input_tensors_model, input_num_model, output_tensors_model, output_num_model);
+        my_printf("model(%d)  : %.3fms \n", i, Now() - t0);
+    }
+
+
+    my_printf("------------------------------------ result\n");
+    for (int j = 0; j < 136; j++)
+    {
+        my_printf("%d:%f\n", j, ptr_model_output[j]);
+    }
+    my_printf("------------------------------------\n");
+
+    CVI_NN_CleanupModel(model_model);
+
+    my_printf("CVI_NN_CleanupModel succeeded\n");
+}
 
 FaceRecogTask::FaceRecogTask()
 {
@@ -208,6 +354,7 @@ void FaceRecogTask::run()
         iTimeout = DETECTION_TIMEOUT;
 
     dbug_printf("Timeout: %d\n", iTimeout);
+    test_tpu();
 
     if(g_xSS.iRestoreRootfs)
     {
