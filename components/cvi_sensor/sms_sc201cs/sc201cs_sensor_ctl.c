@@ -11,8 +11,8 @@
 #define SC201CS_CHIP_ID_ADDR_L	0x3108
 #define SC201CS_CHIP_ID		0xeb2c
 
-#define LEFT_CAM		0
-#define RIGHT_CAM		1
+#define LEFT_CAM		1
+#define RIGHT_CAM		0
 
 CVI_U8 iCurrentCam = LEFT_CAM;
 
@@ -166,13 +166,12 @@ void sc201cs_init(VI_PIPE ViPipe)
 	{
 		iCurrentCam = i;
 		sc201cs_linear_1200p30_init(ViPipe);
-		if (i == 0)
+		if (i == RIGHT_CAM)
 		{
 			sc201cs_write_register(ViPipe, 0x0100,0x01);
 			sc201cs_write_register(ViPipe, 0x3019,0xfe);
 		}
 	}
-	iCurrentCam = LEFT_CAM;
 
 	g_pastSc201cs[ViPipe]->bInit = CVI_TRUE;
 }
@@ -193,6 +192,7 @@ static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe)
 	sc201cs_write_register(ViPipe, 0x36e9, 0x01);
 	sc201cs_write_register(ViPipe, 0x3019, 0xff);
 	sc201cs_write_register(ViPipe, 0x301f, 0x01);
+	sc201cs_write_register(ViPipe, 0x320e, 0x05);//VTS:0x04e2 -> 0x05e2
 	sc201cs_write_register(ViPipe, 0x3248, 0x02);
 	sc201cs_write_register(ViPipe, 0x3253, 0x0a);
 	sc201cs_write_register(ViPipe, 0x3301, 0xff);

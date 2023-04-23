@@ -102,7 +102,7 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 	},
 	.mclk = {
-		.cam = 1,
+		.cam = 0,
 		.freq = CAMPLL_FREQ_24M,
 	},
 	.devno = 0,

@@ -684,9 +684,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 
     GPIO_fast_setvalue(IR_LED, ON);
 
-    memset(stVideoFrame, 0, sizeof(stVideoFrame));
-    stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
-    stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+    // memset(stVideoFrame, 0, sizeof(stVideoFrame));
+    // stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+    // stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
     attr.bEnable = 1;
     attr.u32Depth = 0;
@@ -704,6 +704,10 @@ void* ProcessTCMipiCapture(void */*param*/)
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
 
         frm_num = 1;
+
+        memset(stVideoFrame, 0, sizeof(stVideoFrame));
+        stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+        stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)

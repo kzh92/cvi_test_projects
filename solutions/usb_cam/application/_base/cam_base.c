@@ -1208,12 +1208,12 @@ void unlockIRBuffer()
 
 int camera_switch(int id, int camid)
 {
-    // ISP_SNS_OBJ_S *pSnsObj = NULL;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-    // pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
-    // if (!pSnsObj)
-    //     return -1;
-    // pSnsObj->pfnSnsSwitch(0, camid);
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+        return -1;
+    pSnsObj->pfnSnsSwitch(0, camid);
     iActiveIRCam = camid;
     return 0;
 }
