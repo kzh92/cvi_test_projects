@@ -25,7 +25,7 @@ int FaceEngine::Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHChec
 #else
     fr_SetSecurityMode(DEFAULT_TWINS_MODE);
 #endif
-    // fr_InitEngine(iDupCheck, iCamFlip, nDnnCheckSum, nHCheckSum);
+    fr_InitEngine(iDupCheck, iCamFlip, nDnnCheckSum, nHCheckSum);
     fr_SetCheckOpenEyeEnable(DESMAN_ENC_MODE == 0);
     dbm_Init(NULL);
 
