@@ -4,8 +4,8 @@
     <partition label="imtb" size_in_kb="8" file="imtb" />
     <partition label="prim" size_in_kb="3072" file="yoc.bin" />
     <partition label="misc" size_in_kb="328" file="misc.bin" />
-    <partition label="partwx" size_in_kb="4096" file="partwx.bin" />
-    <partition label="pusr1" size_in_kb="256" file="pusr1.bin" />
-    <partition label="pusr2" size_in_kb="256" file="pusr2.bin" />
+    <partition label="partwx" size_in_kb="4096" file="pwx" />
+    <partition label="pusr1" size_in_kb="256" file="pusr1" />
+    <partition label="pusr2" size_in_kb="256" file="pusr2" />
 </physical_partition>
 

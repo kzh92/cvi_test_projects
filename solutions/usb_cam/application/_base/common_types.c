@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <yoc/partition.h>
 
-#define MY_PART_MISC        "misc"
+#define MY_PART_MISC        "pwx"
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
@@ -34,171 +34,92 @@ int my_misc_read(unsigned int offset, void* buf, unsigned int length);
 int my_misc_write(unsigned int offset, void* buf, unsigned int length);
 //prebuilt functions
 
+typedef struct {
+    char* m_filename;
+    int m_filesize;
+} st_file_offsize;
+
+st_file_offsize g_part_files[] = {
+    {FN_WNO_DICT_PATH, FN_WNO_DICT_SIZE},
+    {FN_DETECT_DICT_PATH, FN_DETECT_DICT_SIZE},
+    {FN_DLAMK_DICT_PATH, FN_DLAMK_DICT_SIZE},
+#if (DESMAN_ENC_MODE == 0)
+    {FN_OCC_DICT_PATH, FN_OCC_DICT_SIZE},
+    {FN_ESN_DICT_PATH, FN_ESN_DICT_SIZE},
+#endif // DESMAN_ENC_MODE
+    {FN_A1_DICT_PATH, FN_A1_DICT_SIZE},
+    {FN_A2_DICT_PATH, FN_A2_DICT_SIZE},
+#if (ENGINE_USE_TWO_CAM)
+    {FN_B_DICT_PATH, FN_B_DICT_SIZE},
+    {FN_B2_DICT_PATH, FN_B2_DICT_SIZE},
+#endif // ENGINE_USE_TWO_CAM
+    {FN_C_DICT_PATH, FN_C_DICT_SIZE},
+#if (N_MAX_HAND_NUM)
+    {FN_DETECT_H_DICT_PATH, FN_DETECT_H_DICT_SIZE},
+    {FN_DLAMK_H_DICT_PATH, FN_DLAMK_H_DICT_SIZE},
+    {FN_CH_DICT_PATH, FN_CH_DICT_SIZE},
+#endif // N_MAX_HAND_NUM
+#if (USE_TWIN_ENGINE)
+    {FN_H1_DICT_PATH, FN_H1_DICT_SIZE},
+    {FN_H2_DICT_PATH, FN_H2_DICT_SIZE},
+#endif
+    {FN_FACE_IR_BIN_PATH, FN_FACE_IR_BIN_SIZE},
+    {NULL, 0},
+};
+
 int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
 {
-#if(MY_DICT_FLASH)
     int read_len = -1;
     int file_offset = 0;
-    int align_byte = 64;
-
+    int align_byte = FN_DICT_ALIGN_SIZE;
+    int idx = 0;
     file_offset = DICT_START_ADDR;
-    if (strstr(filename, "detect.bin"))
-        goto off_read_file;
-    file_offset += FN_DETECT_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "dlamk.bin"))
-        goto off_read_file;
-    file_offset += FN_DLAMK_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "occ.bin"))
-        goto off_read_file;
-    file_offset += FN_OCC_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "esn.bin"))
-        goto off_read_file;
-    file_offset += FN_ESN_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a1.bin"))
-        goto off_read_file;
-    file_offset += FN_A1_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a2.bin"))
-        goto off_read_file;
-    file_offset += FN_A2_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b.bin"))
-        goto off_read_file;
-    file_offset += FN_B_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b2.bin"))
-        goto off_read_file;
-    file_offset += FN_B2_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "c.bin"))
-        goto off_read_file;
-    file_offset += FN_C_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "wno.bin"))
-        goto off_read_file;
-    file_offset += FN_WNO_DICT_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_TEST_WAV_PATH))
-        goto off_read_file;
-    file_offset += FN_TEST_WAV_SIZE;
-    
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "act_mark.bin"))
-        goto off_read_file;
-    file_offset += ACT_MARK_LEN;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "actd.bin"))
-        goto off_read_file;
-    file_offset += 4;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "first.bin"))
-        goto off_read_file;
-
-    //invalid dict file.
-    return -1;
-
-off_read_file:
-    read_len = my_misc_read(file_offset + u32_offset, buf, u32_length);
-    return read_len;
-#else // MY_DICT_FLASH
-    int ret = -1;
-    myfdesc_ptr f;
-    f = my_open(filename, O_RDONLY, 0777);
-    if (is_myfdesc_ptr_valid(f))
+    while(g_part_files[idx].m_filename != NULL)
     {
-        ret = my_read_ext(f, buf, u32_length);
-        my_close(f);
+        if (!strcmp(g_part_files[idx].m_filename, filename))
+            break;
+        file_offset += g_part_files[idx].m_filesize;
+        file_offset = (file_offset + align_byte - 1) / align_byte * align_byte;
+        idx ++;
     }
-    return ret;
-#endif // MY_DICT_FLASH
+    if (g_part_files[idx].m_filename)
+    {
+        //found file
+        read_len = my_misc_read(file_offset + u32_offset, buf, u32_length);
+    }
+    else
+    {
+        //file not found
+        my_printf("file not found: %s\n", filename);
+    }
+    return read_len;
 }
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
 {
-#if(MY_DICT_FLASH)
-    int write_len = -1;
+    int read_len = -1;
     int file_offset = 0;
-    int align_byte = 64;
+    int align_byte = FN_DICT_ALIGN_SIZE;
+    int idx = 0;
     file_offset = DICT_START_ADDR;
-    if (strstr(filename, "detect.bin"))
-        goto off_write_file;
-    file_offset += FN_DETECT_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "dlamk.bin"))
-        goto off_write_file;
-    file_offset += FN_DLAMK_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "occ.bin"))
-        goto off_write_file;
-    file_offset += FN_OCC_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "esn.bin"))
-        goto off_write_file;
-    file_offset += FN_ESN_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a1.bin"))
-        goto off_write_file;
-    file_offset += FN_A1_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "a2.bin"))
-        goto off_write_file;
-    file_offset += FN_A2_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b.bin"))
-        goto off_write_file;
-    file_offset += FN_B_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "b2.bin"))
-        goto off_write_file;
-    file_offset += FN_B2_DICT_SIZE;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "c.bin"))
-        goto off_write_file;
-    file_offset += FN_C_DICT_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "wno.bin"))
-        goto off_write_file;
-    file_offset += FN_WNO_DICT_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, FN_TEST_WAV_PATH))
-        goto off_write_file;
-    file_offset += FN_TEST_WAV_SIZE;
-
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "act_mark.bin"))
-        goto off_write_file;
-    file_offset += ACT_MARK_LEN;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "actd.bin"))
-        goto off_write_file;
-    file_offset += 4;
-    file_offset = file_offset + ((align_byte - (file_offset % align_byte)) % align_byte);
-    if (strstr(filename, "first.bin"))
-        goto off_write_file;
-
-    //invalid dict file.
-    return -1;
-
-off_write_file:
-    write_len = my_misc_write(file_offset + u32_offset, buf, u32_length);
-    return write_len;
-#else // MY_DICT_FLASH
-    int ret = -1;
-    myfdesc_ptr f;
-    f = my_open(filename, O_RDONLY, 0777);
-    if (is_myfdesc_ptr_valid(f))
+    while(g_part_files[idx].m_filename != NULL)
     {
-        ret = my_read_ext(f, buf, u32_length);
-        my_close(f);
+        if (!strcmp(g_part_files[idx].m_filename, filename))
+            break;
+        file_offset += g_part_files[idx].m_filesize;
+        file_offset = (file_offset + align_byte - 1) / align_byte * align_byte;
+        idx ++;
     }
-    return ret;
-#endif // MY_DICT_FLASH
+    if (g_part_files[idx].m_filename)
+    {
+        //found file
+        read_len = my_misc_write(file_offset + u32_offset, buf, u32_length);
+    }
+    else
+    {
+        //file not found
+        my_printf("file not found: %s\n", filename);
+    }
+    return read_len;
 }
 
 #if (USE_WIFI_MODULE)

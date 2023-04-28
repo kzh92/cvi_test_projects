@@ -34,7 +34,7 @@ partitions:
   - { name: imtb,   address: 0x02C000, size: 0x002000, index: 0, filename: imtb}                                 # 8 KB
   - { name: prim,   address: 0x02E000, size: 0x300000, index: 0, filename: yoc.bin, load_addr: 0x80040000, update: FULL, car: xz }          # 3 MB
   - { name: misc,   address: 0x32E000, size: 0x52000, index: 0 }                                 # 0.5 MB
-  - { name: partwx,   address: 0x380000, size: 0x400000, index: 0 }                                 # 4 MB
+  - { name: pwx,   address: 0x380000, size: 0x400000, index: 0 }                                 # 4 MB
   - { name: pusr1,   address: 0x780000, size: 0x40000, index: 0 }                                 # 4 MB
   - { name: pusr2,   address: 0x7C0000, size: 0x40000, index: 0 }                                 # 4 MB
 #  - { name: kv,     address: 0xFAE000, size: 0x010000, index: 0 }                                # 64 KB

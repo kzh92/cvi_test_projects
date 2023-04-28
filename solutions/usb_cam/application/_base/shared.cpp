@@ -574,37 +574,13 @@ void GetSN(char* serialData)
 {
     if(serialData == NULL)
         return;
-#if 0
-    FILE* fp = fopen("/proc/cpuinfo", "r");
-    if(fp == NULL)
-        return;
 
-    char szLine[1024] = { 0 };
-    while(!feof(fp))
-    {
-        fgets(szLine, sizeof(szLine), fp);
-
-        if(strstr(szLine, "Serial"))
-            break;
-    }
-
-    fclose(fp);
-
-    char* tok = strtok(szLine, ": ");
-    if(tok == NULL)
-        return;
-
-    tok = strtok(NULL, ": \t\r\n");
-    if(tok == NULL)
-        return;
-#else
     char tok[20] = { 0 };
     unsigned int anUID[10] = { 0 };
     unsigned long long uuid = GetSSDID(anUID);
     sprintf(tok, "%llx", uuid);
 
     strcpy(serialData, tok);
-#endif
 }
 
 #ifdef USE_TWIN_ENGINE

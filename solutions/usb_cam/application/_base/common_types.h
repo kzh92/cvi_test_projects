@@ -76,43 +76,43 @@ typedef void* myi2cdesc_ptr;
 #define MYTHREAD_PRIORITY_HIGH          93
 #define MYTHREAD_PRIORITY_VERY_HIGH     97
 
-#define DICT_START_ADDR     0x00450000
-#define DICT_PART_SIZE      (8*1024*1024) //8MB
-#define USERDB_START_ADDR   (DICT_START_ADDR + DICT_PART_SIZE)
-#define USERDB_SIZE         0x00100000
-#define FN_WNO_DICT_SIZE        1262780
+#define DICT_START_ADDR                 0x0
+#define DICT_PART_SIZE                  (8*1024*1024) //8MB
+#define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
+#define USERDB_SIZE                     0x00100000
+#define FN_WNO_DICT_SIZE                1292988
 #if (USE_FP16_ENGINE == 0)
-#define FN_A1_DICT_SIZE         792992
-#define FN_A2_DICT_SIZE         792992
-#define FN_B_DICT_SIZE          792992
-#define FN_B2_DICT_SIZE         246968
-#define FN_C_DICT_SIZE          792992
-#define FN_DETECT_DICT_SIZE     180992
-#define FN_DLAMK_DICT_SIZE      1153056
+#define FN_A1_DICT_SIZE                 792992
+#define FN_A2_DICT_SIZE                 792992
+#define FN_B_DICT_SIZE                  792992
+#define FN_B2_DICT_SIZE                 246968
+#define FN_C_DICT_SIZE                  792992
+#define FN_DETECT_DICT_SIZE             180992
+#define FN_DLAMK_DICT_SIZE              1153056
 #else // USE_FP16_ENGINE == 0
-#define FN_A1_DICT_SIZE         (792992 / 2)
-#define FN_A2_DICT_SIZE         (792992 / 2)
-#define FN_B_DICT_SIZE          (792992 / 2)
-#define FN_B2_DICT_SIZE         (246968 / 2)
-#define FN_C_DICT_SIZE          (792992 / 2)
-#define FN_CH_DICT_SIZE         (792992 / 2)
-#define FN_DETECT_DICT_SIZE     (180992 / 2)
-#define FN_DETECT_H_DICT_SIZE   (180992 / 2)
-#define FN_DLAMK_DICT_SIZE      (1153056 / 2)
-#define FN_DLAMK_H_DICT_SIZE    451356
+#define FN_A1_DICT_SIZE                 (792992 / 2)
+#define FN_A2_DICT_SIZE                 (792992 / 2)
+#define FN_B_DICT_SIZE                  (792992 / 2)
+#define FN_B2_DICT_SIZE                 (246968 / 2)
+#define FN_C_DICT_SIZE                  (792992 / 2)
+#define FN_CH_DICT_SIZE                 (792992 / 2)
+#define FN_DETECT_DICT_SIZE             (180992 / 2)
+#define FN_DETECT_H_DICT_SIZE           (180992 / 2)
+#define FN_DLAMK_DICT_SIZE              (1153056 / 2)
+#define FN_DLAMK_H_DICT_SIZE            451356
 #endif // USE_FP16_ENGINE == 0
-#define FN_ESN_DICT_SIZE        123860
-#define FN_OCC_DICT_SIZE        363416
-#define FN_H1_DICT_SIZE         290964
-#define FN_H2_DICT_SIZE         4263260
+#define FN_ESN_DICT_SIZE                123860
+#define FN_OCC_DICT_SIZE                363416
+#define FN_H1_DICT_SIZE                 290964
+#define FN_H2_DICT_SIZE                 4263260
 
-#define UPGRADER_INFO_ADDR  (DICT_START_ADDR + DICT_PART_SIZE - 8192)
+#define UPGRADER_INFO_ADDR              (DICT_START_ADDR + DICT_PART_SIZE - 8192)
 
-#define APPLOG_LEN          4096
-#define APPLOG_START_ADDR   (UPGRADER_INFO_ADDR - 8192)
-#define APPLOG_SIZE_LEN     4
-#define UPGRADER_INFO_SIZE  64
-#define IR_ERROR_SAVE_ADDR  (16*1024*1024 - 1024*1024)
+#define APPLOG_LEN                      4096
+#define APPLOG_START_ADDR               (UPGRADER_INFO_ADDR - 8192)
+#define APPLOG_SIZE_LEN                 4
+#define UPGRADER_INFO_SIZE              64
+#define IR_ERROR_SAVE_ADDR              (16*1024*1024 - 1024*1024)
 
 #define FN_WNO_DICT_PATH        "/test/wno.bin"
 #define FN_WNOH_DICT_PATH       "/test/wnh.bin"
@@ -134,6 +134,10 @@ typedef void* myi2cdesc_ptr;
 #define FN_DICT_ALIGN_SIZE      64
 
 #define FN_FACE_BIN_PATH        "/test/face.bin"
+#define FN_FACE_IR_BIN_PATH     "/test/face_ir.bin"
+#define FN_FACE_CLR_BIN_PATH    "/test/face_clr.bin"
+
+#define FN_FACE_IR_BIN_SIZE     427136
 
 #define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
 #define FN_031TTS_WAV_SIZE  250028

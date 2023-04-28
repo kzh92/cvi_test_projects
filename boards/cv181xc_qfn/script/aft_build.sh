@@ -70,6 +70,9 @@ if [ -d bin ]; then
 	cp -arf bin/*  ${MK_GENERATED_PATH}/data/
 fi
 
+echo "Copying part files..."
+cp -rf ${BASE_PWD}/../../pack/images/* ${MK_GENERATED_PATH}/data/
+
 [ -f "${MK_BOARD_PATH}/bootimgs/boot" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/boot ${MK_GENERATED_PATH}/data/
 [ -f "${MK_BOARD_PATH}/bootimgs/boot0" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/boot0 ${MK_GENERATED_PATH}/data/
 
@@ -77,10 +80,7 @@ fi
 cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
 
 echo "Creating temp partitions..."
-dd if=/dev/zero of=${MK_GENERATED_PATH}/data/misc.bin bs=1024 count=328
-dd if=/dev/zero of=${MK_GENERATED_PATH}/data/partwx.bin bs=1024 count=4096
-dd if=/dev/zero of=${MK_GENERATED_PATH}/data/pusr1.bin bs=1024 count=256
-dd if=/dev/zero of=${MK_GENERATED_PATH}/data/pusr2.bin bs=1024 count=256
+dd if=/dev/zero of=${MK_GENERATED_PATH}/data/misc bs=1024 count=328
 
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -e ${MK_GENERATED_PATH} -x
