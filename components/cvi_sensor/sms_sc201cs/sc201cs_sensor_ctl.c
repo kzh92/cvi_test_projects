@@ -158,6 +158,22 @@ int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 	return CVI_SUCCESS;
 }
 
+int sc201cs_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
+{
+	int iCam = iCurrentCam;
+	iCurrentCam = 0;
+
+	sc201cs_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
+
+	iCurrentCam = 1;
+
+	sc201cs_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
+
+	iCurrentCam = iCam;
+
+	return CVI_SUCCESS;
+}
+
 void sc201cs_init(VI_PIPE ViPipe)
 {
 	// sc201cs_i2c_init(ViPipe);

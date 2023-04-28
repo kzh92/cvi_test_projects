@@ -75,6 +75,7 @@ extern int  sc201cs_write_register(VI_PIPE ViPipe, int addr, int data);
 extern int  sc201cs_read_register(VI_PIPE ViPipe, int addr);
 extern int  sc201cs_probe(VI_PIPE ViPipe);
 extern int  sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam);
+extern int  sc201cs_pattern_enable(VI_PIPE ViPipe, CVI_U8);
 
 #ifdef __cplusplus
 #if __cplusplus

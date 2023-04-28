@@ -1108,72 +1108,15 @@ void unlockClrBuffer()
 int camera_set_pattern_mode(int cam_id, int enable)
 {
     my_mi_use_lock();
-#if (USE_VDBTASK)
-    switch(cam_id)
-    {
-    case CAM_ID_CLR:
-        if (enable)
-        {
-            camera_set_regval(DVP_CAM, 0xfe, 0x00);
-            camera_set_regval(DVP_CAM, 0x82, 0xfa);
-            camera_set_regval(DVP_CAM, 0xad, 0x80);
-            camera_set_regval(DVP_CAM, 0xae, 0x80);
-            camera_set_regval(DVP_CAM, 0xaf, 0x80);
-            camera_set_regval(DVP_CAM, 0xed, 0x02);
-            camera_set_regval(DVP_CAM, 0xee, 0x30);
-            camera_set_regval(DVP_CAM, 0xef, 0x48);
-            camera_set_regval(DVP_CAM, 0xfe, 0x01);
-            camera_set_regval(DVP_CAM, 0x13, 0x78);
-            camera_set_regval(DVP_CAM, 0x01, 0x04);//AEC measure window x1
-            camera_set_regval(DVP_CAM, 0x02, 0x9e);//AEC measure window x2
-            camera_set_regval(DVP_CAM, 0x03, 0x08);//AEC measure window y1
-            camera_set_regval(DVP_CAM, 0x04, 0x75);//AEC measure window y2
-            camera_set_regval(DVP_CAM, 0xfe, 0x02);
-            camera_set_regval(DVP_CAM, 0x97, 0x48);
-#if (1)
-            camera_set_regval(DVP_CAM, 0xd0, 0x40);//Global saturation
-            camera_set_regval(DVP_CAM, 0xd1, 0x32);//Cb saturation
-            camera_set_regval(DVP_CAM, 0xd2, 0x32);//Cr saturation
-#endif
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-            camera_set_regval(DVP_CAM, 0xfe, 0x00);
-            camera_set_regval(DVP_CAM, 0xB6, 0x00);
-            camera_set_regval(DVP_CAM, 0xB2, 0x50);
-            camera_clr_set_exp(INIT_CLR_EXP);
-            camera_clr_set_gain(INIT_CLR_GAIN);
-            camera_set_regval(DVP_CAM, 0x8c, 0x0a); //pattern mode
-            camera_set_regval(DVP_CAM, 0x8d, 0x58); //pattern mode
-        }
-        else
-        {
-            camera_set_regval(DVP_CAM, 0xfe, 0x00);
-            camera_set_regval(DVP_CAM, 0xb6, 1); //AEC enable
-            camera_set_regval(DVP_CAM, 0x8c, 0x00); //normal mode
-            camera_set_regval(DVP_CAM, 0x8d, 0x01); //normal mode
-        }
-        break;
-    case CAM_ID_IR1:
-        camera_set_regval(TC_MIPI_CAM, 0x0C, enable ? 0x41: 0x40);
-        break;
-    case CAM_ID_IR2:
-        camera_set_regval(TC_MIPI_CAM1, 0x0C, enable ? 0x41: 0x40);
-        break;
-    default:
-        break;
-    }
-#else // USE_VDBTASK
-    switch(cam_id)
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
     {
-    case CAM_ID_IR1:
-        camera_set_regval(MIPI_0_CAM, 0x0C, enable ? 0x41: 0x40);
-        break;
-    case CAM_ID_IR2:
-        camera_set_regval(MIPI_1_CAM, 0x0C, enable ? 0x41: 0x40);
-        break;
-    default:
-        break;
+        my_mi_use_unlock();
+        return -1;
     }
-#endif // USE_VDBTASK
+    pSnsObj->pfnSnsPatternEn(0, enable);
     my_mi_use_unlock();
     return 0;
 }
@@ -1208,13 +1151,18 @@ void unlockIRBuffer()
 
 int camera_switch(int id, int camid)
 {
+    my_mi_use_lock();
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
     pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
     if (!pSnsObj)
+    {
+        my_mi_use_unlock();
         return -1;
+    }
     pSnsObj->pfnSnsSwitch(0, camid);
     iActiveIRCam = camid;
+    my_mi_use_unlock();
     return 0;
 }
 

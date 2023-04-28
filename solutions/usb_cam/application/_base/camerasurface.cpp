@@ -699,6 +699,11 @@ void* ProcessTCMipiCapture(void */*param*/)
 
     CVI_VI_GetPipeDumpAttr(dev, &attr);
 
+    if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+    {
+        camera_set_pattern_mode(TC_MIPI_CAM, 1);
+    }
+
     while (g_xSS.iRunningCamSurface)
     {
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
