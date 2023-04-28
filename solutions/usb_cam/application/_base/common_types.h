@@ -133,6 +133,15 @@ typedef void* myi2cdesc_ptr;
 
 #define FN_DICT_ALIGN_SIZE      64
 
+#define IR_TEST_BIN_WIDTH       752
+#define IR_TEST_BIN_HEIGHT      560
+#define IR_TEST_BIN_W_START     424
+#define IR_TEST_BIN_H_START     166
+#define CLR_TEST_BIN_WIDTH      174
+#define CLR_TEST_BIN_HEIGHT     136
+#define CLR_TEST_BIN_W_START    232
+#define CLR_TEST_BIN_H_START    172
+
 #define FN_FACE_BIN_PATH        "/test/face.bin"
 #define FN_FACE_IR_BIN_PATH     "/test/face_ir.bin"
 #define FN_FACE_CLR_BIN_PATH    "/test/face_clr.bin"
