@@ -9,6 +9,7 @@
 #include <aos/kernel.h>
 #include <fcntl.h>
 #include <yoc/partition.h>
+#include "cvi_sys.h"
 
 #define MY_PART_MISC        "pwx"
 
@@ -92,6 +93,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
         //file not found
         my_printf("file not found: %s\n", filename);
     }
+    dbug_printf("[%s] %s, off=%d, %d, %p.\n", __func__, filename, file_offset, read_len, buf);
     return read_len;
 }
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
@@ -759,18 +761,12 @@ int my_mount_misc()
 
 unsigned long long my_get_chip_id()
 {
-    // MI_U64 u64Uuid = 0;
+    CVI_U8 pu8SN[8] = {0};
 
-    // MI_S32 s32Ret = MI_ERR_SYS_FAILED;
-
-    // s32Ret = MI_SYS_ReadUuid (&u64Uuid);
-
-    // if(!s32Ret)
-    // {
-    //     dbug_printf("uuid: %llx\n",u64Uuid);
-    // }
-    // return u64Uuid;
-    return 0;
+    CVI_SYS_GetChipSN(pu8SN, 8);
+    unsigned long long ret = *(unsigned long long*)pu8SN;
+    my_printf("uuid: %llx\n", ret);
+    return ret;
 }
 
 int my_print_callstack()
@@ -1401,6 +1397,11 @@ int my_misc_read(unsigned int offset, void* buf, unsigned int length)
     int ret;
     my_mutex_lock(g_FlashReadWriteLock);
     partition_t partition = partition_open(MY_PART_MISC);
+    if (partition == 0)
+    {
+        my_printf("parition open failed: %s\n", MY_PART_MISC);
+        return 0;
+    }
     ret = partition_read(partition, offset, buf, length);
     partition_close(partition);
     my_mutex_unlock(g_FlashReadWriteLock);
