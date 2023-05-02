@@ -1,5 +1,6 @@
 #include "common_types.h"
 #include "drv_gpio.h"
+#include "settings.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -10,8 +11,6 @@
 #include <fcntl.h>
 #include <yoc/partition.h>
 #include "cvi_sys.h"
-
-#define MY_PART_MISC        "pwx"
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
@@ -33,6 +32,8 @@ int bSetKernelFlag = 1;
 
 int my_misc_read(unsigned int offset, void* buf, unsigned int length);
 int my_misc_write(unsigned int offset, void* buf, unsigned int length);
+int my_wx_read(unsigned int offset, void* buf, unsigned int length);
+int my_wx_write(unsigned int offset, void* buf, unsigned int length);
 //prebuilt functions
 
 typedef struct {
@@ -86,7 +87,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     if (g_part_files[idx].m_filename)
     {
         //found file
-        read_len = my_misc_read(file_offset + u32_offset, buf, u32_length);
+        read_len = my_wx_read(file_offset + u32_offset, buf, u32_length);
     }
     else
     {
@@ -114,7 +115,7 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
     if (g_part_files[idx].m_filename)
     {
         //found file
-        read_len = my_misc_write(file_offset + u32_offset, buf, u32_length);
+        read_len = my_wx_write(file_offset + u32_offset, buf, u32_length);
     }
     else
     {
@@ -835,89 +836,17 @@ int my_i2c_read8(myi2cdesc_ptr ptr, unsigned char addr, unsigned char* buf, unsi
 */
 int rootfs_is_first()
 {
-    return 0; //kkk
-#ifndef __RTK_OS__
-    int ret = 0;
-#if (NFS_DEBUG_EN)
-    return ret;
-#endif
-    char str_cmd[256];
-    int rfs_cur = get_cur_rootfs_part();
-    FILE* fp;
-    fp = fopen("/test/first", "rb");
-#if (ROOTFS_BAK)
-    if(fp == NULL)
-    {
-        if (rfs_cur == RFS_PART2)
-        {
-            //this is not a desired case.
-            my_printf("booted with the 3rd partition, no first flag.\n");
-            return 2; //poweroff
-        }
-        if (rfs_cur == RFS_PART1)
-            sprintf(str_cmd, "mount %s /home/default", RFS2_DEVNAME);
-        else
-            sprintf(str_cmd, "mount %s /home/default", RFS1_DEVNAME);
-        my_system(str_cmd);
-        fp = fopen("/home/default/etc/init.d/rcS", "rb");
-        if (fp)
-        {
-            fclose(fp);
-            fp = fopen("/home/default/test/first", "rb");
-            if (fp == NULL)
-            {
-                ret = 1;
-            }
-            else
-                fclose(fp);
-        }
-        my_system("umount -f /home/default");
-    }
+    if (g_xPS.x.bIsFirst != 0xAA)
+        return 1;
     else
-        fclose(fp);
-#endif
-
-    if(fp == NULL)
-    {
-        my_printf("        first boot\n");
-        ret = 1;
-    }
-    else
-        fclose(fp);
-
-    return ret;
-#else // !__RTK_OS__
-    int abuf = 0;
-    fr_ReadFileData(MY_PATH_FIRST_FLAG, 0, &abuf, 4);
-    dbug_printf("[%s] ab=%d\n", __func__, abuf);
-    return abuf == 0;
-#endif // !__RTK_OS__
+        return 0;
 }
 
 int rootfs_set_first_flag()
 {
-#ifndef __RTK_OS__
-    system("mount -o remount, rw /");
-    system("rm -f /etc/init.d/rcS_act");
-    FILE* fp = fopen("/test/first", "wb");
-    if(fp)
-    {
-        fflush(fp);
-        my_fsync(fileno(fp));
-        fclose(fp);
-    }
-    else
-    {
-        my_printf("failed to create first file.\n");
-    }
-
-    system("mount -r -o remount /");
-#else // !__RTK_OS__
-    int abuf = 0x55;
-    fr_WriteFileData(MY_PATH_FIRST_FLAG, 0, &abuf, 4);
-    dbug_printf("[%s] ab=%d\n", __func__, abuf);
+    g_xPS.x.bIsFirst = 0xAA;
+    UpdatePermanenceSettings();
     return 0;
-#endif // !__RTK_OS__
 }
 
 void test_led(int n)
@@ -1153,7 +1082,7 @@ int fr_InitAppLog()
 
     memset(wBuf, 0, sizeof(wBuf));
 
-    write_len = my_flash_write(file_offset, wBuf, APPLOG_LEN);
+    write_len = my_misc_write(file_offset, wBuf, APPLOG_LEN);
     return write_len;
 }
 
@@ -1163,7 +1092,7 @@ int fr_GetAppLogLen()
     int file_offset = 0;
     unsigned char buf[APPLOG_SIZE_LEN];
     file_offset = APPLOG_START_ADDR;
-    read_len = my_flash_read(file_offset, APPLOG_SIZE_LEN, buf, APPLOG_SIZE_LEN);
+    read_len = my_misc_read(file_offset, buf, APPLOG_SIZE_LEN);
     if (read_len != sizeof(buf))
         return 0;
 
@@ -1185,7 +1114,7 @@ int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* buf, unsi
     return -1;
 
 off_read_file:
-    read_len = my_flash_read(file_offset + u32_offset, u32_length, buf, u32_length);
+    read_len = my_misc_read(file_offset + u32_offset, buf, u32_length);
     return read_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -1244,7 +1173,7 @@ int fr_WriteAppLog(const char* filename, unsigned int u32_offset, void* buf, uns
     return -1;
 
 off_write_file:
-    write_len = my_flash_write(file_offset + u32_offset, wBuf, APPLOG_LEN);
+    write_len = my_misc_write(file_offset + u32_offset, wBuf, APPLOG_LEN);
     return write_len;
 #else // MY_DICT_FLASH
     int ret = -1;
@@ -1303,29 +1232,39 @@ int my_userdb_open(int part_no)
     return 0;
 }
 
-int my_userdb_read_real(int p_type, unsigned int offset, void* buf, unsigned int length)
+int my_flash_part_read(const char* part_name, unsigned int offset, void* buf, unsigned int length)
 {
     int ret;
     my_mutex_lock(g_FlashReadWriteLock);
-    partition_t partition = partition_open(dbfs_part_names[p_type]);
+    partition_t partition = partition_open(part_name);
+    if (partition < 0)
+    {
+        my_printf("[%s]part open fail: %s\n", __func__, part_name);
+        return 0;
+    }
     ret = partition_read(partition, offset, buf, length);
+    if (ret)
+    {
+        my_printf("[%s]part read fail: %s\n", __func__, part_name);
+        return 0;
+    }
     partition_close(partition);
     my_mutex_unlock(g_FlashReadWriteLock);
-    // dbug_printf("[%s] %d, %d, %d, res=%d\n", __func__, p_type, offset, length, ret);
-    // printf("buf: ");
-    // for (int i = 0; i < 16 && i < length; i ++)
-    //     printf("%02x ", ((unsigned char*)buf)[i]);
-    // printf("\n");
     if (ret)
         return 0;
     else
         return length;
 }
 
-int my_userdb_write_real(int p_type, unsigned int offset, void* buf, unsigned int length)
+int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, unsigned int length)
 {
     my_mutex_lock(g_FlashReadWriteLock);
-    partition_t partition = partition_open(dbfs_part_names[p_type]);
+    partition_t partition = partition_open(part_name);
+    if (partition < 0)
+    {
+        my_printf("[%s]part open fail: %s\n", __func__, part_name);
+        return 0;
+    }
 
     const int flash_page_size = 4*1024;
     unsigned int start_off = offset - (offset % flash_page_size);
@@ -1367,6 +1306,16 @@ int my_userdb_write_real(int p_type, unsigned int offset, void* buf, unsigned in
     return total_len;
 }
 
+int my_userdb_read_real(int p_type, unsigned int offset, void* buf, unsigned int length)
+{
+    return my_flash_part_read(dbfs_part_names[p_type], offset, buf, length);
+}
+
+int my_userdb_write_real(int p_type, unsigned int offset, void* buf, unsigned int length)
+{
+    return my_flash_part_write(dbfs_part_names[p_type], offset, buf, length);
+}
+
 int my_userdb_read(unsigned int offset, void* buf, unsigned int length)
 {
     return my_userdb_read_real(g_userdb_cur, offset, buf, length);
@@ -1392,37 +1341,34 @@ int my_backupdb_write(unsigned int offset, void* buf, unsigned int length)
     return my_userdb_write_real(DB_PART_BACKUP, offset, buf, length);
 }
 
+int my_settings_read(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_flash_part_read(MY_PART_SETT, offset, buf, length);
+}
+
+int my_settings_write(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_flash_part_write(MY_PART_SETT, offset, buf, length);
+}
+
 int my_misc_read(unsigned int offset, void* buf, unsigned int length)
 {
-    int ret;
-    my_mutex_lock(g_FlashReadWriteLock);
-    partition_t partition = partition_open(MY_PART_MISC);
-    if (partition == 0)
-    {
-        my_printf("parition open failed: %s\n", MY_PART_MISC);
-        return 0;
-    }
-    ret = partition_read(partition, offset, buf, length);
-    partition_close(partition);
-    my_mutex_unlock(g_FlashReadWriteLock);
-    if (ret)
-        return 0;
-    else
-        return length;
+    return my_flash_part_read(MY_PART_MISC, offset, buf, length);
 }
 
 int my_misc_write(unsigned int offset, void* buf, unsigned int length)
 {
-    int ret;
-    my_mutex_lock(g_FlashReadWriteLock);
-    partition_t partition = partition_open(MY_PART_MISC);
-    ret = partition_write(partition, offset, buf, length);
-    partition_close(partition);
-    my_mutex_unlock(g_FlashReadWriteLock);
-    if (ret)
-        return 0;
-    else
-        return length;
+    return my_flash_part_write(MY_PART_MISC, offset, buf, length);
+}
+
+int my_wx_read(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_flash_part_read(MY_PART_WX, offset, buf, length);
+}
+
+int my_wx_write(unsigned int offset, void* buf, unsigned int length)
+{
+    return my_flash_part_write(MY_PART_WX, offset, buf, length);
 }
 
 int dbfs_get_cur_part()

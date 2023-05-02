@@ -83,7 +83,9 @@ int main(int /*argc*/, char** /*argv*/)
     system("pwd");
     printf("--------------\n");
 
-    system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
+    //kkk test
+    system("cp -f " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
+    //system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
 #if (N_MAX_HAND_NUM)
     system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
 #endif
@@ -125,6 +127,7 @@ int main(int /*argc*/, char** /*argv*/)
     merge_files(merge_path1, IMAGEDIR "/pwx", FN_DICT_ALIGN_SIZE);
     system("dd if=/dev/zero of=" IMAGEDIR "/pusr1 bs=1024 count=8");
     system("dd if=/dev/zero of=" IMAGEDIR "/pusr2 bs=1024 count=8");
+    system("dd if=/dev/zero of=" IMAGEDIR "/pst bs=1024 count=8");
 
     return 0;
 }

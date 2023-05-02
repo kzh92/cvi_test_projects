@@ -92,7 +92,7 @@ enum
 typedef struct _tagPERMANENCE_SETTINGS
 {
     // [14]
-    unsigned char   bReserved0;         //bDebugEn;
+    unsigned char   bIsFirst;         //bDebugEn;
 
     unsigned char   bCamFlip:1;         //bCamFlip:1
     unsigned char   bReserved02:1;          // bSendLastMsg:1;

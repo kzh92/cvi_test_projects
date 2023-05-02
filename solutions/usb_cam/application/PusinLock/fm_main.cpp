@@ -914,10 +914,6 @@ int main0(int argc, char** argv)
                 return RET_REBOOT;
         }
     }
-    else
-    {
-        set_kernel_flag_action(0);
-    }
 
     if (g_xCS.x.bUsbHost != 0)
     {

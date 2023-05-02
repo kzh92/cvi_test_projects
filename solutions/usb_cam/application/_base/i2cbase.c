@@ -121,152 +121,11 @@ int I2C_SetPointer8(int iFile, int iAddr)
  */
 int I2C_Read8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
 {
-#ifndef __RTK_OS__
-    int iRet = -1;
-    g_xI2CMutex.Lock();
-    if(iLen > WORD_SIZE)
-    {
-        g_xI2CMutex.Unlock();
-        return iRet;
-    }
-#ifndef USE_IOCTL
-#if 0
-    iRet = I2C_SetPointer8(iFile, iAddr);
-    if(iRet < 0)
-    {
-        g_xI2CMutex.Unlock();
-        return -1;
-    }
-
-    if (read(iFile, pbData, iLen) != iLen)
-    {
-    }
-    else
-    {
-        LOG_PRINT("[I2C-1] Read 0x%0*x: ", 2, iAddr);
-        for (int i=0; i< iLen; i++)
-            LOG_PRINT("%0*x, ", 2, pbData[i]);
-        LOG_PRINT("\n");
-
-        g_xI2CMutex.Unlock();
-        return 0;
-    }
-#else
-    int iReadLen = 0;
-    int iPieceLen = 8;
-    while(iReadLen < iLen)
-    {
-        iRet = I2C_SetPointer8(iFile, iAddr + iReadLen);
-        if(iRet < 0)
-        {
-            g_xI2CMutex.Unlock();
-            return -1;
-        }
-
-        if(iReadLen + iPieceLen > iLen)
-            iPieceLen = iLen - iReadLen;
-
-        if (read(iFile, pbData + iReadLen, iPieceLen) != iPieceLen)
-        {
-            my_printf("[I2C-1] i2c read error\n");
-            g_xI2CMutex.Unlock();
-            return -1;
-        }
-        else
-        {
-            iReadLen += iPieceLen;
-            if(iReadLen >= iLen)
-            {
-                LOG_PRINT("[I2C-1] Read 0x%0*x: ", 2, iAddr);
-                for (int i=0; i< iLen; i++)
-                    LOG_PRINT("%0*x, ", 2, pbData[i]);
-                LOG_PRINT("\n");
-
-                g_xI2CMutex.Unlock();
-                return 0;
-            }
-        }
-    }
-#endif
-#else // !USE_IOCTL
-
-    unsigned char outbuf;
-    struct i2c_rdwr_ioctl_data packets;
-    struct i2c_msg messages[2];
-
-/*
-    * In order to read a register, we first do a "dummy write" by writing
-    * 0 bytes to the register we want to read from.  This is similar to
-    * the packet in set_i2c_register, except it‘s 1 byte rather than 2.
-    */
-    outbuf = iAddr;
-    messages[0].addr  = I2C_ADDR_M24C64;
-    messages[0].flags = 0;
-    messages[0].len   = sizeof(outbuf);
-    messages[0].buf   = &outbuf;
-
-    /* The data will get returned in this structure */
-    messages[1].addr  = I2C_ADDR_M24C64;
-    messages[1].flags = I2C_M_RD/* | I2C_M_NOSTART*/;
-    messages[1].len   = iLen;
-    messages[1].buf   = pbData;
-
-    /* Send the request to the kernel and get the result back */
-    packets.msgs      = messages;
-    packets.nmsgs     = 2;
-    if(ioctl(iFile, I2C_RDWR, &packets) < 0)
-    {
-        perror("Unable to send data");
-        g_xI2CMutex.Unlock();
-        return -1;
-    }
-    else
-    {
-        LOG_PRINT("[I2C-1] ^^^Read 0x%0*x: ", 2, iAddr);
-        for (int i=0; i< iLen; i++)
-            LOG_PRINT("%0*x, ", 2, pbData[i]);
-        LOG_PRINT("\n");
-
-        g_xI2CMutex.Unlock();
-        return 0;
-    }
-#endif // !USE_IOCTL
-    g_xI2CMutex.Unlock();
-    return -1;
-#else // !__RTK_OS__
-    //no need to use mutex
-    // tI2cMsg msg;
-    // unsigned char _buf[WORD_SIZE*2];
-    // if (iLen > WORD_SIZE)
-    //     return -1;
-    // //write address
-    // _buf[0] = iAddr;
-    // msg.addr = I2C_ADDR_M24C64;
-    // msg.flags = 0;
-    // msg.buf = _buf;
-    // msg.len = 1;
-    // CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
-    // //read data
-    // msg.addr = I2C_ADDR_M24C64;
-    // msg.flags = I2C_M_RD;
-    // msg.buf = _buf;
-    // msg.len = iLen;
-    // CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
-    // memcpy(pbData, _buf, iLen);
-
-    // LOG_PRINT("[I2C-1] ** Read 0x%0*x: ", 2, iAddr);
-    // for (int i = 0; i < iLen; i++)
-    // {
-    //     LOG_PRINT("%0*x, ", 2, pbData[i]);
-    // }
-    // LOG_PRINT("\n\r");
-    return 0;
-#endif // !__RTK_OS__
+    return (my_settings_read(iAddr, pbData, iLen) > 0 ? 0: -1);
 }
 
 int I2C_Read8(int iFile, int iAddr, unsigned char* pbData, int iLen)
 {
-    return 0;
     int ret = 0;
     for (int i = 0; i < 3; i ++)
     {
@@ -276,8 +135,6 @@ int I2C_Read8(int iFile, int iAddr, unsigned char* pbData, int iLen)
         my_printf("[%s]retry %d, addr=%08x, len=%d\n", __func__, i, iAddr, iLen);
         my_usleep(10*1000);
     }
-    // if (ret < 0)
-    //     exit(0);//power off
     return ret;
 }
 /**
@@ -289,102 +146,17 @@ int I2C_Read8(int iFile, int iAddr, unsigned char* pbData, int iLen)
  */
 int I2C_Write8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
 {
-#ifndef __RTK_OS__
-    unsigned char abData[WORD_SIZE * 2];
-    g_xI2CMutex.Lock();
-    if(iFile < 0)
-    {
-        g_xI2CMutex.Unlock();
-        return -1;
-    }
-#ifndef USE_IOCTL
-    abData[0] = iAddr;
-    memcpy(abData + 1, pbData, iLen);
-
-    if (write(iFile, abData, iLen + 1) != iLen + 1)
-    {
-        my_printf("[I2C-1] Error writing %i bytes, %x\n", iLen, iAddr);
-    }
-    else
-    {
-        LOG_PRINT("[I2C-1] Write 0x%0*x: ", 2, iAddr);
-        for (int i = 0; i < iLen; i++)
-        {
-            LOG_PRINT("%0*x, ", 2, pbData[i]);
-        }
-        LOG_PRINT("\n\r");
-        my_usleep(10000);      //!!!!
-
-        g_xI2CMutex.Unlock();
-        return 0;
-    }
-#else // !USE_IOCTL
-
-    struct i2c_rdwr_ioctl_data packets;
-    struct i2c_msg messages[1];
-
-    messages[0].addr  = I2C_ADDR_M24C64;
-    messages[0].flags = 0;
-    messages[0].len   = iLen + 1;
-    messages[0].buf   = pbData;
-
-    abData[0] = iAddr;
-    memcpy(abData + 1, pbData, iLen);
-
-    /* Transfer the i2c packets to the kernel and verify it worked */
-    packets.msgs  = messages;
-    packets.nmsgs = 1;
-    if(ioctl(iFile, I2C_RDWR, &packets) < 0)
-    {
-        perror("Unable to send data");
-        g_xI2CMutex.Unlock();
-        return -1;
-    }
-    else
-    {
-        LOG_PRINT("[I2C-1] ** Write 0x%0*x: ", 2, iAddr);
-        for (int i = 0; i < iLen; i++)
-        {
-            LOG_PRINT("%0*x, ", 2, pbData[i]);
-        }
-        LOG_PRINT("\n\r");
-        my_usleep(10000);      //!!!!
-
-        g_xI2CMutex.Unlock();
-        return 0;
-    }
-#endif // !USE_IOCTL
-    g_xI2CMutex.Unlock();
-    return -1;
-#else // !__RTK_OS__
-    //no need to use mutex
-    // tI2cMsg msg;
-    // unsigned char _buf[WORD_SIZE*2];
-    // if (iLen > WORD_SIZE)
-    //     return -1;
-    // //write address
-    // _buf[0] = iAddr;
-    // memcpy(_buf + 1, pbData, iLen);
-    // msg.addr = I2C_ADDR_M24C64;
-    // msg.flags = 0;
-    // msg.buf = _buf;
-    // msg.len = iLen + 1;
-    // CamI2cTransfer(&g_i2cHandleM24C64, &msg, 1);
-    // LOG_PRINT("[I2C-1] ** Write 0x%0*x: ", 2, iAddr);
-    // for (int i = 0; i < iLen; i++)
-    // {
-    //     LOG_PRINT("%0*x, ", 2, pbData[i]);
-    // }
-    // LOG_PRINT("\n\r");
-    // my_usleep(10000);      //!!!!
-
-    return 0;
-#endif // !__RTK_OS__
+    float rOld = Now();
+    int ret = my_settings_write(iAddr, pbData, iLen);
+    my_printf("[%s]wtime: %0.3f, off=%08x, len=%d\n", __func__, Now() - rOld, iAddr, iLen);
+    return ret > 0 ? 0: -1;
 }
 
+/*
+* return 0:ok, other: fail
+*/
 int I2C_Write8(int iFile, int iAddr, unsigned char* pbData, int iLen)
 {
-    return 0;
     unsigned char _buf[WORD_SIZE*2];
     int read_len = iLen;
     if ((int)sizeof(_buf) < read_len)
@@ -403,10 +175,8 @@ int I2C_Write8(int iFile, int iAddr, unsigned char* pbData, int iLen)
             return 0;
         }
         my_printf("[%s]retry %d, addr=%08x, len=%d\n", __func__, i, iAddr, iLen);
-        my_usleep(10*1000);
     }
 
-    // exit(0);//power off
     return -1;
 }
 

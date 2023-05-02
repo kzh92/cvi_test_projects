@@ -25,6 +25,10 @@
 #define RFS_SEC_SIZE        512
 #define SEC2BYTES(a)        ((a)*RFS_SEC_SIZE)
 
+#define MY_PART_SETT            "pst"
+#define MY_PART_MISC            "misc"
+#define MY_PART_WX              "pwx"
+
 #ifndef NULL
 #define NULL 0
 #endif
@@ -109,7 +113,7 @@ typedef void* myi2cdesc_ptr;
 #define UPGRADER_INFO_ADDR              (DICT_START_ADDR + DICT_PART_SIZE - 8192)
 
 #define APPLOG_LEN                      4096
-#define APPLOG_START_ADDR               (UPGRADER_INFO_ADDR - 8192)
+#define APPLOG_START_ADDR               0 //(UPGRADER_INFO_ADDR - 8192)
 #define APPLOG_SIZE_LEN                 4
 #define UPGRADER_INFO_SIZE              64
 #define IR_ERROR_SAVE_ADDR              (16*1024*1024 - 1024*1024)
@@ -201,6 +205,7 @@ void            my_usleep(int nUsec);
 // void            my_printf(const char * format, ...);
 //void            LOG_PRINT(const char * format, ...);
 #define LOG_PRINT(...)
+// #define LOG_PRINT my_printf
 myfdesc_ptr     my_open(const char *szpath, unsigned int nflag, unsigned int nmode);
 int             my_close(myfdesc_ptr _fd);
 int             my_read(myfdesc_ptr fd, void *buf, unsigned int count);
@@ -264,6 +269,8 @@ int             my_userdb_read(unsigned int offset, void* buf, unsigned int leng
 int             my_userdb_write(unsigned int offset, void* buf, unsigned int length);
 int             my_backupdb_read(unsigned int offset, void* buf, unsigned int length);
 int             my_backupdb_write(unsigned int offset, void* buf, unsigned int length);
+int             my_settings_read(unsigned int offset, void* buf, unsigned int length);
+int             my_settings_write(unsigned int offset, void* buf, unsigned int length);
 int             dbfs_get_cur_part();
 void            dbfs_set_cur_part(int part_no);
 

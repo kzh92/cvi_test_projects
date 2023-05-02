@@ -314,7 +314,7 @@ enum E_Baud_Rate
 #undef DEFAULT_LIVENESS_MODE
 #define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
 #undef N_MAX_PERSON_NUM
-#define N_MAX_PERSON_NUM                    10
+#define N_MAX_PERSON_NUM                    100
 #undef USE_IRSNR_SC2355
 #define USE_IRSNR_SC2355                    1
 #undef IR_CAM_WIDTH
