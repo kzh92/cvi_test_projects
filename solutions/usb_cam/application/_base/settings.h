@@ -108,7 +108,8 @@ typedef struct _tagPERMANENCE_SETTINGS
 
     int             iChecksumDNN;
     int             iCheckSumH;
-    unsigned char   bReserved4[2];
+    unsigned char   bIsActivated;
+    unsigned char   bActMark;
     unsigned char   bCheckSum;
 } PERMANENCE_SETTINGS__;
 

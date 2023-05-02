@@ -282,8 +282,8 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 #endif
 #define my_printf printf
-//#define dbug_printf printf
-#define dbug_printf(...)
+#define dbug_printf printf
+// #define dbug_printf(...)
 #define dbug_line dbug_printf("[%s] %s:%d, %0.3f\n", __func__, __FILE__, __LINE__, Now())
 
 #ifdef __cplusplus

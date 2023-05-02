@@ -713,7 +713,6 @@ int main0(int argc, char** argv)
     }
 
     ReadCommonSettings();
-    ReadPermanenceSettings();
     ReadROKLogs();
     ReadHeadInfos();
     ReadHeadInfos2();
@@ -737,7 +736,7 @@ int main0(int argc, char** argv)
     {
 //        SetLed(RLED);
         ResetCommonSettings();
-        ResetPermanenceSettings();
+        // ResetPermanenceSettings();
 
         UART_Create();
 
@@ -798,7 +797,7 @@ int main0(int argc, char** argv)
 #endif
             if(iUpgradeFlag == 0)
             {
-                ResetPermanenceSettings();
+                // ResetPermanenceSettings();
                 ResetROKLogs();
                 M24C64_FactoryReset();
                 fr_InitAppLog();
@@ -1102,6 +1101,7 @@ int fmMain()
     g_xVDBMutex = my_mutex_init();
 #endif
 
+    ReadPermanenceSettings();
 #ifdef UPGRADE_MODE
     ret = Upgrade_Firmware();
     if (ret)
@@ -3341,29 +3341,28 @@ void calculate_xor(unsigned int *msg, int msg_len, unsigned int*key,  int key_le
 
 int MarkActivationFailed(int iError)
 {
-    unsigned char mark[ACT_MARK_LEN] = {0x11, 0x22, 0x33, 0x44, 0x00, 0x00, 0x00, 0x00};
-    unsigned char *t = (unsigned char *)&iError;
-    memcpy(mark + 4, t, 4);
-
-    fr_WriteFileData("act_mark.bin", 0, mark, sizeof(mark));
+    dbug_printf("[%s] %d\n", __func__, iError);
+    if (g_xPS.x.bActMark != 0xAA)
+    {
+        g_xPS.x.bActMark = 0xAA;
+        UpdatePermanenceSettings();
+    }
     return 0;
 }
 
 int _set_activation_mark()
 {
-    unsigned char mark[ACT_MARK_LEN] = {0x11, 0x22, 0x33, 0x44, 0x00, 0x00, 0x00, 0x00};
-    fr_WriteFileData("act_mark.bin", 0, mark, sizeof(mark));
+    if (g_xPS.x.bActMark != 0x55)
+    {
+        g_xPS.x.bActMark = 0x55;
+        UpdatePermanenceSettings();
+    }
     return 1;
 }
 
 int _get_activation_mark()
 {
-    unsigned char mark[ACT_MARK_LEN] = {0};
-    fr_ReadFileData("act_mark.bin", 0, mark, sizeof(mark));
-    if (mark[0] == 0x11 && mark[1] == 0x22 && mark[2] == 0x33 && mark[3] == 0x44)
-        return 1;
-
-    return 0;
+    return (g_xPS.x.bActMark == 0x55 || g_xPS.x.bActMark == 0xAA);
 }
 
 int ProcessActivation(char* pbUID, int iUniqueID)
@@ -3418,23 +3417,25 @@ int ProcessActivation(char* pbUID, int iUniqueID)
     ///////////////////////////proca///////////////////////////////////
 #ifdef __ENCRYPT_ENGINE__
     {
-        #define FOLDER_PATH "/test"
-
         int iResult = 1;
         const char* szDictNames[] = {
             FN_WNO_DICT_PATH,
 #if (N_MAX_HAND_NUM)
             FN_WNOH_DICT_PATH,
 #endif // N_MAX_HAND_NUM
-            FN_H1_DICT_PATH, NULL};
+#if (USE_TWIN_ENGINE)
+            FN_H1_DICT_PATH, 
+#endif
+            NULL};
         const unsigned long szDictLength[] = {
             FN_WNO_DICT_SIZE,
 #if (N_MAX_HAND_NUM)
             FN_WNOH_DICT_SIZE,
 #endif // N_MAX_HAND_NUM
+#if (USE_TWIN_ENGINE)
             FN_H1_DICT_SIZE,
+#endif
             0 };
-        const unsigned long szDictLength[] = {FN_WNO_DICT_SIZE, 0};
 
         for(int i = 0; szDictNames[i] != NULL; i ++)
         {
@@ -3461,11 +3462,11 @@ int ProcessActivation(char* pbUID, int iUniqueID)
             for(int k = 0; k < iFileLen / 4; k ++)
                 iCheckSum ^= pnData[k];
 
+            dbug_printf("%s, chk=%08x\n", szDictNames[i], iCheckSum);
+
             //!!!CAUTION: this must be matched with index.
-            if (i == 0)//wno.bin
+            if (!strcmp(szDictNames[i], FN_WNO_DICT_PATH))//wno.bin
             {
-                g_xPS.x.iChecksumDNN = iCheckSum;
-                UpdatePermanenceSettings();
                 memcpy(g_xHD.x.bChipID, aiV3S_ID, 8);
                 for (int j = 0; j < 8; j ++)
                 {
@@ -3488,11 +3489,6 @@ int ProcessActivation(char* pbUID, int iUniqueID)
                 dbug_printf("\n");
 #endif
                 UpdateHeadInfos();
-            }
-            else if(i == 1)//hdic_1.bin
-            {
-                g_xPS.x.iCheckSumH = iCheckSum;
-                UpdatePermanenceSettings();
             }
 #if 0
             my_printf("Decode DES = %d: ", ENGINE_DATA_PACKET_SIZE * 2);
@@ -3539,179 +3535,6 @@ int ProcessActivation(char* pbUID, int iUniqueID)
     }
 #endif // __ENCRYPT_DICT__
 
-#ifndef __RTK_OS__
-    ////////////////////////libfaceengine decode///////////////////////
-    FILE* fp = fopen("/usr/lib/libfaceengine.so", "r+b");
-    if(fp == NULL)
-    {
-        dbug_printf("can't open file!\n");
-        MarkActivationFailed(-3);
-        return -3;
-    }
-
-    int iFileLen = 0;
-    fseek(fp, 0, SEEK_END);
-    iFileLen = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    unsigned char* pbData = (unsigned char*)my_malloc(iFileLen);
-    fread(pbData, iFileLen, 1, fp);
-    for (int i = 0; i < iFileLen / 8; i ++)
-        DesEncrypt(g_abKey, pbData + i * 8, 8, MCO_DECYPHER);
-
-    fseek(fp, 0, SEEK_SET);
-    fwrite(pbData, iFileLen, 1, fp);
-    fflush(fp);
-    fclose(fp);
-
-    my_free(pbData);
-#endif // !__RTK_OS__
-#ifdef __ENCRYPT_UIMG__
-    //////////////////////////Read uimage////////////////////////
-    ///generate key
-    //my_printf("STM Unique ID:\n");
-    //my_printf("0x%08x 0x%08x 0x%08x\n", aiSTM_ID[0], aiSTM_ID[1], aiSTM_ID[2]);
-
-    unsigned int xor_sid[16];
-    xor_sid[0]  = aiV3S_ID[0] ^ aiV3S_ID[2];
-    xor_sid[1]  = aiV3S_ID[1] ^ aiV3S_ID[3];
-    xor_sid[2]  = aiV3S_ID[2] ^ aiV3S_ID[0];
-    xor_sid[3]  = aiV3S_ID[3] ^ aiV3S_ID[1];
-    xor_sid[4]  = aiV3S_ID[0] ^ aiV3S_ID[3];
-    xor_sid[5]  = aiV3S_ID[1] ^ aiV3S_ID[0];
-    xor_sid[6]  = aiV3S_ID[2] ^ aiV3S_ID[1];
-    xor_sid[7]  = aiV3S_ID[3] ^ aiV3S_ID[2];
-    xor_sid[8]  = aiV3S_ID[0] ^ aiV3S_ID[2];
-    xor_sid[9]  = aiV3S_ID[1] ^ aiV3S_ID[3];
-    xor_sid[10] = aiV3S_ID[2] ^ aiV3S_ID[0];
-    xor_sid[11] = aiV3S_ID[3] ^ aiV3S_ID[1];
-    xor_sid[12] = aiV3S_ID[0] ^ aiV3S_ID[1];
-    xor_sid[13] = aiV3S_ID[1] ^ aiV3S_ID[2];
-    xor_sid[14] = aiV3S_ID[2] ^ aiV3S_ID[3];
-    xor_sid[15] = aiV3S_ID[3] ^ aiV3S_ID[0];
-
-    //        for(int i = 0; i < 16; i ++)
-    //            my_printf("%08x, ", xor_sid[i]);
-    //        my_printf("\n");
-    //////////////////////////Read uimage////////////////////////
-    int fd = open("/dev/mtdblock3", O_RDWR);
-    if(fd == -1)
-    {
-        dbug_printf("can't open file!\n");
-        MarkActivationFailed(-4);
-        return -4;
-    }
-
-    pbData = (unsigned char*)my_malloc(UIMAGE_SIZE);
-    lseek(fd, UIMAGE_POS, SEEK_SET);
-    read(fd, pbData, UIMAGE_SIZE);
-    ::close(fd);
-
-    /////////////////////////Encode uImage///////////////////////
-
-
-    calculate_xor((unsigned int *)(pbData + 4), 1024, xor_sid, 16);
-    *((unsigned int *)pbData) = 0x44494148;
-
-    /////////////////////////Write uImage/////////////////////////
-    fd = open("/dev/mtdblock3", O_RDWR);
-    if(fd == -1)
-    {
-        dbug_printf("can't open file!\n");
-        MarkActivationFailed(-5);
-        return -5;
-    }
-
-    lseek(fd, UIMAGE_POS, SEEK_SET);
-    write(fd, pbData, UIMAGE_SIZE);
-    fsync(fd);
-    ::close(fd);
-
-#endif // __ENCRYPT_UIMG__
-    ///////////////////////////Write SPOOF//////////////////////////
-
-#if UBOOT_LOAD_SPOOF
-    fd = open("/dev/mmcblk0", O_RDWR);
-    if(fd == -1)
-    {
-         dbug_printf("[mmcblk0] can't open file!\n");
-        MarkActivationFailed(-6);
-        return -6;
-    }
-
-    int iOff = 0;
-    int iCheckSum = 0;
-    char* szSpoofNames[2] = {"/test/detect.bin"};
-
-    pbData = (unsigned char*)my_malloc(DNN_DETECT_DICT_SIZE);
-
-    for(int i = 0; i < 1; i ++)
-    {
-        fp = fopen(szSpoofNames[i], "rb");
-        if(fp == NULL)
-        {
-            my_free(pbData);
-
-            dbug_printf("[spoof] can't open file!\n");
-            MarkActivationFailed(-7);
-            return -7;
-        }
-
-        fseek(fp, 0, SEEK_END);
-        iFileLen = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-
-        fread(pbData + iOff, iFileLen, 1, fp);
-        fclose(fp);
-
-        iOff += iFileLen;
-    }
-
-    iCheckSum = GetIntCheckSum((int*)pbData, DNN_DETECT_DICT_SIZE);
-
-    lseek(fd, SPOOF_POS, SEEK_SET);
-    write(fd, pbData, DNN_DETECT_DICT_SIZE);
-    write(fd, &iCheckSum, sizeof(int));
-    fsync(fd);
-    ::close(fd);
-
-    if(pbData)
-        my_free(pbData);
-
-    if(iOff != (DNN_DETECT_DICT_SIZE))
-    {
-        dbug_printf("[spoof] file damaged!\n");
-        MarkActivationFailed(-8);
-        return -8;
-    }
-
-    dbug_printf("[SPOOF] Write CheckSum: %x\n", iCheckSum);
-#endif // UBOOT_LOAD_SPOOF
-    ////////////////////////////////////////////////////////////////////
-#ifndef __RTK_OS__
-    rename("/etc/init.d/rcS_release", "/etc/init.d/rcS");
-#endif // ! __RTK_OS__
-
-#if (ROOTFS_BAK)
-    const char* dev2_name = NULL;
-    if (get_cur_rootfs_part() == RFS_PART0)
-    {
-        dev2_name = RFS1_DEVNAME;
-    }
-    else
-    {
-        dev2_name = RFS0_DEVNAME;
-    }
-    mount(dev2_name, "/home/default", "ext4", 0, NULL);
-    system("cp -f /usr/lib/libfaceengine.so.1.0.0 /home/default/usr/lib");
-    system("cp -f /test/act_mark /home/default/test/");
-    rename("/home/default/etc/init.d/rcS_release", "/home/default/etc/init.d/rcS");
-    system("cp -f /test/wno.bin /home/default/test/");
-    system("cp -f /test/hdic_1.bin /home/default/test/");
-    //system("cp -f /test/detect.bin /home/default/test/");
-    sync();
-    system("umount -l -f /home/default");
-#endif // ROOTFS_BAK
     return 0;
 }
 

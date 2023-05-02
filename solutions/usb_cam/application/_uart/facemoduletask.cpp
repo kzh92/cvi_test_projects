@@ -67,7 +67,7 @@ int FaceModuleTask::Start()
         m_iSendType = 0;
         m_iComm = 0;
 
-        if(my_thread_create(&m_thread, NULL, faceModuleTask_ThreadProc1, this))
+        if(my_thread_create_ext(&m_thread, NULL, faceModuleTask_ThreadProc1, this, (char*)"factk", 16384, MYTHREAD_PRIORITY_HIGH))
             my_printf("[FMTask]create thread error.\n");
     }
     return 1;
@@ -167,24 +167,26 @@ int FaceModuleTask::RecvData(unsigned char* pbData, int iLen)
     m_iComm = 1;
     my_mutex_unlock(m_xCommMutex);
 
-    for(int i = 0; i < 1000; i ++)
+    //for(int i = 0; i < 1000; i ++)
     {
-        if(m_iComm == 0)
-            return 0;
+        //if(m_iComm == 0)
+        //    return 0;
 
-        iRet = UART_Recv((unsigned char*)pbData, 1);
+        iRet = UART_RecvDataForWait((unsigned char*)pbData, 1, 1000, 0);
         if(iRet > 0)
         {
             if(pbData[0] == FM_HEADER)
             {
-                iRet = UART_RecvDataForWait((unsigned char*)pbData, iLen, 1000, 0);
-                if(iRet != iLen)
+                iRet = UART_RecvDataForWait((unsigned char*)pbData, iLen + 1, 1000, 0);
+                dbug_printf("[%s] iRet=%d\n", __func__, iRet);
+                if(iRet < iLen)
                     return 0;
 
-                unsigned char bSrcChk = 0;
-                iRet = UART_Recv((unsigned char*)&bSrcChk, 1);
-                if(iRet != 1)
-                    return 0;
+                unsigned char bSrcChk = pbData[iLen];
+                // iRet = UART_Recv((unsigned char*)&bSrcChk, 1);
+                // dbug_printf("[%s] iRet2=%d\n", __func__, iRet);
+                // if(iRet != 1)
+                //     return 0;
 
                 unsigned char bChk = 0;
                 for(int i = 0; i < iLen; i ++)
@@ -241,195 +243,6 @@ void FaceModuleTask::run()
             continue;
         }
 
-        if(g_xSS.iMState == MS_OTA)
-        {
-            if(xRecvCmd.bType == FM_CMD_START_OTA)
-            {
-                SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
-                my_usleep(10 * 1000);
-                SendCmd(FM_CMD_STATUS, 0, 0, STATUS_OTA_READY);
-            }
-            else if(xRecvCmd.bType == FM_CMD_STOP_OTA)
-            {
-                SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
-                SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_STOP, 0);
-            }
-            else if(xRecvCmd.bType == FM_CMD_OTA_BAUDRATE)
-            {
-                if(xRecvCmd.bP3 == 0)
-                {
-                    SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
-
-                    my_usleep(50 * 1000);
-                    UART_SetBaudrate(B115200);
-                }
-                else if(xRecvCmd.bP3 == 1)
-                {
-                    SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
-
-                    my_usleep(50 * 1000);
-                    UART_SetBaudrate(B1500000);
-                }
-                else
-                {
-                    SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_FAIL);
-                }
-            }
-            else if(xRecvCmd.bType == FM_CMD_OTA_HEADER)
-            {
-                my_printf("FM_CMD_OTA_HEADER\n");
-                int iLen = TO_SHORT(xRecvCmd.bP1, xRecvCmd.bP2); if(iLen > 0)
-                {
-                    unsigned char* pbRecvData = (unsigned char*)my_malloc(iLen + 1);
-                    memset(pbRecvData, 0, iLen + 1);
-
-                    if(RecvData(pbRecvData, iLen) == 1)
-                    {
-                        memcpy(&g_xSS.msg_otaheader_data, pbRecvData, iLen);
-
-                        int iFileSize = TO_INT(g_xSS.msg_otaheader_data.fsize_b);
-                        int iPckCount = TO_INT(g_xSS.msg_otaheader_data.num_pkt);
-                        int iPckSize = TO_SHORT(g_xSS.msg_otaheader_data.pkt_size[0], g_xSS.msg_otaheader_data.pkt_size[1]);
-
-                        my_printf("iFileSize = %d, PckCount = %d, PckSize = %d\n", iFileSize, iPckCount, iPckSize);
-
-                        if(iFileSize < 0 || iFileSize > MAX_OTA_FSIZE || iPckSize <= 0 || iPckSize > MAX_OTA_PCK_SIZE)
-                        {
-
-                            SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_FAIL);
-                            SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
-
-                            my_free(pbRecvData);
-                            continue;
-                        }
-                        g_xSS.pbOtaData = (unsigned char*)my_malloc(iFileSize);
-                        g_xSS.piOtaPckIdx = (int*)my_malloc(iPckCount * sizeof(int));
-                        memset(g_xSS.piOtaPckIdx, 0, iPckCount * sizeof(int));
-
-                        SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PCK, 0);
-                    }
-
-                    my_free(pbRecvData);
-
-                    continue;
-                }
-            }
-            else if(xRecvCmd.bType == FM_CMD_OTA_PACKET)
-            {
-                int iLen = TO_SHORT(xRecvCmd.bP1, xRecvCmd.bP2);
-                if(iLen > 0)
-                {
-                    unsigned char* pbRecvData = (unsigned char*)my_malloc(iLen + 1);
-                    memset(pbRecvData, 0, iLen + 1);
-
-                    if(RecvData(pbRecvData, iLen) == 1)
-                    {
-                        s_msg_otapacket_data* msg_otapacket_data = (s_msg_otapacket_data*)pbRecvData;
-                        int iFSize = TO_INT(g_xSS.msg_otaheader_data.fsize_b);
-                        int iPckCount = TO_INT(g_xSS.msg_otaheader_data.num_pkt);
-                        int iPckSize = TO_SHORT(g_xSS.msg_otaheader_data.pkt_size[0], g_xSS.msg_otaheader_data.pkt_size[1]);
-                        int iPID = TO_SHORT(msg_otapacket_data->pid[0], msg_otapacket_data->pid[1]);
-                        int iPSize = TO_SHORT(msg_otapacket_data->psize[0], msg_otapacket_data->psize[1]);
-
-                        if(iPID * iPckSize + iPSize <= iFSize && iPID * iPckSize >= 0 && iPID >= 0 && iPID < iPckCount)
-                        {
-                            memcpy(g_xSS.pbOtaData + iPID * iPckSize, msg_otapacket_data->data, iPSize);
-
-                            my_printf("%d, %d, %d, %d\n", iPID, iPckSize, iPID * iPckSize + iPSize, iFSize);
-                            g_xSS.piOtaPckIdx[iPID] = 1;
-                            SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
-                            SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PCK, 0);
-                        }
-                        else
-                        {
-                            SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_FAIL);
-                            SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
-
-                            my_free(pbRecvData);
-                            continue;
-                        }
-
-                        int iValid = 1;
-                        for(int i = 0; i < iPckCount; i ++)
-                        {
-                            if(g_xSS.piOtaPckIdx[i] == 0)
-                            {
-                                iValid = 0;
-                                break;
-                            }
-                        }
-
-                        if(iValid)
-                        {
-                            int iFileSize = iFSize;
-                            iFileSize--; // omitting checksum.
-                            unsigned int iPieceSize = 5120;
-                            unsigned char* tmp_buf = NULL;
-                            unsigned int i = 0;
-                            int iTotal = iFileSize / iPieceSize;
-
-                            unsigned char checkSum = 0;
-                            unsigned char bFileCheckSum = 0;
-                            for(; i < (unsigned int)iTotal; i++)
-                            {
-                                tmp_buf = g_xSS.pbOtaData + i * iPieceSize;
-                                for(unsigned int j = 0; j < iPieceSize; j++)
-                                {
-                                    tmp_buf[j] = tmp_buf[j] ^ (((i * iPieceSize + j) ^ (iFileSize - (i * iPieceSize + j))) % 128);
-                                    checkSum ^= tmp_buf[j];
-                                }
-                            }
-
-                            unsigned int iRemain = iFileSize % iPieceSize;
-                            if(iRemain != 0)
-                            {
-                                tmp_buf = g_xSS.pbOtaData + i * iPieceSize;
-                                for(unsigned int j = 0; j < iRemain; j++)
-                                {
-                                    tmp_buf[j] = tmp_buf[j] ^ (((iTotal * iPieceSize + j) ^ (iFileSize - (iTotal * iPieceSize + j))) % 128);
-                                    checkSum ^= tmp_buf[j];
-                                }
-                            }
-
-                            bFileCheckSum = g_xSS.pbOtaData[iFileSize];
-
-                            if(checkSum != bFileCheckSum)
-                            {
-                                my_printf("XXXXXXXXXXXXX CheckSum Error: %x, %x\n", checkSum, bFileCheckSum);
-
-                                SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_CHECKSUM_ERROR, 0);
-                                my_free(pbRecvData);
-                                continue;
-                            }
-                            else
-                            {
-                                mount_tmp();
-                                FILE* fp = fopen(UPDATE_FIRM_ZIP_PATH, "wb");
-                                if(fp)
-                                {
-                                    fwrite(g_xSS.pbOtaData, iFSize, 1, fp);
-                                    fclose(fp);
-                                }
-                                umount_tmp();
-
-                                SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_OK, 0);
-                                my_free(pbRecvData);
-                                continue;
-                            }
-                        }
-                    }
-
-                    my_free(pbRecvData);
-                    continue;
-                }
-            }
-            else
-                SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, 0, FM_ACK_FAIL);
-
-            continue;
-        }
-
         if(xRecvCmd.bType == FM_CMD_DEV_TEST_START)
         {
             SendGlobalMsg(MSG_FM, xRecvCmd.bType, xRecvCmd.bP3, 0);
@@ -462,6 +275,7 @@ void FaceModuleTask::run()
             {
                 dbug_printf("======================activate!\n");
                 int iLen = TO_SHORT(xRecvCmd.bP1, xRecvCmd.bP2);
+                dbug_printf("act packlen=%d\n", iLen);
                 if(iLen > 0)
                 {
                     unsigned char* pbActData = (unsigned char*)my_malloc(iLen + 1);

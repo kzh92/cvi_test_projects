@@ -262,6 +262,7 @@ def_config:
   ENGINE_THREAD_COUNT: 1
   __RTK_OS__: 1
   MY_DICT_FLASH: 1
+  __ENCRYPT_ENGINE__: 1
   
 ## 第六部分：安装信息
 # install:

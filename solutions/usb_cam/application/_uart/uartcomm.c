@@ -8,7 +8,7 @@
 #include <pin.h>
 #include <drv/uart.h>
 
-// #define UART_DEBUG_EN
+#define UART_DEBUG_EN
 static csi_uart_t  g_uart1;
 int g_uart1_baud = 115200;
 int g_uart1_inited = 0;
@@ -65,7 +65,16 @@ void UART_Quit(void)
 
 void UART_SetBaudrate(int iBaudrate)
 {
-    g_uart1_baud = iBaudrate;
+    if (iBaudrate == B115200)
+        g_uart1_baud = 115200;
+    else if (iBaudrate == B230400)
+        g_uart1_baud = 230400;
+    else if (iBaudrate == B460800)
+        g_uart1_baud = 460800;
+    else if (iBaudrate == B1500000)
+        g_uart1_baud = 1500000;
+    else if (iBaudrate == B9600)
+        g_uart1_baud = 9600;
     csi_uart_baud(&g_uart1, g_uart1_baud);
 }
 
@@ -103,6 +112,7 @@ int UART_RecvDataForWait(unsigned char* pBuf, int iBufLen, int iTimeOut, int iIn
 {
     if (g_uart1_inited == 0)
         return 0;
+#if 1
     int ret = csi_uart_receive(&g_uart1, pBuf, iBufLen, iTimeOut);
     if (ret > 0)
     {
@@ -112,11 +122,11 @@ int UART_RecvDataForWait(unsigned char* pBuf, int iBufLen, int iTimeOut, int iIn
             my_printf("%02x ", pBuf[i]);
         my_printf("\n");
 #endif // UART_DEBUG_EN
-        return iBufLen;
+        return ret;
     }
     else
         return 0;
-#if 0
+#else
     int iReceiveOff = 0;
     int iReceiveSize = 0;
     int iRet = 0;
@@ -125,7 +135,7 @@ int UART_RecvDataForWait(unsigned char* pBuf, int iBufLen, int iTimeOut, int iIn
 
     while(1)
     {
-        iReceiveSize = 128;
+        iReceiveSize = 16;
         if (iReceiveSize > iBufLen -  iReceiveOff)
             iReceiveSize = iBufLen -  iReceiveOff;
         iRet = UART_Recv(pBuf + iReceiveOff, iReceiveSize);
