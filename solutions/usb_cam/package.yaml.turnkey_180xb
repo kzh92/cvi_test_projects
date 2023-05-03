@@ -57,6 +57,7 @@ depends:
   - cvi_platform: develop
   - g711: v0.0.1
   - cvi_test: develop
+  - mbedtls: develop
 
   - cvi_mmf_sdk_cv180xx: develop
 ## 第三部分：板级信息
