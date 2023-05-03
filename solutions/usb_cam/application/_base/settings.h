@@ -288,8 +288,6 @@ typedef struct _tagSYSTEM_STATE
     int             idbPartNoRestore;
     int             idbRestoreStop;
 
-    DATETIME_32     xSetDate;
-
     int             iRunningCamSurface;
     int             iRunningDvpCam;
     int             iShowIrCamera;
@@ -354,6 +352,8 @@ typedef struct _tagSYSTEM_STATE
     int             iUsbHostMode;
     int             iAutoUserAdd;
     int             iCameraRotate;
+    int                         iUpgradeLen;
+    int                         iUpgradeImgLen;
 
     unsigned char*              pbOtaData;
     int*                        piOtaPckIdx;

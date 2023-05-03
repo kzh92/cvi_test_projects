@@ -182,6 +182,8 @@ source_file:
   - application/_aes/*.c
   - application/_des/*.cpp
   - application/_des/*.c
+  - application/_7zr/*.c
+  - application/_7zr/*.cpp
   - application/_keygen/*.cpp
   - application/_keygen/*.c
   - application/_uart/*.cpp

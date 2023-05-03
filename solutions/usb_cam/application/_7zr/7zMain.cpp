@@ -406,7 +406,7 @@ int main_7z(int numargs, char *args[])
   size_t tempSize = 0;
   wchar_t w_dst[256] = { 0 }, w_temp[256] = { 0 };
   UInt16 u_dst[256] = { 0 };
-  char c_dst[256] = { 0 };
+  // char c_dst[256] = { 0 };
 
   Print("\n7z Decoder " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n\n");
 
@@ -741,9 +741,9 @@ int extract_7z2mem(void* pInBuffer, int inLength, void** pOutBuffer, int* pOutLe
 	SRes res;
 	UInt16 *temp = NULL;
 	size_t tempSize = 0;
-	wchar_t w_dst[256] = { 0 }, w_temp[256] = { 0 };
-	UInt16 u_dst[256] = { 0 };
-	char c_dst[256] = { 0 };
+	// wchar_t w_dst[256] = { 0 }, w_temp[256] = { 0 };
+	// UInt16 u_dst[256] = { 0 };
+	// char c_dst[256] = { 0 };
 
 	Print("\n7z Decoder " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n\n");
 
