@@ -192,55 +192,55 @@ void DriverInit()
     g_pFMTask->Init();
     //gpio init
     GPIO_fast_init();
-#ifdef IR_LED
-    GPIO_fast_config(IR_LED, OUT);
-    GPIO_fast_setvalue(IR_LED, OFF);
-#endif
+// #ifdef IR_LED
+//     GPIO_fast_config(IR_LED, OUT);
+//     GPIO_fast_setvalue(IR_LED, OFF);
+// #endif
 
-#ifdef AUDIO_EN
-    GPIO_fast_config(AUDIO_EN, OUT);
-    GPIO_fast_setvalue(AUDIO_EN, OFF);
-#endif
+// #ifdef AUDIO_EN
+//     GPIO_fast_config(AUDIO_EN, OUT);
+//     GPIO_fast_setvalue(AUDIO_EN, OFF);
+// #endif
 
-#ifdef M24C64_WP
-    GPIO_fast_config(M24C64_WP, OUT);
-    GPIO_fast_setvalue(M24C64_WP, OFF);
-#endif
+// #ifdef M24C64_WP
+//     GPIO_fast_config(M24C64_WP, OUT);
+//     GPIO_fast_setvalue(M24C64_WP, OFF);
+// #endif
 
-#ifdef PSENSE_DET
-    GPIO_fast_config(PSENSE_DET, IN);
-#endif // PSENSE_DET
+// #ifdef PSENSE_DET
+//     GPIO_fast_config(PSENSE_DET, IN);
+// #endif // PSENSE_DET
 
-#ifdef GPIO_USBSense
-    GPIO_fast_config(GPIO_USBSense, IN);
-#endif
+// #ifdef GPIO_USBSense
+//     GPIO_fast_config(GPIO_USBSense, IN);
+// #endif
 
-#if (USE_WIFI_MODULE)
-#ifdef UART_EN
-    GPIO_fast_config(UART_EN, OUT);
-    GPIO_fast_setvalue(UART_EN, OFF);
-#endif
-#else // USE_WIFI_MODULE
-#ifdef UART_EN
-    GPIO_fast_config(UART_EN, OUT);
-    GPIO_fast_setvalue(UART_EN, ON);
-#endif
-#endif // USE_WIFI_MODULE
+// #if (USE_WIFI_MODULE)
+// #ifdef UART_EN
+//     GPIO_fast_config(UART_EN, OUT);
+//     GPIO_fast_setvalue(UART_EN, OFF);
+// #endif
+// #else // USE_WIFI_MODULE
+// #ifdef UART_EN
+//     GPIO_fast_config(UART_EN, OUT);
+//     GPIO_fast_setvalue(UART_EN, ON);
+// #endif
+// #endif // USE_WIFI_MODULE
 
-#ifdef IOCtl
-    GPIO_fast_config(IOCtl, OUT);
-    GPIO_fast_setvalue(IOCtl, OFF);
-#endif
+// #ifdef IOCtl
+//     GPIO_fast_config(IOCtl, OUT);
+//     GPIO_fast_setvalue(IOCtl, OFF);
+// #endif
 
-#ifdef AUDIO_EN
-    GPIO_fast_config(AUDIO_EN, OUT);
-    GPIO_fast_setvalue(AUDIO_EN, OFF);
-#endif
+// #ifdef AUDIO_EN
+//     GPIO_fast_config(AUDIO_EN, OUT);
+//     GPIO_fast_setvalue(AUDIO_EN, OFF);
+// #endif
 
-#ifdef SPI_CS
-    GPIO_fast_config(SPI_CS, OUT);
-    GPIO_fast_setvalue(SPI_CS, 1);
-#endif
+// #ifdef SPI_CS
+//     GPIO_fast_config(SPI_CS, OUT);
+//     GPIO_fast_setvalue(SPI_CS, 1);
+// #endif
 
     //CreateSharedMem();
 
@@ -627,7 +627,7 @@ int Upgrade_Firmware(void)
     UART_Init();
     ReadCommonSettings();
 
-    UART_SetBaudrate(B115200);
+    UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
 
     message_queue_init(&g_worker, sizeof(MSG), MAX_MSG_NUM);
 #ifndef UPGRADE_MODE

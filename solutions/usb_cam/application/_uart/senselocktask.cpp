@@ -136,7 +136,7 @@ int SenseLockTask::Start()
         m_iActive = 0;
         message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 #ifndef NOTHREAD_MUL
-        if(my_thread_create_ext(&m_thread, NULL, senseLockTask_ThreadProc1, this, (char*)"stask", 4096, 0 /*MYTHREAD_PRIORITY_MEDIUM*/))
+        if(my_thread_create_ext(&m_thread, NULL, senseLockTask_ThreadProc1, this, (char*)"stask", 16384, 0 /*MYTHREAD_PRIORITY_MEDIUM*/))
             my_printf("[LockTask]create thread error.\n");
 #else // ! NOTHREAD_MUL
 #endif // !NOTHREAD_MUL
@@ -306,7 +306,7 @@ void* senseSendThread_ThreadProc1(void*)
 
         my_mutex_lock(SenseLockTask::CommMutex);
         UART_Send((unsigned char*)pbPck, iPckLen);
-        my_usleep(UART_SendTimePredict(iPckLen) * 1000);
+        // my_usleep(UART_SendTimePredict(iPckLen) * 1000); //commented for uart ota
         my_mutex_unlock(SenseLockTask::CommMutex);
 
 #if (NOTE_INTERVAL_MS)
@@ -366,7 +366,7 @@ void SenseLockTask::run()
     dbug_printf("SenseLockTask::run start\n");
     //message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 
-    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, NULL, (char*)"sstask", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/))
+    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, NULL, (char*)"sstask", 16384, 0/*MYTHREAD_PRIORITY_MEDIUM*/))
         my_printf("[SendThreadTask]create send thread error.\n");
 #endif // NOTHREAD_MUL
 

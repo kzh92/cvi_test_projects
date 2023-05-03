@@ -10,11 +10,15 @@
 #include "common_types.h"
 
 static csi_gpio_t gpio[5] = {0};
+static int g_csi_gpio_inited = 0;
 
 #define GPIO_PIN_MASK(_gpio_num) (1 << _gpio_num)
 
 int GPIO_fast_init()
 {
+	if (g_csi_gpio_inited)
+		return 0;
+	g_csi_gpio_inited = 1;
 	for (int i = 0 ; i < 5 ; i++)
 		csi_gpio_init(&gpio[i], i);
     return 0;

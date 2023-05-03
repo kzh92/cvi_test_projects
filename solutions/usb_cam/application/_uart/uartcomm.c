@@ -8,7 +8,7 @@
 #include <pin.h>
 #include <drv/uart.h>
 
-#define UART_DEBUG_EN
+// #define UART_DEBUG_EN
 static csi_uart_t  g_uart1;
 int g_uart1_baud = 115200;
 int g_uart1_inited = 0;
@@ -65,17 +65,12 @@ void UART_Quit(void)
 
 void UART_SetBaudrate(int iBaudrate)
 {
-    if (iBaudrate == B115200)
-        g_uart1_baud = 115200;
-    else if (iBaudrate == B230400)
-        g_uart1_baud = 230400;
-    else if (iBaudrate == B460800)
-        g_uart1_baud = 460800;
-    else if (iBaudrate == B1500000)
-        g_uart1_baud = 1500000;
-    else if (iBaudrate == B9600)
-        g_uart1_baud = 9600;
-    csi_uart_baud(&g_uart1, g_uart1_baud);
+    g_uart1_baud = iBaudrate;
+    dbug_printf("[%s] %d, %d\n", __func__, g_uart1_inited, g_uart1_baud);
+    if (csi_uart_baud(&g_uart1, g_uart1_baud) != CSI_OK)
+    {
+        my_printf("[%s] cis_uart_baud failed\n", __func__);
+    }
 }
 
 int UART_Send(unsigned char * pBuf, int nBufLen)
