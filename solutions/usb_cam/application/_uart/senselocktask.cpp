@@ -1001,6 +1001,7 @@ void SenseLockTask::run()
     message_queue_destroy(&g_queue_send);
     g_thread_send = NULL;
 #endif // ! NOTHREAD_MUL
+    dbug_printf("SenseLockTask::run end\n");
 }
 
 s_msg* SenseLockTask::Get_Reply_Init_Encryption_Data(int iResult)

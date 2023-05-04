@@ -210,6 +210,7 @@ int FaceModuleTask::RecvData(unsigned char* pbData, int iLen)
 
 void FaceModuleTask::run()
 {
+    dbug_printf("FaceModuleTask::run start\n");
     while(m_iStep < m_iEnd)
     {
         my_mutex_lock(m_xCommMutex);
@@ -675,6 +676,7 @@ void FaceModuleTask::run()
             }
         }
     }
+    dbug_printf("FaceModuleTask::run end.\n");
 }
 
 unsigned char FaceModuleTask::GetCheckSum(FM_CMD* pxCmd)
