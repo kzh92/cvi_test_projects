@@ -1,0 +1,611 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+
+#include "fileutils.h"
+#include "llist.h"
+#include "folderfile.h"
+#include <unistd.h>
+#include "aescrypt.h"
+#include "sha1.h"
+#include <errno.h>
+#include "common_types.h"
+
+unsigned char* g_bimage = NULL;
+int g_bimage_len = 0;
+unsigned char* g_bBoot = NULL;
+int g_bBoot_len = 0;
+
+unsigned char* g_bscript = NULL;
+int g_bscript_len = 0;
+unsigned char* g_bscript2 = NULL;
+int g_bscript_len2 = 0;
+
+unsigned char* g_buboot = NULL;
+int g_buboot_len = 0;
+int g_hdic1_copied = 0;
+int g_wnodic_copied = 0;
+
+int g_iCheckError = 0;
+
+void FolderFile::addFile(char* path) {
+    FileHeader* fh;
+    char completePath[128];
+
+    sprintf(completePath, "%s/%s", this->root, path);
+
+    struct stat buffer;
+
+    if (stat(completePath, &buffer) != 0)
+        return;
+
+    fh = new FileHeader();
+    strcpy(fh->filePath, path);
+    fh->dataOffset = this->nextOffset;
+    fh->size = buffer.st_size;
+    fh->mode = buffer.st_mode;
+    this->nextOffset += fh->size;
+    headers.addToEnd(fh);
+}
+
+void FolderFile::addFolder(char* path) {
+    directories.addToEnd(path);
+}
+
+bool FolderFile::unify(char* path, uf_file_header header, char* upgrade_app_path) {
+    FILE* fp1 = fopen(path, "wb");
+    FileHeader* p;
+    header.n_file = headers.getSize();
+    header.n_dir = directories.getSize();
+    header.n_link = symlinks.getSize();
+
+    char completePath[128];
+
+    if (!fp1)
+        return false;
+
+    FILE* upgrade_app_fp = fopen(upgrade_app_path, "rb");
+
+    if (!upgrade_app_fp)
+        return false;
+
+    fseek(upgrade_app_fp, 0, SEEK_END);
+    header.app_size = ftell(upgrade_app_fp);
+    header.app_start = 512;
+    fseek(upgrade_app_fp, 0, SEEK_SET);    
+
+///////////////////////////
+    unsigned char* buffer = new unsigned char[header.app_size];
+    fread(buffer, 1, header.app_size, upgrade_app_fp);
+//////
+    unsigned char* encryptApp = NULL;
+    int encLen = 0;
+    AES_Context xAESContext;
+
+    unsigned char b = (unsigned char)header.m_build;
+    unsigned char m = (unsigned char)header.m_major;
+    unsigned char n = (unsigned char)header.m_minor;
+    unsigned char pp = (unsigned char)header.m_patch;
+
+    unsigned char abAesKey[AES_BLOCK_SIZE] = { b, m, n, pp,
+                                               m, n, pp, b,
+                                               n, pp, b, m,
+                                               pp, b, m, n };
+
+    AES_SetKey(&xAESContext, abAesKey);
+    AES_Encrypt(&xAESContext, buffer, header.app_size, &encryptApp, &encLen);
+//////
+    header.app_size = encLen;
+    fwrite(&header, sizeof(header), 1, fp1);
+    fseek(fp1, header.app_start, SEEK_SET);
+    fwrite(encryptApp, 1, header.app_size, fp1);
+    fclose(upgrade_app_fp);
+    delete buffer;
+    delete encryptApp;
+///////////////////////////
+
+    headers.moveCursor(HEAD);
+    while (p = headers.stepForward()) {
+        printf("WRITING\n\tPATH: %s\n\tSIZE: %d\n\tOFFSET: %d\n", p->filePath, p->size, p->dataOffset);
+        fwrite(p, 1, sizeof(FileHeader), fp1);
+    }
+
+    char *s;
+    directories.moveCursor(HEAD);
+    while (s = directories.stepForward()) {
+        printf("WRITING\n\tDIRECTORY: %s\n", s);
+        encryptBuf((unsigned char*)s, strlen(s));
+        fwrite(s, 1, 1024, fp1);
+    }
+
+    headers.moveCursor(HEAD);
+    while (p = headers.stepForward()) {
+        sprintf(completePath, "%s/%s", this->root, p->filePath);
+        FILE* fp2 = fopen(completePath, "rb");
+
+        if (!fp2) {
+            char c = 0;
+            for (int i = 0; i < (int)p->size; i++) {
+                fwrite(&c, 1, 1, fp1);
+            }
+            continue;
+        }
+
+        char* buffer = new char[p->size];
+        fread(buffer, 1, p->size, fp2);
+        encryptBuf((unsigned char*)buffer, p->size);
+        fwrite(buffer, 1, p->size, fp1);
+
+        fclose(fp2);
+        delete buffer;
+    }
+
+    while (s = symlinks.stepForward())
+    {
+        printf("WRITING\n\tSYMLINK: %s\n", s);
+        encryptBuf((unsigned char*)s, strlen(s));
+        fwrite(s, 1, 1024, fp1);
+    }
+
+    fwrite(&checksum, 4, 1, fp1);
+
+    fclose(fp1);
+
+    return true;
+}
+
+void FolderFile::my_fsync(int fd)
+{
+    int ret;
+    do {
+        ret = fsync(fd);
+    } while(ret == -1 && errno == EINTR);
+    if (ret)
+    {
+        printf("my_fsync failed:%d(%s).\n", errno, strerror(errno));
+    }
+}
+
+bool FolderFile::compressDirectory(char* folder, char* destination, uf_file_header header, char* upgrade_app) {
+
+    LList<char*>* directories = new LList<char*>();
+    LList<char*>* files = new LList<char*>();
+
+    if (!decompressed) {
+        ls_m(this->root, folder, files, directories, &symlinks);
+        char* p;
+
+        while (p = files->stepForward()) {
+            printf("FILE: %s\n", p);
+            addFile(p);
+        }
+
+        while (p = directories->stepForward()) {
+            printf("DIR: %s\n", p);
+            addFolder(p);
+        }
+
+        unify(destination, header, upgrade_app);
+
+        compressed = true;
+
+        return true;
+    }
+
+    return false;
+}
+
+unsigned char* FolderFile::decompressUpgradeApp(char *path, uf_file_header &header)
+{
+    if (!compressed) {
+        FILE* fp1 = fopen(path, "rb");
+
+        if (!fp1)
+            return NULL;
+
+        fread(&header, sizeof(header), 1, fp1);
+        fseek(fp1, header.app_start, SEEK_SET);
+
+        unsigned char* buffer = new unsigned char[header.app_size];
+        fread(buffer, 1, header.app_size, fp1);
+        fclose(fp1);
+        return buffer;
+    }
+    return NULL;
+}
+
+void FolderFile::encryptBuf(unsigned char* buf, int size)
+{
+//    unsigned char subCheckSum = 0;
+//    for(int i = 0; i < size; i++)
+//    {
+//        subCheckSum ^= buf[i];
+
+//        buf[i] = buf[i] ^ ((i * i) % 128);
+//    }
+
+//    checksum += subCheckSum;
+
+    if(size >= 101 * 1024)
+    {
+        unsigned char* abAesKey = (unsigned char*)buf + 100 * 1024;
+        AES_Context xAESContext;
+        AES_SetKey(&xAESContext, abAesKey);
+
+        for(int j = 0; j < 100 * 1024; j += AES_BLOCK_SIZE)
+            aes_encrypt(&xAESContext, (unsigned char*)buf + j, (unsigned char*)buf + j);
+    }
+}
+
+void FolderFile::decryptBuf(unsigned char* buf, int size)
+{
+    if(size >= 101 * 1024)
+    {
+        unsigned char* abAesKey = (unsigned char*)buf + 100 * 1024;
+        AES_Context xAESContext;
+        AES_SetKey(&xAESContext, abAesKey);
+
+        for(int j = 0; j < 100 * 1024; j += AES_BLOCK_SIZE)
+            aes_decrypt(&xAESContext, (unsigned char*)buf + j, (unsigned char*)buf + j);
+    }
+
+//    unsigned char subCheckSum = 0;
+
+//    for(int i = 0; i < size; i++)
+//    {
+//        buf[i] = buf[i] ^ ((i * i) % 128);
+//        subCheckSum ^= buf[i];
+//    }
+//    checksum += subCheckSum;
+}
+
+void FolderFile::removeUselessFiles(char* destination)
+{
+    //Remove files
+    char rem_file_path[256];
+    char rem_filelist_path[256];
+    char* line;
+    size_t len = 0;
+    ssize_t read;
+
+    sprintf(rem_filelist_path, "%s/__useless_files.txt", destination);
+    FILE* rem_files_fp = fopen(rem_filelist_path, "r");
+
+    if(rem_files_fp)
+    {
+        while ((read = getline(&line, &len, rem_files_fp)) != -1) {
+
+            char *pos;
+            if ((pos=strchr(line, '\n')) != NULL)
+                *pos = '\0';
+
+            if(strlen(line) <= 0)
+                continue;
+
+            sprintf(rem_file_path, "rm -rf \"%s/%s\"", destination, line);
+
+//            printf("REMOVE FILE: %s\n", rem_file_path);
+
+            system(rem_file_path);
+        }
+
+        fclose(rem_files_fp);
+        remove(rem_filelist_path);
+        if(line)
+            free(line);
+    }
+}
+
+#if (USE_16M_FLASH == 0)
+bool FolderFile::decompressDirectory(char* path, char* destination, uf_file_header &header) {
+#else
+bool FolderFile::decompressDirectory(unsigned char* source, char* destination, uf_file_header &header) {
+#endif//USE_16M_FLASH
+    FileHeader* p;
+    int nBytes;
+
+    if (!compressed) {
+#if (USE_16M_FLASH == 0)
+        FILE* fp1 = fopen(path, "rb");
+        if (!fp1)
+            return false;
+
+        mkdir_m(destination);
+        fread(&header, sizeof(header), 1, fp1);
+        fseek(fp1, header.app_start + header.app_size, SEEK_SET);
+#else//USE_16M_FLASH
+        unsigned char* current_addr = source;
+        mkdir_m(destination);
+        memcpy(&header, current_addr, sizeof(header));
+        current_addr += header.app_start + header.app_size;
+#endif//USE_16M_FLASH
+        int count = 0;
+
+        //Read in file headers
+        while (count < header.n_file) {
+            p = new FileHeader();
+#if (USE_16M_FLASH == 0)
+            nBytes = fread(p, 1, sizeof(FileHeader), fp1);
+#else//USE_16M_FLASH
+            memcpy(p, current_addr, sizeof(FileHeader));
+            current_addr += sizeof(FileHeader);
+#endif//USE_16M_FLASH
+            headers.addToEnd(p);
+            count++;
+        }
+
+        count = 0;
+
+        //Read in directories that need to be created
+        while(count < header.n_dir) {
+            char* s = new char[1025];
+#if (USE_16M_FLASH == 0)
+            nBytes = fread(s, 1, 1024, fp1);
+#else//USE_16M_FLASH
+            memcpy(s, current_addr, 1024);
+            current_addr += 1024;
+#endif//USE_16M_FLASH
+            decryptBuf((unsigned char*)s, strlen(s));
+            s[nBytes] = 0;
+            directories.addToEnd(s);
+            count++;
+        }
+
+        int nTotal = directories.getSize() + headers.getSize() + header.n_link;
+        int nProcessed = 0;
+        progress = nProcessed * 100 / nTotal;
+
+        //Make directories
+        char* s;
+        while (s = directories.stepForward()) {
+            char filename[1024];
+            sprintf(filename, "%s/%s", destination, s);
+
+//            printf("DIR: %s\n", filename);
+            mkdir_m(filename);
+            progress = (++nProcessed) * 100 / nTotal;
+        }
+
+        //Write files
+        while (p = headers.stepForward()) {
+            char* buffer = new char[p->size];
+            char filename[128];
+            sprintf(filename, "%s/%s", destination, p->filePath);
+
+//            printf("WRITE FILE: %s\n", filename);
+#if (USE_16M_FLASH == 0)
+            fread(buffer, 1, p->size, fp1);
+#else//USE_16M_FLASH
+            memcpy(buffer, current_addr, p->size);
+            current_addr += p->size;
+#endif//USE_16M_FLASH
+
+
+            decryptBuf((unsigned char*)buffer, p->size);
+            if(!strcmp(p->filePath, "uImage"))
+            {
+                if(g_bimage)
+                    free(g_bimage);
+
+                g_bimage = (unsigned char*)malloc(p->size);
+                memcpy(g_bimage, buffer, p->size);
+                g_bimage_len = p->size;
+            }
+            else if(!strcmp(p->filePath, "boot.bin"))
+            {
+                if(g_bBoot)
+                    free(g_bBoot);
+
+                g_bBoot = (unsigned char*)malloc(p->size);
+                memcpy(g_bBoot, buffer, p->size);
+                g_bBoot_len = p->size;
+            }
+            else if(!strcmp(p->filePath, "data3.bin"))
+            {
+                FILE* fp = fopen(PART_DATA3_DEVNAME, "wb");
+                printf("d3 update:");
+                if (fp)
+                {
+                    fwrite(buffer, 1, p->size, fp);
+                    fclose(fp);
+                    sync();
+                    printf("ok\n");
+                }
+                else
+                    printf("fail\n");
+            }
+            else if(!strcmp(p->filePath, "data2.bin"))
+            {
+                FILE* fp = fopen(PART_DATA2_DEVNAME, "wb");
+                printf("d2 update:");
+                if (fp)
+                {
+                    fwrite(buffer, 1, p->size, fp);
+                    fclose(fp);
+                    sync();
+                    printf("ok\n");
+                }
+                else
+                    printf("fail\n");
+            }
+            else if(!strcmp(p->filePath, "script.bin"))
+            {
+                if(g_bscript)
+                    free(g_bscript);
+
+                g_bscript = (unsigned char*)malloc(p->size);
+                memcpy(g_bscript, buffer, p->size);
+                g_bscript_len = p->size;
+            }
+            else if(!strcmp(p->filePath, "script1.bin"))
+            {
+                if(g_bscript2)
+                    free(g_bscript2);
+
+                g_bscript2 = (unsigned char*)malloc(p->size);
+                memcpy(g_bscript2, buffer, p->size);
+                g_bscript_len2 = p->size;
+            }
+            else if(!strcmp(p->filePath, "u-boot-sunxi-with-spl.bin"))
+            {
+                if(g_buboot)
+                    free(g_buboot);
+
+                g_buboot = (unsigned char*)malloc(p->size);
+                memcpy(g_buboot, buffer, p->size);
+                g_buboot_len = p->size;
+            }
+#ifdef _APP_UPGRADE
+            else if(!strcmp(p->filePath, "c.bin"))
+            {
+                updateDictData(FN_C_DICT_PATH, (unsigned char*)buffer, p->size);
+            }
+            else if(!strcmp(p->filePath, "b.bin"))
+            {
+                updateDictData(FN_B_DICT_PATH, (unsigned char*)buffer, p->size);
+            }
+            else if(!strcmp(p->filePath, "b2.bin"))
+            {
+                updateDictData(FN_B2_DICT_PATH, (unsigned char*)buffer, p->size);
+            }
+#endif // _APP_UPGRADE
+            else
+            {
+                if(!strcmp(p->filePath, "test/hdic_1.bin"))
+                {
+                    g_hdic1_copied = 1;
+                }
+                if(!strcmp(p->filePath, "test/wno.bin"))
+                {
+                    g_wnodic_copied = 1;
+                }
+                unsigned char abDig1[20] = { 0 };
+                unsigned char abDig2[20] = { 0 };
+
+                SHA1* sha1 = new SHA1;
+                if(p->size > 0)
+                {
+                    sha1->addBytes(buffer, p->size);
+
+                    unsigned char* digest = sha1->getDigest();
+                    memcpy(abDig1, digest, sizeof(abDig1));
+
+                    free(digest);
+                }
+                delete sha1;
+
+                FILE* fp2 = fopen(filename, "rb");
+                if(fp2)
+                {
+                    int iFileLen = 0;
+                    fseek(fp2, 0, SEEK_END);
+                    iFileLen = ftell(fp2);
+                    fseek(fp2, 0, SEEK_SET);
+
+                    unsigned char* pbData = (unsigned char*)malloc(iFileLen);
+                    fread(pbData, iFileLen, 1, fp2);
+                    fclose(fp2);
+
+                    sha1 = new SHA1;
+                    if(iFileLen > 0)
+                    {
+                        sha1->addBytes((char*)pbData, iFileLen);
+
+                        unsigned char* digest = sha1->getDigest();
+                        memcpy(abDig2, digest, sizeof(abDig2));
+
+                        free(digest);
+                    }
+                    delete sha1;
+
+                    free(pbData);
+                }
+
+                if(!memcmp(abDig1, abDig2, sizeof(abDig1)))
+                {
+                    printf("[app_upgrader] ######## File Compare Ok! %s\n", filename);
+                }
+                else
+                {
+                    printf("[app_upgrader] ######## File Compare Error! %s\n", filename);
+                    g_iCheckError ++;
+
+                    struct stat filecheck;
+                    if(stat (filename, &filecheck) == 0)
+                        remove(filename);
+
+                    FILE* fp2 = fopen(filename, "wb");
+                    if (fp2) {
+                        fwrite(buffer, 1, p->size, fp2);
+                        fflush(fp2);
+                        my_fsync(fileno(fp2));
+                        fclose(fp2);
+                    }
+                    chmod(filename, p->mode);
+                }
+
+                if(strstr(filename, "__useless_files.txt"))
+                    removeUselessFiles(destination);
+            }
+
+            delete buffer;
+            progress = (++nProcessed) * 100 / nTotal;
+        }
+
+        char* full_path;
+        char target[256];
+        char src[256];
+        //Write symlinks
+        count = 0;
+
+        //Read in directories that need to be created
+        while(count < header.n_link) {
+            char* s = new char[1025];
+#if (USE_16M_FLASH == 0)
+            nBytes = fread(s, 1, 1024, fp1);
+#else//USE_16M_FLASH
+            memcpy(s, current_addr, 1024);
+            current_addr += 1024;
+#endif//USE_16M_FLASH
+            decryptBuf((unsigned char*)s, strlen(s));
+            s[nBytes] = 0;
+
+            char* ptr = strstr(s, " -> ");
+            *ptr = '\0';
+
+            full_path = s;
+            sprintf(src, "%s/%s", destination, full_path);
+            strcpy(target, src);
+
+            *(strrchr(target, '/') + 1) = 0;
+            sprintf(target, "%s%s", target, ptr+4);
+            symlink(target, src);
+
+            progress = (++nProcessed) * 100 / nTotal;
+            count++;
+        }
+
+        int readCheckSum = 0;
+#if (USE_16M_FLASH == 0)
+        fread(&readCheckSum, 4, 1, fp1);
+
+        fclose(fp1);
+#else//USE_16M_FLASH
+        memcpy(&readCheckSum, current_addr, 4);
+        current_addr += 4;
+#endif//USE_16M_FLASH
+        decompressed = true;
+
+        if(readCheckSum != checksum)
+        {
+            checksum = 0;
+            return false;
+        }
+        checksum = 0;
+        return true;
+    }
+
+    return false;
+}
