@@ -36,27 +36,27 @@ depends:
   - sec_crypto: develop
   - posix: develop
   - drv_sdmmc: v2.0
-  - lwip: develop
-  - netmgr: develop
+#  - lwip: develop
+#  - netmgr: develop
   - devices: develop
   - drivers: develop
-  - drv_wifi_hi3861l_fnlink: develop
+#  - drv_wifi_hi3861l_fnlink: develop
   - cjson: develop
   - fatfs: cv_dev
   - vfs: develop
-  - lwext4: develop
+#  - lwext4: develop
   - cv180xb_evb: v0.0.1
   - chip_cv180x: v0.0.1
   - minialsa: v7.5.1
   - drv_snd_cv181x: v7.5.1
-  - lvgl: develop
+#  - lvgl: develop
   - cvi_sensor: develop
 #  - rtsp: develop
 #  - cvi_mw_tpu: v0.0.1
   - cherryusb: develop
   - cvi_platform: develop
-  - g711: v0.0.1
-  - cvi_test: develop
+#  - g711: v0.0.1
+#  - cvi_test: develop
   - mbedtls: develop
 
   - cvi_mmf_sdk_cv180xx: develop
