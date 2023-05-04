@@ -22,57 +22,6 @@
 #include <malloc.h>
 #include <string.h>
 
-#if 0
-int  AES_SetKey(AES_Context *pContext, unsigned char abKey[AES_BLOCK_SIZE])
-{
-    return aes_set_key(pContext, abKey, AES_KEY_BITS);
-}
-
-void AES_Encrypt(AES_Context *pContext, unsigned char* pbInData, int nInLen, unsigned char** ppbOutData, int* pnOutLen)
-{
-    int nOutLen = (nInLen / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
-    unsigned char* pbOutData = (unsigned char*)malloc(nOutLen);
-    for(int i = 0; i < (nInLen / AES_BLOCK_SIZE); i ++)
-        aes_encrypt(pContext, pbInData + i * AES_BLOCK_SIZE, pbOutData + i * AES_BLOCK_SIZE);
-
-    if(nInLen % AES_BLOCK_SIZE)
-    {
-        unsigned char bTmp[AES_BLOCK_SIZE] = { 0 };
-        memcpy(bTmp, pbInData + (nInLen / AES_BLOCK_SIZE) * AES_BLOCK_SIZE, nInLen % AES_BLOCK_SIZE);
-        memset(bTmp + nInLen % AES_BLOCK_SIZE, (unsigned char)nInLen % AES_BLOCK_SIZE, AES_BLOCK_SIZE - (nInLen % AES_BLOCK_SIZE));
-
-        aes_encrypt(pContext, bTmp, pbOutData + (nInLen / AES_BLOCK_SIZE) * AES_BLOCK_SIZE);
-    }
-    else
-    {
-        unsigned char bTmp[AES_BLOCK_SIZE] = { 0 };
-        memset(bTmp, 0, AES_BLOCK_SIZE);
-
-        aes_encrypt(pContext, bTmp, pbOutData + (nInLen / AES_BLOCK_SIZE) * AES_BLOCK_SIZE);
-    }
-
-    *ppbOutData = pbOutData;
-    *pnOutLen = nOutLen;
-}
-
-void AES_Decrypt(AES_Context *pContext, unsigned char* pbInData, int nInLen, unsigned char** ppbOutData, int* pnOutLen)
-{
-    int nPaddingLen = 0;
-    int nOutLen = (nInLen / AES_BLOCK_SIZE) * AES_BLOCK_SIZE;
-    unsigned char* pbOutData = (unsigned char*)malloc(nOutLen);
-    for(int i = 0; i < (nInLen / AES_BLOCK_SIZE); i ++)
-    {
-        aes_decrypt(pContext, pbInData + i * AES_BLOCK_SIZE, pbOutData + i * AES_BLOCK_SIZE);
-        nPaddingLen = AES_BLOCK_SIZE - pbOutData[(i + 1) * AES_BLOCK_SIZE - 1];
-    }
-
-    *ppbOutData = pbOutData;
-    *pnOutLen = nOutLen - nPaddingLen;
-}
-
-#else
-
-
 void AES_Encrypt(unsigned char* pbKey, unsigned char* pbInData, int nInLen, unsigned char** ppbOutData, int* pnOutLen)
 {
     AES_KEY key;
@@ -93,17 +42,22 @@ void AES_Decrypt(unsigned char* pbKey, unsigned char* pbInData, int nInLen, unsi
     if(nInLen % AES_BLOCK_SIZE)
         return;
 
+    if (!pnOutLen || !ppbOutData)
+        return;
+
     AES_KEY key;
     AES_set_decrypt_key((unsigned char*)pbKey, 128, &key);
 
     int nOutLen = nInLen;
     unsigned char* pbOutData = (unsigned char*)malloc(nOutLen);
+    if (!pbOutData)
+    {
+        *pnOutLen = 0;
+        return;
+    }
     for(int i = 0; i < nInLen / AES_BLOCK_SIZE; i ++)
         AES_ecb_encrypt(pbInData + i * AES_BLOCK_SIZE, pbOutData + i * AES_BLOCK_SIZE, &key, AES_DECRYPT);
 
     *ppbOutData = pbOutData;
     *pnOutLen = nOutLen;
 }
-
-
-#endif

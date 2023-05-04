@@ -214,7 +214,7 @@ enum E_Baud_Rate
 #define DEFAULT_MI_AI_VOLUME        20      // 0~21
 #define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
 #define DEFAULT_SNAPIMG_CTRL_CNT    3
-#define FIRMWARE_MAGIC              "FTSVD"
+#define FIRMWARE_MAGIC              "DBS"
 
 #define DESMAN_ENC_MODE     2       //0 -> dessmman, 1 -> bom, 2 -> test
 
@@ -288,17 +288,17 @@ enum E_Baud_Rate
 /// products
 //////////////////////////////////////////////////////////////
 
-#define FRM_PT_DEFAULT              0   //default
-#define FRM_PT_DEFAULT_3_4          100   //3.4 default
+#define FRM_DBS20_DEFAULT                       0   //default
+#define FRM_PT_DEFAULT_3_4                      100   //3.4 default
 
-#define FRM_PRODUCT_TYPE            FRM_PT_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS20_DEFAULT
 
 //---------------------------------------------------------
-#if (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT)
+#if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
 
-#define DEVICE_MODEL_NUM                    "BIOAT-FM-174"
-#define DEVICE_FIRMWARE_VERSION             "1.14.0_RS"
-#define DEVICE_FIRMWARE_VERSION_INNER       "1.14.0_RS"
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "1.14.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "1.14.0_D"
 
 #define DEVICE_NID_READY_VER                0 //'C'=0x43, for desman, else 0=NID_READY
 #undef SEND_LAST_MSG
@@ -323,6 +323,8 @@ enum E_Baud_Rate
 #define IR_CAM_HEIGHT                       900
 #undef ENGINE_LENS_TYPE
 #define ENGINE_LENS_TYPE                    ENGINE_LENS_M277_2409
+#undef FIRMWARE_MAGIC
+#define FIRMWARE_MAGIC                      "DBS2.0"
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)

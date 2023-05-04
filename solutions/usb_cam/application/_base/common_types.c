@@ -1,5 +1,4 @@
 #include "common_types.h"
-#include "drv_gpio.h"
 #include "settings.h"
 
 #include <stdio.h>

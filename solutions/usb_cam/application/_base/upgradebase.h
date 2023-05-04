@@ -14,6 +14,14 @@
 #define UPDATE_FIRM_ZIMG_PATH "/home/upfirm~1.zim"
 ///////
 
+#define UF_MAX_PART_CNT         32
+typedef struct {
+    char m_partname[16];
+    unsigned int m_offset;
+    unsigned int m_size;
+    unsigned int m_flags;
+} s_uf_part_info;
+
 typedef struct st_uf_file_header
 {
     char m_magic[8];
@@ -29,12 +37,22 @@ typedef struct st_uf_file_header
     int n_dir;
     int n_link;
     char m_back_ver[32];
+    s_uf_part_info m_part_infos[UF_MAX_PART_CNT];
 } uf_file_header;
 
-int             mount_tmp(int is_usb = 0);
-int             umount_tmp();
-void            do_reset_tmp();
+#ifdef __cplusplus
+extern  "C"
+{
+#endif
 
+int mount_tmp(int is_usb = 0);
+int umount_tmp();
+void do_reset_tmp();
+int upg_get_aes_key(unsigned char* buf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UPGRADE_BASE_H
 

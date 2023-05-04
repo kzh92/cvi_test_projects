@@ -9,6 +9,9 @@
 #include "fileutils.h"
 #include "llist.h"
 #include "appdef.h"
+#include "upgradebase.h"
+
+//#define USE_APP_UPGRADE
 
 struct FileHeader {
     char filePath[256];
@@ -16,22 +19,6 @@ struct FileHeader {
     unsigned int dataOffset;
     unsigned int mode;
 };
-
-typedef struct st_uf_file_header {
-    char m_magic[8];
-    char m_model[64];
-    int m_major;
-    int m_minor;
-    int m_build;
-    int m_patch;
-    char m_subtype[32];
-    int app_start;
-    int app_size;
-    int n_file;
-    int n_dir;
-    int n_link;
-    char m_back_ver[32];
-} uf_file_header;
 
 class FolderFile {
 protected:
@@ -57,8 +44,8 @@ public:
 #else//USE_16M_FLASH
     bool decompressDirectory(unsigned char* source, char* destination, uf_file_header &header);
 #endif//USE_16M_FLASH
-    void encryptBuf(unsigned char* buf, int size);
-    void decryptBuf(unsigned char* buf, int size);
+    static void encryptBuf(unsigned char* buf, int size);
+    static void decryptBuf(unsigned char* buf, int size);
     void removeUselessFiles(char* destination);
     void my_fsync(int fd);
 

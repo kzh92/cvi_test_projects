@@ -52,7 +52,7 @@ void ls_m(char* root, char* directoryPath, LList<char*>* files, LList<char*>* di
     char* copy;
     int count;
 //    FILE* fp;
-    char symlinkFile[256];
+    char symlinkFile[1024];
 
     sprintf(search, "%s/%s", root, directoryPath);
 
