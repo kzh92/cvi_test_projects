@@ -2,6 +2,7 @@
 #include <drv/pin.h>
 #include <pinctrl-mars.h>
 #include "cvi_type.h"
+#include "drv_gpio.h"
 
 #define GPIO_SPKEN_GRP 0
 #define GPIO_SPKEN_NUM 15
@@ -95,7 +96,14 @@ void PLATFORM_IoInit(void)
     PINMUX_CONFIG(IIC0_SDA, UART1_RX);
 
     //turn off ir led
-    _GPIOSetValue(4, 20, 0);
+    //_GPIOSetValue(4, 20, 0);
+    GPIO_fast_setvalue(IR_LED, 0);
+
+    //camera power
+    //_GPIOSetValue(2, 7, 1);
+	GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);    
+    //_GPIOSetValue(2, 8, 1);
+    GPIO_fast_setvalue(CAM_MIPI0_PWDN, 1);
 }
 
 void PLATFORM_PowerOff(void)

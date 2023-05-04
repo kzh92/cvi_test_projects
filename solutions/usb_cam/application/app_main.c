@@ -17,6 +17,7 @@
 #include "fm_main.h"
 #include "uvc_func.h"
 #include "cvi_tpu_interface.h"
+#include "drv_gpio.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -28,6 +29,7 @@
 int main(int argc, char *argv[])
 {
 	YOC_SYSTEM_Init();
+	GPIO_fast_init();
 	//board pinmux init
 	PLATFORM_IoInit();
 	//Fs init
