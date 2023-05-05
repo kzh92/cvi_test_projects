@@ -30,34 +30,7 @@ static message_queue g_queue_send;
 static mythread_ptr g_thread_send = NULL;
 #endif
 
-#define REH_MAGIC_LEN   8
-#define REH_MAX_SLOTS   64
-#define REH_KEY_LEN     32
-#define REH_MAGIC       "ESUSB1"
-#define REH_CF_MAGIC    "EASEN_CHECK_FIRMWARE"
- 
 #define PAGE_SIZE       0x1000
-
-typedef struct _tagUpInfo
-{
-    unsigned int offset;
-    unsigned int size;
-    unsigned int reserved[14];
-} stUpInfo;
- 
-typedef struct _tagREHSlot
-{
-    unsigned int offset;
-    unsigned int size;
-} stREHSlot;
- 
-typedef struct _tagUsbUpgradeEasenHeader
-{
-    char magic[REH_MAGIC_LEN];
-    unsigned int slot_count;
-    stREHSlot slots[REH_MAX_SLOTS];
-    unsigned char key[REH_KEY_LEN];
-} stUsbUpgradeEasenHeader;
 
 SenseLockTask::EEncMode SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
 char SenseLockTask::EncKey[ENC_KEY_SIZE + 1] = { 0 };
@@ -83,25 +56,6 @@ extern int processGlobalMsg();
 #if (USE_UVC_PAUSE_MODE)
 float PauseUVC_Time = 0;
 #endif
-
-void _decryptBuf(unsigned char *buf, unsigned long bufLen, unsigned char *key)
-{
-    for (unsigned long i = 0; i < bufLen; i++)
-    {
-        buf[i] = buf[i] ^ (key[i % REH_KEY_LEN] + i / REH_KEY_LEN);
-    }
-}
-
-void encryptUpgrader(unsigned char *buf, unsigned long bufLen)
-{
-    unsigned int anUID[4] = { 0 };
-    GetSSDID(anUID);
-    for (unsigned long i = 0; i < bufLen; i++)
-    {
-        buf[i] = buf[i] ^ anUID[i % 4];
-    }
-}
-//unsigned char SenseLockTask::m_bSeqNum = 0;
 
 SenseLockTask::SenseLockTask()
 {
@@ -359,7 +313,6 @@ void SenseLockTask::run()
 #ifdef NOTHREAD_MUL
     int iMsgSent = 0;
 #endif // NOTHREAD_MUL
-    stUsbUpgradeEasenHeader header;
     //static pthread_t g_thread_send = 0;
 
 #ifndef NOTHREAD_MUL
@@ -709,15 +662,11 @@ void SenseLockTask::run()
                 {
                     my_printf("=============+Error Pcket!\n");
                     SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
-#ifdef NOTHREAD_MUL
-                    iMsgSent = 1;
-#endif // NOTHREAD_MUL
 
                     my_free(msg);
                     continue;
                 }
 
-#if 1
                 int iValid = 1;
                 for(int i = 0; i < iPckCount; i ++)
                 {
@@ -731,156 +680,14 @@ void SenseLockTask::run()
                 if(iValid)
                 {
                     my_printf("[upgrade] 0x%x receive OK\n", iFSize);
-
-                    int erase_size = 0;
-                    unsigned int i;
-                    unsigned char bFileCheckSum = 0;
-                    unsigned int iFileSize = iFSize;
-                    iFileSize--; // omitting checksum.
-                    for (i = 0 ; i < iFileSize ; i++)
-                        bFileCheckSum = bFileCheckSum ^ g_xSS.pbOtaData[i];
-                    if (bFileCheckSum != g_xSS.pbOtaData[iFileSize])
+                    if (upg_do_ota4mem(g_xSS.pbOtaData, iFSize))
                     {
-                        my_printf("XXXXXXXXXXXXX CheckSum Error: %x, %x\n", g_xSS.pbOtaData[iFileSize], bFileCheckSum);
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_CHECKSUM_ERROR, 0);
-#ifdef NOTHREAD_MUL
-                        iMsgSent = 1;
-#endif // NOTHREAD_MUL
-                        my_free(msg);
-                        continue;
-                    }
-
-                    stUpInfo upgrader;
-                    my_flash_read(UPGRADER_INFO_ADDR, sizeof(stUpInfo), &upgrader,sizeof(stUpInfo));
-
-                    memcpy((unsigned int *)&header, (unsigned int *)g_xSS.pbOtaData, sizeof(stUsbUpgradeEasenHeader));
-                    _decryptBuf((unsigned char *)&header, sizeof(header) - REH_KEY_LEN, header.key);
-                    if (!strcmp(header.magic, REH_MAGIC))
-                    {
-                        int offset = sizeof(header);
-                        for (i = 0; i < header.slot_count; i++)
-                        {
-                            if (header.slots[i].size <= 0)
-                                continue;
-                            _decryptBuf((unsigned char *)(g_xSS.pbOtaData + offset), header.slots[i].size, header.key);
-                            if (i == 0 && header.slots[i].size >= strlen(REH_CF_MAGIC))
-                            {
-                                if (strncmp((const char*)(g_xSS.pbOtaData + offset), REH_CF_MAGIC, strlen(REH_CF_MAGIC)) == 0)
-                                {
-                                    g_xCS.x.bCheckFirmware = 1;
-                                    UpdateCommonSettings();
-                                    my_printf("*** check firmware\n");
-                                    break;
-                                }
-                            }
-
-                            erase_size = ((header.slots[i].size - 1)/PAGE_SIZE + 1) * PAGE_SIZE;
-                            my_printf("[upgrade] Erase : start = 0x%x, end = 0x%x\n", header.slots[i].offset, header.slots[i].offset + erase_size);
-
-                            if(i == 0)//for Upgrader rtk
-                            {
-                                encryptUpgrader((unsigned char *)(g_xSS.pbOtaData + offset), header.slots[i].size);
-                                upgrader.offset = header.slots[i].offset;
-                                upgrader.size = erase_size;
-                            }
-
-                            if (my_flash_write(header.slots[i].offset, g_xSS.pbOtaData + offset, header.slots[i].size) < header.slots[i].size)
-                            {
-                                my_printf("[upgrade] failed to write\n");
-                                break;
-                            }
-
-                            offset += header.slots[i].size;
-                        }
-
-                        if (i == header.slot_count)//receive success
-                        {
-                            my_flash_erase(UPGRADER_INFO_ADDR, PAGE_SIZE);
-                            my_flash_write_pages(UPGRADER_INFO_ADDR, &upgrader, sizeof(stUpInfo));
-                        }
-
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_OK, 0);
-#ifdef NOTHREAD_MUL
-                        iMsgSent = 1;
-#endif // NOTHREAD_MUL
-
-                        my_free(msg);
-                        continue;
-                    }
-                    else
-                    {
-                        my_printf("[upgrade] Magic Fail %s\n", header.magic);
                         SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
-#ifdef NOTHREAD_MUL
-                        iMsgSent = 1;
-#endif // NOTHREAD_MUL
 
                         my_free(msg);
                         continue;
                     }
-#if 0//darkhorse
-                    int iFileSize = iFSize;
-                    iFileSize--; // omitting checksum.
-                    unsigned int iPieceSize = 5120;
-                    unsigned char* tmp_buf = NULL;
-                    unsigned int i = 0;
-                    int iTotal = iFileSize / iPieceSize;
-
-                    unsigned char checkSum = 0;
-                    unsigned char bFileCheckSum = 0;
-                    for(; i < (unsigned int)iTotal; i++)
-                    {
-                        tmp_buf = g_xSS.pbOtaData + i * iPieceSize;
-                        for(unsigned int j = 0; j < iPieceSize; j++)
-                        {
-                            tmp_buf[j] = tmp_buf[j] ^ (((i * iPieceSize + j) ^ (iFileSize - (i * iPieceSize + j))) % 128);
-                            checkSum ^= tmp_buf[j];
-                        }
-                    }
-
-                    unsigned int iRemain = iFileSize % iPieceSize;
-                    if(iRemain != 0)
-                    {
-                        tmp_buf = g_xSS.pbOtaData + i * iPieceSize;
-                        for(unsigned int j = 0; j < iRemain; j++)
-                        {
-                            tmp_buf[j] = tmp_buf[j] ^ (((iTotal * iPieceSize + j) ^ (iFileSize - (iTotal * iPieceSize + j))) % 128);
-                            checkSum ^= tmp_buf[j];
-                        }
-                    }
-
-                    bFileCheckSum = g_xSS.pbOtaData[iFileSize];
-
-                    if(checkSum != bFileCheckSum)
-                    {
-                        my_printf("XXXXXXXXXXXXX CheckSum Error: %x, %x\n", checkSum, bFileCheckSum);
-
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_CHECKSUM_ERROR, 0);
-                        iMsgSent = 1;
-
-                        my_free(msg);
-                        continue;
-                    }
-                    else
-                    {
-                        mount_tmp();
-                        FILE* fp = fopen(UPDATE_FIRM_ZIP_PATH, "wb");
-                        if(fp)
-                        {
-                            fwrite(g_xSS.pbOtaData, iFSize, 1, fp);
-                            fclose(fp);
-                        }
-                        umount_tmp();
-
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_OK, 0);
-                        iMsgSent = 1;
-
-                        my_free(msg);
-                        continue;
-                    }
-#endif//darkhorse
                 }
-#endif
             }
 
             my_free(msg);

@@ -139,10 +139,10 @@ int main(int argc, char** argv)
     unsigned char* out_buf;
     unsigned char akey[AES_BLOCK_SIZE];
     unsigned char* tmp_buf = NULL;
-    int blk_size = 4096;
+    int blk_size = 128;
     int read_len = 0;
     tmp_buf = (unsigned char*)malloc(blk_size);
-    for (int i = 0; i < iFileSize / blk_size; i++)
+    for (int i = 0; i < (iFileSize + blk_size - 1) / blk_size; i++)
     {
         read_len = iFileSize - i * blk_size;
         if (read_len > blk_size)

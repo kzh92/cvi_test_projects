@@ -134,6 +134,7 @@ build_config:
     - customization/include
     - application/PusinLock
     - application/_base
+    - application/z_base
     - application/_driver
     - application/_uart
     - application/_keygen
@@ -190,6 +191,7 @@ source_file:
   - application/_uart/*.c
   - application/_driver/*.cpp
   - application/_driver/*.c
+  - application/z_base/*.cpp
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

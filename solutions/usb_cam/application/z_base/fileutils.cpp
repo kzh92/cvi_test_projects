@@ -12,9 +12,11 @@ bool mkdir_m(char* filePath) {
 }
 
 void ls_m(char* root, char* directoryPath, LList<char*>* files, LList<char*>* directories, LList<char*>* symlinks) {
+#ifdef _PACK_OTA_
     char fullPath[1024];
     char search[256];
     char buf[512];
+#endif
 
 #ifdef _WIN32
     HANDLE hFind;
@@ -46,7 +48,7 @@ void ls_m(char* root, char* directoryPath, LList<char*>* files, LList<char*>* di
 
         FindClose(hFind);
     }
-#else
+#elif (defined(_PACK_OTA_))
     struct dirent *de=NULL;
     DIR *d = NULL;
     char* copy;

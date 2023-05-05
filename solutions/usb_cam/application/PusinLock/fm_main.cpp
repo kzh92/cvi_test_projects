@@ -773,33 +773,6 @@ int main0(int argc, char** argv)
     my_printf("test encryption end %0.3f\n", Now());
 #endif
 
-#if 0 // 7z test
-    extern int main_7z(int numargs, char *args[]);
-    extern int extract_7z2mem(void* pInBuffer, int inLength, void** pOutBuffer, int* pOutLength);
-    void* extract_buf = NULL;
-    unsigned char* buf_src = NULL;
-    int buf_len = 1226821;
-    buf_src = (unsigned char*)my_malloc(FN_WNO_DICT_SIZE);
-    if (!buf_src)
-    {
-        my_printf("malloc failed\n");
-        return 0;
-    }
-    fr_ReadFileData(FN_WNO_DICT_PATH, 0, buf_src, FN_WNO_DICT_SIZE);
-
-    my_printf("7z extract start %0.3f\n", Now());
-
-    int rc = extract_7z2mem(buf_src, buf_len, &extract_buf, &g_xSS.iUpgradeImgLen);
-    //memcpy(g_upgrade, extract_buf,g_xSS.iUpgradeImgLen);
-    my_printf("7z extract ok(%d), %0.3f, %d:", g_xSS.iUpgradeImgLen, Now(), rc);
-    if (extract_buf)
-    {
-        for (int i = 0; i < 32 && i < g_xSS.iUpgradeImgLen; i++)
-            my_printf("%02x ", ((unsigned char*)extract_buf)[i]);
-    }
-    my_printf("\n===============================================\n");
-    return 0;
-#endif // 7z test
     DriverInit();
 
     message_queue_init(&g_worker, sizeof(MSG), MAX_MSG_NUM);

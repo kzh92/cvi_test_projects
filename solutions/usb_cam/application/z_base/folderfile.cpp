@@ -58,6 +58,7 @@ void FolderFile::addFolder(char* path) {
 }
 
 bool FolderFile::unify(char* path, uf_file_header header, char* upgrade_app_path) {
+#ifdef _PACK_OTA_
     FILE* fp1 = fopen(path, "wb");
     FileHeader* p;
     header.n_file = headers.getSize();
@@ -117,6 +118,8 @@ bool FolderFile::unify(char* path, uf_file_header header, char* upgrade_app_path
     delete []buffer;
     free(encryptApp);
 ///////////////////////////
+#else // USE_APP_UPGRADE
+    fwrite(&header, sizeof(header), 1, fp1);
 #endif // USE_APP_UPGRADE
 
     headers.moveCursor(HEAD);
@@ -165,7 +168,7 @@ bool FolderFile::unify(char* path, uf_file_header header, char* upgrade_app_path
     fwrite(&checksum, 4, 1, fp1);
 
     fclose(fp1);
-
+#endif // _PACK_OTA_
     return true;
 }
 
@@ -182,7 +185,7 @@ void FolderFile::my_fsync(int fd)
 }
 
 bool FolderFile::compressDirectory(char* folder, char* destination, uf_file_header header, char* upgrade_app) {
-
+#ifdef _PACK_OTA_
     LList<char*>* directories = new LList<char*>();
     LList<char*>* files = new LList<char*>();
 
@@ -206,7 +209,7 @@ bool FolderFile::compressDirectory(char* folder, char* destination, uf_file_head
 
         return true;
     }
-
+#endif // _PACK_OTA_
     return false;
 }
 
@@ -294,6 +297,7 @@ void FolderFile::decryptBuf(unsigned char* buf, int size)
 
 void FolderFile::removeUselessFiles(char* destination)
 {
+#ifdef _PACK_OTA_
     //Remove files
     char rem_file_path[256];
     char rem_filelist_path[256];
@@ -327,6 +331,7 @@ void FolderFile::removeUselessFiles(char* destination)
         if(line)
             free(line);
     }
+#endif // _PACK_OTA_
 }
 
 #if (USE_16M_FLASH == 0)
@@ -335,7 +340,7 @@ bool FolderFile::decompressDirectory(char* path, char* destination, uf_file_head
 bool FolderFile::decompressDirectory(unsigned char* source, char* destination, uf_file_header &header) {
 #endif//USE_16M_FLASH
     FileHeader* p;
-    int nBytes;
+    int nBytes = 0;
 
     if (!compressed) {
 #if (USE_16M_FLASH == 0)
@@ -350,7 +355,7 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
         unsigned char* current_addr = source;
         mkdir_m(destination);
         memcpy(&header, current_addr, sizeof(header));
-        current_addr += header.app_start + header.app_size;
+        current_addr += sizeof(header) + header.app_start + header.app_size;
 #endif//USE_16M_FLASH
         int count = 0;
 
@@ -377,6 +382,7 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
 #else//USE_16M_FLASH
             memcpy(s, current_addr, 1024);
             current_addr += 1024;
+            nBytes = 1024;
 #endif//USE_16M_FLASH
             // decryptBuf((unsigned char*)s, strlen(s));
             s[nBytes] = 0;
@@ -390,7 +396,10 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
 
         //Make directories
         char* s;
-        while (s = directories.stepForward()) {
+        while (1) {
+            s = directories.stepForward();
+            if (!s)
+                break;
             char filename[1024];
             sprintf(filename, "%s/%s", destination, s);
 
@@ -400,12 +409,15 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
         }
 
         //Write files
-        while (p = headers.stepForward()) {
+        while (1) {
+            p = headers.stepForward();
+            if (!p)
+                break;
             char* buffer = new char[p->size];
             char filename[1024];
             sprintf(filename, "%s/%s", destination, p->filePath);
 
-//            printf("WRITE FILE: %s\n", filename);
+            dbug_printf("WRITE FILE: %s\n", filename);
 #if (USE_16M_FLASH == 0)
             fread(buffer, 1, p->size, fp1);
 #else//USE_16M_FLASH
@@ -414,10 +426,7 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
 #endif//USE_16M_FLASH
 
 #ifndef _PACK_OTA_
-            if(!strcmp(p->filePath, "c.bin"))
-            {
-                updateDictData(FN_C_DICT_PATH, (unsigned char*)buffer, p->size);
-            }
+            upg_update_part(p->filePath, (unsigned char*)buffer, p->size, &header);
 #endif // !_PACK_OTA_
             delete []buffer;
             progress = (++nProcessed) * 100 / nTotal;
@@ -425,6 +434,7 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
 
         char* full_path;
         char target[256];
+        char target2[256];
         char src[256];
         //Write symlinks
         count = 0;
@@ -449,8 +459,10 @@ bool FolderFile::decompressDirectory(unsigned char* source, char* destination, u
             strcpy(target, src);
 
             *(strrchr(target, '/') + 1) = 0;
-            sprintf(target, "%s%s", target, ptr+4);
-            symlink(target, src);
+            sprintf(target2, "%s%s", target, ptr+4);
+#ifdef _PACK_OTA_
+            symlink(target2, src);
+#endif
 
             progress = (++nProcessed) * 100 / nTotal;
             count++;

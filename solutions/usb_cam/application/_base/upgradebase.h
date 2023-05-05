@@ -49,6 +49,10 @@ int mount_tmp(int is_usb = 0);
 int umount_tmp();
 void do_reset_tmp();
 int upg_get_aes_key(unsigned char* buf);
+#ifndef _PACK_OTA_
+int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len);
+int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned int u_size, uf_file_header* u_header);
+#endif // !_PACK_OTA_
 
 #ifdef __cplusplus
 }

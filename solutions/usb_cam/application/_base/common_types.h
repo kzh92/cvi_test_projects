@@ -304,6 +304,9 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
 #define my_mutex_unlock(a) my_mutex_unlock_real(a)
 #endif
 
+#define my_memcpy           memcpy
+#define my_memset           memset
+
 extern const char*  dbfs_part_names[DB_PART_END+1];
 extern SHARED_MEM*  g_pxSharedMem;
 extern SHARED_MEM*  g_pxSharedLCD;

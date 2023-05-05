@@ -920,6 +920,7 @@ int my_create_empty_file(const char* path, int file_size)
 */
 int rootfs_is_activated()
 {
+    return 1;
     if (g_xPS.x.bIsActivated == 0xAA)
         return 1;
     else
