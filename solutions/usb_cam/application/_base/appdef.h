@@ -71,6 +71,12 @@ enum E_Baud_Rate
 #define PROTO_EM_XOR1_KEY_LANHENG       "ee71535357ad9bb4" //XOR key for 심전람항
 #define PROTO_EM_XOR1_KEY_SANJIANG      "eb62f6b9306db575" //XOR key for 범해삼강
 
+//board types
+#define BD_TY_CV180xB_DEMO_V1v0     0
+#define BD_TY_FSDB_1V0              1
+
+#define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
+
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE               0

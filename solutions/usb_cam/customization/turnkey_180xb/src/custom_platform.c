@@ -15,7 +15,13 @@ static void _SensorPinmux()
 	PINMUX_CONFIG(PAD_MIPIRX0N, IIC1_SCL);
     PINMUX_CONFIG(PAD_MIPIRX1N, XGPIOC_8);
 
+#if (DEFAULT_BOARD_TYPE == BD_TY_CV180xB_DEMO_V1v0)
     PINMUX_CONFIG(SD1_D1, PWR_GPIO_20); //IR LED pin
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FSDB_1V0)
+    PINMUX_CONFIG(SD1_D0, PWR_GPIO_21); //IR LED pin
+#else // DEFAULT_BOARD_TYPE
+	#error "Board Type Error!"
+#endif // DEFAULT_BOARD_TYPE
 }
 
 static void _MipiRxPinmux(void)
@@ -96,13 +102,10 @@ void PLATFORM_IoInit(void)
     PINMUX_CONFIG(IIC0_SDA, UART1_RX);
 
     //turn off ir led
-    //_GPIOSetValue(4, 20, 0);
     GPIO_fast_setvalue(IR_LED, 0);
 
     //camera power
-    //_GPIOSetValue(2, 7, 1);
 	GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);    
-    //_GPIOSetValue(2, 8, 1);
     GPIO_fast_setvalue(CAM_MIPI0_PWDN, 1);
 }
 

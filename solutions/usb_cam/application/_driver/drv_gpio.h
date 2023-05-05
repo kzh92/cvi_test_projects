@@ -40,11 +40,19 @@ extern	"C"
 // #endif // USE_WIFI_MODULE
 // #endif
 
-#define IR_LED          		421 /* PWR_GPIO_21 Group:4 Num:21 */
+#if (DEFAULT_BOARD_TYPE == BD_TY_CV180xB_DEMO_V1v0)
+#define IR_LED                  420 /* PWR_GPIO[20] Group:4 Num:20 */
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FSDB_1V0)
+#define IR_LED                  421 /* PWR_GPIO[21] Group:4 Num:21 */
+#else // DEFAULT_BOARD_TYPE
+	#error "Board Type Error!"
+#endif // DEFAULT_BOARD_TYPE
+
+#define IR_LED                  421 /* PWR_GPIO_21 Group:4 Num:21 */
 // #define PSENSE_DET      106 /* XGPIOB_6 Group:1 Num:6*/
 // #define GPIO_USBSense   106 /* XGPIOB_6 Group:1 Num:6*/
-#define CAM_MIPI0_PWDN			208 /* XGPIOC[8] Group:2 Num:8*/
-#define CAM_MIPI1_PWDN			207 /* XGPIOC[7] Group:2 Num:7*/
+#define CAM_MIPI0_PWDN          208 /* XGPIOC[8] Group:2 Num:8*/
+#define CAM_MIPI1_PWDN          207 /* XGPIOC[7] Group:2 Num:7*/
 
 #define IN  0
 #define OUT 1
