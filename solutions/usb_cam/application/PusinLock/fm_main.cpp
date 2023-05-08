@@ -195,10 +195,10 @@ void DriverInit()
     g_pFMTask->Init();
     //gpio init
     GPIO_fast_init();
-// #ifdef IR_LED
-//     GPIO_fast_config(IR_LED, OUT);
-//     GPIO_fast_setvalue(IR_LED, OFF);
-// #endif
+#ifdef IR_LED
+    GPIO_fast_config(IR_LED, OUT);
+    GPIO_fast_setvalue(IR_LED, OFF);
+#endif
 
 // #ifdef AUDIO_EN
 //     GPIO_fast_config(AUDIO_EN, OUT);
