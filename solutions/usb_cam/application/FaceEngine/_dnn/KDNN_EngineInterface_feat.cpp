@@ -26,13 +26,14 @@
 #include <unistd.h>
 #include <memory.h>
 #include "common_types.h"
-
+#include <cvimodel_proc.h>
 
 extern int g_nStopEngine;
 extern float g_rSecurityValue;
 
-Feature feat;
-HandFeat feat_hand;
+
+Cvimodel feat;
+Cvimodel feat_hand;
 
 int	KdnnCreateEngine_feat(unsigned char* pMem, int nMode)
 {
@@ -41,11 +42,14 @@ int	KdnnCreateEngine_feat(unsigned char* pMem, int nMode)
         if(!getLoadedDicFlag(MachineFlagIndex_DNN_Feature))
                 return KDNN_FAILED;
 
-        if (feat.getEngineLoaded())
+        if (/*feat.getEngineLoaded()*/feat.m_loaded)
             return KDNN_SUCCESS;
 
-        int nDicSize = feat.dnn_dic_size();
-        int ret = feat.dnn_create(g_dic_feature, nDicSize, 75.0f, pMem);
+        //int nDicSize = feat.dnn_dic_size();
+        //int ret = feat.dnn_create(g_dic_feature, nDicSize, 75.0f, pMem);
+        int nDicSize = DIC_LEN_FACE_FEATURE;
+        int ret = cvimodel_init(g_dic_feature, nDicSize, &feat);
+
         if (ret)
         {
             APP_LOG("[%d] pecc 3-9-4-%d\n", (int)Now(), nMode);
@@ -57,11 +61,12 @@ int	KdnnCreateEngine_feat(unsigned char* pMem, int nMode)
         if(!getLoadedDicFlag(MachineFlagIndex_DNN_Feature_Hand))
                 return KDNN_FAILED;
 
-        if (HandFeat_getEngineLoaded(&feat_hand))
+        if (/*HandFeat_getEngineLoaded(&feat_hand)*/feat_hand.m_loaded)
             return KDNN_SUCCESS;
 
         int nDicSize = HandFeat_dnn_dic_size();
-        int ret = HandFeat_dnn_create_(&feat_hand, g_dic_feature_hand, nDicSize, 75.0f, pMem);
+        //int ret = HandFeat_dnn_create_(&feat_hand, g_dic_feature_hand, nDicSize, 75.0f, pMem);
+        int ret = cvimodel_init(g_dic_feature_hand, nDicSize, &feat_hand);
         if (ret)
         {
             APP_LOG("[%d] pecc 3-9-4-%d\n", (int)Now(), nMode);
@@ -83,19 +88,21 @@ int KdnnDetect_feat(unsigned char * pbImage, unsigned short* prFeatArray, int nM
     float *prRet = 0;
     if(nMode == 0)
     {
-        if (!feat.getEngineLoaded())
+        if (/*!feat.getEngineLoaded()*/!feat.m_loaded)
         {
             return KDNN_FAILED;
         }
-        prRet = feat.dnn_forward(pbImage, 0);
+        //prRet = feat.dnn_forward(pbImage, 0);
+        cvimodel_forward(&feat, pbImage, KDNN_FEAT_ALIGN_W, KDNN_FEAT_ALIGN_H, 1, &prRet); // ret : box, ret1 : score
     }
     else
     {
-        if (!HandFeat_getEngineLoaded(&feat_hand))
+        if (/*!HandFeat_getEngineLoaded(&feat_hand)*/!feat_hand.m_loaded)
         {
             return KDNN_FAILED;
         }
-        prRet = HandFeat_dnn_forward(&feat_hand, pbImage);
+        //prRet = HandFeat_dnn_forward(&feat_hand, pbImage);
+        cvimodel_forward(&feat_hand, pbImage, 128, 128, 1, &prRet); // ret : box, ret1 : score
     }
     if (g_nStopEngine == 1)
         return 0;
@@ -198,12 +205,14 @@ int	KdnnFreeEngine_feat(int nMode)
 {
     if(nMode == 0)
     {
-        feat.dnn_free();
+        //feat.dnn_free();
+        cvimodel_release(&feat);
         releaseMachineDic(MachineFlagIndex_DNN_Feature);
     }
     else
     {
-        HandFeat_dnn_free(&feat_hand);
+        //HandFeat_dnn_free(&feat_hand);
+        cvimodel_release(&feat_hand);
         releaseMachineDic(MachineFlagIndex_DNN_Feature_Hand);
     }
     APP_LOG("[%d] pecc 4-9-2-%d\n", (int)Now(), nMode);
@@ -219,12 +228,14 @@ int     getFeatEngineLoaded(int nMode)
 {
     if(nMode == 0)
     {
-        return feat.getEngineLoaded();
-
+        //return feat.getEngineLoaded();
+        return feat.m_loaded;
     }
     else
     {
-        return HandFeat_getEngineLoaded(&feat_hand);
+        //return HandFeat_getEngineLoaded(&feat_hand);
+        return feat_hand.m_loaded;
+
     }
 }
 
