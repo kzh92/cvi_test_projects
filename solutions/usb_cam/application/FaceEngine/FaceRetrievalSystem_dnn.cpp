@@ -879,7 +879,7 @@ int fr_ExtractFace_dnn()
         {
             return ES_FAILED;
         }
-        unsigned char* pAlignBufferForModeling = g_shared_mem + Modeling_dnn_mem_size();
+        unsigned char* pAlignBufferForModeling = g_shared_mem;
         int nRet = getFaceModelPoint(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pAlignBufferForModeling, (getFaceProcessData())->rFaceRect, (getFaceProcessData())->rLandmarkPoint);
 #ifdef TimeProfiling
         my_printf("[%d] getFaceModelPointTime = %f\r\n", (int)Now(), Now() - rStartTime1);

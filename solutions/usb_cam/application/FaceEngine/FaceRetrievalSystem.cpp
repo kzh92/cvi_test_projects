@@ -2271,6 +2271,7 @@ int AllocEngineMemory()
     int g_global_tmp_size = 0;
     //calc Entire Memory size once
 
+    /*
     g_global_tmp_size = N_D_ENGINE_SIZE * 2;
     int nMaxMemorySizeinPart = getDetectMenSize() + g_DNN_Detection_input_width * g_DNN_Detection_input_height + N_D_ENGINE_SIZE;
     if(g_global_tmp_size < nMaxMemorySizeinPart)
@@ -2322,6 +2323,28 @@ int AllocEngineMemory()
         g_global_tmp_size = nMaxMemorySizeinPart;
     }
 #endif
+    */
+    //on cv
+    int nMaxOffset = 0;
+    g_global_tmp_size = N_D_ENGINE_SIZE;
+    int nMaxMemorySizeinPart = getDetectMenSize() + g_DNN_Detection_input_width * g_DNN_Detection_input_height;
+    if(g_global_tmp_size < nMaxMemorySizeinPart)
+    {
+        g_global_tmp_size = nMaxMemorySizeinPart;
+    }
+    nMaxMemorySizeinPart = g_DNN_Modeling_input_width * g_DNN_Modeling_input_height;
+    if(g_global_tmp_size < nMaxMemorySizeinPart)
+    {
+        g_global_tmp_size = nMaxMemorySizeinPart;
+    }
+    nMaxMemorySizeinPart = 128 * 128 * 3 + 88 * 128;
+    if(g_global_tmp_size < nMaxMemorySizeinPart)
+    {
+        g_global_tmp_size = nMaxMemorySizeinPart;
+    }
+    nMaxOffset = g_global_tmp_size;
+    g_global_tmp_size += (E_IMAGE_WIDTH / LEDOFFIMAGE_REDUCE_RATE) * (E_IMAGE_HEIGHT / LEDOFFIMAGE_REDUCE_RATE) * 2;
+    g_global_tmp_size += N_D_ENGINE_SIZE;
 
     /*
     int nDicSize[8];
@@ -2401,6 +2424,7 @@ int AllocEngineMemory()
     g_xEnrollFeatA = (SFeatInfo*)addr;             addr += sizeof(SFeatInfo);//SFeatInfo       g_xEnrollFeatA
 
 
+    /*
     int nMaxOffset = 0;
     int nOffset = getDetectMenSize() + g_DNN_Detection_input_width * g_DNN_Detection_input_height;
     if(nMaxOffset < nOffset)
@@ -2430,8 +2454,10 @@ int AllocEngineMemory()
     {
         nMaxOffset = nOffset;
     }
-    g_pbYIrImage = g_shared_mem + nMaxOffset;
-
+    */
+    g_pbOffIrImage = g_shared_mem + nMaxOffset;
+    g_pbOffIrImage2 = g_pbOffIrImage + (E_IMAGE_WIDTH / LEDOFFIMAGE_REDUCE_RATE) * (E_IMAGE_HEIGHT / LEDOFFIMAGE_REDUCE_RATE);
+    g_pbYIrImage = g_pbOffIrImage2 + (E_IMAGE_WIDTH / LEDOFFIMAGE_REDUCE_RATE) * (E_IMAGE_HEIGHT / LEDOFFIMAGE_REDUCE_RATE);
 
     //H engine buffer
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
