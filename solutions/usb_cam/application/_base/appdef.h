@@ -75,7 +75,7 @@ enum E_Baud_Rate
 #define BD_TY_CV180xB_DEMO_V1v0     0
 #define BD_TY_FSDB_1V0              1
 
-#define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
+#define DEFAULT_BOARD_TYPE          BD_TY_CV180xB_DEMO_V1v0
 
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
