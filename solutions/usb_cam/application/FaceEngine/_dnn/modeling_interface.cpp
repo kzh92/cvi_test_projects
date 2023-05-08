@@ -18,28 +18,32 @@
 #include "dic_manage.h"
 #include "common_types.h"
 
-Modeling g_Modeling = { 0 };
-Modeling g_Modeling_Hand = { 0 };
+#include <cvimodel_proc.h>
+
+
+Cvimodel g_Modeling = { 0 };
+Cvimodel g_Modeling_Hand = { 0 };
+
 
 extern void APP_LOG(const char * format, ...);
 extern int g_nStopEngine;
 
 int createModelingEngine(unsigned char* pMem, int nMode)
 {
-    Modeling* p_Modeling = &g_Modeling;
+    Cvimodel* p_Modeling = &g_Modeling;
     int nModuleID = MachineFlagIndex_DNN_Modeling;
     unsigned char* p_dic_modeling = g_dic_model;
 
     if(nMode)
     {
-        Modeling_Modeling(&g_Modeling_Hand, 1);
+//        Modeling_Modeling(&g_Modeling_Hand, 1);
         p_Modeling = &g_Modeling_Hand;
         nModuleID = MachineFlagIndex_DNN_Modeling_Hand;
         p_dic_modeling = g_dic_model_hand;
     }
 
 
-    if(Modeling_getEngineLoaded(p_Modeling))
+    if(p_Modeling->m_loaded/*Modeling_getEngineLoaded(p_Modeling)*/)
     {
         return 0;
     }
@@ -50,8 +54,9 @@ int createModelingEngine(unsigned char* pMem, int nMode)
 
     int nRet = 0;
 
-    int nDicSize = Modeling_dnn_dic_size(nMode);
-    nRet = Modeling_dnn_create_(p_Modeling, p_dic_modeling, nDicSize, pMem);
+    int nDicSize = DIC_LEN_FACE_MODELING;
+    nRet = cvimodel_init(p_dic_modeling, nDicSize, p_Modeling);
+    //nRet = Modeling_dnn_create_(p_Modeling, p_dic_modeling, nDicSize, pMem);
     if(nRet)
     {
         return nRet;
@@ -64,12 +69,12 @@ int releaseModelingEngine(int nMode)
 {
     if(nMode == 0)
     {
-        Modeling_dnn_free(&g_Modeling);
+        cvimodel_release(&g_Modeling);
         releaseMachineDic(MachineFlagIndex_DNN_Modeling);
     }
     else
     {
-        Modeling_dnn_free(&g_Modeling_Hand);
+        cvimodel_release(&g_Modeling_Hand);
         releaseMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
     }
 
@@ -78,7 +83,7 @@ int releaseModelingEngine(int nMode)
 
 int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHeight, unsigned char* tempCropBuffer, float* prFaceRect, float* prLandmarkPoint)
 {
-    if(!Modeling_getEngineLoaded(&g_Modeling) || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling))
+    if(/*!Modeling_getEngineLoaded(&g_Modeling)*/!g_Modeling.m_loaded || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling))
     {
         return 1;
     }
@@ -116,8 +121,10 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
     {
         return 1;
     }
-
-    float *pTemp = Modeling_dnn_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height);
+    
+    float *pTemp = 0;
+    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, 2, &pTemp); // ret : box, ret1 : score
+    //float *pTemp = Modeling_dnn_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height);
     if (g_nStopEngine == 1)
     {
         return 1;
@@ -135,7 +142,7 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
 
 int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHeight, unsigned char* tempCropBuffer, float* prHandRect, float* prHandLandmarkPoint)
 {
-    if(!Modeling_getEngineLoaded(&g_Modeling_Hand) || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand))
+    if(/*!Modeling_getEngineLoaded(&g_Modeling_Hand)*/g_Modeling_Hand.m_loaded || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand))
     {
         return 1;
     }
@@ -169,7 +176,9 @@ int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
 
     alignForModeling(pImageBuffer, nImageWidth, nImageHeight, x1, y1, xw, yh, tempCropBuffer, 64, 64);
 
-    float *pTemp = Modeling_dnn_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64);
+    // float *pTemp = Modeling_dnn_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64);
+    float *pTemp = 0;
+    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, 2, &pTemp); // ret : box, ret1 : score
 
     int nPointIndex;
     for (nPointIndex = 0; nPointIndex < 7; nPointIndex++)

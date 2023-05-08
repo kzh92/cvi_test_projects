@@ -10,6 +10,7 @@
 #include "hand_feat.h"
 
 #include "engine_inner_param.h"
+#include <cvimodel_proc.h>
 #ifndef __RTK_OS__
 #include <sys/mman.h>
 #endif
@@ -150,7 +151,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Detect:
     {
         pnFileIndicator = &g_id_detect;
-        nDicSize = Detect_dnn_dic_size();
+        //nDicSize = Detect_dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_DETECT;
         strcpy(szFileNameTemp, FN_DETECT);
         if (!g_dic_detect)
             g_dic_detect = (unsigned char*)my_malloc(nDicSize);
@@ -176,7 +178,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Modeling:
     {
         pnFileIndicator = &g_id_model;
-        nDicSize = Modeling_dnn_dic_size(0);
+        //nDicSize = Modeling_dnn_dic_size(0);
+        nDicSize = DIC_LEN_FACE_MODELING;
         strcpy(szFileNameTemp, FN_MODEL);
         if (!g_dic_model)
             g_dic_model = (unsigned char*)my_malloc(nDicSize);
@@ -392,6 +395,7 @@ int loadMachineDic(int nMachineIndex)
     {
 #ifdef __RTK_OS__
         nReadLength = fr_ReadFileData(szDicFilePath, 0, *pDicDataBuffer, nDicSize);
+        my_printf("fr_ReadFileData %d %d\n", nDicSize, nReadLength);
         if (nReadLength == nDicSize)
         {
             if(pnDicCheckSum_Calced)

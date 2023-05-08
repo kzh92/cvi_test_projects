@@ -1,6 +1,7 @@
 #ifndef ENGINE_INNER_PARAM
 #define ENGINE_INNER_PARAM
 
+
 #define ENGINE_SECURITY_ONLY_COMMON 0
 #define ENGINE_SECURITY_TWIN_COMMON 1
 #ifdef USE_TWIN_ENGINE
@@ -16,8 +17,10 @@
 
 //mfnp_ir01nq
 #define DNN_FEAT_CHECKSUM       0xee753512
-//fdir_1.0
-#define DNN_DETECT_CHECKSUM     0x4EB8D296
+
+//fdir_1.0 cv
+#define DNN_DETECT_CHECKSUM     0xa2891b75
+
 //vfl_1.10
 #define DNN_MODELING_CHECKSUM   0x45FF316C
 

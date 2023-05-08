@@ -19,6 +19,7 @@
 #include "HAlign.h"
 #include "dic_manage.h"
 #include "common_types.h"
+#include <cvimodel_proc.h>
 
 extern void APP_LOG(const char * format, ...);
 
@@ -32,8 +33,12 @@ extern void APP_LOG(const char * format, ...);
 
 #define NUM_ANCHORS_2   (NUM_ANCHORS>>1)
 
-Detect g_Detector = { 0 };
-Detect g_Detector_hand = {0};
+// Detect g_Detector = { 0 };
+// Detect g_Detector_hand = {0};
+
+Cvimodel g_Detector = { 0 };
+Cvimodel g_Detector_hand = {0};
+
 
 extern int g_nStopEngine;
 int g_nInitParamInited = 0;
@@ -56,7 +61,7 @@ int *buf = 0;
 int getDetectMenSize()
 {
     int nMemSize = 0;
-    nMemSize += Detect_dnn_mem_size();
+    // nMemSize += Detect_dnn_mem_size();
     nMemSize += sizeof(FaceInfo) * NUM_ANCHORS;
     nMemSize += sizeof(int) * NUM_ANCHORS * 2;
     return nMemSize;
@@ -350,7 +355,7 @@ int initDetectionEngineParam_Hand(unsigned char* pMem)
 
 int createDetectEngine(unsigned char* pMem, int nMode)
 {
-    Detect* p_Detector = &g_Detector;
+    Cvimodel* p_Detector = &g_Detector;
     int nModuleID = MachineFlagIndex_DNN_Detect;
     unsigned char* p_dic_detect = g_dic_detect;
 
@@ -361,9 +366,9 @@ int createDetectEngine(unsigned char* pMem, int nMode)
         p_dic_detect = g_dic_detect_hand;
     }
 
-    if(Detect_getEngineLoaded(p_Detector))
+    if(p_Detector->m_loaded/*Detect_getEngineLoaded(p_Detector)*/)
     {
-        return 0;
+         return 0;
     }
     if(!getLoadedDicFlag(nModuleID))
     {
@@ -371,14 +376,20 @@ int createDetectEngine(unsigned char* pMem, int nMode)
     }
 
     int nRet = 0;
-    int nDicSize = Detect_dnn_dic_size();
-    nRet = Detect_dnn_create_(p_Detector, p_dic_detect, nDicSize, pMem);
+    int nDicSize = DIC_LEN_FACE_DETECT;
+    nRet = cvimodel_init(p_dic_detect, nDicSize, p_Detector);
     if(nRet)
     {
         return nRet;
     }
 
-    int nMemSize = Detect_dnn_mem_size();
+    // nRet = Detect_dnn_create_(p_Detector, p_dic_detect, nDicSize, pMem);
+    // if(nRet)
+    // {
+    //     return nRet;
+    // }
+
+    int nMemSize = 0;
     if(nMode == Detect_Mode_Face)
     {
         initDetectionEngineParam(pMem + nMemSize);
@@ -393,7 +404,7 @@ int createDetectEngine(unsigned char* pMem, int nMode)
 
 int releaseDetectEngine(int nMode)
 {
-    Detect* p_Detector = &g_Detector;
+    Cvimodel* p_Detector = &g_Detector;
     int nModuleID = MachineFlagIndex_DNN_Detect;
     float* priors = priors_Portrait;
     if(nMode == Detect_Mode_Hand)
@@ -404,7 +415,7 @@ int releaseDetectEngine(int nMode)
     }
 
     releaseMachineDic(nModuleID);
-    Detect_dnn_free(p_Detector);
+    cvimodel_release(p_Detector);
     if(priors)
     {
         my_free(priors);
@@ -563,7 +574,7 @@ void nms(FaceInfo* input, int n_input_cnt, FaceInfo* output, int* pn_output_cnt,
 
 int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* face_list, int nMaxFaceNum, int* pn_facelist_cnt, unsigned char* pTempBuffer, int nDetectMode)
 {
-    Detect* p_Detector = &g_Detector;
+    Cvimodel* p_Detector = &g_Detector;
     int nModuleID = MachineFlagIndex_DNN_Detect;
     int bufferWidth, bufferHeight;
     bufferWidth  = g_DNN_Detection_input_width;
@@ -577,12 +588,14 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
         bufferHeight  = g_DNN_Detection_hand_input_height;
     }
 
-    if(!Detect_getEngineLoaded(p_Detector) || !getDicChecSumChecked(nModuleID))
+    if(!p_Detector->m_loaded/*Detect_getEngineLoaded(p_Detector)*/ || !getDicChecSumChecked(nModuleID))
     {
+        my_printf("detect reject 1\n");
         return 0;
     }
+
     float rScale = 1;
-    // float startTime = Now();
+    float startTime = Now();
     //int nCropRect[4] = {54, 96, 792, 1408};
     int nCropRect[4] = {0, 0, 900, 1600};
 #if (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
@@ -592,7 +605,7 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     nCropRect[3] = 1408;
 #endif
     CreateShrinkImage_normalize_FixRate(0, pTempBuffer, bufferWidth, bufferHeight, &rScale, imgBuffer, imageWidth, imageHeight, 127, 1.0f / 128, nCropRect);
-    //printf("CreateShrink Time = %f\n", Now() - startTime);
+    printf("CreateShrink Time = %f\n", Now() - startTime);
     // startTime = Now();
 
     int image_w;
@@ -613,8 +626,9 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
 
     float* scores_ptr;
     float* boxes_ptr;
-    Detect_dnn_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &scores_ptr, &boxes_ptr, false);
+    //Detect_dnn_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &scores_ptr, &boxes_ptr, false);
     //printf("g_Detector.dnn_forward Time = %f\n", Now() - startTime);
+    cvimodel_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, 0, &scores_ptr, &boxes_ptr);
 
     if (g_nStopEngine == 1)
     {
@@ -668,6 +682,8 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
 
 int checkFace(unsigned char* img, int bufferWidth, int bufferHeight)
 {
+    return 0;
+    /*
     if(!Detect_getEngineLoaded(&g_Detector) || !getDicChecSumChecked(MachineFlagIndex_DNN_Detect))
     {
         return 0;
@@ -696,6 +712,7 @@ int checkFace(unsigned char* img, int bufferWidth, int bufferHeight)
         }
     }
     return nFaceExist;
+    */
 }
 
 
