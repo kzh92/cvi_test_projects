@@ -19,10 +19,10 @@
 #define DNN_FEAT_CHECKSUM       0xee753512
 
 //fdir_1.0 cv
-#define DNN_DETECT_CHECKSUM     0xa2891b75
+#define DNN_DETECT_CHECKSUM     0x68d3414
 
 //vfl_1.10
-#define DNN_MODELING_CHECKSUM   0x45FF316C
+#define DNN_MODELING_CHECKSUM   0x5721b59a
 
 //hand
 #define DNN_DETECT_HAND_CHECKSUM        0xee7beb81

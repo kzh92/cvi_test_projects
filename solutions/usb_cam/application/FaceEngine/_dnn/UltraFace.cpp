@@ -628,7 +628,7 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     float* boxes_ptr;
     //Detect_dnn_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &scores_ptr, &boxes_ptr, false);
     //printf("g_Detector.dnn_forward Time = %f\n", Now() - startTime);
-    cvimodel_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, 0, &scores_ptr, &boxes_ptr);
+    cvimodel_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, 0, &boxes_ptr, &scores_ptr);
 
     if (g_nStopEngine == 1)
     {
