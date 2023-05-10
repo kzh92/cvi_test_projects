@@ -295,6 +295,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 #ifdef TimeProfiling
         float rBaterStartTime =Now();
 #endif
+    my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
     if(*fr_GetBayerYConvertedCameraIndex() != 0)
     {
         convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
@@ -956,7 +957,9 @@ int fr_ExtractFace_dnn()
     pLiveAlignB2 = pLiveAlignB + 128*128;
     pLiveAlignFeat = pLiveAlignB2 + 88*128;
     generateAlignImageForLiveness(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pLiveAlignAC, pLiveAlignB, pLiveAlignB2, (getFaceProcessData())->rLandmarkPoint);
+    my_printf("[%d] align1\n", (int)Now());
     generateAlignImageForFeature(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pLiveAlignFeat, (getFaceProcessData())->rLandmarkPoint);
+    my_printf("[%d] align2\n", (int)Now());
 
     return ES_SUCCESS;
 }
