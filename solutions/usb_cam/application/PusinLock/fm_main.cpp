@@ -567,7 +567,7 @@ void* ProcessInsmod(void *param)
 {
     StartFirstCam();
     //start uvc
-    MEDIA_UVC_Init();
+    // MEDIA_UVC_Init();
 
     my_thread_exit(NULL);
     return NULL;
