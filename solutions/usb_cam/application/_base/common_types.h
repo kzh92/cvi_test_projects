@@ -74,11 +74,11 @@ typedef pthread_mutex_t* mymutex_ptr;
 typedef pthread_t* mythread_ptr;
 typedef void* myi2cdesc_ptr;
 
-#define MYTHREAD_PRIORITY_VERY_LOW      80
-#define MYTHREAD_PRIORITY_LOW           85
-#define MYTHREAD_PRIORITY_MEDIUM        90
-#define MYTHREAD_PRIORITY_HIGH          93
-#define MYTHREAD_PRIORITY_VERY_HIGH     97
+#define MYTHREAD_PRIORITY_VERY_LOW      36
+#define MYTHREAD_PRIORITY_LOW           34
+#define MYTHREAD_PRIORITY_MEDIUM        32
+#define MYTHREAD_PRIORITY_HIGH          30
+#define MYTHREAD_PRIORITY_VERY_HIGH     30
 
 #define DICT_START_ADDR                 0x0
 #define DICT_PART_SIZE                  (8*1024*1024) //8MB

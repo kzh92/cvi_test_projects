@@ -94,6 +94,9 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
         my_printf("file not found: %s\n", filename);
     }
     dbug_printf("[%s] %s, off=%d, %d, %p.\n", __func__, filename, file_offset, read_len, buf);
+    for (int i = 0; i < 16 && i < read_len; i++)
+        dbug_printf("%02x ", ((unsigned char*)buf)[i]);
+    dbug_printf("\n-------------------------------------\n");
     return read_len;
 }
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
@@ -681,6 +684,8 @@ int my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine
     {
         pthread_attr_init(&a);
         a.stacksize = stack_size;
+        if (priority > 0)
+            a.sched_priority = priority;
         attr = (void*)&a;
     }
     
@@ -1367,7 +1372,7 @@ int my_wx_write(unsigned int offset, void* buf, unsigned int length)
 
 int dbfs_get_cur_part()
 {
-    my_printf("[%s]mount_point=%d,\n", __FUNCTION__, g_pxSharedLCD->iMountPoints);
+    // my_printf("[%s]mount_point=%d,\n", __FUNCTION__, g_pxSharedLCD->iMountPoints);
     return g_pxSharedLCD->iMountPoints;
 }
 
