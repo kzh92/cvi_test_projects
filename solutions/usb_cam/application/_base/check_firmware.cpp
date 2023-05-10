@@ -231,7 +231,7 @@ void doCheckFirmware()
     }
 
     ReadROKLogs();
-    if (g_xROKLog.bMountPoint != 0)
+    if (g_xROKLog.x.bMountPoint != 0)
     {
         iErrorFlag = 10;
         my_printf("mount retry err\n");

@@ -103,32 +103,32 @@ exit2:
 
         my_printf("[Init] create file error!\n");
 
-        if(iRet != ES_FILE_ERROR && dbm_GetPersonCount() != g_xCS.x.bUserCount)
-        {
-            COMMON_SETTINGS xCsBak;
-            M24C64_GetBackupCS((unsigned char*)&xCsBak);
-            if (xCsBak.x.bCheckSum == GetSettingsCheckSum((unsigned char*)&xCsBak, sizeof(xCsBak)) &&
-                    dbm_GetPersonCount() == xCsBak.x.bUserCount)
-            {
-                my_printf("[%s] UpdateUserCount %d\n", __FUNCTION__, dbm_GetPersonCount());
-                UpdateUserCount();
-                goto exit1;
-            }
-        }
+        // if(iRet != ES_FILE_ERROR && dbm_GetPersonCount() != g_xCS.x.bUserCount)
+        // {
+        //     MY_ALL_SETTINGS xCsBak;
+        //     M24C64_GetBackupCS((unsigned char*)&xCsBak);
+        //     if (xCsBak.x.bCheckSum == GetSettingsCheckSum((unsigned char*)&xCsBak, sizeof(xCsBak)) &&
+        //             dbm_GetPersonCount() == xCsBak.x.bUserCount)
+        //     {
+        //         my_printf("[%s] UpdateUserCount %d\n", __FUNCTION__, dbm_GetPersonCount());
+        //         UpdateUserCount();
+        //         goto exit1;
+        //     }
+        // }
 
 #if (N_MAX_HAND_NUM)
-        if(iRet != ES_FILE_ERROR && dbm_GetHandCount() != g_xCS.x.bHandCount)
-        {
-            COMMON_SETTINGS xCsBak;
-            M24C64_GetBackupCS((unsigned char*)&xCsBak);
-            if (xCsBak.x.bCheckSum == GetSettingsCheckSum((unsigned char*)&xCsBak, sizeof(xCsBak)) &&
-                    dbm_GetPersonCount() == xCsBak.x.bHandCount)
-            {
-                printf("[%s] uhc %d\n", __FUNCTION__, dbm_GetHandCount());
-                UpdateUserCount();
-                goto exit1;
-            }
-        }
+        // if(iRet != ES_FILE_ERROR && dbm_GetHandCount() != g_xCS.x.bHandCount)
+        // {
+        //     MY_ALL_SETTINGS xCsBak;
+        //     M24C64_GetBackupCS((unsigned char*)&xCsBak);
+        //     if (xCsBak.x.bCheckSum == GetSettingsCheckSum((unsigned char*)&xCsBak, sizeof(xCsBak)) &&
+        //             dbm_GetPersonCount() == xCsBak.x.bHandCount)
+        //     {
+        //         printf("[%s] uhc %d\n", __FUNCTION__, dbm_GetHandCount());
+        //         UpdateUserCount();
+        //         goto exit1;
+        //     }
+        // }
 #endif // N_MAX_HAND_NUM
 
         if (iCurPart >= DB_PART_BACKUP)

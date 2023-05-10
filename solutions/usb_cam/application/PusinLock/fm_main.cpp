@@ -333,7 +333,7 @@ int GotoMain()
     g_xSS.bUVCRunning = 0;
 
 #if DB_TEST
-    g_xROKLog.bKernelFlag = 0xAA;//kzh
+    g_xROKLog.x.bKernelFlag = 0xAA;//kzh
     UpdateROKLogs();
 #endif
 
@@ -628,7 +628,6 @@ int Upgrade_Firmware(void)
 #endif
 
     UART_Init();
-    ReadCommonSettings();
 
     UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
 
@@ -786,14 +785,7 @@ int main0(int argc, char** argv)
         return RET_POWEROFF;
     }
 
-    ReadCommonSettings();
-    ReadROKLogs();
-    ReadHeadInfos();
-    ReadHeadInfos2();
-    recvReadHeader();
-    ReadEncryptSettings();
     ResetSystemState(APP_MAIN);
-    ResetEngineParams();
 
     my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 4096, MYTHREAD_PRIORITY_MEDIUM);
 
@@ -838,9 +830,9 @@ int main0(int argc, char** argv)
 
         GotoActivation();
 
-        g_xROKLog.bKernelCounter = MAX_ROOTFS_FAIL_COUNT;
-        g_xROKLog.bKernelFlag = 0x55;
-        UpdateROKLogs();
+        //g_xROKLog.x.bKernelCounter = MAX_ROOTFS_FAIL_COUNT;
+        //g_xROKLog.x.bKernelFlag = 0x55;
+        //UpdateROKLogs();
 
         ReleaseAll();
         DriverRelease();
@@ -975,9 +967,9 @@ int main0(int argc, char** argv)
                 my_usleep(100 * 1000);
             }
 
-            g_xROKLog.bKernelCounter = 0;
-            g_xROKLog.bKernelFlag = 0xAA;
-            UpdateROKLogs();
+            //g_xROKLog.x.bKernelCounter = 0;
+            //g_xROKLog.x.bKernelFlag = 0xAA;
+            //UpdateROKLogs();
             ReleaseAll();
             DriverRelease();
             dbug_printf("First initialize finished!\n");
@@ -1049,7 +1041,7 @@ int main0(int argc, char** argv)
 #ifndef LIB_TEST
     EngineMapRelease();
 #endif
-
+#if 0
     if (get_kernel_flag_action())
     {
         M24C64_Open();
@@ -1057,14 +1049,15 @@ int main0(int argc, char** argv)
         if(g_xSS.iRestoreRootfs == 1)
         {
             //체계복귀가 끝나지 않았으면 다음번기동에 두번째파티션으로 기동하게 함
-            g_xROKLog.bKernelCounter = MAX_ROOTFS_FAIL_COUNT;
-            g_xROKLog.bKernelFlag = 0x55;
+            g_xROKLog.x.bKernelCounter = MAX_ROOTFS_FAIL_COUNT;
+            g_xROKLog.x.bKernelFlag = 0x55;
         }
         else
-            g_xROKLog.bKernelFlag = 0xAA;//kzh
+            g_xROKLog.x.bKernelFlag = 0xAA;//kzh
         UpdateROKLogs();
         M24C64_Close();
     }
+#endif
     return iRet;
 }
 
@@ -1112,10 +1105,10 @@ static int main1(int argc, char** argv)
     //     my_printf("@@@ Restore DBpartition!\n");
     //     start_restore_dbPart();
     // }
-    // else if(g_xROKLog.iDBformatCount > 0 && dbfs_get_cur_part() != DB_PART_BACKUP)
+    // else if(g_xROKLog.x.iDBformatCount > 0 && dbfs_get_cur_part() != DB_PART_BACKUP)
     // {
-    //     my_printf("@@@ Restore block = %d\n", g_xROKLog.iDBformatCount);
-    //     g_xROKLog.iDBformatCount = 0;
+    //     my_printf("@@@ Restore block = %d\n", g_xROKLog.x.iDBformatCount);
+    //     g_xROKLog.x.iDBformatCount = 0;
     //     UpdateROKLogs();
     // }
 #endif // !__RTK_OS__
@@ -1137,7 +1130,6 @@ static int main1(int argc, char** argv)
 
     g_xSS.rAppStartTime = Now();
 
-    fr_InitLive();
     //mark as success.
     //my_printf("mount mark success.\n");
     SetMountStatus(1);
@@ -1175,7 +1167,7 @@ int fmMain()
     g_xVDBMutex = my_mutex_init();
 #endif
 
-    ReadPermanenceSettings();
+    ReadMyAllSettings();
 #ifdef UPGRADE_MODE
     ret = Upgrade_Firmware();
     if (ret)

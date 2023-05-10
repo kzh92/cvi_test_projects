@@ -9,17 +9,8 @@
 #include "uartcomm.h"
 #include <string.h>
 
-PERMANENCE_SETTINGS     g_xPS = { 0 };
-COMMON_SETTINGS         g_xCS = { 0 };
-#ifndef _APP_UPGRADE
-ROK_LOG                 g_xROKLog = { 0 };
-HEAD_INFO               g_xHD = { 0 };
-HEAD_INFO2              g_xHD2 = { 0 };
+MY_ALL_SETTINGS         g_xAS = {0};
 SYSTEM_STATE            g_xSS = { 0 };
-//TEST_RESULT             g_xTR = { 0 };
-//RECOVERY_HADER          g_xRecvHdr = { 0 };
-ENCRYPT_SETTINGS        g_xES = { 0 };
-#endif // !_APP_UPGRADE
 
 mymutex_ptr g_uvcWindowLocker = 0;
 
@@ -36,6 +27,76 @@ unsigned char GetSettingsCheckSum(unsigned char* pbData, int iSize)
 
     iCheckSum = 0xFF - (iCheckSum & 0xFF);
     return (unsigned char)iCheckSum;
+}
+
+/**
+ * @brief RestoreBackupSettings: Backup한 일반설정정보로부터 일반설정정보를 복귀한다.
+ */
+void RestoreMyAllBackupSettings()
+{
+    MY_ALL_SETTINGS xBackupCS;
+    my_memset(&xBackupCS, 0, sizeof(xBackupCS));
+    int ret = my_settings_read(ADDR_MY_ALL_SS_BAK, &xBackupCS, sizeof(xBackupCS));
+    if (ret < sizeof(xBackupCS))
+    {
+        my_printf("[%s]read fail.\n", __func__);
+        return;
+    }
+
+    //Backup한 일반설정정보의 CheckSum이 틀릴때 Default설정으로 초기화한다.
+    if(xBackupCS.x.bCheckSum != GetSettingsCheckSum(xBackupCS.a, sizeof(xBackupCS)))
+    {
+        ResetMyAllSettings(&xBackupCS);
+    }
+
+    memcpy(&g_xAS, &xBackupCS, sizeof(MY_ALL_SETTINGS));
+
+    UpdateMyAllSettings();
+}
+
+/**
+ * @brief ReadCommonSettings: 읽반설정을 24C64에서 읽는다.
+ */
+int ReadMyAllSettings()
+{
+    int ret = my_settings_read(ADDR_MY_ALL_SS, &g_xAS, sizeof(g_xAS));
+    if (ret < sizeof(g_xAS))
+        return -1;
+
+    //읽반설정의 CheckSum이 틀릴때 Backup한 CS자료로부터 불러들인다.
+    if(g_xAS.x.bCheckSum != GetSettingsCheckSum(g_xAS.a, sizeof(g_xAS)))
+        RestoreMyAllBackupSettings();
+
+    return 0;
+}
+
+/**
+ * @brief UpdateBackupSettings: Backup구역에 일반설정정보를 쓰기한다.
+ */
+void UpdateMyAllBackupSettings()
+{
+    my_settings_write(ADDR_MY_ALL_SS_BAK, &g_xAS, sizeof(g_xAS));
+}
+
+/**
+ * @brief UpdateCommonSettings: 일반설정을 24C64에 쓰기한다.
+ */
+void UpdateMyAllSettings()
+{
+    g_xAS.x.bCheckSum = GetSettingsCheckSum(g_xAS.a, sizeof(g_xAS));
+    my_settings_write(ADDR_MY_ALL_SS, &g_xAS, sizeof(g_xAS));
+
+    UpdateMyAllBackupSettings();
+}
+
+/**
+ * @brief ResetCommonSettings: 일반설정을 Default설정으로 초기화한다.
+ */
+void ResetMyAllSettings()
+{
+    ResetCS(&g_xCS);
+    ResetPermanenceSettings();
+    UpdateCommonSettings();
 }
 
 /**
@@ -98,11 +159,7 @@ int ReadCommonSettings()
  */
 void UpdateCommonSettings()
 {
-    g_xCS.x.bCheckSum = GetSettingsCheckSum(g_xCS.a, sizeof(g_xCS.a));
-    M24C64_SetCS((unsigned char*)&g_xCS);
-
-    //일반설정을 쓰기할때 Backup구역에 정보를 중복으로 보관한다.
-    UpdateBackupSettings();
+    UpdateMyAllSettings();
 }
 
 /**
@@ -119,16 +176,6 @@ void ResetCommonSettings()
  */
 void RestoreBackupSettings()
 {
-    COMMON_SETTINGS xBackupCS = { 0 };
-    M24C64_GetBackupCS((unsigned char*)&xBackupCS);
-
-    //Backup한 일반설정정보의 CheckSum이 틀릴때 Default설정으로 초기화한다.
-    if(xBackupCS.x.bCheckSum != GetSettingsCheckSum(xBackupCS.a, sizeof(xBackupCS.a)))
-        ResetCS(&xBackupCS);
-
-    memcpy(&g_xCS, &xBackupCS, sizeof(COMMON_SETTINGS));
-
-    UpdateCommonSettings();
 }
 
 /**
@@ -144,9 +191,8 @@ void UpdateBackupSettings()
  * @brief ResetCS: 일반설정정보를 Default설정으로 만든다.
  * @param pxCS
  */
-void ResetCS(COMMON_SETTINGS* pxCS)
+void ResetCS(MY_ALL_SETTINGS* pxCS)
 {
-    memset(pxCS, 0, sizeof(COMMON_SETTINGS));
     pxCS->x.bPresentation = DEFAULT_PRESENATATION;
     pxCS->x.bSecureFlag = DEFAULT_SECURE_VALUE;
 }
@@ -174,9 +220,7 @@ void ReadHeadInfos()
  */
 void UpdateHeadInfos()
 {
-    g_xHD.x.bCheckSum = GetSettingsCheckSum(g_xHD.a, sizeof(g_xHD.a));
-    M24C64_SetHD((unsigned char*)&g_xHD);
-    UpdateBackupHeadInfos();
+    UpdateMyAllSettings();
 }
 
 /**
@@ -191,7 +235,7 @@ void ResetHeadInfos()
 /**
  * @brief ResetHeadInfoParams: Head정보를 Default설정으로 초기화한다.
  */
-void ResetHeadInfoParams(HEAD_INFO* pHD)
+void ResetHeadInfoParams(MY_ALL_SETTINGS* pHD)
 {
     //!!!CAUTION: DO NOT reset all members,
     ///you should not reset cpu id values.
@@ -203,16 +247,6 @@ void ResetHeadInfoParams(HEAD_INFO* pHD)
  */
 void RestoreBackupHeadInfos()
 {
-    HEAD_INFO xBackupHD = { 0 };
-    M24C64_GetBackupHD((unsigned char*)&xBackupHD);
-
-    //Backup한 일반설정정보의 CheckSum이 틀릴때 Default설정으로 초기화한다.
-    if(xBackupHD.x.bCheckSum != GetSettingsCheckSum(xBackupHD.a, sizeof(xBackupHD.a)))
-        ResetHeadInfoParams(&xBackupHD);
-
-    memcpy(&g_xHD, &xBackupHD, sizeof(HEAD_INFO));
-
-    // UpdateHeadInfos();
 }
 
 /**
@@ -235,8 +269,7 @@ void ReadHeadInfos2()
 
 void UpdateHeadInfos2()
 {
-    g_xHD2.x.bCheckSum = GetSettingsCheckSum(g_xHD2.a, sizeof(g_xHD2.a));
-    M24C64_SetHD2((unsigned char*)&g_xHD2);
+    UpdateMyAllSettings();
 }
 
 /**
@@ -244,29 +277,21 @@ void UpdateHeadInfos2()
  */
 void ResetHeadInfos2()
 {
-    memset(&g_xHD2, 0, sizeof(HEAD_INFO2));
-    UpdateHeadInfos2();
 }
 
 void ReadROKLogs()
 {
-    M24C64_GetBootingLogs((unsigned char*)&g_xROKLog);
-    if (g_xROKLog.bCheckSum != GetSettingsCheckSum((unsigned char*)&g_xROKLog, sizeof(g_xROKLog)))
-        ResetROKLogs();
 }
 
 void ResetROKLogs()
 {
     memset(&g_xROKLog, 0, sizeof(g_xROKLog));
-    g_xROKLog.bMountPoint = DB_PART1;
-    g_xROKLog.bCheckSum = GetSettingsCheckSum((unsigned char*)&g_xROKLog, sizeof(g_xROKLog));
-    M24C64_SetBootingLogs((unsigned char*)&g_xROKLog);
+    g_xROKLog.x.bMountPoint = DB_PART1;
 }
 
 void UpdateROKLogs()
 {
-    g_xROKLog.bCheckSum = GetSettingsCheckSum((unsigned char*)&g_xROKLog, sizeof(g_xROKLog));
-    M24C64_SetBootingLogs((unsigned char*)&g_xROKLog);
+    UpdateMyAllSettings();
 }
 
 /**
@@ -290,8 +315,7 @@ int ReadEncryptSettings()
  */
 void UpdateEncryptSettings()
 {
-    g_xES.x.bCheckSum = GetSettingsCheckSum(g_xES.a, sizeof(g_xES.a));
-    M24C64_SetES((unsigned char*)&g_xES);
+    UpdateMyAllSettings();
 }
 
 /**
@@ -319,76 +343,34 @@ void ResetSystemState(int iAppType)
     g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
 }
 
-void recvReadHeader()
-{
-}
-
-void recvUpdateHeader()
-{
-}
-
-void recvResetHeader()
-{
-}
-
-int GetZigbeeIdx(int iZigbeeMode)
-{
-    if(iZigbeeMode == ZIGBEE_DISABLE)
-        return 0;
-    else if(iZigbeeMode == ZIGBEE_OUR)
-        return 1;
-    else if(iZigbeeMode == WIFI_YINGHUA_JIWEI)
-        return 2;
-    else if(iZigbeeMode == WIFI_YINGHUA_SIGE)
-        return 3;
-    else if(iZigbeeMode == WIFI_GESANG_SIGE)
-        return 4;
-
-    return 0;
-}
-
-int GetZigbeeMode(int iZigbeeIdx)
-{
-    if(iZigbeeIdx == 0)
-        return ZIGBEE_DISABLE;
-    else if(iZigbeeIdx == 1)
-        return ZIGBEE_OUR;
-    else if(iZigbeeIdx == 2)
-        return WIFI_YINGHUA_JIWEI;
-    else if(iZigbeeIdx == 3)
-        return WIFI_YINGHUA_SIGE;
-    else if(iZigbeeIdx == 4)
-        return WIFI_GESANG_SIGE;
-
-    return ZIGBEE_DISABLE;
-}
-
 void SetMountStatus(int iSuccess)
 {
+/*
     int iNeedSave = 1; // this must always be saved
     if (iSuccess != 0)
     {
-        if (g_xROKLog.bMountStatus != 0xAA)
+        if (g_xROKLog.x.bMountStatus != 0xAA)
         {
-            g_xROKLog.bMountStatus = 0xAA;
+            g_xROKLog.x.bMountStatus = 0xAA;
             iNeedSave = 1;
         }
-        if (g_xROKLog.bMountRetry != 0)
+        if (g_xROKLog.x.bMountRetry != 0)
         {
-            g_xROKLog.bMountRetry = 0;
+            g_xROKLog.x.bMountRetry = 0;
             iNeedSave = 1;
         }
     }
     else
     {
-        if (g_xROKLog.bMountStatus != 0x55)
+        if (g_xROKLog.x.bMountStatus != 0x55)
         {
-            g_xROKLog.bMountStatus = 0x55;
+            g_xROKLog.x.bMountStatus = 0x55;
             iNeedSave = 1;
         }
     }
     if (iNeedSave)
         UpdateROKLogs();
+*/
 }
 
 void SetModifyUser(int iModify)

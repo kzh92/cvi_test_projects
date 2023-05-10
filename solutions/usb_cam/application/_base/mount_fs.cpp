@@ -75,44 +75,44 @@ int do_make_ext4(const char* dev_path)
 int try_mount_dbfs()
 {
     my_printf("mountstatus=%d, mountretry=%d, point=%d,\n",
-           g_xROKLog.bMountStatus, g_xROKLog.bMountRetry, g_xROKLog.bMountPoint);
-    int iMountPoint = g_xROKLog.bMountPoint;
-    if (g_xROKLog.bMountStatus != 0xAA)
+           g_xROKLog.x.bMountStatus, g_xROKLog.x.bMountRetry, g_xROKLog.x.bMountPoint);
+    int iMountPoint = g_xROKLog.x.bMountPoint;
+    if (g_xROKLog.x.bMountStatus != 0xAA)
     {
 #if (DB_TYPE == TYPE_EXT4)
-        if (g_xROKLog.bMountRetry < MOUNT_RETRY_COUNT)
+        if (g_xROKLog.x.bMountRetry < MOUNT_RETRY_COUNT)
 #else
-        if (g_xROKLog.bMountRetry < MOUNT_RETRY_COUNT)
+        if (g_xROKLog.x.bMountRetry < MOUNT_RETRY_COUNT)
 #endif
         {
-            g_xROKLog.bMountRetry++;
+            g_xROKLog.x.bMountRetry++;
         }
         else
         {
             iMountPoint++;
-            g_xROKLog.bMountRetry = 0;
+            g_xROKLog.x.bMountRetry = 0;
             g_xSS.idbPartNoRestore = 1;
         }
         if (iMountPoint > DB_PART_BACKUP)
             iMountPoint = DB_PART_BACKUP;
 #if (DB_TYPE == TYPE_EXT4)
-        if (g_xROKLog.bMountPoint < DB_PART_BACKUP)
+        if (g_xROKLog.x.bMountPoint < DB_PART_BACKUP)
         {
-            if (g_xROKLog.bMountRetry >= MOUNT_RETRY_COUNT)
+            if (g_xROKLog.x.bMountRetry >= MOUNT_RETRY_COUNT)
             {
                 UpdateROKLogs();
-                do_make_ext4(dbfs_get_part_name_by_id(g_xROKLog.bMountPoint));
+                do_make_ext4(dbfs_get_part_name_by_id(g_xROKLog.x.bMountPoint));
             }
         }
 #endif
     }
     else
-        g_xROKLog.bMountRetry = 0;
+        g_xROKLog.x.bMountRetry = 0;
 
     //mark as starting.
     //my_printf("mount mark start.\n");
     if (iMountPoint != DB_PART_BACKUP)
-        g_xROKLog.bMountPoint = iMountPoint;
+        g_xROKLog.x.bMountPoint = iMountPoint;
     SetMountStatus(0);
 
 #ifndef __RTK_OS__
@@ -785,7 +785,7 @@ void* dbPartRestore(void*)
     len = USERDB_SIZE;
 
     my_printf("@@@ Copy Start %f\n", Now());
-    len -= g_xROKLog.iDBformatCount * copy_size;
+    len -= g_xROKLog.x.iDBformatCount * copy_size;
 
     while(len > 0 && g_xSS.idbRestoreStop == 0)
     {
@@ -794,16 +794,16 @@ void* dbPartRestore(void*)
             my_printf("@@@ read/write fail!\n");
             break;
         }
-        my_printf("$$$ %d-%f\n", g_xROKLog.iDBformatCount, Now());
+        my_printf("$$$ %d-%f\n", g_xROKLog.x.iDBformatCount, Now());
 
         if (len > copy_size)
         {
-            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.iDBformatCount * copy_size, copy_size, pbData, copy_size) != copy_size)
+            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.x.iDBformatCount * copy_size, copy_size, pbData, copy_size) != copy_size)
             {
                 fail_count++;
                 continue;
             }
-            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.iDBformatCount * copy_size, pbData, copy_size) != copy_size)
+            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.x.iDBformatCount * copy_size, pbData, copy_size) != copy_size)
             {
                 fail_count++;
                 continue;
@@ -812,12 +812,12 @@ void* dbPartRestore(void*)
         }
         else
         {
-            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.iDBformatCount * copy_size, len, pbData, len) != len)
+            if (my_flash_read(USERDB_START_ADDR + USERDB_SIZE + g_xROKLog.x.iDBformatCount * copy_size, len, pbData, len) != len)
             {
                 fail_count++;
                 continue;
             }
-            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.iDBformatCount * copy_size, pbData, len) != len)
+            if (my_flash_write(USERDB_START_ADDR + g_xROKLog.x.iDBformatCount * copy_size, pbData, len) != len)
             {
                 fail_count++;
                 continue;
@@ -825,9 +825,9 @@ void* dbPartRestore(void*)
             len = 0;
         }
         if (len == 0)
-            g_xROKLog.iDBformatCount = 0;
+            g_xROKLog.x.iDBformatCount = 0;
         else
-            g_xROKLog.iDBformatCount++;
+            g_xROKLog.x.iDBformatCount++;
         UpdateROKLogs();
         fail_count = 0;
         my_usleep(1);
@@ -848,10 +848,10 @@ int check_restore_roofs()
     {
         fclose(fp);
         //restore rootfs every 2nd booting.
-        g_xROKLog.bMountCounter = (g_xROKLog.bMountCounter + 1) % 2;
+        g_xROKLog.x.bMountCounter = (g_xROKLog.x.bMountCounter + 1) % 2;
         UpdateROKLogs();
 
-        if (g_xROKLog.bMountCounter == 0)
+        if (g_xROKLog.x.bMountCounter == 0)
         {
             my_printf("skip restoring rootfs.\n");
             //next booting may use second rootfs partition again.
@@ -876,7 +876,7 @@ int check_restore_roofs()
         {
             my_printf("checksum matches, skip restoring rootfs.\n");
             //next boot may start on the first partition.
-            g_xROKLog.bKernelFlag = 0xAA;
+            g_xROKLog.x.bKernelFlag = 0xAA;
             UpdateROKLogs();
             return 1;
         }
@@ -990,7 +990,7 @@ int do_restore_rootfs()
     my_printf("====restoring...done: %f\n", Now());
 
 //        //reset db mount retry counter.
-//        g_xROKLog.bMountRetry = 0;
+//        g_xROKLog.x.bMountRetry = 0;
 //        UpdateROKLogs();
 
     unsigned int sum1;
@@ -999,8 +999,8 @@ int do_restore_rootfs()
     g_xRecvHdr.iRfsChecksum0 = sum1; //new checksum will be used from now on.
     recvUpdateHeader();
 
-    g_xROKLog.bKernelCounter = 0;
-    g_xROKLog.bKernelFlag = 0xAA;
+    g_xROKLog.x.bKernelCounter = 0;
+    g_xROKLog.x.bKernelFlag = 0xAA;
     UpdateROKLogs();
 #endif
     return 0;
@@ -1026,7 +1026,7 @@ void handler(int sig)
 
   M24C64_Open();
   ReadROKLogs();
-  g_xROKLog.bKernelFlag = 0x55;//kzh
+  g_xROKLog.x.bKernelFlag = 0x55;//kzh
   UpdateROKLogs();
   M24C64_Close();
   my_printf("[kbackup]sigsegv.\n");
@@ -1039,7 +1039,7 @@ void sigill_handler(int /*sig*/)
 {
     M24C64_Open();
     ReadROKLogs();
-    g_xROKLog.bKernelFlag = 0x55;
+    g_xROKLog.x.bKernelFlag = 0x55;
     UpdateROKLogs();
     M24C64_Close();
     my_printf("[kbackup]sigill.\n");

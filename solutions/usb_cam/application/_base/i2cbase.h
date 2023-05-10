@@ -25,10 +25,6 @@ int I2C_SetPointer8(int iFile, int iAddr);
 int I2C_Read8(int iFile, int iAddr, unsigned char* pbData, int iLen);
 int I2C_Write8(int iFile, int iAddr, unsigned char* pbData, int iLen);
 
-int I2C_SetPointer16(int iFile, int iAddr);
-int I2C_Read16(int iFile, int iAddr, unsigned char* pbData, int iLen);
-int I2C_Write16(int iFile, int iAddr, unsigned char* pbData, int iLen);
-
 /////////////////////////24C64/////////////////////////////
 
 #define ADDR_ROK_LOGS           0x0000
@@ -45,6 +41,9 @@ int I2C_Write16(int iFile, int iAddr, unsigned char* pbData, int iLen);
 //#define ADDR_MAC_BAK            0x00B0 // x 48byte          //ATSHA204a MAC Backup
 #define ADDR_CHK_FLAG           0x00D0 // x 16byte          //check flag
 #define ADDR_ENC_KEYPOS         0x00E0 // x 32byte          //encryption key pos
+
+#define ADDR_MY_ALL_SS			0x0000
+#define ADDR_MY_ALL_SS_BAK		0x1000
 
 #ifdef __cplusplus
 extern  "C"

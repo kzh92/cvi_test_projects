@@ -423,7 +423,7 @@ int M24C64_Set16(unsigned char* abData, int iAddr)
  */
 int M24C64_GetCS(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_CS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -433,7 +433,7 @@ int M24C64_GetCS(unsigned char* abData)
  */
 int M24C64_SetCS(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_CS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -443,7 +443,7 @@ int M24C64_SetCS(unsigned char* abData)
  */
 int M24C64_GetBackupCS(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_BACKUP_CS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -453,7 +453,7 @@ int M24C64_GetBackupCS(unsigned char* abData)
  */
 int M24C64_SetBackupCS(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_BACKUP_CS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -463,7 +463,7 @@ int M24C64_SetBackupCS(unsigned char* abData)
  */
 int M24C64_GetPS(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_PS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -473,7 +473,7 @@ int M24C64_GetPS(unsigned char* abData)
  */
 int M24C64_SetPS(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_PS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -483,7 +483,7 @@ int M24C64_SetPS(unsigned char* abData)
  */
 int M24C64_GetHD(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_HEAD, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -493,7 +493,7 @@ int M24C64_GetHD(unsigned char* abData)
  */
 int M24C64_SetHD(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_HEAD, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -503,7 +503,7 @@ int M24C64_SetHD(unsigned char* abData)
  */
 int M24C64_GetBackupHD(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_HEAD_BAK, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -513,7 +513,7 @@ int M24C64_GetBackupHD(unsigned char* abData)
  */
 int M24C64_SetBackupHD(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_HEAD_BAK, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -523,7 +523,7 @@ int M24C64_SetBackupHD(unsigned char* abData)
  */
 int M24C64_GetHD2(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_HEAD2, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -533,17 +533,17 @@ int M24C64_GetHD2(unsigned char* abData)
  */
 int M24C64_SetHD2(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_HEAD2, abData, WORD_SIZE);
+    return 0;
 }
 
 int M24C64_GetBootingLogs(unsigned char* abData)
 {
-    return I2C_Read8(g_iM24C64, ADDR_ROK_LOGS, abData, WORD_SIZE);
+    return 0;
 }
 
 int M24C64_SetBootingLogs(unsigned char* abData)
 {
-    return I2C_Write8(g_iM24C64, ADDR_ROK_LOGS, abData, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -553,8 +553,7 @@ int M24C64_SetBootingLogs(unsigned char* abData)
  */
 int M24C64_GetES(unsigned char* abData)
 {
-    I2C_Read8(g_iM24C64, ADDR_ENC_KEYPOS, abData, WORD_SIZE);
-    return I2C_Read8(g_iM24C64, ADDR_ENC_KEYPOS + WORD_SIZE, abData + WORD_SIZE, WORD_SIZE);
+    return 0;
 }
 
 /**
@@ -564,8 +563,7 @@ int M24C64_GetES(unsigned char* abData)
  */
 int M24C64_SetES(unsigned char* abData)
 {
-    I2C_Write8(g_iM24C64, ADDR_ENC_KEYPOS, abData, WORD_SIZE);
-    return I2C_Write8(g_iM24C64, ADDR_ENC_KEYPOS + WORD_SIZE, abData + WORD_SIZE, WORD_SIZE);
+    return 0;
 }
 
 void M24C64_SetResetFlag(int f)

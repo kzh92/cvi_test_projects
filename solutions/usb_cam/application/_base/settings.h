@@ -86,19 +86,16 @@ enum
 
 #pragma pack(push, 1)
 
-///영구(공장)설정
-/// !!!CAUTION: You MUST modify ResetPermanenceSettings() function
-/// when you add new member to this structure.
-typedef struct _tagPERMANENCE_SETTINGS
+typedef struct _tagMY_ALL_SETTINGS
 {
-    // [14]
+    // permanance settings
     unsigned char   bIsFirst;         //bDebugEn;
 
     unsigned char   bCamFlip:1;         //bCamFlip:1
-    unsigned char   bReserved02:1;          // bSendLastMsg:1;
+    unsigned char   bReserved00:1;          // bSendLastMsg:1;
     unsigned char   bEnableLogFile:1;
     unsigned char   bHijackEnable:1;
-    unsigned char   bReserved1:4;       //bTwinsMode before, 0: twins, 1: non-twins
+    unsigned char   bReserved01:4;       //bTwinsMode before, 0: twins, 1: non-twins
 
     unsigned char   bUvcImageQuality; // s_msg_uvc_set_compressparam_data
     unsigned char   bUvcBitrateMax:4; // s_msg_uvc_set_compressparam_data
@@ -110,79 +107,23 @@ typedef struct _tagPERMANENCE_SETTINGS
     int             iCheckSumH;
     unsigned char   bIsActivated;
     unsigned char   bActMark;
-    unsigned char   bCheckSum;
-} PERMANENCE_SETTINGS__;
 
-typedef union
-{
-    PERMANENCE_SETTINGS__       x;
-    unsigned char               a[16];
-} PERMANENCE_SETTINGS;
-
-///
-typedef struct _tagHEAD_INFO
-{
-    // [0-2]
-    unsigned char   bReserved0;             //bModifyUser before
-
-    // [3]
-    unsigned char   bReserved1_0:1;         //bMountFlag, V3S에서 파티션복귀에 리용하는 옵션, 다음번기동에 리용
-    unsigned char   bReserved1:7;           //예약
-
-    //[13-14]
-    unsigned char   bReserved3;             //bIsResetFlag before, 24c64 reset flag, 15 is true
+    //head infos
     unsigned char   bChipID[8];             //chip id
-    unsigned char   bReserved2[4];          //예약
-    unsigned char   bCheckSum;              //[15]: 0xFF - (([0] + ...  + [14]) & 0xFF)
-} HEAD_INFO__;
-
-typedef union
-{
-    HEAD_INFO__     x;
-    unsigned char   a[16];
-} HEAD_INFO;
-
-typedef struct _tagHEAD_INFO2
-{
+    //head infos 2
     unsigned int   iBootingCount;             //
     unsigned int   iBootingCount1;             //
     unsigned int   iIRFailedoCount;             //
     unsigned char   bModifyUser;
     unsigned char   bMountFlag:1;
-    unsigned char   bReserved1:7;
+    unsigned char   bReserved02:7;
     unsigned char   bIsResetFlag;
-    unsigned char   bCheckSum;              //[15]: 0xFF - (([0] + ...  + [14]) & 0xFF)
-} HEAD_INFO2__;
 
-typedef union
-{
-    HEAD_INFO2__     x;
-    unsigned char   a[16];
-} HEAD_INFO2;
-
-typedef struct _tagRECOVERY_HEADER
-{
-    unsigned short iRfsRecoverCount; //rootfs recovery count
-    unsigned short iUserDbRecoverCount; //dbfs recovery count
-    unsigned short iLastRcvLogIdx; //index number in Recovery Log Data
-    unsigned int iRfsChecksum0;
-    unsigned int iRfsChecksum2;
-    unsigned char bReserved;
-    unsigned char bCheckSum;
-} RECOVERY_HADER;
-
-///일반체계설정
-typedef struct _tagCOMMON_SETTINGS
-{
+    //common settings
     //[0]
-#if (N_MAX_PERSON_NUM < 0xFF)
-    unsigned char   bUserCount;             //등록된 사용자수
-    unsigned char   bHandCount;             //baud rate before
-#else // N_MAX_PERSON_NUM
     unsigned short  bUserCount;             //등록된 사용자수
-#endif // N_MAX_PERSON_NUM
     unsigned char   bPresentation:1;        //연시방식(0: Off, 1: On)
-    unsigned char   bReserved01:1; // bDupCheck:1;
+    unsigned char   bReserved03:1; // bDupCheck:1;
     unsigned char   bUpgradeFlag:1;
     unsigned char   bUsbHost:1;// 0: USB device mode, 1: USB host mode
     unsigned char   bUVCDir:2;// 0: not rotate 90, 1: rotate 90
@@ -192,31 +133,14 @@ typedef struct _tagCOMMON_SETTINGS
     unsigned char   bReserved04:2; // bLivenessMode:2;
     unsigned char   bReserved05:2; // bTwinsMode:2; //0: twins, 1: normal
     unsigned char   bUpgradeBaudrate:3;
-    unsigned char   bReserved2:1;
+    unsigned char   bReserved06:1;
     unsigned char   bSecureFlag;
 
-    unsigned char   bReserved06:4; //bProtoEncMode:4; //0: default,
-    unsigned char   bReserved3:4;
-    
-    unsigned char   bReserved4[9];
-
-    //[15]
-    unsigned char   bCheckSum;            //[15]: 0xFF - (([0] + ...  + [14]) & 0xFF)
-} COMMON_SETTINGS__;
-
-typedef union
-{
-    COMMON_SETTINGS__   x;
-    unsigned char       a[16];
-} COMMON_SETTINGS;
-
-typedef struct _tagROK_LOG
-{
-    unsigned short  i7Error_No_Secure;      //보안통신을 못하고 7초만에 꺼준 오유
-    unsigned short  i7Error_Secure;         //보안통신을 진행한다음에 7초만에 꺼준 오유
-    unsigned short  i60Error;               //60초동안 건반사건이 들어오지 않을때 꺼준 오유
+    //rok log
+    // unsigned short  i7Error_No_Secure;      //보안통신을 못하고 7초만에 꺼준 오유
+    // unsigned short  i7Error_Secure;         //보안통신을 진행한다음에 7초만에 꺼준 오유
+    // unsigned short  i60Error;               //60초동안 건반사건이 들어오지 않을때 꺼준 오유
     unsigned char   iDBformatCount;
-    unsigned char   aReserved[3];
 
     unsigned char   bKernelFlag;
     unsigned char   bKernelCounter;
@@ -224,59 +148,22 @@ typedef struct _tagROK_LOG
     unsigned char   bMountStatus;            //0x55: start, 0xAA: ok
     unsigned char   bMountPoint:3;             //DB_PART1, DB_PART2, ...
     unsigned char   bMountRetry:5;
-
     unsigned char   bMountCounter;
-    unsigned char   bCheckSum;
-} ROK_LOG;
 
-#ifndef _APP_UPGRADE
-
-typedef struct _tagFACTORY_SETTINGS
-{
-    unsigned char bBattTest;
-    unsigned char bShowBatt;
-    unsigned char bTestState;
-    unsigned char bAutoTest;
-
-    int           iCamOffX;
-    int           iCamOffY;
-
-    int           iMotorControl;
-} FACTORY_SETTINGS;
-
-typedef struct _tagTEST_RESULT
-{
-    int             fStandbyOk;
-    unsigned int    dwStandByCur1;
-    unsigned int    dwStandByCur2;
-
-    int             fMiniVolOk;
-
-    int             fMainMenuOk;
-    unsigned int    dwMainMenuCur;
-
-    int             fClrCamOk;
-    unsigned int    dwClrCamCur;
-
-    int             fIRCamOk;
-    unsigned int    dwIRCamCur;
-} TEST_RESULT;
-
-typedef struct _tagENCRYPT_SETTINGS
-{
-    //[0]
+    //encrypt settings
     unsigned char   bEncKeyPos[16];
-    unsigned char   bReserved2[15];
+    unsigned char   bReserved07[15];
 
-    //[31]
-    unsigned char   bCheckSum;            //[15]: 0xFF - (([0] + ...  + [14]) & 0xFF)
-} ENCRPYT_SETTINGS__;
+    unsigned char   bCheckSum;
+} MY_ALL_SETTINGS__;
 
 typedef union
 {
-    ENCRPYT_SETTINGS__   x;
-    unsigned char       a[32];
-} ENCRYPT_SETTINGS;
+    MY_ALL_SETTINGS__       x;
+    unsigned char               a[0];
+} MY_ALL_SETTINGS;
+
+#ifndef _APP_UPGRADE
 
 typedef struct _tagSYSTEM_STATE
 {
@@ -435,9 +322,13 @@ int ReadCommonSettings();
 void UpdateCommonSettings();
 void ResetCommonSettings();
 
+int ReadMyAllSettings();
+void UpdateMyAllSettings();
+void ResetMyAllSettings();
+
 void RestoreBackupSettings();
 void UpdateBackupSettings();
-void ResetCS(COMMON_SETTINGS* pxCS);
+void ResetCS(MY_ALL_SETTINGS* pxCS);
 
 int ReadEncryptSettings();
 void UpdateEncryptSettings();
@@ -446,7 +337,7 @@ void ResetEncryptSettings();
 void ReadHeadInfos();
 void UpdateHeadInfos();
 void ResetHeadInfos();
-void ResetHeadInfoParams(HEAD_INFO*);
+void ResetHeadInfoParams(MY_ALL_SETTINGS*);
 void RestoreBackupHeadInfos();
 void UpdateBackupHeadInfos();
 
@@ -454,15 +345,7 @@ void ReadROKLogs();
 void ResetROKLogs();
 void UpdateROKLogs();
 
-void recvReadHeader();
-void recvUpdateHeader();
-void recvResetHeader();
-
 void ResetSystemState(int iAppType);
-int SetLogo(unsigned char* pbData, int iSize);
-
-int     GetZigbeeIdx(int iZigbeeMode);
-int     GetZigbeeMode(int iZigbeeIdx);
 
 void    SetModifyUser(int iModify);
 void    SetMountStatus(int iSuccess);
@@ -477,14 +360,15 @@ void    MarkSenseResetFlag();
 }
 #endif // __cplusplus
 
-extern PERMANENCE_SETTINGS g_xPS;
-extern COMMON_SETTINGS g_xCS;
+extern MY_ALL_SETTINGS g_xAS;
+#define g_xCS           g_xAS
 #ifndef _APP_UPGRADE
-extern ROK_LOG g_xROKLog;
-extern HEAD_INFO g_xHD;
-extern HEAD_INFO2 g_xHD2;
-extern SYSTEM_STATE g_xSS;
-extern ENCRYPT_SETTINGS g_xES;
+#define g_xPS           g_xAS
+#define g_xROKLog       g_xAS
+#define g_xHD           g_xAS
+#define g_xHD2          g_xAS
+#define g_xES           g_xAS
 #endif // _APP_UPGRADE
+extern SYSTEM_STATE g_xSS;
 
 #endif // SETTINGS_H
