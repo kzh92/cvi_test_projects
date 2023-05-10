@@ -80,7 +80,7 @@ cp -rf ${BASE_PWD}/../../pack/images/* ${MK_GENERATED_PATH}/data/
 cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
 
 echo "Creating temp partitions..."
-dd if=/dev/zero of=${MK_GENERATED_PATH}/data/misc bs=1024 count=328
+dd if=/dev/zero of=${MK_GENERATED_PATH}/data/misc bs=1024 count=8
 
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -e ${MK_GENERATED_PATH} -x
