@@ -79,7 +79,6 @@ void my_mi_use_unlock();
 void lockIRBuffer();
 void unlockIRBuffer();
 #if (USE_VDBTASK)
-int camera_init(int id, int width, int height, int switchIR_to);
 int camera_set_irled(int id, int enable);
 int camera_mipi0_set_regval(unsigned char regaddr, unsigned char regval);
 int camera_mipi0_get_regval(unsigned char regaddr);
@@ -94,8 +93,8 @@ int camera_clr_get_gain();
 void lockClrBuffer();
 void unlockClrBuffer();
 #else // USE_VDBTASK
-int camera_init(int id, int width, int height);
 #endif // USE_VDBTASK
+int camera_init(int id, int width, int height, int switchIR_to);
 int camera_switch(int id, int camid);
 int camera_get_actIR();
 

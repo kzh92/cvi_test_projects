@@ -11,10 +11,9 @@
 #define SC201CS_CHIP_ID_ADDR_L	0x3108
 #define SC201CS_CHIP_ID		0xeb2c
 
-#define LEFT_CAM		1
-#define RIGHT_CAM		0
-
-CVI_U8 iCurrentCam = LEFT_CAM;
+#define I2C_ADDR_LEFT			0x30
+#define I2C_ADDR_RIGHT			0x32
+CVI_U8 g_is_left_cam = 0;
 
 static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe);
 
@@ -40,10 +39,7 @@ int sc201cs_read_register(VI_PIPE ViPipe, int addr)
 {
 	CVI_U8 i2c_id = (CVI_U8)g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
 
-	if(iCurrentCam == LEFT_CAM)
-		sc201cs_i2c_addr = 0x30;
-	else
-		sc201cs_i2c_addr = 0x32;
+	sc201cs_i2c_addr = g_is_left_cam ? I2C_ADDR_LEFT : I2C_ADDR_RIGHT;
 
 	return sensor_i2c_read(i2c_id, sc201cs_i2c_addr, (CVI_U32)addr, sc201cs_addr_byte,
 		sc201cs_data_byte);
@@ -53,10 +49,7 @@ int sc201cs_write_register(VI_PIPE ViPipe, int addr, int data)
 {
 	CVI_U8 i2c_id = (CVI_U8)g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
 
-	if(iCurrentCam == LEFT_CAM)
-		sc201cs_i2c_addr = 0x30;
-	else
-		sc201cs_i2c_addr = 0x32;
+	sc201cs_i2c_addr = g_is_left_cam ? I2C_ADDR_LEFT : I2C_ADDR_RIGHT;
 
 	return sensor_i2c_write(i2c_id, sc201cs_i2c_addr, (CVI_U32)addr, sc201cs_addr_byte,
 		(CVI_U32)data, sc201cs_data_byte);
@@ -144,13 +137,13 @@ int sc201cs_probe(VI_PIPE ViPipe)
 
 int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 {
-	if (switchCam == iCurrentCam)
-	return CVI_SUCCESS;
+	if (switchCam == g_is_left_cam)
+		return CVI_SUCCESS;
 
 	sc201cs_write_register(ViPipe, 0x3019,0xff);
 	sc201cs_write_register(ViPipe, 0x0100,0x00);
 
-	iCurrentCam = switchCam;
+	g_is_left_cam = switchCam;
 
 	sc201cs_write_register(ViPipe, 0x0100,0x01);
 	sc201cs_write_register(ViPipe, 0x3019,0xfe);
@@ -160,16 +153,16 @@ int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 
 int sc201cs_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 {
-	int iCam = iCurrentCam;
-	iCurrentCam = 0;
+	int iCam = g_is_left_cam;
+	g_is_left_cam = 0;
 
 	sc201cs_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
 
-	iCurrentCam = 1;
+	g_is_left_cam = 1;
 
 	sc201cs_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
 
-	iCurrentCam = iCam;
+	g_is_left_cam = iCam;
 
 	return CVI_SUCCESS;
 }
@@ -180,14 +173,15 @@ void sc201cs_init(VI_PIPE ViPipe)
 
 	for (int i = 0 ; i < 2; i++)
 	{
-		iCurrentCam = i;
+		g_is_left_cam = (i == 1);
 		sc201cs_linear_1200p30_init(ViPipe);
-		if (i == RIGHT_CAM)
+		if (!g_is_left_cam)
 		{
 			sc201cs_write_register(ViPipe, 0x0100,0x01);
 			sc201cs_write_register(ViPipe, 0x3019,0xfe);
 		}
 	}
+	g_is_left_cam = 0;
 
 	g_pastSc201cs[ViPipe]->bInit = CVI_TRUE;
 }

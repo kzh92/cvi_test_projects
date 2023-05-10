@@ -257,7 +257,7 @@ void StartCamSurface(int iMode)
     if(g_iMipiCamInited == -1)
     {
         float r = Now();
-        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2RIGHT);
         if(Now() - r > 500)
             my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
 
