@@ -494,11 +494,29 @@ int camera_get_regval(int id, unsigned char regaddr)
 
 int camera_set_exp_byreg(int id, int value)
 {
-    // camera_set_regval(id, 0x01, (unsigned char)(value & 0xFF));
-    // camera_set_regval(id, 0x02, (unsigned char)((value >> 8) & 0x0F));
-    // //my_usleep(1000);
+    my_mi_use_lock();
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-    // dbug_printf("Set ExP: %d, %d\n", id, value);
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    unsigned char b0x3e00Value, b0x3e01Value, b0x3e02Value;
+
+    b0x3e00Value = (unsigned char)(value >> 12);
+    b0x3e01Value = (unsigned char)((value & 0xFF0) >> 4);
+    b0x3e02Value = (unsigned char)((value & 0xF) << 4);
+
+    pSnsObj->pfnWriteRegEx(0, 0x3e00, b0x3e00Value, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e01, b0x3e01Value, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e02, b0x3e02Value, id == TC_MIPI_CAM_LEFT);
+
+    my_mi_use_unlock();
+
+    dbug_printf("Set ExP: %d, %d\n", id, value);
 
     return 0;
 }
@@ -511,10 +529,25 @@ int camera_get_exp_byreg(int id)
     return 0;
 }
 
-int camera_set_gain_byreg(int id, int value)
+int camera_set_gain_byreg(int id, int value, int nFineValue)
 {
-    // camera_set_regval(id, 0x00, value);
-    // dbug_printf("Set Gain: %d, %d\n", id, value);
+    my_mi_use_lock();
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    pSnsObj->pfnWriteRegEx(0, 0x3e09, (unsigned char)value, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e06, 0x00, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e07, (unsigned char)nFineValue, id == TC_MIPI_CAM_LEFT);
+
+    my_mi_use_unlock();
+
+    dbug_printf("Set Gain: %d, %d\n", id, value);
     return 0;
 }
 
@@ -1108,17 +1141,21 @@ void unlockClrBuffer()
 
 int camera_set_pattern_mode(int cam_id, int enable)
 {
-    my_mi_use_lock();
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
-    if (!pSnsObj)
+    if (cam_id == TC_MIPI_CAM)
     {
+        my_mi_use_lock();
+        pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+        if (!pSnsObj)
+        {
+            my_mi_use_unlock();
+            return -1;
+        }
+        pSnsObj->pfnSnsPatternEn(0, enable);
         my_mi_use_unlock();
-        return -1;
     }
-    pSnsObj->pfnSnsPatternEn(0, enable);
-    my_mi_use_unlock();
+
     return 0;
 }
 

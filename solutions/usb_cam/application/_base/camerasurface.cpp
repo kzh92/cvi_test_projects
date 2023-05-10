@@ -120,8 +120,6 @@ int             g_nValueSettenPassed = 0;
         } \
     } while(0)
 
-void CalcNextExposure();
-
 void StartFirstCam()
 {
     dbug_printf("[%s] start, %0.3f\n", __func__, Now());
@@ -226,8 +224,7 @@ void StartCamSurface(int iMode)
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
             //test pattern
-            camera_set_regval(TC_MIPI_CAM_LEFT, 0x0C, 0x41);
-            camera_set_regval(TC_MIPI_CAM_RIGHT, 0x0C, 0x41);
+            camera_set_pattern_mode(TC_MIPI_CAM);
         }
         my_mutex_unlock(g_captureLock);
     }
@@ -267,10 +264,16 @@ void StartCamSurface(int iMode)
         }
     }
 
+    if(iMode == 0)
+    {
+        camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
+        camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN, INIT_FINEGAIN);
+    }
+
     if(iMode == 0 && g_iMipiCamInited == 0)
     {
         camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
-        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1);
+        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1, INIT_FINEGAIN_1);
     }
 
     if(g_iMipiCamInited == 0 && g_capture0 == 0)
@@ -869,8 +872,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 
 void CalcNextExposure()
 {
-#if (USE_VDBTASK)
-    my_mutex_lock(g_captureLock);
     if(fr_GetExposure())
     {
         camera_set_exp_byreg(TC_MIPI_CAM_LEFT, *fr_GetExposure());
@@ -879,33 +880,14 @@ void CalcNextExposure()
     {
         camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, *fr_GetExposure2());
     }
-    if(fr_GetGain())
+    if(fr_GetGain() && fr_GetFineGain())
     {
-        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, *fr_GetGain());
+        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, *fr_GetGain(), *fr_GetFineGain());
     }
-    if(fr_GetGain2())
+    if(fr_GetGain2() && fr_GetFineGain2())
     {
-        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, *fr_GetGain2());
+        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, *fr_GetGain2(), *fr_GetFineGain2());
     }
-    my_mutex_unlock(g_captureLock);
-#else // USE_VDBTASK
-    if(fr_GetExposure())
-    {
-        camera_set_exp_byreg(MIPI_0_CAM, *fr_GetExposure());
-    }
-    if(fr_GetExposure2())
-    {
-        camera_set_exp_byreg(MIPI_1_CAM, *fr_GetExposure2());
-    }
-    if(fr_GetGain())
-    {
-        camera_set_gain_byreg(MIPI_0_CAM, *fr_GetGain());
-    }
-    if(fr_GetGain2())
-    {
-        camera_set_gain_byreg(MIPI_1_CAM, *fr_GetGain2());
-    }
-#endif // USE_VDBTASK
 }
 
 void reset_ir_exp_gain()

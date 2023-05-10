@@ -73,6 +73,8 @@ extern void sc201cs_restart(VI_PIPE ViPipe);
 extern void sc201cs_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMirrorFlip);
 extern int  sc201cs_write_register(VI_PIPE ViPipe, int addr, int data);
 extern int  sc201cs_read_register(VI_PIPE ViPipe, int addr);
+extern int  sc201cs_write_register_ex(VI_PIPE ViPipe, int addr, int data, int is_left_camera);
+extern int  sc201cs_read_register_ex(VI_PIPE ViPipe, int addr, int is_left_camera);
 extern int  sc201cs_probe(VI_PIPE ViPipe);
 extern int  sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam);
 extern int  sc201cs_pattern_enable(VI_PIPE ViPipe, CVI_U8);

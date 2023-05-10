@@ -20,6 +20,8 @@ extern "C"{
 #define MIPI_0_CAM              0
 #define MIPI_1_CAM              1
 #define TC_MIPI_CAM             MIPI_0_CAM   //left IR
+#define TC_MIPI_CAM_LEFT        MIPI_0_CAM   //left IR
+#define TC_MIPI_CAM_RIGHT       MIPI_1_CAM  //right IR
 #endif // USE_VDBTASK
 
 #define MIPI_CAM_SUB0           0 // right IR
@@ -69,7 +71,7 @@ int camera_release (int id);
 
 int camera_set_exp_byreg(int id, int value);
 int camera_get_exp_byreg(int id);
-int camera_set_gain_byreg(int id, int value);
+int camera_set_gain_byreg(int id, int value, int nFineValue);
 int camera_set_regval(int id, unsigned char regaddr, unsigned char regval);
 int camera_get_regval(int id, unsigned char regaddr);
 int camera_set_irled(int enable, int count);

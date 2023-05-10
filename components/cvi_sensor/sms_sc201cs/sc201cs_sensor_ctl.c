@@ -55,6 +55,26 @@ int sc201cs_write_register(VI_PIPE ViPipe, int addr, int data)
 		(CVI_U32)data, sc201cs_data_byte);
 }
 
+int sc201cs_read_register_ex(VI_PIPE ViPipe, int addr, int is_left_camera)
+{
+	CVI_U8 i2c_id = (CVI_U8)g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
+
+	sc201cs_i2c_addr = is_left_camera ? I2C_ADDR_LEFT : I2C_ADDR_RIGHT;
+
+	return sensor_i2c_read(i2c_id, sc201cs_i2c_addr, (CVI_U32)addr, sc201cs_addr_byte,
+		sc201cs_data_byte);
+}
+
+int sc201cs_write_register_ex(VI_PIPE ViPipe, int addr, int data, int is_left_camera)
+{
+	CVI_U8 i2c_id = (CVI_U8)g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
+
+	sc201cs_i2c_addr = is_left_camera ? I2C_ADDR_LEFT : I2C_ADDR_RIGHT;
+
+	return sensor_i2c_write(i2c_id, sc201cs_i2c_addr, (CVI_U32)addr, sc201cs_addr_byte,
+		(CVI_U32)data, sc201cs_data_byte);
+}
+
 static void delay_ms(int ms)
 {
 	udelay(ms * 1000);

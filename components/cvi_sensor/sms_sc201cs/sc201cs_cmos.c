@@ -888,5 +888,7 @@ ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnSnsProbe            = sensor_probe,
 	.pfnSnsSwitch			= sensor_switch,
 	.pfnSnsPatternEn		= sensor_pattern_enable,
+	.pfnWriteRegEx          = sc201cs_write_register_ex,
+	.pfnReadRegEx           = sc201cs_read_register_ex,
 };
 
