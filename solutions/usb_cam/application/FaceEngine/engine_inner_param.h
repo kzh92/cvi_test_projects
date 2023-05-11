@@ -21,7 +21,7 @@
 //fdir_1.0 cv
 #define DNN_DETECT_CHECKSUM     0x68d3414
 
-//vfl_1.10
+//vfl_1.10 cv
 #define DNN_MODELING_CHECKSUM   0x5721b59a
 
 //hand
@@ -30,12 +30,12 @@
 #define DNN_CHECKVALID_HAND_CHECKSUM    0x6f1dabb9
 #define DNN_FEAT_HAND_CHECKSUM          0x333f25f
 
-////////     Live_SC_1.10       ////////
-#define DNN_2D_LIVE_A1_CHECKSUM    	0xf10bce49
-#define DNN_2D_LIVE_A2_CHECKSUM    	0xc943e173
-#define DNN_2D_LIVE_B_CHECKSUM  	0x79328a89
-#define DNN_2D_LIVE_B2_CHECKSUM 	0x79aa4e08
-#define DNN_3D_LIVE_CHECKSUM    	0xda8bbcc3
+////////     Live_SC_1.10 cv     ////////
+#define DNN_2D_LIVE_A1_CHECKSUM    	0x9f049758
+#define DNN_2D_LIVE_A2_CHECKSUM    	0xc7decdf9
+#define DNN_2D_LIVE_B_CHECKSUM  	0xba850a53
+#define DNN_2D_LIVE_B2_CHECKSUM 	0x3216f6b8
+#define DNN_3D_LIVE_CHECKSUM    	0xc7dd8e2d
 
 #define DNN_ESN_CHECKSUM        0x554ad340
 #define DNN_OCC_CHECKSUM        0x7e3a5a09

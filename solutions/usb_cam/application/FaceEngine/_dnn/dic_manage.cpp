@@ -205,7 +205,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Liveness_A1:
     {
         pnFileIndicator = &g_id_live_a1;
-        nDicSize = LiveMnSE_dnn_dic_size();
+        //nDicSize = LiveMnSE_dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_LIVE_A1;
         strcpy(szFileNameTemp, FN_LIVEA1);
         if (!g_dic_live_a1)
             g_dic_live_a1 = (unsigned char*)my_malloc(nDicSize);
@@ -218,7 +219,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Liveness_A2:
     {
         pnFileIndicator = &g_id_live_a2;
-        nDicSize = LiveMnSE_dnn_dic_size();
+        //nDicSize = LiveMnSE_dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_LIVE_A2;
         strcpy(szFileNameTemp, FN_LIVEA2);
         if (!g_dic_live_a2)
             g_dic_live_a2 = (unsigned char*)my_malloc(nDicSize);
@@ -231,7 +233,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Liveness_B:
     {
         pnFileIndicator = &g_id_live_b;
-        nDicSize = LiveMnSE_dnn_dic_size();
+        //nDicSize = LiveMnSE_dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_LIVE_B;
         strcpy(szFileNameTemp, FN_LIVEB);
         if (!g_dic_live_b)
             g_dic_live_b = (unsigned char*)my_malloc(nDicSize);
@@ -244,7 +247,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Liveness_B2:
     {
         pnFileIndicator = &g_id_live_b2;
-        nDicSize = LiveMnSE3_dnn_dic_size();
+        //nDicSize = LiveMnSE3_dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_LIVE_B2;
         strcpy(szFileNameTemp, FN_LIVEB2);
         if (!g_dic_live_b2)
             g_dic_live_b2 = (unsigned char*)my_malloc(nDicSize);
@@ -257,7 +261,8 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Liveness_C:
     {
         pnFileIndicator = &g_id_live_c;
-        nDicSize = LiveMnSE_dnn_dic_size();
+        //nDicSize = LiveMnSE_dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_LIVE_C;
         strcpy(szFileNameTemp, FN_LIVEC);
         if (!g_dic_live_c)
             g_dic_live_c = (unsigned char*)my_malloc(nDicSize);

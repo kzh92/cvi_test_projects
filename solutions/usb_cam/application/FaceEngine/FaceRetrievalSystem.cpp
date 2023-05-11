@@ -344,7 +344,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 1
+#if 0
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
@@ -1115,7 +1115,7 @@ int check2D_3DFake()
 
     float rResult = 0;
     rResult = KdnnDetectLiveness2D_A(pLiveAlignAC);
-    //my_printf("KdnnDetectLiveness2D_A = %f\n", rResult);
+    my_printf("KdnnDetectLiveness2D_A = %f\n", rResult);
 
     if(rResult < 0)
     {
@@ -1145,7 +1145,7 @@ int check2D_3DFake()
     }
 
     rResult = KdnnDetectLiveness_2D_B(pLiveAlignB);
-    //my_printf("KdnnDetectLiveness2D_B = %f\n", rResult);
+    my_printf("KdnnDetectLiveness2D_B = %f\n", rResult);
     if(rResult < 0)
     {
         APP_LOG("[%d] pec 26-2\n", (int)Now());
@@ -1173,7 +1173,7 @@ int check2D_3DFake()
     }
 
     rResult = KdnnDetectLiveness_2D_B2(pLiveAlignB2);
-    //my_printf("KdnnDetectLiveness2D_B2 = %f\n", rResult);
+    my_printf("KdnnDetectLiveness2D_B2 = %f\n", rResult);
     if(rResult < 0)
     {
         APP_LOG("[%d] pec 26-22\n", (int)Now());
@@ -1200,7 +1200,7 @@ int check2D_3DFake()
         return ES_FAILED;
     }
     rResult = KdnnDetectLiveness_3D(pLiveAlignAC);
-    //my_printf("KdnnDetectLiveness3D = %f\n", rResult);
+    my_printf("KdnnDetectLiveness3D = %f\n", rResult);
     if(rResult < 0)
     {
         APP_LOG("[%d] pec 26-3\n", (int)Now());
