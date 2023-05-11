@@ -85,6 +85,7 @@ typedef void* myi2cdesc_ptr;
 #define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE                     0x00100000
 #define FN_WNO_DICT_SIZE                1292988
+#define FN_WNOH_DICT_SIZE               1770624
 #if (USE_FP16_ENGINE == 0)
 #define FN_A1_DICT_SIZE                 792992
 #define FN_A2_DICT_SIZE                 792992

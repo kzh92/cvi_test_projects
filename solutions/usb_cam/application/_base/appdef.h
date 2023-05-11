@@ -85,6 +85,7 @@ enum E_Baud_Rate
 #define EDC_ENABLE_WITH_SKIP        1   //enable duplication check, but registering possible on dup error
 #define EDC_ENABLE_NO_SKIP          2   //enable duplication check, registering impossible on dup error
 #define ENROLL_DUPLICATION_CHECK    EDC_DISABLE
+#define ENROLL_HAND_DUP_CHECK       1
 #define DEBUG_EN                    0
 #define FAKE_DETECTION              1
 #define ENROLL_FAKE                 1
@@ -331,6 +332,8 @@ enum E_Baud_Rate
 #define ENGINE_LENS_TYPE                    ENGINE_LENS_M277_2409
 #undef FIRMWARE_MAGIC
 #define FIRMWARE_MAGIC                      "DBS2.0"
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)

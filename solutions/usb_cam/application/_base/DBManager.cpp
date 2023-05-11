@@ -206,6 +206,7 @@ int	dbm_LoadPersonDB()
             }
         }
     }
+
     if(iCheckSumErr)
     {
         my_printf("checksum error\n");
@@ -765,13 +766,14 @@ int dbm_AddHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum)
 
     if (dbfs_get_cur_part() == DB_PART_BACKUP)
         return ES_FAILED;
-
+#if 0
     int fd = open(DB_HANDINFO_DAT, O_RDWR, (mode_t)0600);
     if(fd < 0)
     {
         printf("[%s]failed to open db file(%s).\n", __FUNCTION__, strerror(errno));
         return ES_FAILED;
     }
+#endif
 
     g_xHandDB.aiHandValid[pxUserInfo->iID] = 1;
 
@@ -784,13 +786,13 @@ int dbm_AddHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum)
     iCheckSum = GetIntCheckSum((int*)pxFeatInfo, sizeof(*pxFeatInfo));
     g_xHandDB.ax[pxUserInfo->iID].iHFCheckSum = iCheckSum;
 
+#if 0
     lseek(fd, offsetof(DB_HAND_INFO, ax) + pxUserInfo->iID * sizeof(DB_HAND_UNIT), SEEK_SET);
     write(fd, (char*)&g_xHandDB.ax[pxUserInfo->iID], sizeof(DB_HAND_UNIT));
     lseek(fd, pxUserInfo->iID * sizeof(g_xHandDB.aiHandValid[0]), SEEK_SET);
     write(fd, &g_xHandDB.aiHandValid[pxUserInfo->iID], sizeof(g_xHandDB.aiHandValid[pxUserInfo->iID]));
     fsync(fd);
     close(fd);
-
     if(piBlkNum && *piBlkNum == 0)
     {
         dbm_CheckHandBackupDB();
@@ -809,6 +811,7 @@ int dbm_AddHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum)
             printf("bopen fail:%s(%d)\n", strerror(errno), errno);
         }
     }
+#endif
     return ES_SUCCESS;
 }
 
@@ -833,17 +836,20 @@ int dbm_UpdateHandMetaInfo(int nIndex, PSMetaInfo pxMetaInfo, int* piBlkNum)
     if(iID < 0)
         return ES_FAILED;
 
+#if 0
     int fd = open(DB_HANDINFO_DAT, O_RDWR, (mode_t)0600);
     if(fd < 0)
     {
         printf("[%s]failed to open db file(%s).\n", __FUNCTION__, strerror(errno));
         return ES_FAILED;
     }
+#endif
 
     int iCheckSum = GetIntCheckSum((int*)pxMetaInfo, sizeof(SMetaInfo));
     g_xHandDB.ax[iID].iHMetaCheckSum = iCheckSum;
     g_xHandDB.ax[iID].xHM = *pxMetaInfo;
 
+#if 0
     lseek(fd, offsetof(DB_HAND_INFO, ax) + iID * sizeof(DB_HAND_UNIT), SEEK_SET);
     lseek(fd, offsetof(DB_HAND_UNIT, xHM), SEEK_CUR);
     write(fd, &g_xHandDB.ax[iID].xHM, sizeof(g_xHandDB.ax[iID].xHM) + 4/*checksum*/);
@@ -863,6 +869,7 @@ int dbm_UpdateHandMetaInfo(int nIndex, PSMetaInfo pxMetaInfo, int* piBlkNum)
             fclose(fp);
         }
     }
+#endif
     return ES_SUCCESS;
 }
 
@@ -877,18 +884,19 @@ int	dbm_UpdateHandFeatInfo(int nIndex, SHandFeatInfo *pxFeatInfo, int* piBlkNum)
     int iID = dbm_GetHandIDOfIndex(nIndex);
     if(iID < 0)
         return ES_FAILED;
-
+#if 0
     int fd = open(DB_HANDINFO_DAT, O_RDWR, (mode_t)0600);
     if(fd < 0)
     {
         printf("[%s]failed to open db file(%s).\n", __FUNCTION__, strerror(errno));
         return ES_FAILED;
     }
+#endif
 
     int iCheckSum = GetIntCheckSum((int*)pxFeatInfo, sizeof(SHandFeatInfo));
     g_xHandDB.ax[iID].iHFCheckSum = iCheckSum;
     g_xHandDB.ax[iID].xHF = *pxFeatInfo;
-
+#if 0
     lseek(fd, sizeof(DB_HAND_INFO::aiHandValid) + iID * sizeof(DB_HAND_UNIT), SEEK_SET);
     write(fd, &g_xHandDB.ax[iID], sizeof(DB_HAND_UNIT));
     fsync(fd);
@@ -907,6 +915,7 @@ int	dbm_UpdateHandFeatInfo(int nIndex, SHandFeatInfo *pxFeatInfo, int* piBlkNum)
             fclose(fp);
         }
     }
+#endif
     return ES_SUCCESS;
 }
 
@@ -968,21 +977,12 @@ PSMetaInfo dbm_GetHandMetaInfoByID(int iID)
 
 SHandFeatInfo*	dbm_GetHandFeatInfoByID(int nID)
 {
-#ifdef MMAP_MODE
-    if(g_xHandDB == NULL)
-        return NULL;
-#endif
-
     if(nID < 0 || nID >= N_MAX_HAND_NUM)
         return NULL;
 
     if(g_xHandDB.aiHandValid[nID] == 0)
         return NULL;
-#ifdef MMAP_MODE
-    return &g_xHandDB->ax[nID].xHF;
-#else
     return &g_xHandDB.ax[nID].xHF;
-#endif
 }
 
 SHandFeatInfo*  dbm_GetHandFeatInfoByIndex(int nPos)
@@ -991,11 +991,7 @@ SHandFeatInfo*  dbm_GetHandFeatInfoByIndex(int nPos)
     if(iID < 0)
         return NULL;
 
-#ifdef MMAP_MODE
-    return &g_xHandDB->ax[iID].xHF;
-#else
     return &g_xHandDB.ax[iID].xHF;
-#endif
 }
 
 int dbm_GetNewHandUserID()
@@ -1035,70 +1031,8 @@ int	dbm_LoadHandDB()
     memset(&g_xHandDB, 0, sizeof(g_xHandDB));
     int FILESIZE = sizeof(g_xHandDB);
 
-    struct stat filecheck;
-    int fd = -1;
-    dbug_printf("[%s] filesize=%d\n", __func__, FILESIZE);
+    int nReadNum = my_userdb_read(sizeof(DB_INFO), g_xDB, FILESIZE);
 
-    if(stat (DB_HANDINFO_DAT, &filecheck) != 0 || filecheck.st_size != FILESIZE)
-    {
-        if(stat (DB_HANDINFO_DAT, &filecheck) == 0 && filecheck.st_size != FILESIZE)
-        {
-            printf("#######  MMap FileSize Error!!! Src: %x, Err: %lu\n", FILESIZE, filecheck.st_size);
-            dbm_Free();
-
-            return ES_FILE_ERROR;
-        }
-
-        fd = open(DB_HANDINFO_DAT, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
-
-        if (fd < 0)
-        {
-            //this means backup partition.
-            printf("Failed to create file\n");
-            dbm_Free();
-            if (is_backup_partition())
-                return ES_SUCCESS;
-            else
-                return ES_FILE_ERROR;
-        }
-
-        // Stretch the file size to the size of the (mmapped) array of ints
-        int result = lseek(fd, FILESIZE-1, SEEK_SET);
-        if (result == -1)
-        {
-            printf("Error calling lseek() to 'stretch' the file\n");
-            close(fd);
-            dbm_Free();
-
-            return ES_FILE_ERROR;
-        }
-
-        result = write(fd, "", 1);
-        if (result != 1)
-        {
-            printf("Error writing last byte of the file\n");
-            close(fd);
-            dbm_Free();
-
-            return ES_FILE_ERROR;
-        }
-    }
-    else
-    {
-        if (dbfs_get_cur_part() < DB_PART_BACKUP)
-            fd = open(DB_HANDINFO_DAT, O_RDWR, (mode_t)0600);
-        else
-            fd = open(DB_HANDINFO_DAT, O_RDONLY, (mode_t)0600);
-    }
-
-    if (fd < 0)
-    {
-        printf("[%s]failed to open db file(%s).\n", __FUNCTION__, strerror(errno));
-        return ES_FILE_ERROR;
-    }
-
-    lseek(fd, 0, SEEK_SET);
-    int nReadNum = read(fd, &g_xHandDB, sizeof(g_xHandDB));
     if (nReadNum != sizeof(g_xHandDB))
     {
         printf("[%s] failed to read user info %d\n", __FUNCTION__, nReadNum);
@@ -1119,8 +1053,8 @@ int	dbm_LoadHandDB()
                 printf("meta checksum error %d\n", i);
                 iCheckSumErr = 1;
                 g_xHandDB.aiHandValid[i] = 0;
-                lseek(fd, offsetof(DB_HAND_INFO, aiHandValid) + i * sizeof(g_xHandDB.aiHandValid[0]), SEEK_SET);
-                write(fd, 0, sizeof(g_xHandDB.aiHandValid[0]));
+                // lseek(fd, offsetof(DB_HAND_INFO, aiHandValid) + i * sizeof(g_xHandDB.aiHandValid[0]), SEEK_SET);
+                // write(fd, 0, sizeof(g_xHandDB.aiHandValid[0]));
             }
             else
             {
@@ -1130,8 +1064,8 @@ int	dbm_LoadHandDB()
                     printf("hf checksum error %d\n", i);
                     iCheckSumErr = 1;
                     g_xHandDB.aiHandValid[i] = 0;
-                    lseek(fd, offsetof(DB_HAND_INFO, aiHandValid) + i * sizeof(g_xHandDB.aiHandValid[0]), SEEK_SET);
-                    write(fd, 0, sizeof(g_xHandDB.aiHandValid[0]));
+                    // lseek(fd, offsetof(DB_HAND_INFO, aiHandValid) + i * sizeof(g_xHandDB.aiHandValid[0]), SEEK_SET);
+                    // write(fd, 0, sizeof(g_xHandDB.aiHandValid[0]));
                 }
                 else
                 {
@@ -1142,32 +1076,28 @@ int	dbm_LoadHandDB()
         }
     }
 
-    if(fd >= 0)
-    {
-        fsync(fd);
-        close(fd);
-    }
     if(iCheckSumErr)
     {
         printf("h.checksum error\n");
         return ES_FILE_ERROR;
     }
 
-
     return ES_SUCCESS;
 }
 
 void dbm_SetEmptyHandDB(int* piBlkNum)
 {
+#if 0    
     int fd = open(DB_HANDINFO_DAT, O_RDWR, (mode_t)0600);
     if(fd < 0)
     {
         printf("[%s]failed to open db file(%s).\n", __FUNCTION__, strerror(errno));
         return;
     }
-
+#endif
     memset(&g_xHandDB, 0, sizeof(DB_HAND_INFO));
 
+#if 0
     lseek(fd, 0, SEEK_SET);
     write(fd, g_xHandDB.aiHandValid, sizeof(DB_HAND_INFO::aiHandValid));
     fsync(fd);
@@ -1186,6 +1116,7 @@ void dbm_SetEmptyHandDB(int* piBlkNum)
     }
     //temp code to recheck
     //clearHandUserFeat();
+#endif
 }
 
 int	dbm_GetHandCount()
@@ -1206,26 +1137,22 @@ int	dbm_GetHandCount()
 
 int	dbm_RemoveHandByID(int nID, int* piBlkNum)
 {
-#ifdef MMAP_MODE
-    if(g_xDB == NULL)
-        return ES_FAILED;
-#endif
-
     if (dbfs_get_cur_part() == DB_PART_BACKUP)
         return ES_FAILED;
 
     if (nID < 0 || nID >= N_MAX_HAND_NUM || g_xHandDB.aiHandValid[nID] == 0)
         return ES_FAILED;
-
+#if 0
     int fd = open(DB_HANDINFO_DAT, O_RDWR, (mode_t)0600);
     if(fd < 0)
     {
         printf("[%s]failed to open db file(%s).\n", __FUNCTION__, strerror(errno));
         return ES_FAILED;
     }
+#endif
 
     g_xHandDB.aiHandValid[nID] = 0;
-
+#if 0
     write(fd, g_xHandDB.aiHandValid, sizeof(DB_HAND_INFO::aiHandValid));
     fsync(fd);
     close(fd);
@@ -1243,11 +1170,13 @@ int	dbm_RemoveHandByID(int nID, int* piBlkNum)
     }
     //temp code recheck
     //removeHandUserDate(nID);
+#endif
     return ES_SUCCESS;
 }
 
 int dbm_CheckHandBackupDB()
 {
+#if 0
     int FILESIZE = sizeof(DB_HAND_INFO);
     struct stat filecheck;
     if(stat (BACKUP_HANDINFO_DAT, &filecheck) != 0 || filecheck.st_size != FILESIZE)
@@ -1273,16 +1202,13 @@ int dbm_CheckHandBackupDB()
         fsync(fd);
         close(fd);
     }
-
+#endif
     return 0;
 }
 
 int dbm_CheckHandBackupDBInfos()
 {
-#ifdef MMAP_MODE
-    if(g_xDB == NULL)
-        return -1;
-#endif
+#if 0
     int FILESIZE = sizeof(DB_HAND_INFO);
     struct stat filecheck;
     if(stat (BACKUP_HANDINFO_DAT, &filecheck) != 0 || filecheck.st_size != FILESIZE)
@@ -1329,7 +1255,7 @@ int dbm_CheckHandBackupDBInfos()
     }
 
     fclose(fp);
-
+#endif
     return 0;
 }
 

@@ -2,6 +2,9 @@
 #define DBMANAGER_H
 
 #include "EngineStruct.h"
+#if (N_MAX_HAND_NUM)
+#include "hand/HandRetrival_.h"
+#endif
 
 #include <sys/time.h>
 

@@ -177,6 +177,8 @@ source_file:
   - application/FaceEngine/enn/*.c
   - application/FaceEngine/ennq/*.cpp
   - application/FaceEngine/ennq/*.c
+  - application/FaceEngine/hand/*.cpp
+  - application/FaceEngine/hand/*.c
   - application/_check_camera/*.cpp
   - application/_check_camera/*.c
   - application/_aes/*.cpp

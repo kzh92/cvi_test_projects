@@ -285,33 +285,33 @@ int setHandShareMem_(unsigned char* pbShareMem, unsigned char* pbShareYmem)
 void calcAverageValues_Hand(unsigned char* pLEDOnImage, unsigned char* pLEDOffImage, SRect rect)
 {
     int nX, nY;
-    int nTotalLedOffValue = 0;
+    // int nTotalLedOffValue = 0;
     int nTotalLedOnValue = 0;
 
     int nProcessArea = 0;
     memset(g_nHistInLEDOnImage_Hand, 0, sizeof(int) * 256);
 
-    _u8 *pLedOnInit, *pLedOffInit = 0;
+    _u8 *pLedOnInit/*, *pLedOffInit = 0*/;
     int nOffset = rect.y * g_xEngineParam.nDetectionWidth + rect.x;
     int E_IMAGE_WIDTH_2 = g_xEngineParam.nDetectionWidth << 1;
     pLedOnInit = pLEDOnImage + nOffset;
     if(pLEDOffImage)
     {
-        pLedOffInit = pLEDOffImage + nOffset;
+        // pLedOffInit = pLEDOffImage + nOffset;
     }
 
     for (nY = rect.y; nY < rect.y + rect.height; nY += 2)
     {
         _u8* pLEDOnBuf = pLedOnInit;
-        _u8* pLEDOffBuf = 0;
+        // _u8* pLEDOffBuf = 0;
         if(pLEDOffImage)
         {
-            pLEDOffBuf = pLedOffInit;
+            // pLEDOffBuf = pLedOffInit;
         }
 
         for (nX = rect.x; nX < rect.x + rect.width; nX += 2)
         {
-            int bLedOn, bLedOff;
+            int bLedOn/*, bLedOff*/;
             bLedOn = *pLEDOnBuf;
             nTotalLedOnValue += bLedOn;
             g_nHistInLEDOnImage_Hand[bLedOn] ++;
@@ -707,9 +707,9 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
 
     if(g_nHandDetected)
     {
-        int nMIN_USER_LUM, nMAX_USER_LUM;
-        nMIN_USER_LUM = MIN_USER_LUM_HAND;
-        nMAX_USER_LUM = MAX_USER_LUM_HAND;
+        // int nMIN_USER_LUM, nMAX_USER_LUM;
+        // nMIN_USER_LUM = MIN_USER_LUM_HAND;
+        // nMAX_USER_LUM = MAX_USER_LUM_HAND;
 
         refineRect(rHandRects, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight);
         aLeft = (int)rHandRects[0];
@@ -879,9 +879,9 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
     if(nTempHandDetected)
     {
         g_nHandDetected = 1;
-        int nMIN_USER_LUM, nMAX_USER_LUM;
-        nMIN_USER_LUM = MIN_USER_LUM_HAND;
-        nMAX_USER_LUM = MAX_USER_LUM_HAND;
+        // int nMIN_USER_LUM, nMAX_USER_LUM;
+        // nMIN_USER_LUM = MIN_USER_LUM_HAND;
+        // nMAX_USER_LUM = MAX_USER_LUM_HAND;
 
         refineRect(rHandRects, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight);
         aLeft = (int)rHandRects[0];
@@ -1239,7 +1239,7 @@ int     fr_RegisterHand()
         return ES_PROCESS;
     }
     g_nRegiterTotalFrameCount ++;
-    int nValidCheck = 1;
+    // int nValidCheck = 1;
     APP_LOG("[%d] pec 17-h %d\n", (int)Now(), g_nRegiterTotalFrameCount);
     float rCheckScore = 0;
     if(checkValid_Hand(&rCheckScore) != ES_SUCCESS)
@@ -1251,7 +1251,7 @@ int     fr_RegisterHand()
     }
     else
     {
-        int nEnrollFeatureAdded = 0;
+        // int nEnrollFeatureAdded = 0;
         g_iDNNFeatureExtracted_Hand = 0;
         extarctDNNFeature_process_Hand();
         IF_FLAG_STOP1(ES_FAILED);
@@ -1268,7 +1268,7 @@ int     fr_RegisterHand()
                 memcpy((unsigned short*)(g_xEnrollFeat_Hand.arFeatBuffer) + g_xEnrollFeat_Hand.nDNNFeatCount * KDNN_FEAT_SIZE, g_arLastDNNFeature_Hand, sizeof(unsigned short)* KDNN_FEAT_SIZE);
                 g_xEnrollFeat_Hand.nDNNFeatCount = g_xEnrollFeat_Hand.nDNNFeatCount + 1;
                 APP_LOG("[%d] pec 19-h\n", (int)Now());
-                nEnrollFeatureAdded = 1;
+                // nEnrollFeatureAdded = 1;
             }
             else
             {
@@ -1291,7 +1291,7 @@ int     fr_RegisterHand()
 
                 memcpy((unsigned short*)(g_xEnrollFeat_Hand.arFeatBuffer) + g_xEnrollFeat_Hand.nDNNFeatCount * KDNN_FEAT_SIZE, g_arLastDNNFeature_Hand, sizeof(unsigned short)* KDNN_FEAT_SIZE);
                 g_xEnrollFeat_Hand.nDNNFeatCount = g_xEnrollFeat_Hand.nDNNFeatCount + 1;
-                nEnrollFeatureAdded = 1;
+                // nEnrollFeatureAdded = 1;
             }
             g_nEnrollProcessCount_Hand ++;
         }
@@ -1400,7 +1400,7 @@ SEngineResult* fr_GetEngineResult_Hand()
 int update_DNN_EnrollFeature_sizeChanged_Hand(unsigned short* prEnrollFeatureToUpdate, int* pnEnrolledFeatureCount, unsigned short* pVerifyFeatureToUpdate)
 {
     int nIndexToUpdate = -1;
-    int nFeatureCountPerEnv[ENV_COUNT] = { 0 };
+    // int nFeatureCountPerEnv[ENV_COUNT] = { 0 };
 
     if (*pnEnrolledFeatureCount < TOTAL_ENROLL_MAX_DNNFEATURE_HAND_COUNT)
     {

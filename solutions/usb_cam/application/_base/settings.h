@@ -122,6 +122,7 @@ typedef struct _tagMY_ALL_SETTINGS
     //common settings
     //[0]
     unsigned short  bUserCount;             //등록된 사용자수
+    unsigned char   bHandCount;             //등록된 사용자수
     unsigned char   bPresentation:1;        //연시방식(0: Off, 1: On)
     unsigned char   bReserved03:1; // bDupCheck:1;
     unsigned char   bUpgradeFlag:1;

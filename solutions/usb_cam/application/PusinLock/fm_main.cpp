@@ -3036,14 +3036,13 @@ int ProcessSenseFace(int iCmd)
                 {
                     dbug_printf("HAND_RESULT_SUCCESS\n");
 
-                    int iID = -1, iPrivilege = 0;
+                    int iID = -1;
                     int iFindIdx = pFaceTask->GetRecogIndex();
                     PSMetaInfo pxMetaInfo = dbm_GetHandMetaInfoByIndex(iFindIdx);
                     dbug_printf("iFindIdx = %d, %p\n", iFindIdx, pxMetaInfo);
                     if(pxMetaInfo)
                     {
                         iID = pxMetaInfo->iID;
-                        iPrivilege = pxMetaInfo->fPrivilege;
                     }
 
                     s_msg* msg = NULL;
@@ -3081,7 +3080,8 @@ int ProcessSenseFace(int iCmd)
                         strncpy(xMetaInfo.szName, (char*)g_xSS.msg_enroll_itg_data.user_name, N_MAX_NAME_LEN - 1);
                         xMetaInfo.fPrivilege = g_xSS.iRegsterAuth;
 
-                        dbug_printf("Endroll Hand: ID=%d, Privilege=%d, Name: %s, Len=%d\n", xMetaInfo.iID, xMetaInfo.fPrivilege, xMetaInfo.szName, strlen(xMetaInfo.szName));
+                        dbug_printf("Endroll Hand: ID=%d, Privilege=%d, Name: %s, Len=%ld\n", 
+                            xMetaInfo.iID, xMetaInfo.fPrivilege, xMetaInfo.szName, strlen(xMetaInfo.szName));
 
                         FaceEngine::GetRegisteredFeatInfo_Hand(&xFeatInfo);
 
