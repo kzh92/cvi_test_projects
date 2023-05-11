@@ -682,7 +682,28 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
 
 int checkFace(unsigned char* img, int bufferWidth, int bufferHeight)
 {
-    return 0;
+    if(!g_Detector.m_loaded/*Detect_getEngineLoaded(p_Detector)*/ || !getDicChecSumChecked(MachineFlagIndex_DNN_Detect))
+    {
+        my_printf("detect reject 1\n");
+        return 0;
+    }
+
+    int nFaceExist = 0;
+    float* scores_ptr;
+    float* boxes_ptr;
+    cvimodel_forward(&g_Detector, img, bufferWidth, bufferHeight, 0, &boxes_ptr, &scores_ptr);
+    int nBufferIndex;
+    for (nBufferIndex = 0; nBufferIndex < NUM_ANCHORS; nBufferIndex ++)
+    {
+        if(scores_ptr[nBufferIndex * 2 + 1] > 0.3)
+        {
+            nFaceExist = 1;
+            break;
+        }
+    }
+    return nFaceExist;
+
+    //return 0;
     /*
     if(!Detect_getEngineLoaded(&g_Detector) || !getDicChecSumChecked(MachineFlagIndex_DNN_Detect))
     {
@@ -691,7 +712,7 @@ int checkFace(unsigned char* img, int bufferWidth, int bufferHeight)
 
     int nFaceExist = 0;
 
-    int nBufferIndex;
+
     float* scores_ptr;
     float* boxes_ptr;
     if (g_nStopEngine == 1)

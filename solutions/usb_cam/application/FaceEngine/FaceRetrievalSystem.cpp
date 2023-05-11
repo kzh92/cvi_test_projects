@@ -795,14 +795,15 @@ int getBestIndex(FaceInfo* face_info, int n_face_cnt, int &nBadCode)
 
 int checkFaceInCamera2Image_expand_shrink_DNN(unsigned char* pCamera2Buffer_8Byaer, int nBufferWidth, int nBufferHeight, float* prFaceRectInMainCamera, int nCameraisRight)
 {
-    int nFaceWidthInMainCamera = (int)(prFaceRectInMainCamera[2]);
     int nFaceCenterXInMainCamera = (int)(prFaceRectInMainCamera[0] + prFaceRectInMainCamera[2] / 2);
     int nFaceCenterYInMainCamera = (int)(prFaceRectInMainCamera[1] + prFaceRectInMainCamera[3] / 2);
 
     int nDstCenterX = CheckFaceBuffer_Width / 2;
     int nDstCenterY = CheckFaceBuffer_Height / 2;
 
+    int nFaceWidthInMainCamera = (int)(prFaceRectInMainCamera[2]);
     float rScaleDst2Src = (float)nFaceWidthInMainCamera / 20;
+    //float rScaleDst2Src = 1;
     int nX, nY;
 
     int nOffset = getDetectMenSize();
@@ -812,6 +813,7 @@ int checkFaceInCamera2Image_expand_shrink_DNN(unsigned char* pCamera2Buffer_8Bya
     }
     //g_pbFaceDetectionBuffer = g_shared_mem + getDetectMenSize();
     unsigned char *pbDstBuffer = g_shared_mem + nOffset;
+    memset(pbDstBuffer, 0x80, g_DNN_Detection_input_width * g_DNN_Detection_input_height);
 
     for(nY = 0; nY < CheckFaceBuffer_Height; nY ++)
     {
@@ -842,12 +844,7 @@ int checkFaceInCamera2Image_expand_shrink_DNN(unsigned char* pCamera2Buffer_8Bya
                 bDstValue = getGammaCorrection(bDstValue);
             }
             //g_pbCheckFaceBuffer[nY * CheckFaceBuffer_Width + nX] = bDstValue;
-
-#ifdef DETECT_USE_NCNN
-            prDstBuffer[nY * CheckFaceBuffer_Width + nX] = (float)((int)bDstValue - 127) / 128;
-#else
-            pbDstBuffer[nY * CheckFaceBuffer_Width + nX] = bDstValue;
-#endif
+            pbDstBuffer[nY * g_DNN_Detection_input_width + nX] = bDstValue;
         }
     }
 
@@ -856,8 +853,29 @@ int checkFaceInCamera2Image_expand_shrink_DNN(unsigned char* pCamera2Buffer_8Bya
 		APP_LOG("[%d] stop by flag_stop\n", (int)Now());
 		return 0;
 	}
-    int nFaceCheck = checkFace(pbDstBuffer, CheckFaceBuffer_Width, CheckFaceBuffer_Height);
+    int nFaceCheck = checkFace(pbDstBuffer, g_DNN_Detection_input_width, g_DNN_Detection_input_height);
 
+#if 0
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/pbDstBuffer_checkFace.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pbDstBuffer, g_DNN_Detection_input_width * g_DNN_Detection_input_height);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+#endif
+
+    my_printf("checkFace == %d\n", nFaceCheck);
     return nFaceCheck;
 }
 
@@ -2326,7 +2344,7 @@ int AllocEngineMemory()
     */
     //on cv
     int nMaxOffset = 0;
-    g_global_tmp_size = N_D_ENGINE_SIZE;
+    g_global_tmp_size = N_D_ENGINE_SIZE + g_DNN_Detection_input_width * g_DNN_Detection_input_height;//for second camera image face check
     int nMaxMemorySizeinPart = getDetectMenSize() + g_DNN_Detection_input_width * g_DNN_Detection_input_height;
     if(g_global_tmp_size < nMaxMemorySizeinPart)
     {
@@ -2614,7 +2632,7 @@ void    fr_BackupIRCamera_ExpGain()
 #ifdef TimeProfiling
     g_rStartTime = Now();
 #endif
-    //printf("fr_BackupIRCamera_ExpGain %d %d %d %d %d %d\n", g_exposure_bkup, g_nGain_bkup, g_nFineGain_bkup, g_exposure2_bkup, g_nGain2_bkup, g_nFineGain2_bkup);
+    my_printf("--------------------------fr_BackupIRCamera_ExpGain %d %d %d %d %d %d\n", g_exposure_bkup, g_nGain_bkup, g_nFineGain_bkup, g_exposure2_bkup, g_nGain2_bkup, g_nFineGain2_bkup);
 }
 int fr_GetNeedToCalcNextExposure()
 {
