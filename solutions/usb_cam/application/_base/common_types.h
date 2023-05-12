@@ -95,15 +95,15 @@ typedef void* myi2cdesc_ptr;
 #define FN_DETECT_DICT_SIZE             180992
 #define FN_DLAMK_DICT_SIZE              1153056
 #else // USE_FP16_ENGINE == 0
-#define FN_A1_DICT_SIZE                 (792992 / 2)
-#define FN_A2_DICT_SIZE                 (792992 / 2)
-#define FN_B_DICT_SIZE                  (792992 / 2)
-#define FN_B2_DICT_SIZE                 (246968 / 2)
-#define FN_C_DICT_SIZE                  (792992 / 2)
+#define FN_A1_DICT_SIZE                 (442504)
+#define FN_A2_DICT_SIZE                 (442504)
+#define FN_B_DICT_SIZE                  (442504)
+#define FN_B2_DICT_SIZE                 (152920)
+#define FN_C_DICT_SIZE                  (442504)
 #define FN_CH_DICT_SIZE                 (792992 / 2)
-#define FN_DETECT_DICT_SIZE             129320
+#define FN_DETECT_DICT_SIZE             (129320)
 #define FN_DETECT_H_DICT_SIZE           (180992 / 2)
-#define FN_DLAMK_DICT_SIZE              624696
+#define FN_DLAMK_DICT_SIZE              (624696)
 #define FN_DLAMK_H_DICT_SIZE            451356
 #endif // USE_FP16_ENGINE == 0
 #define FN_ESN_DICT_SIZE                123860
