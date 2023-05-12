@@ -160,6 +160,7 @@ void*   EngineLoadAndCheckFunc(void*)
 {
     g_nThreadCount = 1;
 
+    allocGlobalCVDicBuffer();
     g_thread_flag_detect = 1;
 //#ifndef __RTK_OS__
 //#ifdef ENGINE_USE_DevMemInit
@@ -223,12 +224,11 @@ void*   EngineLoadAndCheckFunc(void*)
     g_thread_flag_spoofc = 2;
 
     g_nThreadCount = 2;
-
     g_thread_flag_feat = 1;
     loadMachineDic(MachineFlagIndex_DNN_Feature);
     KdnnCreateEngine_feat(pLive_Feat_Mem, 0);
     g_thread_flag_feat = 2;
-
+/*
 #ifdef ENGINE_FOR_DESSMAN
     g_thread_flag_esn = 1;
     loadMachineDic(MachineFlagIndex_DNN_ESN);
@@ -236,6 +236,8 @@ void*   EngineLoadAndCheckFunc(void*)
     getDicChecSumChecked(MachineFlagIndex_DNN_ESN);
     g_thread_flag_esn = 2;
 #endif
+*/
+    releaseGlobalCVDicBuffer();
     return NULL;
 }
 

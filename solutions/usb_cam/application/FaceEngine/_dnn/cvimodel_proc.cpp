@@ -3,6 +3,7 @@
 #include <string.h>
 #include <cvimodel_proc.h>
 
+
 void cvimodel_init_private(Cvimodel* model)
 {
     CVI_NN_GetInputOutputTensors(model->m_handle, &model->m_input_tensors, &model->m_input_num, &model->m_output_tensors, &model->m_output_num);

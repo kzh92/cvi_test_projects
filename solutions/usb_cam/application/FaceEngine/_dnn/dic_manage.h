@@ -44,10 +44,13 @@ extern int g_nDicCheckSum_H_1;
 int     loadMachineDic(int nMachineIndex);
 int     releaseMachineDic(int nMachineIndex);
 
-int getLoadedDicFlag(int nIndex);
-int setLoadedDicFlag(int nIndex, int nValue);
+int     getLoadedDicFlag(int nIndex);
+int     setLoadedDicFlag(int nIndex, int nValue);
 
-int getDicChecSumChecked(int nIndex);
+int     getDicChecSumChecked(int nIndex);
+
+int     allocGlobalCVDicBuffer();
+int     releaseGlobalCVDicBuffer();
 
 int     SetKdnnFeatData(unsigned char* abData);
 

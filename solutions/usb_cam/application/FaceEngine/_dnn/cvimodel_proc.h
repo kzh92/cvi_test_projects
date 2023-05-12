@@ -25,7 +25,7 @@ typedef struct Cvimodel_tag
 #define        DIC_LEN_FACE_LIVE_B      (442504)
 #define        DIC_LEN_FACE_LIVE_B2     (152920)
 #define        DIC_LEN_FACE_LIVE_C      (442504)
-#define        DIC_LEN_FACE_FEATURE     (2064080)
+#define        DIC_LEN_FACE_FEATURE     (1543872)
 
 int cvimodel_init(const char* fn, Cvimodel* model);
 int cvimodel_init(const unsigned char* pDicData, int nDicLen, Cvimodel* model);

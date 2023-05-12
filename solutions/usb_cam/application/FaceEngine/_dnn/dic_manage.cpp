@@ -113,9 +113,50 @@ static unsigned char g_abEncData[SHA_LEN] = { 0 };
 
 extern void APP_LOG(const char * format, ...);
 
+unsigned char*  g_global_cv_dic = 0;
+
 #ifdef __RTK_OS__
 #include "FaceRetrievalSystem.h"
 #endif
+
+int     allocGlobalCVDicBuffer()
+{
+    if(!g_global_cv_dic)
+    {
+        int nDicSize[8];
+        nDicSize[0] = DIC_LEN_FACE_DETECT;
+        nDicSize[1] = DIC_LEN_FACE_MODELING;
+        nDicSize[2] = DIC_LEN_FACE_LIVE_A1;
+        nDicSize[3] = DIC_LEN_FACE_LIVE_A2;
+        nDicSize[4] = DIC_LEN_FACE_LIVE_B;
+        nDicSize[5] = DIC_LEN_FACE_LIVE_B2;
+        nDicSize[6] = DIC_LEN_FACE_LIVE_C;
+        nDicSize[7] = DIC_LEN_FACE_FEATURE;
+
+        int nMaxDicSize = 0;
+        int nDicIndex;
+        for(nDicIndex = 0; nDicIndex < 8; nDicIndex ++)
+        {
+            if(nMaxDicSize < nDicSize[nDicIndex])
+            {
+                nMaxDicSize = nDicSize[nDicIndex];
+            }
+        }
+        g_global_cv_dic = (unsigned char*)my_malloc(nMaxDicSize);
+    }
+    return 0;
+}
+int     releaseGlobalCVDicBuffer()
+{
+    if(g_global_cv_dic)
+    {
+        my_free(g_global_cv_dic);
+        g_global_cv_dic = 0;
+    }
+    return 0;
+}
+
+
 
 int getBitInIndex(int nSrc, int nIndex)
 {
@@ -155,7 +196,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_DETECT;
         strcpy(szFileNameTemp, FN_DETECT);
         if (!g_dic_detect)
-            g_dic_detect = (unsigned char*)my_malloc(nDicSize);
+            g_dic_detect = g_global_cv_dic;
         ppbDicData = &g_dic_detect;
         nGTCheckSum = DNN_DETECT_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_detector;
@@ -168,7 +209,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = Detect_dnn_dic_size();
         strcpy(szFileNameTemp, FN_DETECT_H);
         if (!g_dic_detect_hand)
-            g_dic_detect_hand = (unsigned char*)my_malloc(nDicSize);
+            g_dic_detect_hand = g_global_cv_dic;
         ppbDicData = &g_dic_detect_hand;
         nGTCheckSum = DNN_DETECT_HAND_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_detector_h;
@@ -182,7 +223,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_MODELING;
         strcpy(szFileNameTemp, FN_MODEL);
         if (!g_dic_model)
-            g_dic_model = (unsigned char*)my_malloc(nDicSize);
+            g_dic_model = g_global_cv_dic;
         ppbDicData = &g_dic_model;
         nGTCheckSum = DNN_MODELING_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_modeling;
@@ -195,7 +236,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = Modeling_dnn_dic_size(1);
         strcpy(szFileNameTemp, FN_MODEL_H);
         if (!g_dic_model_hand)
-            g_dic_model_hand = (unsigned char*)my_malloc(nDicSize);
+            g_dic_model_hand = g_global_cv_dic;
         ppbDicData = &g_dic_model_hand;
         nGTCheckSum = DNN_MODELING_HAND_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_modeling_h;
@@ -209,7 +250,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_LIVE_A1;
         strcpy(szFileNameTemp, FN_LIVEA1);
         if (!g_dic_live_a1)
-            g_dic_live_a1 = (unsigned char*)my_malloc(nDicSize);
+            g_dic_live_a1 = g_global_cv_dic;
         ppbDicData = &g_dic_live_a1;
         nGTCheckSum = DNN_2D_LIVE_A1_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_A1;
@@ -223,7 +264,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_LIVE_A2;
         strcpy(szFileNameTemp, FN_LIVEA2);
         if (!g_dic_live_a2)
-            g_dic_live_a2 = (unsigned char*)my_malloc(nDicSize);
+            g_dic_live_a2 = g_global_cv_dic;
         ppbDicData = &g_dic_live_a2;
         nGTCheckSum = DNN_2D_LIVE_A2_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_A2;
@@ -237,7 +278,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_LIVE_B;
         strcpy(szFileNameTemp, FN_LIVEB);
         if (!g_dic_live_b)
-            g_dic_live_b = (unsigned char*)my_malloc(nDicSize);
+            g_dic_live_b = g_global_cv_dic;
         ppbDicData = &g_dic_live_b;
         nGTCheckSum = DNN_2D_LIVE_B_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_B;
@@ -251,7 +292,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_LIVE_B2;
         strcpy(szFileNameTemp, FN_LIVEB2);
         if (!g_dic_live_b2)
-            g_dic_live_b2 = (unsigned char*)my_malloc(nDicSize);
+            g_dic_live_b2 = g_global_cv_dic;
         ppbDicData = &g_dic_live_b2;
         nGTCheckSum = DNN_2D_LIVE_B2_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_B2;
@@ -265,7 +306,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = DIC_LEN_FACE_LIVE_C;
         strcpy(szFileNameTemp, FN_LIVEC);
         if (!g_dic_live_c)
-            g_dic_live_c = (unsigned char*)my_malloc(nDicSize);
+            g_dic_live_c = g_global_cv_dic;
         ppbDicData = &g_dic_live_c;
         nGTCheckSum = DNN_3D_LIVE_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_3D;
@@ -278,7 +319,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = LiveMnSE_dnn_dic_size();
         strcpy(szFileNameTemp, FN_CHECKVALID_H);
         if (!g_dic_checkValid_hand)
-            g_dic_checkValid_hand = (unsigned char*)my_malloc(nDicSize);
+            g_dic_checkValid_hand = g_global_cv_dic;
         ppbDicData = &g_dic_checkValid_hand;
         nGTCheckSum = DNN_CHECKVALID_HAND_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_checkValid_hand;
@@ -290,7 +331,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         pnFileIndicator = &g_id_occ;
         nDicSize = Occlusion::dnn_dic_size();
         if (!g_dic_occ)
-            g_dic_occ = (unsigned char*)my_malloc(nDicSize);
+            g_dic_occ = g_global_cv_dic;
         ppbDicData = &g_dic_occ;
         strcpy(szFileNameTemp, FN_OCC);
         nGTCheckSum = DNN_OCC_CHECKSUM;
@@ -304,7 +345,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = ESN::dnn_dic_size();
         strcpy(szFileNameTemp, FN_ESN);
         if (!g_dic_esn)
-            g_dic_esn = (unsigned char*)my_malloc(nDicSize);
+            g_dic_esn = g_global_cv_dic;
         ppbDicData = &g_dic_esn;
         nGTCheckSum = DNN_ESN_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_esn;
@@ -313,10 +354,10 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     }
     case MachineFlagIndex_DNN_Feature:
     {
-        nDicSize = Feature::dnn_dic_size();
+        nDicSize = DIC_LEN_FACE_FEATURE;
         strcpy(szFileNameTemp, FN_FEATURE);
         if (!g_dic_feature)
-            g_dic_feature = (unsigned char*)my_malloc(nDicSize);
+            g_dic_feature = g_global_cv_dic;
         ppbDicData = &g_dic_feature;
         break;
     }
@@ -325,7 +366,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         nDicSize = HandFeat_dnn_dic_size();
         strcpy(szFileNameTemp, FN_H_FEATURE);
         if (!g_dic_feature_hand)
-            g_dic_feature_hand = (unsigned char*)my_malloc(nDicSize);
+            g_dic_feature_hand = g_global_cv_dic;
         ppbDicData = &g_dic_feature_hand;
         break;
     }
@@ -396,7 +437,7 @@ int loadMachineDic(int nMachineIndex)
     int nReadLength = 0;
     getDicInfos(nMachineIndex, &pFileIndicator, &pDicDataBuffer, &nDicSize, szDicFilePath, 0, &pnDicCheckSum_Calced);
 	//kkk test
-    if(1 || (nMachineIndex != MachineFlagIndex_DNN_Feature  && nMachineIndex != MachineFlagIndex_DNN_Feature_Hand  && nMachineIndex != MachineFlagIndex_H_1))
+    if((nMachineIndex != MachineFlagIndex_DNN_Feature  && nMachineIndex != MachineFlagIndex_DNN_Feature_Hand  && nMachineIndex != MachineFlagIndex_H_1))
     {
 #ifdef __RTK_OS__
         nReadLength = fr_ReadFileData(szDicFilePath, 0, *pDicDataBuffer, nDicSize);
@@ -451,6 +492,8 @@ int loadMachineDic(int nMachineIndex)
     {
 #ifdef __RTK_OS__
         nReadLength = fr_ReadFileData(szDicFilePath, 0, *pDicDataBuffer, nDicSize);
+        my_printf("fr_ReadFileData feat %d %d\n", nDicSize, nReadLength);
+
         if(nReadLength != nDicSize)
         {
             APP_LOG("[%d] pecc 3-%d-2 %d\n", (int)Now(), nMachineIndex, nReadLength);
@@ -482,6 +525,7 @@ int loadMachineDic(int nMachineIndex)
         {
             APP_LOG("[%d] pecc 3-%d-1\n", (int)Now(), nMachineIndex);
             unsigned char* pbData = *pDicDataBuffer;
+/*
 #ifdef PROTECT_ENGINE
             for(int a = 0; a < nDicSize / SHA_LEN; a ++)
             {
@@ -489,7 +533,7 @@ int loadMachineDic(int nMachineIndex)
                     pbData[a * SHA_LEN + b] = pbData[a * SHA_LEN + b] ^ g_abEncData[b];
             }
 #endif
-
+*/
             int *pCheckSum = &g_nDicCheckSum_FEAT;
             if(nMachineIndex == MachineFlagIndex_DNN_Feature_Hand)
             {
