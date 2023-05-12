@@ -4,9 +4,9 @@
     <partition label="imtb" size_in_kb="8" file="imtb" />
     <partition label="prim" size_in_kb="3072" file="prim" />
     <partition label="misc" size_in_kb="328" file="misc" />
-    <partition label="partwx" size_in_kb="4096" file="pwx" />
-    <partition label="pusr1" size_in_kb="832" file="pusr1" />
-    <partition label="pusr2" size_in_kb="64" file="pusr2" />
-    <partition label="pst" size_in_kb="64" file="pst" />
+    <partition label="pwx" size_in_kb="10240" file="pwx" />
+    <partition label="pusr1" size_in_kb="8" file="pusr1" />
+    <partition label="pusr2" size_in_kb="8" file="pusr2" />
+    <partition label="pst" size_in_kb="8" file="pst" />
 </physical_partition>
 
