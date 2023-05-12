@@ -11,8 +11,7 @@
 #define MEDIA_CHECK_RET(actual, fmt, arg...)                                   \
 	do {																		 \
 		if ((actual) != 0) {													 \
-			MEDIABUG_PRINTF("[%d]:%s() \n" fmt, __LINE__, __func__, ## arg); \
-			return -1;																\
+			printf("[%d]:%s() \n" fmt, __LINE__, __func__, ## arg); \
 		}																		 \
 	} while (0)
 int MEDIA_VIDEO_SysVbInit(PARAM_SYS_CFG_S * pstSysCtx);

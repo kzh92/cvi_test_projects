@@ -6,6 +6,16 @@
  *   ....
  */
 #include "custom_param.h"
+
+extern unsigned char rgb_color_mode_param[];
+extern unsigned int rgb_color_len;
+extern unsigned char rgb_mono_mode_param[];
+extern unsigned int rgb_mono_len;
+#if 0
+void * g_ViDmaBuf = NULL;
+unsigned int g_ViDmaBufSize = 13 * 1024 * 1024;
+#endif
+
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
@@ -23,11 +33,19 @@ PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
         .bUseSingleBin = 0,
         .stPQBinDes =
         {
-            .pIspBinData = NULL,
-            .u32IspBinDataLen = 0,
+            .pIspBinData = rgb_color_mode_param,
         },
     },
 };
+
+#if 0
+PARAM_CLASSDEFINE(PARAM_DEV_CFG_S,VIDEVCFG,CTX,VI)[] = {
+    {
+        .pViDmaBuf = NULL,
+        .u32ViDmaBufSize = 0,
+    }
+};
+#endif
 
 PARAM_VI_CFG_S g_stViCtx = {
     .u32WorkSnsCnt = 1,
@@ -36,6 +54,14 @@ PARAM_VI_CFG_S g_stViCtx = {
 };
 
 PARAM_VI_CFG_S * PARAM_GET_VI_CFG(void) {
+#if 0
+    if(g_ViDmaBuf == NULL) {
+        g_ViDmaBuf = (void *)malloc(g_ViDmaBufSize);
+    }
+    g_stViCtx.pstDevInfo[0].pViDmaBuf = g_ViDmaBuf;
+    g_stViCtx.pstDevInfo[0].u32ViDmaBufSize = g_ViDmaBufSize;
+#endif
+    g_stViCtx.pstIspCfg[0].stPQBinDes.u32IspBinDataLen = rgb_color_len;
     return &g_stViCtx;
 }
 
