@@ -595,7 +595,9 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     }
 
     float rScale = 1;
-    float startTime = Now();
+    //float startTime = Now();
+    //float startTime1 = startTime;
+    //float rShrinkTime, rForwardTime;
     //int nCropRect[4] = {54, 96, 792, 1408};
     int nCropRect[4] = {0, 0, 900, 1600};
 #if (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
@@ -605,8 +607,8 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     nCropRect[3] = 1408;
 #endif
     CreateShrinkImage_normalize_FixRate(0, pTempBuffer, bufferWidth, bufferHeight, &rScale, imgBuffer, imageWidth, imageHeight, 127, 1.0f / 128, nCropRect);
-    printf("CreateShrink Time = %f\n", Now() - startTime);
-    // startTime = Now();
+    //my_printf("[%d]CreateShrink Time = %f\n", (int)Now(), Now() - startTime);
+    //rShrinkTime = Now() - startTime;
 
     int image_w;
     int image_h;
@@ -628,7 +630,10 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     float* boxes_ptr;
     //Detect_dnn_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &scores_ptr, &boxes_ptr, false);
     //printf("g_Detector.dnn_forward Time = %f\n", Now() - startTime);
+    //startTime = Now();
     cvimodel_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, 0, &boxes_ptr, &scores_ptr);
+    //rForwardTime = Now() - startTime;
+    //startTime = Now();
 
     if (g_nStopEngine == 1)
     {
@@ -676,7 +681,7 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
         face_list[nFaceIndex].y1 = face_list[nFaceIndex].y1 * rScaleY + nCropRect[1];
         face_list[nFaceIndex].y2 = face_list[nFaceIndex].y2 * rScaleY + nCropRect[1];
     }
-
+    //my_printf("[%d] detect Total Time = %f %f %f %f\n", (int)Now(),Now() - startTime1, rShrinkTime, rForwardTime, Now() - startTime);
     return 0;
 }
 

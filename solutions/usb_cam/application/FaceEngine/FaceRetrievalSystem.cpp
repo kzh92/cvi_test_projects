@@ -54,6 +54,9 @@
 #include "dic_manage.h"
 #include <math.h>
 
+#include <vfs.h>
+
+
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
 #include "FaceRetrievalSystem_h.h"
 #endif
@@ -261,6 +264,53 @@ int g_nThreadCount = ENGINE_THREAD_COUNT;
 
 #ifdef TimeProfiling
 float g_rStartTime;
+float g_rStartTimeCur;
+
+#define TimeProfilingMileStoneCount 13
+char szTimeProfilingTitle[TimeProfilingMileStoneCount][255] = 
+{
+    "fr_PreExtractFace_dnn_start",
+    "convert_bayer2y",
+    "rDetectTime",
+    "calcAverageValues",
+    "fr_PreExtractFace111",
+    "checkFaceInCamera2",
+    "getFaceModelPoint",
+    "fr_ExtractFace111",
+    "align",
+    "DetectLiveness2D_A",
+    "DetectLiveness2D_B",
+    "DetectLiveness2D_B2",
+    "DetectLiveness2D_C",
+};
+
+float rTimeProfilingTime[TimeProfilingMileStoneCount];
+float rTimeProfilingTime111[TimeProfilingMileStoneCount];
+
+void initTimeProfiling()
+{
+    memset(rTimeProfilingTime, 0, sizeof(float) * TimeProfilingMileStoneCount);
+    memset(rTimeProfilingTime111, 0, sizeof(float) * TimeProfilingMileStoneCount);
+    g_rStartTime = Now();
+    g_rStartTimeCur = g_rStartTime;    
+}
+
+void setTimeProfilingInfo(int nIndex)
+{
+    float rNow = Now();
+    rTimeProfilingTime[nIndex] = rNow - g_rStartTimeCur;
+    rTimeProfilingTime111[nIndex] = rNow - g_rStartTime;
+    g_rStartTimeCur = rNow;
+}
+
+void showTotalTimeProfileInfo()
+{
+    int nIndex;
+    for(nIndex = 0; nIndex < TimeProfilingMileStoneCount; nIndex ++)
+    {
+        my_printf("%sTime = %f Time111 =%f\r\n", szTimeProfilingTitle[nIndex], rTimeProfilingTime[nIndex], rTimeProfilingTime111[nIndex]);
+    }
+}
 #endif
 
 //extern const ARM_COMPACT_RECT_PATTERN gpx_Detector_RectPattern[3597];
@@ -344,7 +394,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 0
+#if 1
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
@@ -875,7 +925,6 @@ int checkFaceInCamera2Image_expand_shrink_DNN(unsigned char* pCamera2Buffer_8Bya
     }
 #endif
 
-    my_printf("checkFace == %d\n", nFaceCheck);
     return nFaceCheck;
 }
 
@@ -1106,20 +1155,70 @@ int check2D_3DFake()
 		return ES_FAILED;
 	}
 
-#ifdef TimeProfiling
-    float rStartTime = Now();
-    my_printf("[%d] before KdnnDetectLiveness2D_ATime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-#endif
     unsigned char *pLiveAlignAC, *pLiveAlignB, *pLiveAlignB2;
     pLiveAlignAC = g_shared_mem;
     pLiveAlignB = pLiveAlignAC + 128*128;
     pLiveAlignB2 = pLiveAlignB + 128*128;
 
-#ifdef TimeProfiling
-    my_printf("[%d] generateAlignImageForLiveness Time = %f\r\n", (int)Now(), Now() - rStartTime);
-    my_printf("[%d] generateAlignImageForLiveness Time111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-    rStartTime = Now();
+#if 0
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/alignAC.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pLiveAlignAC, 128 * 128);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/alignB.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pLiveAlignB, 128 * 128);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/alignB2.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pLiveAlignB2, 88 * 128);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+
 #endif
+
+
+// #ifdef TimeProfiling
+//     setTimeProfilingInfo(9);
+// #endif
 
     waitDicChecksum(&g_thread_flag_spoofa1);
     waitDicChecksum(&g_thread_flag_spoofa2);
@@ -1133,7 +1232,7 @@ int check2D_3DFake()
 
     float rResult = 0;
     rResult = KdnnDetectLiveness2D_A(pLiveAlignAC);
-    my_printf("KdnnDetectLiveness2D_A = %f\n", rResult);
+    //my_printf("KdnnDetectLiveness2D_A = %f\n", rResult);
 
     if(rResult < 0)
     {
@@ -1148,10 +1247,7 @@ int check2D_3DFake()
     }
 
 #ifdef TimeProfiling
-    float rbayerConvertTime = Now() - rStartTime;
-    my_printf("[%d] KdnnDetectLiveness2D_A Time = %f\r\n", (int)Now(), rbayerConvertTime);
-    my_printf("[%d] KdnnDetectLiveness2D_ATime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-    rStartTime = Now();
+    setTimeProfilingInfo(9);
 #endif
 
 #if (ENGINE_USE_TWO_CAM != 0)//ENGINE_USE_TWO_CAM=0:2D, 1:common, 2:3M
@@ -1163,7 +1259,7 @@ int check2D_3DFake()
     }
 
     rResult = KdnnDetectLiveness_2D_B(pLiveAlignB);
-    my_printf("KdnnDetectLiveness2D_B = %f\n", rResult);
+    //my_printf("KdnnDetectLiveness2D_B = %f\n", rResult);
     if(rResult < 0)
     {
         APP_LOG("[%d] pec 26-2\n", (int)Now());
@@ -1177,11 +1273,9 @@ int check2D_3DFake()
     }
 
 #ifdef TimeProfiling
-    rbayerConvertTime = Now() - rStartTime;
-    my_printf("[%d] KdnnDetectLiveness_B Time = %f\r\n", (int)Now(), rbayerConvertTime);
-    my_printf("[%d] KdnnDetectLiveness_B Time111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-    rStartTime = Now();
+    setTimeProfilingInfo(10);
 #endif
+
 
     waitDicChecksum(&g_thread_flag_spoofb2);
     if (g_thread_flag_spoofb2 != 2)
@@ -1191,25 +1285,23 @@ int check2D_3DFake()
     }
 
     rResult = KdnnDetectLiveness_2D_B2(pLiveAlignB2);
-    my_printf("KdnnDetectLiveness2D_B2 = %f\n", rResult);
+    //my_printf("KdnnDetectLiveness2D_B2 = %f\n", rResult);
     if(rResult < 0)
     {
         APP_LOG("[%d] pec 26-22\n", (int)Now());
         return ES_SPOOF_FACE;
     }
+
+#ifdef TimeProfiling
+    setTimeProfilingInfo(11);
 #endif
+#endif
+
     if (g_nStopEngine == 1)
     {
         APP_LOG("[%d] stop by flag_stop\n", (int)Now());
         return ES_FAILED;
     }
-
-#ifdef TimeProfiling
-    rbayerConvertTime = Now() - rStartTime;
-    my_printf("[%d] KdnnDetectLiveness_B2 Time = %f\r\n", (int)Now(), rbayerConvertTime);
-    my_printf("[%d] KdnnDetectLiveness_B2 Time111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-    rStartTime = Now();
-#endif
 
     waitDicChecksum(&g_thread_flag_spoofc);
     if (g_thread_flag_spoofc != 2)
@@ -1218,7 +1310,7 @@ int check2D_3DFake()
         return ES_FAILED;
     }
     rResult = KdnnDetectLiveness_3D(pLiveAlignAC);
-    my_printf("KdnnDetectLiveness3D = %f\n", rResult);
+    //my_printf("KdnnDetectLiveness3D = %f\n", rResult);
     if(rResult < 0)
     {
         APP_LOG("[%d] pec 26-3\n", (int)Now());
@@ -1226,9 +1318,8 @@ int check2D_3DFake()
     }
 
 #ifdef TimeProfiling
-    rbayerConvertTime = Now() - rStartTime;
-    my_printf("[%d] KdnnDetectLiveness_3D Time = %f\r\n", (int)Now(), rbayerConvertTime);
-    my_printf("[%d] KdnnDetectLiveness_3DTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+    setTimeProfilingInfo(12);
+    showTotalTimeProfileInfo();
 #endif
 
     return ES_SUCCESS;
@@ -1370,6 +1461,8 @@ void fr_EnableLogFile(int iEnable)
 
 void fr_SetEngineState(int fState, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5)
 {
+    my_printf("fr_SetEngineState\n");
+    
     g_xEngineParam.fEngineState = fState;
     memset(g_xEnrollFeatA, 0, sizeof(SFeatInfo));
     memset(&g_xEngineResult, 0, sizeof(SEngineResult));
@@ -2630,7 +2723,7 @@ void    fr_BackupIRCamera_ExpGain()
 
 
 #ifdef TimeProfiling
-    g_rStartTime = Now();
+    initTimeProfiling();
 #endif
     my_printf("--------------------------fr_BackupIRCamera_ExpGain %d %d %d %d %d %d\n", g_exposure_bkup, g_nGain_bkup, g_nFineGain_bkup, g_exposure2_bkup, g_nGain2_bkup, g_nFineGain2_bkup);
 }

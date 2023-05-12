@@ -351,6 +351,10 @@ void APP_LOG(const char * format, ...);
 #define TimeProfiling
 #ifdef TimeProfiling
 extern float g_rStartTime;
+extern float g_rStartTimeCur;
+void showTotalTimeProfileInfo();
+void setTimeProfilingInfo(int nIndex);
+void initTimeProfiling();
 #endif
 
 //#define LOG_MODE

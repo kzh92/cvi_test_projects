@@ -198,7 +198,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
         return -1;
     }
     memcpy(res2_backup, res2, sizeof(float) * 2);
-    my_printf("KdnnDetectLiveness2D_A %f %f %f %f\n", res1_backup[0], res1_backup[1], res2_backup[0], res2_backup[1]);
+    //my_printf("KdnnDetectLiveness2D_A %f %f %f %f\n", res1_backup[0], res1_backup[1], res2_backup[0], res2_backup[1]);
     return (res1_backup[1] + res2_backup[1]) / 2 - (res1_backup[0] + res2_backup[0]) / 2;
 }
 
@@ -222,7 +222,7 @@ float KdnnDetectLiveness_2D_B(unsigned char * pbImage)
     {
         return -1;
     }
-    my_printf("KdnnDetectLiveness_2D_B %f %f\n", res[0], res[1]);
+    //my_printf("KdnnDetectLiveness_2D_B %f %f\n", res[0], res[1]);
     return res[1] - res[0];
 }
 
@@ -245,7 +245,7 @@ float KdnnDetectLiveness_2D_B2(unsigned char * pbImage)
     {
         return -1;
     }
-    my_printf("KdnnDetectLiveness_2D_B2 %f %f\n", res[0], res[1]);
+    //my_printf("KdnnDetectLiveness_2D_B2 %f %f\n", res[0], res[1]);
     return res[1] - res[0];
 }
 
@@ -269,7 +269,7 @@ float KdnnDetectLiveness_3D(unsigned char * pbImage)
     {
         return -1;
     }
-    my_printf("KdnnDetectLiveness_C %f %f\n", res[0], res[1]);
+    //my_printf("KdnnDetectLiveness_C %f %f\n", res[0], res[1]);
     return res[1] - res[0];
 }
 

@@ -287,6 +287,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
     my_printf("Frame Capture Time = %f\r\n", rFrameCaptureTime);
 #endif
 
+
     //APP_LOG("Exposure Left:%d %d, Right:%d %d\n", *fr_GetExposure(), *fr_GetGain(), *fr_GetExposure2(), *fr_GetGain2());
 
     IF_FLAG_STOP1(ES_FAILED);
@@ -295,9 +296,9 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
     memset(&g_xEngineResult, 0, sizeof(SEngineResult));
     memset(getFaceProcessData(), 0, sizeof(Face_Process_Data));
 #ifdef TimeProfiling
-        float rBaterStartTime =Now();
+    setTimeProfilingInfo(0);
 #endif
-    my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
+    //my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
     if(*fr_GetBayerYConvertedCameraIndex() != 0)
     {
         convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
@@ -327,7 +328,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 #endif
 
 #ifdef TimeProfiling
-        my_printf("[%d] convert_bayer2y_rotateTime = %f\r\n", (int)Now(), Now() - rBaterStartTime);
+    setTimeProfilingInfo(1);
 #endif
     IF_FLAG_STOP1(ES_FAILED);
 
@@ -354,16 +355,17 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 
         IF_FLAG_STOP1(ES_FAILED);
 
-#ifdef TimeProfiling
-        float rStartTime1 = Now();
-#endif
 
         waitDicChecksum(&g_thread_flag_detect);
         if (g_thread_flag_detect != 2)
         {
             return ES_FAILED;
         }
+        //my_printf("[%d] waitDicChecksum(&g_thread_flag_detect)\n", (int)Now());
 
+//#ifdef TimeProfiling
+//        float rStartTime1 = Now();
+//#endif
         g_pbFaceDetectionBuffer = g_shared_mem + getDetectMenSize();
         FaceInfo *face_info = (FaceInfo *)g_pbFaceDetectionBuffer;
         int n_face_cnt = 0;
@@ -375,9 +377,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
         nFaceNum = n_face_cnt;
 
 #ifdef TimeProfiling
-        float rDetectTime = Now() - rStartTime1;
-        my_printf("[%d] rDetectTime = %f\r\n", (int)Now(), rDetectTime);
-        my_printf("[%d] rDetectTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+        setTimeProfilingInfo(2);
 #endif
 
         if(nFaceNum)
@@ -453,7 +453,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
         APP_LOG("[%d] pes 1 %d %f\n", (int)Now(), (int)g_rAverageLedOnImage, g_rSaturatedRate);
  
 #ifdef TimeProfiling
-            my_printf("[%d] calcAverageValues_rotateTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+        setTimeProfilingInfo(3);
 #endif
 
 //        g_rAverageDiffImage = g_rAverageLedOnImage;
@@ -497,7 +497,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 
         //g_nLastDetectionSuccess = 1;
 #ifdef TimeProfiling
-            my_printf("[%d] fr_PreExtractFace111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+        setTimeProfilingInfo(4);
 #endif
         APP_LOG("[%d] pec 0\n", (int)Now());
         return ES_SUCCESS;
@@ -586,12 +586,11 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         if(nFirstImageFaceAvailable)
         {
 #ifdef TimeProfiling
-        float rStartTime1 = Now();
+//        float rStartTime1 = Now();
 #endif
             int nFaceCheck = checkFaceInCamera2Image_expand_shrink_DNN(pbBayerFromCamera2, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, (getFaceProcessData())->rFaceRect, 1);
 #ifdef TimeProfiling
-        my_printf("[%d] checkFaceInCamera2ImageTime = %f\r\n", (int)Now(), Now() - rStartTime1);
-        my_printf("[%d] checkFaceInCamera2ImageTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+            setTimeProfilingInfo(5);             
 #endif
             //nFaceCheck = 1;
             if(!nFaceCheck)
@@ -628,8 +627,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
             IF_FLAG_STOP1(ES_FAILED);
 
 #ifdef TimeProfiling
-            my_printf("[%d] convert_bayer2y_rotateRightTime = %f\r\n", (int)Now(), Now() - rStartTime1);
-            my_printf("[%d] convert_bayer2y_rotateRightTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+            my_printf("[%d] convert_bayer2y_rotateRightTime = %f, Time111 = %f\r\n", (int)Now(), Now() - rStartTime1, Now() - g_rStartTime);
             rStartTime1 = Now();
 #endif
             g_pbFaceDetectionBuffer = g_shared_mem + getDetectMenSize();
@@ -640,8 +638,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
             IF_FLAG_STOP1(ES_FAILED);
 
 #ifdef TimeProfiling
-            my_printf("[%d] detectRightTime = %f\r\n", (int)Now(), Now() - rStartTime1);
-            my_printf("[%d] detectRightTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+            my_printf("[%d] detectRightTime = %f, Time111 = %f\r\n", (int)Now(), Now() - rStartTime1, Now() - g_rStartTime);
             rStartTime1 = Now();
 #endif
 
@@ -759,12 +756,13 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         else if(nFirstImageFaceAvailable)//first camera face is valid
         {
 #ifdef TimeProfiling
-        float rStartTime1 = Now();
+//        float rStartTime1 = Now();
 #endif
             int nFaceCheck = checkFaceInCamera2Image_expand_shrink_DNN(pbBayerFromCamera2, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, (getFaceProcessData())->rFaceRect, 1);
 #ifdef TimeProfiling
-        my_printf("[%d] checkFaceInCamera2ImageTime = %f\r\n", (int)Now(), Now() - rStartTime1);
-        my_printf("[%d] checkFaceInCamera2ImageTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+        // my_printf("[%d] checkFaceInCamera2ImageTime = %f\r\n", (int)Now(), Now() - rStartTime1);
+        // my_printf("[%d] checkFaceInCamera2ImageTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+            setTimeProfilingInfo(5);
 #endif
             //temp code
             //nFaceCheck = 1;
@@ -852,12 +850,10 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
 int fr_ExtractFace_dnn()
 {
 #ifdef TimeProfiling
-    my_printf("[%d] fr_ExtractFace_dnn start Time111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+//    my_printf("[%d] fr_ExtractFace_dnn start Time111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
 #endif
 
     IF_FLAG_STOP1(ES_FAILED);
-
-
     if (!(getFaceProcessData())->nFaceDetected)
     {
        APP_LOG("[%d] pec 3 %d %d\n", (int)Now(), g_xEngineResult.nFaceNearFar, g_xEngineResult.nFacePosition);
@@ -868,25 +864,24 @@ int fr_ExtractFace_dnn()
     }
 
 #ifdef TimeProfiling
-    my_printf("[%d] before modeling Time111 = %f\r\n", (int)Now(),Now() - g_rStartTime);
-    float rStartTime1 = Now();
+    //float rStartTime1 = Now();
 #endif
 
 
     IF_FLAG_STOP1(ES_FAILED);
-
     {
         waitDicChecksum(&g_thread_flag_model);
         if (g_thread_flag_model != 2)
         {
             return ES_FAILED;
         }
+        
         unsigned char* pAlignBufferForModeling = g_shared_mem;
         int nRet = getFaceModelPoint(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pAlignBufferForModeling, (getFaceProcessData())->rFaceRect, (getFaceProcessData())->rLandmarkPoint);
 #ifdef TimeProfiling
-        my_printf("[%d] getFaceModelPointTime = %f\r\n", (int)Now(), Now() - rStartTime1);
-        my_printf("[%d] getFaceModelPointTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-        rStartTime1 = Now();
+        // my_printf("[%d] getFaceModelPointTime = %f Time111 = %f\r\n", (int)Now(), Now() - rStartTime1, Now() - g_rStartTime);
+        // rStartTime1 = Now();
+        setTimeProfilingInfo(6);             
 #endif
         
         if(nRet)
@@ -899,7 +894,7 @@ int fr_ExtractFace_dnn()
         (getFaceProcessData())->nFaceModelExtracted =1;
 
 #ifdef TimeProfiling
-        rStartTime1 = Now();
+        //rStartTime1 = Now();
 #endif
 
 #ifdef ENGINE_FOR_DESSMAN
@@ -943,7 +938,7 @@ int fr_ExtractFace_dnn()
 
         //LOG_PRINT("========face rect = %d, %d, %d, %d\n", g_xEngineResult.xFaceRect.x, g_xEngineResult.xFaceRect.y, g_xEngineResult.xFaceRect.width, g_xEngineResult.xFaceRect.height);
 #ifdef TimeProfiling
-        my_printf("[%d] fr_ExtractFace111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+        setTimeProfilingInfo(7);
 #endif
 
 #if 0
@@ -952,16 +947,19 @@ int fr_ExtractFace_dnn()
     }
 
     APP_LOG("[%d] pec 00\n", (int)Now());
-
+#ifdef TimeProfiling
+    //rStartTime1 = Now();
+#endif
     unsigned char *pLiveAlignAC, *pLiveAlignB, *pLiveAlignB2, *pLiveAlignFeat;
     pLiveAlignAC = g_shared_mem;
     pLiveAlignB = pLiveAlignAC + 128*128;
     pLiveAlignB2 = pLiveAlignB + 128*128;
     pLiveAlignFeat = pLiveAlignB2 + 88*128;
     generateAlignImageForLiveness(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pLiveAlignAC, pLiveAlignB, pLiveAlignB2, (getFaceProcessData())->rLandmarkPoint);
-    my_printf("[%d] align1\n", (int)Now());
     generateAlignImageForFeature(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pLiveAlignFeat, (getFaceProcessData())->rLandmarkPoint);
-    my_printf("[%d] align2\n", (int)Now());
+#ifdef TimeProfiling
+    setTimeProfilingInfo(8);
+#endif
 
     return ES_SUCCESS;
 }
