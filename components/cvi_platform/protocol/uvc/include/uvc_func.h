@@ -12,8 +12,7 @@
 #define MEDIA_CHECK_RET(actual, fmt, arg...)                                   \
 	do {																		 \
 		if ((actual) != 0) {													 \
-			MEDIABUG_PRINTF("[%d]:%s() \n" fmt, __LINE__, __func__, ## arg); \
-			return -1;																\
+			printf("[%d]:%s() \n" fmt, __LINE__, __func__, ## arg); \
 		}																		 \
 	} while (0)
 
