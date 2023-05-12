@@ -83,8 +83,8 @@ int main(int /*argc*/, char** /*argv*/)
     system("pwd");
     printf("--------------\n");
 
-    // system("cp -f " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
-    system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
+    system("cp -f " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
+    //system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
 #if (N_MAX_HAND_NUM)
     system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
 #endif

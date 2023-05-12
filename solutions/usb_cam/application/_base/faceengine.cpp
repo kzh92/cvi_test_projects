@@ -47,7 +47,6 @@ int FaceEngine::ResetAll()
 
 void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
 {
-    return; //test
     fr_SetCameraFlip(g_xSS.iCameraRotate);
     fr_SetDupCheck(g_xSS.iEnrollFaceDupCheck);
     fr_SetLivenessCheckStrong_On_NoUser(DEFAULT_LIVENESS_MODE);
@@ -57,7 +56,6 @@ void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
 
 void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
 {
-    return; //test
     fr_SetCameraFlip(g_xSS.iCameraRotate);
     fr_SetDupCheck(g_xSS.iEnrollFaceDupCheck);
     fr_SetLivenessCheckStrong_On_NoUser(DEFAULT_LIVENESS_MODE);
@@ -115,7 +113,6 @@ int FaceEngine::ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData
 
 int  FaceEngine::VerifyFace(float* prResultArray)
 {
-    return ES_PROCESS; //test
     SEngineResult* pxEngineResult = NULL;
     int nProcessMode = 0;
     int nRet = fr_VerifyCombo(&nProcessMode);
@@ -138,7 +135,6 @@ int  FaceEngine::VerifyFace(float* prResultArray)
 
 void FaceEngine::RegisterFace(float* prResultArray, int iFaceDir)
 {
-    return; //test
     int nProcessMode = 0;
     int nRet = fr_RegisterCombo(iFaceDir, &nProcessMode);
     prResultArray[0] = (float)(nRet);

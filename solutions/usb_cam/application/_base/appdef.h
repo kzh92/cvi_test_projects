@@ -332,8 +332,8 @@ enum E_Baud_Rate
 #define ENGINE_LENS_TYPE                    ENGINE_LENS_M277_2409
 #undef FIRMWARE_MAGIC
 #define FIRMWARE_MAGIC                      "DBS2.0"
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
+// #undef N_MAX_HAND_NUM
+// #define N_MAX_HAND_NUM                      100
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)
