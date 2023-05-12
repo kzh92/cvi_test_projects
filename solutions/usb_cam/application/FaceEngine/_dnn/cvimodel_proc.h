@@ -15,8 +15,11 @@ typedef struct Cvimodel_tag
     float*              m_output_ptr1;
     float               m_qscale;
     int                 m_multiOutput;
+    int                 m_input_is_int8;
+    int                 m_input_channels;
     int                 m_loaded;
 } Cvimodel;
+
 
 #define        DIC_LEN_FACE_DETECT      (129320)
 #define        DIC_LEN_FACE_MODELING    (624696)
@@ -30,7 +33,8 @@ typedef struct Cvimodel_tag
 int cvimodel_init(const char* fn, Cvimodel* model);
 int cvimodel_init(const unsigned char* pDicData, int nDicLen, Cvimodel* model);
 void cvimodel_release(Cvimodel* model);
-void cvimodel_forward(Cvimodel *model, unsigned char* img, int width, int height, int type, float** retVal, float** retVal1 = 0); // if type = 0(detect), retVal(box), retVal1(score)
+void cvimodel_forward(Cvimodel *model, unsigned char* img, int width, int height, float** retVal, float** retVal1 = 0, int mean = 0, float std = 0.00390625);
+// if detect, retVal(box), retVal1(score), mean = 128, std = 0.0078125
 
 #endif // _CVIMODEL_PROC_MN_H__INCLUDED_
 

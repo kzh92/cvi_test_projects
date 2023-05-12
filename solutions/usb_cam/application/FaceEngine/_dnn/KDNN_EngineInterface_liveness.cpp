@@ -176,7 +176,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
     float res1_backup[2], res2_backup[2];
 
     //res1 = LiveMnSE_dnn_forward(&g_n2DLive_A1, pbImage);
-    cvimodel_forward(&g_n2DLive_A1, pbImage, 128, 128, 2, &res1); // ret : box, ret1 : score
+    cvimodel_forward(&g_n2DLive_A1, pbImage, 128, 128, &res1); 
 
     //printf("g_n2DLive_A1 = %f\n", Now() - rStart);
     //rStart = Now();
@@ -191,7 +191,7 @@ float KdnnDetectLiveness2D_A(unsigned char * pbImage)
         return -1;
     }
     //res2 = LiveMnSE_dnn_forward(&g_n2DLive_A2, pbImage);
-    cvimodel_forward(&g_n2DLive_A2, pbImage, 128, 128, 2, &res2); // ret : box, ret1 : score
+    cvimodel_forward(&g_n2DLive_A2, pbImage, 128, 128, &res2); 
     //printf("g_n2DLive_A2 = %f\n", Now() - rStart);
     if (g_nStopEngine == 1)
     {
@@ -216,7 +216,7 @@ float KdnnDetectLiveness_2D_B(unsigned char * pbImage)
 
     float* res;
     //res = LiveMnSE_dnn_forward(&g_n2DLive_B, pbImage);
-    cvimodel_forward(&g_n2DLive_B, pbImage, 128, 128, 2, &res); // ret : box, ret1 : score
+    cvimodel_forward(&g_n2DLive_B, pbImage, 128, 128, &res); // ret : box, ret1 : score
     
     if (g_nStopEngine == 1)
     {
@@ -239,7 +239,7 @@ float KdnnDetectLiveness_2D_B2(unsigned char * pbImage)
 
     float* res;
     //res = LiveMnSE3_dnn_forward(&g_n2DLive_B2, pbImage);
-    cvimodel_forward(&g_n2DLive_B2, pbImage, 88, 128, 2, &res); // ret : box, ret1 : score
+    cvimodel_forward(&g_n2DLive_B2, pbImage, 88, 128, &res); // ret : box, ret1 : score
 
     if (g_nStopEngine == 1)
     {
@@ -263,7 +263,7 @@ float KdnnDetectLiveness_3D(unsigned char * pbImage)
 
     float* res;
     //res = LiveMnSE_dnn_forward(&g_n3DLive, pbImage);
-    cvimodel_forward(&g_n3DLive, pbImage, 128, 128, 2, &res); // ret : box, ret1 : score
+    cvimodel_forward(&g_n3DLive, pbImage, 128, 128, &res); // ret : box, ret1 : score
 
     if (g_nStopEngine == 1)
     {

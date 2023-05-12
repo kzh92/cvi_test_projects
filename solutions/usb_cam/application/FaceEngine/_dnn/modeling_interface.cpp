@@ -123,7 +123,7 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
     }
     
     float *pTemp = 0;
-    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, 2, &pTemp); // ret : box, ret1 : score
+    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, &pTemp); // ret : box, ret1 : score
     //float *pTemp = Modeling_dnn_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height);
     if (g_nStopEngine == 1)
     {
@@ -178,7 +178,7 @@ int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
 
     // float *pTemp = Modeling_dnn_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64);
     float *pTemp = 0;
-    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, 2, &pTemp); // ret : box, ret1 : score
+    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, &pTemp); // ret : box, ret1 : score
 
     int nPointIndex;
     for (nPointIndex = 0; nPointIndex < 7; nPointIndex++)

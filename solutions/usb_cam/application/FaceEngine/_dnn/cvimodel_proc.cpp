@@ -9,6 +9,8 @@ void cvimodel_init_private(Cvimodel* model)
     CVI_NN_GetInputOutputTensors(model->m_handle, &model->m_input_tensors, &model->m_input_num, &model->m_output_tensors, &model->m_output_num);
     model->m_input_ptr = (float*)CVI_NN_TensorPtr(model->m_input_tensors);
     model->m_output_ptr = (float*)CVI_NN_TensorPtr(model->m_output_tensors);
+    model->m_input_is_int8 = (model->m_input_tensors->fmt == CVI_FMT_INT8);
+    model->m_input_channels = model->m_input_tensors->shape.dim[1];
 
     model->m_multiOutput = (model->m_output_num > 1) ? 1 : 0;
     if (model->m_output_num > 1)
@@ -59,47 +61,48 @@ void cvimodel_release(Cvimodel* model)
     model->m_loaded = 0;
 }
 
-void cvimodel_forward(Cvimodel *model, unsigned char* img, int width, int height, int type, float** retVal, float** retVal1)
+void cvimodel_forward(Cvimodel *model, unsigned char* img, int width, int height, float** retVal, float** retVal1, int mean, float std) // if detect, retVal(box), retVal1(score)
 {
     int i, n = width * height;
-    float* prInput = model->m_input_ptr;
     unsigned char* pnImage = img;
 
-    if (type == 0) // detect
+    if (model->m_input_is_int8)
     {
+        int8_t* pnInput = (int8_t*)model->m_input_ptr;
         for (i = 0; i < n; i++)
         {
-            *prInput = (*pnImage - 128) * 0.0078125f;
-            prInput++;
-            pnImage++;
-        }
-        memcpy(model->m_input_ptr + n, model->m_input_ptr, n * 4);
-        memcpy(model->m_input_ptr + 2*n, model->m_input_ptr, n * 4);
-    }
-
-    if (type == 1) // feature
-    {
-        int8_t* pnInput = (int8_t*)prInput;
-        for (i = 0; i < n; i++)
-        {
-            int val = (int)(*pnImage * 0.00390625f * model->m_qscale);
+            int val = (int)((*pnImage - mean) * std * model->m_qscale);
             if (val > 127) val = 127;
             if (val < -128) val = -128;
             *pnInput = val;
             pnInput++;
             pnImage++;
         }
-        memcpy(((int8_t*)model->m_input_ptr) + n, model->m_input_ptr, n);
-        memcpy(((int8_t*)model->m_input_ptr) + 2*n, model->m_input_ptr, n);
     }
-
-    if (type == 2) // other
+    else
     {
+        float* prInput = model->m_input_ptr;
         for (i = 0; i < n; i++)
         {
-            *prInput = *pnImage * 0.00390625f;
+            *prInput = (*pnImage - mean) * std;
             prInput++;
             pnImage++;
+        }
+    }
+
+    if (model->m_input_channels > 1)
+    {
+        if (model->m_input_is_int8)
+        {
+            int8_t* pnInput = (int8_t*)model->m_input_ptr;
+            memcpy(pnInput + n, pnInput, n);
+            memcpy(pnInput + n * 2, pnInput, n);
+        }
+        else
+        {
+            float* prInput = model->m_input_ptr;
+            memcpy(prInput + n, prInput, n * 4);
+            memcpy(prInput + n * 2, prInput, n * 4);
         }
     }
 

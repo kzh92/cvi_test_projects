@@ -93,7 +93,7 @@ int KdnnDetect_feat(unsigned char * pbImage, unsigned short* prFeatArray, int nM
             return KDNN_FAILED;
         }
         //prRet = feat.dnn_forward(pbImage, 0);
-        cvimodel_forward(&feat, pbImage, KDNN_FEAT_ALIGN_W, KDNN_FEAT_ALIGN_H, 1, &prRet); // ret : box, ret1 : score
+        cvimodel_forward(&feat, pbImage, KDNN_FEAT_ALIGN_W, KDNN_FEAT_ALIGN_H, &prRet); 
     }
     else
     {
@@ -102,7 +102,7 @@ int KdnnDetect_feat(unsigned char * pbImage, unsigned short* prFeatArray, int nM
             return KDNN_FAILED;
         }
         //prRet = HandFeat_dnn_forward(&feat_hand, pbImage);
-        cvimodel_forward(&feat_hand, pbImage, 128, 128, 1, &prRet); // ret : box, ret1 : score
+        cvimodel_forward(&feat_hand, pbImage, 128, 128, &prRet); 
     }
     if (g_nStopEngine == 1)
         return 0;
