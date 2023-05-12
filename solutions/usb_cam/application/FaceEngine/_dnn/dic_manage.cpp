@@ -123,7 +123,7 @@ int     allocGlobalCVDicBuffer()
 {
     if(!g_global_cv_dic)
     {
-        int nDicSize[8];
+        int nDicSize[12];
         nDicSize[0] = DIC_LEN_FACE_DETECT;
         nDicSize[1] = DIC_LEN_FACE_MODELING;
         nDicSize[2] = DIC_LEN_FACE_LIVE_A1;
@@ -133,9 +133,14 @@ int     allocGlobalCVDicBuffer()
         nDicSize[6] = DIC_LEN_FACE_LIVE_C;
         nDicSize[7] = DIC_LEN_FACE_FEATURE;
 
+        nDicSize[8] = DIC_LEN_HAND_DETECT;
+        nDicSize[9] = DIC_LEN_HAND_MODELING;
+        nDicSize[10] = DIC_LEN_HAND_CHECK;
+        nDicSize[11] = DIC_LEN_HAND_FEATURE;
+
         int nMaxDicSize = 0;
         int nDicIndex;
-        for(nDicIndex = 0; nDicIndex < 8; nDicIndex ++)
+        for(nDicIndex = 0; nDicIndex < 12; nDicIndex ++)
         {
             if(nMaxDicSize < nDicSize[nDicIndex])
             {
@@ -195,8 +200,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = Detect_dnn_dic_size();
         nDicSize = DIC_LEN_FACE_DETECT;
         strcpy(szFileNameTemp, FN_DETECT);
-        if (!g_dic_detect)
-            g_dic_detect = g_global_cv_dic;
+        g_dic_detect = g_global_cv_dic;
         ppbDicData = &g_dic_detect;
         nGTCheckSum = DNN_DETECT_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_detector;
@@ -206,10 +210,10 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Detect_Hand:
     {
         pnFileIndicator = &g_id_detect_h;
-        nDicSize = Detect_dnn_dic_size();
+        //nDicSize = Detect_dnn_dic_size();
+        nDicSize = DIC_LEN_HAND_DETECT;
         strcpy(szFileNameTemp, FN_DETECT_H);
-        if (!g_dic_detect_hand)
-            g_dic_detect_hand = g_global_cv_dic;
+        g_dic_detect_hand = g_global_cv_dic;
         ppbDicData = &g_dic_detect_hand;
         nGTCheckSum = DNN_DETECT_HAND_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_detector_h;
@@ -222,8 +226,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = Modeling_dnn_dic_size(0);
         nDicSize = DIC_LEN_FACE_MODELING;
         strcpy(szFileNameTemp, FN_MODEL);
-        if (!g_dic_model)
-            g_dic_model = g_global_cv_dic;
+        g_dic_model = g_global_cv_dic;
         ppbDicData = &g_dic_model;
         nGTCheckSum = DNN_MODELING_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_modeling;
@@ -233,10 +236,10 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_Modeling_Hand:
     {
         pnFileIndicator = &g_id_model_h;
-        nDicSize = Modeling_dnn_dic_size(1);
+        //nDicSize = Modeling_dnn_dic_size(1);
+        nDicSize = DIC_LEN_HAND_MODELING;
         strcpy(szFileNameTemp, FN_MODEL_H);
-        if (!g_dic_model_hand)
-            g_dic_model_hand = g_global_cv_dic;
+        g_dic_model_hand = g_global_cv_dic;
         ppbDicData = &g_dic_model_hand;
         nGTCheckSum = DNN_MODELING_HAND_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_modeling_h;
@@ -249,8 +252,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = LiveMnSE_dnn_dic_size();
         nDicSize = DIC_LEN_FACE_LIVE_A1;
         strcpy(szFileNameTemp, FN_LIVEA1);
-        if (!g_dic_live_a1)
-            g_dic_live_a1 = g_global_cv_dic;
+        g_dic_live_a1 = g_global_cv_dic;
         ppbDicData = &g_dic_live_a1;
         nGTCheckSum = DNN_2D_LIVE_A1_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_A1;
@@ -263,8 +265,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = LiveMnSE_dnn_dic_size();
         nDicSize = DIC_LEN_FACE_LIVE_A2;
         strcpy(szFileNameTemp, FN_LIVEA2);
-        if (!g_dic_live_a2)
-            g_dic_live_a2 = g_global_cv_dic;
+        g_dic_live_a2 = g_global_cv_dic;
         ppbDicData = &g_dic_live_a2;
         nGTCheckSum = DNN_2D_LIVE_A2_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_A2;
@@ -277,8 +278,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = LiveMnSE_dnn_dic_size();
         nDicSize = DIC_LEN_FACE_LIVE_B;
         strcpy(szFileNameTemp, FN_LIVEB);
-        if (!g_dic_live_b)
-            g_dic_live_b = g_global_cv_dic;
+        g_dic_live_b = g_global_cv_dic;
         ppbDicData = &g_dic_live_b;
         nGTCheckSum = DNN_2D_LIVE_B_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_B;
@@ -291,8 +291,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = LiveMnSE3_dnn_dic_size();
         nDicSize = DIC_LEN_FACE_LIVE_B2;
         strcpy(szFileNameTemp, FN_LIVEB2);
-        if (!g_dic_live_b2)
-            g_dic_live_b2 = g_global_cv_dic;
+        g_dic_live_b2 = g_global_cv_dic;
         ppbDicData = &g_dic_live_b2;
         nGTCheckSum = DNN_2D_LIVE_B2_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_B2;
@@ -305,8 +304,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         //nDicSize = LiveMnSE_dnn_dic_size();
         nDicSize = DIC_LEN_FACE_LIVE_C;
         strcpy(szFileNameTemp, FN_LIVEC);
-        if (!g_dic_live_c)
-            g_dic_live_c = g_global_cv_dic;
+        g_dic_live_c = g_global_cv_dic;
         ppbDicData = &g_dic_live_c;
         nGTCheckSum = DNN_3D_LIVE_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_spoof_3D;
@@ -316,10 +314,10 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     case MachineFlagIndex_DNN_CheckValid_Hand:
     {
         pnFileIndicator = &g_id_checkValid_hand;
-        nDicSize = LiveMnSE_dnn_dic_size();
+        //nDicSize = LiveMnSE_dnn_dic_size();
+        nDicSize = DIC_LEN_HAND_CHECK;
         strcpy(szFileNameTemp, FN_CHECKVALID_H);
-        if (!g_dic_checkValid_hand)
-            g_dic_checkValid_hand = g_global_cv_dic;
+        g_dic_checkValid_hand = g_global_cv_dic;
         ppbDicData = &g_dic_checkValid_hand;
         nGTCheckSum = DNN_CHECKVALID_HAND_CHECKSUM;
         pnDicCheckSum_Calced = &g_nDicCheckSum_Calced_checkValid_hand;
@@ -356,17 +354,15 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
     {
         nDicSize = DIC_LEN_FACE_FEATURE;
         strcpy(szFileNameTemp, FN_FEATURE);
-        if (!g_dic_feature)
-            g_dic_feature = g_global_cv_dic;
+        g_dic_feature = g_global_cv_dic;
         ppbDicData = &g_dic_feature;
         break;
     }
     case MachineFlagIndex_DNN_Feature_Hand:
     {
-        nDicSize = HandFeat_dnn_dic_size();
+        nDicSize = DIC_LEN_HAND_FEATURE;
         strcpy(szFileNameTemp, FN_H_FEATURE);
-        if (!g_dic_feature_hand)
-            g_dic_feature_hand = g_global_cv_dic;
+        g_dic_feature_hand = g_global_cv_dic;
         ppbDicData = &g_dic_feature_hand;
         break;
     }

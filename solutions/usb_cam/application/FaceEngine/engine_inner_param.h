@@ -25,10 +25,10 @@
 #define DNN_MODELING_CHECKSUM   0x5721b59a
 
 //hand
-#define DNN_DETECT_HAND_CHECKSUM        0xee7beb81
-#define DNN_MODELING_HAND_CHECKSUM      0xf529de82
-#define DNN_CHECKVALID_HAND_CHECKSUM    0x6f1dabb9
-#define DNN_FEAT_HAND_CHECKSUM          0x333f25f
+#define DNN_DETECT_HAND_CHECKSUM        0x934fbc1d
+#define DNN_MODELING_HAND_CHECKSUM      0xd87613f9
+#define DNN_CHECKVALID_HAND_CHECKSUM    0x12f83321
+#define DNN_FEAT_HAND_CHECKSUM          0x6ab1922b
 
 ////////     Live_SC_1.10 cv     ////////
 #define DNN_2D_LIVE_A1_CHECKSUM    	0x9f049758

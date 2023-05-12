@@ -30,6 +30,11 @@ typedef struct Cvimodel_tag
 #define        DIC_LEN_FACE_LIVE_C      (442504)
 #define        DIC_LEN_FACE_FEATURE     (1543872)
 
+#define        DIC_LEN_HAND_DETECT      (121464)
+#define        DIC_LEN_HAND_MODELING    (496008)
+#define        DIC_LEN_HAND_CHECK       (442504)
+#define        DIC_LEN_HAND_FEATURE     (2732440)
+
 int cvimodel_init(const char* fn, Cvimodel* model);
 int cvimodel_init(const unsigned char* pDicData, int nDicLen, Cvimodel* model);
 void cvimodel_release(Cvimodel* model);
