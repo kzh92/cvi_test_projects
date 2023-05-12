@@ -9,6 +9,10 @@
 #include "dic_manage.h"
 #include "settings.h"
 #include "manageIRCamera.h"
+#include "KDNN_handValid.h"
+#include <vfs.h>
+
+
 
 //extern int g_exposureImage;
 //extern int g_exposurePrev;
@@ -180,7 +184,7 @@ void*   EngineLoadAndCheckFunc(void*)
     getDicChecSumChecked(MachineFlagIndex_DNN_Modeling);
     g_thread_flag_model = 2;
     
-
+    
 #ifdef ENGINE_FOR_DESSMAN
     g_thread_flag_occ = 1;
     loadMachineDic(MachineFlagIndex_DNN_OCC);
@@ -237,6 +241,33 @@ void*   EngineLoadAndCheckFunc(void*)
     g_thread_flag_esn = 2;
 #endif
 */
+
+    g_thread_flag_detect_h = 1;
+    loadMachineDic(MachineFlagIndex_DNN_Detect_Hand);
+    createDetectEngine(g_shared_mem, Detect_Mode_Hand);
+    getDicChecSumChecked(MachineFlagIndex_DNN_Detect_Hand);
+    g_thread_flag_detect_h = 2;
+
+    g_thread_flag_model_h = 1;
+    loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
+    createModelingEngine(g_shared_mem, 1);
+    getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
+    g_thread_flag_model_h = 2;
+
+
+    unsigned char* pHand_Feat_Mem = g_shared_mem + 128 * 128;
+    g_thread_flag_checkValid_h = 1;
+    loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
+    KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
+    getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
+    g_thread_flag_checkValid_h = 2;
+
+
+    g_thread_flag_feat_h = 1;
+    loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
+    KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
+    g_thread_flag_feat_h = 2;
+
     releaseGlobalCVDicBuffer();
     return NULL;
 }
@@ -301,7 +332,8 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
     //my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
     if(*fr_GetBayerYConvertedCameraIndex() != 0)
     {
-        convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
+        //convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
+        convert_bayer2y_rotate_cm_riscv(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
         *fr_GetBayerYConvertedCameraIndex() = 0;
         //printf("Camera 0 Bayer->Y converted\n");
     }
@@ -330,6 +362,29 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 #ifdef TimeProfiling
     setTimeProfilingInfo(1);
 #endif
+
+#if 0
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/g_pbYIrImage.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, g_pbYIrImage, E_IMAGE_WIDTH * E_IMAGE_HEIGHT);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+#endif
+
+
+
     IF_FLAG_STOP1(ES_FAILED);
 
     // int nMotionX, nMotionY;

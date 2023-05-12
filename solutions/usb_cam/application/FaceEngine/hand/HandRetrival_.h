@@ -37,6 +37,10 @@ typedef HAND_FEAT SHandFeatInfo;
 
 extern SEngineResult g_xEngineResult_Hand;
 
+extern int g_thread_flag_detect_h;
+extern int g_thread_flag_model_h;
+extern int g_thread_flag_feat_h;
+extern int g_thread_flag_checkValid_h;
 
 #ifndef LIBFOO_DLL_EXPORTED
 #define LIBFOO_DLL_EXPORTED __attribute__((__visibility__("default")))

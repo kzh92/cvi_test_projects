@@ -144,31 +144,31 @@ int getMemSizeNeedToFeat_CheckValidHand()
 void*   EngineLoadAndCheckFunc_Hand(void*)
 {
     AllocEngineMemory_Hand();
-    g_thread_flag_detect_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_Detect_Hand);
-    createDetectEngine(g_shared_mem_Hand, Detect_Mode_Hand);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Detect_Hand);
-    g_thread_flag_detect_h = 2;
+    // g_thread_flag_detect_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_Detect_Hand);
+    // createDetectEngine(g_shared_mem_Hand, Detect_Mode_Hand);
+    // getDicChecSumChecked(MachineFlagIndex_DNN_Detect_Hand);
+    // g_thread_flag_detect_h = 2;
 
-    g_thread_flag_model_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
-    createModelingEngine(g_shared_mem_Hand, 1);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
-    g_thread_flag_model_h = 2;
-
-
-    unsigned char* pHand_Feat_Mem = g_shared_mem_Hand + 128 * 128;
-    g_thread_flag_checkValid_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
-    KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
-    g_thread_flag_checkValid_h = 2;
+    // g_thread_flag_model_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
+    // createModelingEngine(g_shared_mem_Hand, 1);
+    // getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
+    // g_thread_flag_model_h = 2;
 
 
-    g_thread_flag_feat_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
-    KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
-    g_thread_flag_feat_h = 2;
+    // unsigned char* pHand_Feat_Mem = g_shared_mem_Hand + 128 * 128;
+    // g_thread_flag_checkValid_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
+    // KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
+    // getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
+    // g_thread_flag_checkValid_h = 2;
+
+
+    // g_thread_flag_feat_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
+    // KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
+    // g_thread_flag_feat_h = 2;
 
 
     return NULL;
@@ -176,6 +176,7 @@ void*   EngineLoadAndCheckFunc_Hand(void*)
 
 int createHandEngine_()
 {
+    my_printf("createHandEngine_\n");
 #ifdef __RTK_OS__
     my_thread_create_ext(&g_EngineInitThrad_Hand, 0, EngineLoadAndCheckFunc_Hand, NULL, (char*)"EngineInitThread", 16 * 1024, MYTHREAD_PRIORITY_MEDIUM);
 #else

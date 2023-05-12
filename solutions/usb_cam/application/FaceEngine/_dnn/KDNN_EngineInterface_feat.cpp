@@ -64,7 +64,7 @@ int	KdnnCreateEngine_feat(unsigned char* pMem, int nMode)
         if (/*HandFeat_getEngineLoaded(&feat_hand)*/feat_hand.m_loaded)
             return KDNN_SUCCESS;
 
-        int nDicSize = HandFeat_dnn_dic_size();
+        int nDicSize = DIC_LEN_HAND_FEATURE;
         //int ret = HandFeat_dnn_create_(&feat_hand, g_dic_feature_hand, nDicSize, 75.0f, pMem);
         int ret = cvimodel_init(g_dic_feature_hand, nDicSize, &feat_hand);
         if (ret)
