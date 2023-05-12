@@ -266,26 +266,39 @@ int g_nThreadCount = ENGINE_THREAD_COUNT;
 float g_rStartTime;
 float g_rStartTimeCur;
 
-#define TimeProfilingMileStoneCount 13
+#define TimeProfilingMileStoneCount 16
 char szTimeProfilingTitle[TimeProfilingMileStoneCount][255] = 
 {
-    "fr_PreExtractFace_dnn_start",
-    "convert_bayer2y",
-    "rDetectTime",
-    "calcAverageValues",
-    "fr_PreExtractFace111",
-    "checkFaceInCamera2",
-    "getFaceModelPoint",
-    "fr_ExtractFace111",
-    "align",
-    "DetectLiveness2D_A",
-    "DetectLiveness2D_B",
-    "DetectLiveness2D_B2",
-    "DetectLiveness2D_C",
+    "fr_PreExtractFace_dnn_start",//0
+    "convert_bayer2y",      //1
+    "rDetectTime",          //2
+    "calcAverageValues",    //3
+    "fr_PreExtractFace111", //4
+    "checkFaceInCamera2",   //5
+    "getFaceModelPoint",    //6
+    "fr_ExtractFace111",    //7
+    "align",                //8
+    "DetectLiveness2D_A",   //9
+    "DetectLiveness2D_B",   //10
+    "DetectLiveness2D_B2",  //11
+    "DetectLiveness2D_C",   //12
+    "BeforeFeature",        //13
+    "AfterFeature",         //14
+    "End Process",          //15
 };
 
 float rTimeProfilingTime[TimeProfilingMileStoneCount];
 float rTimeProfilingTime111[TimeProfilingMileStoneCount];
+
+void showTotalTimeProfileInfo()
+{
+    int nIndex;
+    for(nIndex = 0; nIndex < TimeProfilingMileStoneCount; nIndex ++)
+    {
+        my_printf("%sTime = %f Time111 =%f\r\n", szTimeProfilingTitle[nIndex], rTimeProfilingTime[nIndex], rTimeProfilingTime111[nIndex]);
+    }
+}
+
 
 void initTimeProfiling()
 {
@@ -301,16 +314,12 @@ void setTimeProfilingInfo(int nIndex)
     rTimeProfilingTime[nIndex] = rNow - g_rStartTimeCur;
     rTimeProfilingTime111[nIndex] = rNow - g_rStartTime;
     g_rStartTimeCur = rNow;
-}
-
-void showTotalTimeProfileInfo()
-{
-    int nIndex;
-    for(nIndex = 0; nIndex < TimeProfilingMileStoneCount; nIndex ++)
+    if(nIndex == (TimeProfilingMileStoneCount - 1))
     {
-        my_printf("%sTime = %f Time111 =%f\r\n", szTimeProfilingTitle[nIndex], rTimeProfilingTime[nIndex], rTimeProfilingTime111[nIndex]);
+        showTotalTimeProfileInfo();
     }
 }
+
 #endif
 
 //extern const ARM_COMPACT_RECT_PATTERN gpx_Detector_RectPattern[3597];
@@ -1319,7 +1328,6 @@ int check2D_3DFake()
 
 #ifdef TimeProfiling
     setTimeProfilingInfo(12);
-    showTotalTimeProfileInfo();
 #endif
 
     return ES_SUCCESS;

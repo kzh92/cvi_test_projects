@@ -1274,8 +1274,9 @@ int fr_Retrieval_dnn()
     //added by KSB 20180718
     *getDNNFeatureExtracted() = 0;
 #ifdef TimeProfiling
-    float rTempStartTime = Now();
-    my_printf("[%d] pre extarctDNNFeature_process111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+    // float rTempStartTime = Now();
+    // my_printf("[%d] pre extarctDNNFeature_process111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+    setTimeProfilingInfo(13);
 #endif
     extarctDNNFeature_process();
     unsigned short* arLastDNNFeature = getLastDNNFeature();
@@ -1290,8 +1291,9 @@ int fr_Retrieval_dnn()
     IF_FLAG_STOP1(ES_FAILED);
 
 #ifdef TimeProfiling
-    my_printf("[%d] extarctDNNFeature_process Time = %f\r\n", (int)Now(), Now() - rTempStartTime);
-    my_printf("[%d] after extarctDNNFeature_process111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+    // my_printf("[%d] extarctDNNFeature_process Time = %f\r\n", (int)Now(), Now() - rTempStartTime);
+    // my_printf("[%d] after extarctDNNFeature_process111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+    setTimeProfilingInfo(14);
 #endif
 
     if (*getDNNFeatureExtracted())
@@ -1361,11 +1363,15 @@ int fr_Retrieval_dnn()
 
                 return ES_UPDATE;
             }
+
+            setTimeProfilingInfo(15);
+            
             return ES_SUCCESS;
         }
     }
     //LOGE("fr_RetrievalH DNN failed");
     g_xEngineResult.nFineUserIndex = -2;
+    setTimeProfilingInfo(15);
 
     return ES_PROCESS;
 }
