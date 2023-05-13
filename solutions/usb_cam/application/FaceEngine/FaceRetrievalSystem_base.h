@@ -348,7 +348,7 @@ void APP_LOG(const char * format, ...);
         } \
     } while(0)
 
-#define TimeProfiling
+//#define TimeProfiling
 #ifdef TimeProfiling
 extern float g_rStartTime;
 extern float g_rStartTimeCur;

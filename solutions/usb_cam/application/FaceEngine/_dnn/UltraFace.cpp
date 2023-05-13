@@ -14,7 +14,7 @@
 #include <math.h>
 
 #include "UltraFace.hpp"
-#include "detect.h"
+//#include "detect.h"
 #include <memory.h>
 #include "HAlign.h"
 #include "dic_manage.h"

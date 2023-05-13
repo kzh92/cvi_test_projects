@@ -1,7 +1,7 @@
 
 #ifndef _OCCLUSION_H__INCLUDED_
 #define _OCCLUSION_H__INCLUDED_
-
+#if 0
 class Occlusion
 {
 private:
@@ -47,5 +47,5 @@ public:
 	void dnn_free();
 	float* dnn_forward(unsigned char* in);
 };
-
+#endif
 #endif //_OCCLUSION_H__INCLUDED_

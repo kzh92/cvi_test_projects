@@ -17,8 +17,8 @@
 #include <memory.h>
 #include <time.h>
 
-#include "livemnse.h"
-#include "livemnse3.h"
+// #include "livemnse.h"
+// #include "livemnse3.h"
 #include "engine_inner_param.h"
 
 #include <fcntl.h>

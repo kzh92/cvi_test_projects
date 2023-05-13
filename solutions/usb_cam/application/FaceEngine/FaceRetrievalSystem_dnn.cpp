@@ -1,11 +1,11 @@
 #include "FaceRetrievalSystem_dnn.h"
 #include "FaceRetrievalSystem_base.h"
-#include "detect.h"
-#include "modeling.h"
-#include "livemnse.h"
-#include "occ.h"
-#include "esn.h"
-#include "feat.h"
+//#include "detect.h"
+//#include "modeling.h"
+//#include "livemnse.h"
+//#include "occ.h"
+//#include "esn.h"
+//#include "feat.h"
 #include "dic_manage.h"
 #include "settings.h"
 #include "manageIRCamera.h"
@@ -1412,21 +1412,26 @@ int fr_Retrieval_dnn()
                 {
                     fr_UpdateFeat_DNN(nEntireDNNMaxScoreIndex, arLastDNNFeature,  g_nCurInfo);
                 }
-#ifdef TimeProfiling
-    my_printf("[%d] after update DNNFeature 111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
-#endif
+//#ifdef TimeProfiling
+//    my_printf("[%d] after update DNNFeature 111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
+//#endif
 
                 return ES_UPDATE;
             }
 
+#ifdef TimeProfiling
             setTimeProfilingInfo(15);
+#endif            
             
             return ES_SUCCESS;
         }
     }
     //LOGE("fr_RetrievalH DNN failed");
     g_xEngineResult.nFineUserIndex = -2;
+
+#ifdef TimeProfiling
     setTimeProfilingInfo(15);
+#endif
 
     return ES_PROCESS;
 }

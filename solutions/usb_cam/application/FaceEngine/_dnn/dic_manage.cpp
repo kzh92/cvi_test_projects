@@ -1,13 +1,13 @@
 #include "dic_manage.h"
 
-#include "detect.h"
-#include "modeling.h"
-#include "livemnse.h"
-#include "livemnse3.h"
-#include "occ.h"
-#include "esn.h"
-#include "feat.h"
-#include "hand_feat.h"
+// #include "detect.h"
+// #include "modeling.h"
+// #include "livemnse.h"
+// #include "livemnse3.h"
+// #include "occ.h"
+// #include "esn.h"
+// #include "feat.h"
+// #include "hand_feat.h"
 
 #include "engine_inner_param.h"
 #include <cvimodel_proc.h>
@@ -324,6 +324,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         pnCheckSum_Checked = &g_nDicCheckSum_Checked_checkValid_hand;
         break;
     }
+    /*
     case MachineFlagIndex_DNN_OCC:
     {
         pnFileIndicator = &g_id_occ;
@@ -350,6 +351,7 @@ void getDicInfos(int nMachineIndex, int** ppnFileIndicator, unsigned char*** ppp
         pnCheckSum_Checked = &g_nDicCheckSum_Checked_esn;
         break;
     }
+    */
     case MachineFlagIndex_DNN_Feature:
     {
         nDicSize = DIC_LEN_FACE_FEATURE;
@@ -437,7 +439,7 @@ int loadMachineDic(int nMachineIndex)
     {
 #ifdef __RTK_OS__
         nReadLength = fr_ReadFileData(szDicFilePath, 0, *pDicDataBuffer, nDicSize);
-        my_printf("fr_ReadFileData %d %d\n", nDicSize, nReadLength);
+        //my_printf("fr_ReadFileData %d %d\n", nDicSize, nReadLength);
         if (nReadLength == nDicSize)
         {
             if(pnDicCheckSum_Calced)
@@ -488,7 +490,7 @@ int loadMachineDic(int nMachineIndex)
     {
 #ifdef __RTK_OS__
         nReadLength = fr_ReadFileData(szDicFilePath, 0, *pDicDataBuffer, nDicSize);
-        my_printf("fr_ReadFileData feat %d %d\n", nDicSize, nReadLength);
+        //my_printf("fr_ReadFileData feat %d %d\n", nDicSize, nReadLength);
 
         if(nReadLength != nDicSize)
         {

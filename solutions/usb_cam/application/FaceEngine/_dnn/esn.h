@@ -1,7 +1,7 @@
 
 #ifndef _ESN_H__INCLUDED_
 #define _ESN_H__INCLUDED_
-
+/*
 class ESN
 {
 private:
@@ -106,5 +106,5 @@ public:
 	void dnn_free();
 	float* dnn_forward(unsigned char* in);
 };
-
+*/
 #endif //_ESN_H__INCLUDED_

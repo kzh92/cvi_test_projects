@@ -9,6 +9,7 @@
 #define g_DNN_OccDetection_input_width   64
 #define g_DNN_OccDetection_input_height  64
 
+#if 0
 //************************************
 // Method:    init_occ_detection
 // Returns:   int						- if is 0, success, else fail
@@ -46,6 +47,7 @@ int get_occ_detection_arm(unsigned char* img, int width, int height, void* model
 //************************************
 int get_occ_detection(unsigned char* img, int width, int height, float* landmark, float* score, unsigned char* pTempBuffer);
 
+#endif
 
 
 #endif

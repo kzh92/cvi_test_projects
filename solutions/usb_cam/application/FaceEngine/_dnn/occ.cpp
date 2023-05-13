@@ -6,14 +6,15 @@
 #include <math.h>
 
 #include "occ.h"
-#include "ennq_global.h"
-#include "ennq_trans.h"
-#include "ennq_pad.h"
-#include "ennq_conv.h"
-#include "ennq_inner.h"
-#include "ennq_slel.h"
-#include "ennq_pool.h"
+// #include "ennq_global.h"
+// #include "ennq_trans.h"
+// #include "ennq_pad.h"
+// #include "ennq_conv.h"
+// #include "ennq_inner.h"
+// #include "ennq_slel.h"
+// #include "ennq_pool.h"
 
+#if 0
 using namespace ENNQ;
 
 extern int g_nStopEngine;
@@ -187,3 +188,4 @@ float* Occlusion::dnn_forward(unsigned char* in)
 	// save_bin(mem_blk1, 2 * 4);
 	return (float*)mem_blk1;
 }
+#endif

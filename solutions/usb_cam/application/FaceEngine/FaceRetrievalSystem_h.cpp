@@ -2,16 +2,17 @@
 #include "FaceRetrievalSystem_base.h"
 #include "settings.h"
 #include "dic_manage.h"
+
+
+//#include "sn.h"
+
+#if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
 #include "detect.h"
 #include "modeling.h"
 #include "livemnse.h"
 #include "occ.h"
 #include "esn.h"
 #include "feat.h"
-
-//#include "sn.h"
-
-#if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
 //extern int g_exposureImage;
 //extern int g_exposurePrev;
 static unsigned char g_nCurInfo = 0;

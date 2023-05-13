@@ -4,15 +4,15 @@
 #include "modeling_interface.h"
 #include "appdef.h"
 #include "common_types.h"
-#include "modeling.h"
+//#include "modeling.h"
 #include "modeling_interface.h"
 #include <memory.h>
 #include "convertBayer2Y_cm.h"
 #include "FaceRetrievalSystem_base.h"
 #include "manageIRCamera.h"
 #include "KDNN_handValid.h"
-#include "hand_feat.h"
-#include "ennq_global.h"
+//#include "hand_feat.h"
+//#include "ennq_global.h"
 #include "settings.h" //N_DEMO_FACTORY_MODE
 #include <stdio.h>
 #include <stdlib.h>
@@ -989,7 +989,7 @@ int		fr_ExtractHand()
     float rStartTime1 = Now();
 #endif
 
-    unsigned char* pAlignBufferForModeling = g_shared_mem_Hand + Modeling_dnn_mem_size();
+    unsigned char* pAlignBufferForModeling = g_shared_mem_Hand;
     int nRet = getHandModelPoint(g_pbYIrImage_Hand, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, pAlignBufferForModeling, g_xHandProcessData.rHandRect, g_xHandProcessData.rLandmarkPoint);
 
 #ifdef TimeProfiling

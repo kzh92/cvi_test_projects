@@ -6,33 +6,38 @@
 #include <math.h>
 
 #include "esn.h"
-#include "ennq_global.h"
-#include "ennq_trans.h"
-#include "ennq_pad.h"
-#include "ennq_conv.h"
-#include "ennq_inner.h"
-#include "ennq_slel.h"
-#include "ennq_pool.h"
-#include "ennq_normal.h"
-#include "ennq_activation.h"
-#include "ennq_quantize.h"
-#include "ennq_seblock.h"
+// #include "ennq_global.h"
+// #include "ennq_trans.h"
+// #include "ennq_pad.h"
+// #include "ennq_conv.h"
+// #include "ennq_inner.h"
+// #include "ennq_slel.h"
+// #include "ennq_pool.h"
+// #include "ennq_normal.h"
+// #include "ennq_activation.h"
+// #include "ennq_quantize.h"
+// #include "ennq_seblock.h"
 
-using namespace ENNQ;
+//using namespace ENNQ;
 
+/*
 extern int g_nStopEngine;
 #define IF_FLAG_STOP if (g_nStopEngine) return 0
 
 ESN::ESN()
 {
+	
 	dic_data = 0;
 	mem_data = 0;
 	g_nEngineLoaded = 0;
+	
 }
 
 ESN::~ESN()
 {
+	
 	dnn_free();
+	
 }
 
 int ESN::dnn_dic_size()
@@ -47,6 +52,7 @@ int ESN::dnn_mem_size()
 
 int ESN::dnn_create(const char* fn, unsigned char* pMemBuf)
 {
+	
 	if (g_nEngineLoaded) return 0;
 	int nDicSize = dnn_dic_size();
 
@@ -78,7 +84,7 @@ int ESN::dnn_create(const char* fn, unsigned char* pMemBuf)
 
 	dic_data = local_dicdata;
 	g_nEngineLoaded = 1;
-
+	
 	return 0;
 }
 
@@ -188,7 +194,7 @@ int ESN::dnn_create(unsigned char* pDicData, int nDicDataSize, unsigned char* pM
 	Gemm_44_bs = (float*)(gdata + 123852); // [2]
 
 	g_nEngineLoaded = 1;
-
+	
 	return 0;
 }
 
@@ -304,3 +310,4 @@ float* ESN::dnn_forward(unsigned char* in)
 	// save_bin(mem_blk0, 8); // 43 
 	return (float*)mem_blk0;
 }
+*/

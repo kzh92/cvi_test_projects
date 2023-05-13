@@ -7,6 +7,8 @@
 #include "dic_manage.h"
 #include "common_types.h"
 
+#if 0
+
 int g_used_arm_modeling = false;
 ESN g_esn_detector;
 unsigned char m_nEsnEngineLoaded = 0;
@@ -196,3 +198,4 @@ int get_esn_detection(unsigned char* img, int width, int height, float* landmark
 		return 1;
 	return 0;
 }
+#endif

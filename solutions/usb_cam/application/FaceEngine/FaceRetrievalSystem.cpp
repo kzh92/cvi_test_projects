@@ -16,7 +16,7 @@
 //#include "armCommon.h"
 #include "convert.h"
 #include "HandRetrival_.h"
-#include "hand_feat.h"
+//#include "hand_feat.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,15 +42,15 @@
 #include "sn.cpp"
 #endif // !__RTK_OS__
 
-#include "detect.h"
-#include "modeling.h"
-#include "livemnse.h"
-#include "livemnse3.h"
-#include "occ.h"
-#include "esn.h"
-#include "feat.h"
-#include "enn_global.h"
-#include "ennq_global.h"
+//#include "detect.h"
+//#include "modeling.h"
+//#include "livemnse.h"
+//#include "livemnse3.h"
+//#include "occ.h"
+//#include "esn.h"
+//#include "feat.h"
+// #include "enn_global.h"
+// #include "ennq_global.h"
 #include "dic_manage.h"
 #include <math.h>
 
@@ -403,7 +403,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 0
+#if 1
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
@@ -1469,7 +1469,7 @@ void fr_EnableLogFile(int iEnable)
 
 void fr_SetEngineState(int fState, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5)
 {
-    my_printf("fr_SetEngineState\n");
+    //my_printf("fr_SetEngineState\n");
     
     g_xEngineParam.fEngineState = fState;
     memset(g_xEnrollFeatA, 0, sizeof(SFeatInfo));
@@ -2416,13 +2416,13 @@ int AllocEngineMemory()
     }
 #endif
 
-    g_global_dic_size = ENNQ::get_blob_size(Feature::dnn_dic_size(),  DIC_MEM_ALIGN);
+    //g_global_dic_size = ENNQ::get_blob_size(Feature::dnn_dic_size(),  DIC_MEM_ALIGN);
     //h engine
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
-    if(nNeedH_memory)
-    {
-        g_global_dic_size += ENNQ::get_blob_size(H_DICT_SIZE1,  DIC_MEM_ALIGN);
-    }
+    // if(nNeedH_memory)
+    // {
+    //     g_global_dic_size += ENNQ::get_blob_size(H_DICT_SIZE1,  DIC_MEM_ALIGN);
+    // }
 #endif
 
     int g_global_tmp_size = 0;
@@ -2556,13 +2556,13 @@ int AllocEngineMemory()
     g_global_memory = (unsigned char*)my_malloc(g_global_size);
     unsigned char* addr = (unsigned char*)(((size_t)(g_global_memory + (DIC_MEM_ALIGN - 1))) & (-DIC_MEM_ALIGN));
 
-    g_dic_feature = addr;           addr += ENNQ::get_blob_size(Feature::dnn_dic_size(),    DIC_MEM_ALIGN);
+    //g_dic_feature = addr;           addr += ENNQ::get_blob_size(Feature::dnn_dic_size(),    DIC_MEM_ALIGN);
     //H engine
 #if ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
-    if(nNeedH_memory)
-    {
-        g_dic_H_1 = addr;               addr += ENNQ::get_blob_size(H_DICT_SIZE1,    DIC_MEM_ALIGN);
-    }
+    //if(nNeedH_memory)
+    //{
+    //    g_dic_H_1 = addr;               addr += ENNQ::get_blob_size(H_DICT_SIZE1,    DIC_MEM_ALIGN);
+    //}
 #endif//ENGINE_SECURITY_MODE == ENGINE_SECURITY_TWIN_COMMON
     g_shared_mem = addr;                        addr += g_global_tmp_size;
     g_nHistInLEDOnImage = (int*)addr;           addr += sizeof(int) * 256;
@@ -2771,7 +2771,7 @@ void    fr_BackupIRCamera_ExpGain()
 #ifdef TimeProfiling
     initTimeProfiling();
 #endif
-    my_printf("--------------------------fr_BackupIRCamera_ExpGain %d %d %d %d %d %d\n", g_exposure_bkup, g_nGain_bkup, g_nFineGain_bkup, g_exposure2_bkup, g_nGain2_bkup, g_nFineGain2_bkup);
+//    my_printf("--------------------------fr_BackupIRCamera_ExpGain %d %d %d %d %d %d\n", g_exposure_bkup, g_nGain_bkup, g_nFineGain_bkup, g_exposure2_bkup, g_nGain2_bkup, g_nFineGain2_bkup);
 }
 int fr_GetNeedToCalcNextExposure()
 {

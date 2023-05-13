@@ -8,6 +8,7 @@
 #define g_DNN_EyeCloseness_input_width   48
 #define g_DNN_EyeCloseness_input_height  48
 
+#if 0
 //************************************
 // Method:    init_eye_closeness
 // Returns:   int						- if is 0, success, else fail
@@ -33,5 +34,6 @@ int deinit_esn_detection();
 // Parameter: float * score[out]		 - output score
 //************************************
 int get_esn_detection(unsigned char* img, int width, int height, float* landmark, float* score, unsigned char* pTempBuffer);
+#endif
 
 #endif

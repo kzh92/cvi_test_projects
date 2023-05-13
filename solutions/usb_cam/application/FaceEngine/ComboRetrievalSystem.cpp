@@ -147,7 +147,7 @@ SEngineResult* fr_GetEngineResultCombo(int* pnProcessMode)
 int     fr_RegisterCombo(int iFaceDir, int* pnProcessMode)
 {
     int nRet = ES_PROCESS;
-    my_printf("g_nComboProcessMode %d\n", g_nComboProcessMode);
+    //my_printf("g_nComboProcessMode %d\n", g_nComboProcessMode);
 #if (N_MAX_HAND_NUM)
     if(g_nComboProcessMode == 1)
     {

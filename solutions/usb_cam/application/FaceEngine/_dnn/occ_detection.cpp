@@ -1,6 +1,9 @@
 #include "occ_detection.h"
 #include "dic_manage.h"
 #include "common_types.h"
+
+#if 0
+
 Occlusion g_occ_detector;
 extern int g_nStopEngine;
 
@@ -93,3 +96,4 @@ int get_occ_detection(unsigned char* img, int width, int height, float* landmark
         return 1;
     return 0;
 }
+#endif
