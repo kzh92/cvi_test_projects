@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "dic_manage.h"
 #include "common_types.h"
-
+#include <cvimodel_proc.h>
 
 //#define SHA_LEN 20
 //static unsigned char g_abEncData[SHA_LEN] = { 0 };
@@ -43,7 +43,7 @@ extern float g_rSecurityValue;
 ////////////////////////////////////////////////
 //Liveness g_2DLiveness;
 //Liveness g_3DLiveness;
-LiveMnSE    g_nCheckValid_Hand = { 0 };
+Cvimodel    g_nCheckValid_Hand = { 0 };
 
 extern void APP_LOG(const char * format, ...);
 
@@ -54,12 +54,12 @@ int     KdnnCreateCheckValid_Hand(unsigned char* pMem)
     if(!getLoadedDicFlag(MachineFlagIndex_DNN_CheckValid_Hand))
             return KDNN_FAILED;
 
-    if (LiveMnSE_getEngineLoaded(&g_nCheckValid_Hand))
+    if (g_nCheckValid_Hand.m_loaded)
         return KDNN_SUCCESS;
 
-    int nDicSize = LiveMnSE_dnn_dic_size();
+    int nDicSize = DIC_LEN_HAND_CHECK;
     int ret = 0;
-    ret = LiveMnSE_dnn_create_(&g_nCheckValid_Hand, g_dic_checkValid_hand, nDicSize, g_rSecurityValue, pMem);
+    ret = cvimodel_init(g_dic_checkValid_hand, nDicSize, &g_nCheckValid_Hand);
     if(ret)
     {
         return KDNN_FAILED;
@@ -70,7 +70,7 @@ int     KdnnCreateCheckValid_Hand(unsigned char* pMem)
 
 float KdnnCheckValid_Hand(unsigned char * pbImage)
 {
-    if(!LiveMnSE_getEngineLoaded(&g_nCheckValid_Hand) || !getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand))
+    if(!g_nCheckValid_Hand.m_loaded || !getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand))
     {
         APP_LOG("[%d] 26-6-6\n", (int)Now());
         return -1;
@@ -80,7 +80,7 @@ float KdnnCheckValid_Hand(unsigned char * pbImage)
         return -1;
 
     float* res;
-    res = LiveMnSE_dnn_forward(&g_nCheckValid_Hand, pbImage);
+    cvimodel_forward(&g_nCheckValid_Hand, pbImage, 128, 128, &res); 
     if (g_nStopEngine == 1)
     {
         return -1;
@@ -90,7 +90,7 @@ float KdnnCheckValid_Hand(unsigned char * pbImage)
 
 int	KdnnFreeCheckValid_Hand()
 {
-    LiveMnSE_dnn_free(&g_nCheckValid_Hand);
+    cvimodel_release(&g_nCheckValid_Hand);
 
     releaseMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
     return KDNN_SUCCESS;

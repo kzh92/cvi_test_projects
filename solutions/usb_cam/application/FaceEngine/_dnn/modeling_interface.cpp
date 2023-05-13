@@ -33,6 +33,7 @@ int createModelingEngine(unsigned char* pMem, int nMode)
     Cvimodel* p_Modeling = &g_Modeling;
     int nModuleID = MachineFlagIndex_DNN_Modeling;
     unsigned char* p_dic_modeling = g_dic_model;
+    int nDicSize = DIC_LEN_FACE_MODELING;
 
     if(nMode)
     {
@@ -40,6 +41,7 @@ int createModelingEngine(unsigned char* pMem, int nMode)
         p_Modeling = &g_Modeling_Hand;
         nModuleID = MachineFlagIndex_DNN_Modeling_Hand;
         p_dic_modeling = g_dic_model_hand;
+        nDicSize = DIC_LEN_HAND_MODELING;
     }
 
 
@@ -54,7 +56,6 @@ int createModelingEngine(unsigned char* pMem, int nMode)
 
     int nRet = 0;
 
-    int nDicSize = DIC_LEN_FACE_MODELING;
     nRet = cvimodel_init(p_dic_modeling, nDicSize, p_Modeling);
     //nRet = Modeling_dnn_create_(p_Modeling, p_dic_modeling, nDicSize, pMem);
     if(nRet)
@@ -142,7 +143,7 @@ int getFaceModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
 
 int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHeight, unsigned char* tempCropBuffer, float* prHandRect, float* prHandLandmarkPoint)
 {
-    if(/*!Modeling_getEngineLoaded(&g_Modeling_Hand)*/g_Modeling_Hand.m_loaded || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand))
+    if(/*!Modeling_getEngineLoaded(&g_Modeling_Hand)*/!g_Modeling_Hand.m_loaded || !getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand))
     {
         return 1;
     }
@@ -178,7 +179,7 @@ int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
 
     // float *pTemp = Modeling_dnn_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64);
     float *pTemp = 0;
-    cvimodel_forward(&g_Modeling, tempCropBuffer, g_DNN_Modeling_input_width, g_DNN_Modeling_input_height, &pTemp); // ret : box, ret1 : score
+    cvimodel_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64, &pTemp); // ret : box, ret1 : score
 
     int nPointIndex;
     for (nPointIndex = 0; nPointIndex < 7; nPointIndex++)

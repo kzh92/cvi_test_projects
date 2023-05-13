@@ -21,6 +21,10 @@
 #include "common_types.h"
 #include <cvimodel_proc.h>
 
+
+#include <vfs.h>
+#include <sys/fcntl.h>
+
 extern void APP_LOG(const char * format, ...);
 
 #if MODEL_TYPE == RFB_lite
@@ -358,12 +362,14 @@ int createDetectEngine(unsigned char* pMem, int nMode)
     Cvimodel* p_Detector = &g_Detector;
     int nModuleID = MachineFlagIndex_DNN_Detect;
     unsigned char* p_dic_detect = g_dic_detect;
+    int nDicSize = DIC_LEN_FACE_DETECT;
 
     if(nMode == Detect_Mode_Hand)
     {
         p_Detector = &g_Detector_hand;
         nModuleID = MachineFlagIndex_DNN_Detect_Hand;
         p_dic_detect = g_dic_detect_hand;
+        nDicSize = DIC_LEN_HAND_DETECT;
     }
 
     if(p_Detector->m_loaded/*Detect_getEngineLoaded(p_Detector)*/)
@@ -376,7 +382,6 @@ int createDetectEngine(unsigned char* pMem, int nMode)
     }
 
     int nRet = 0;
-    int nDicSize = DIC_LEN_FACE_DETECT;
     nRet = cvimodel_init(p_dic_detect, nDicSize, p_Detector);
     if(nRet)
     {
@@ -606,9 +611,10 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     nCropRect[2] = 792;
     nCropRect[3] = 1408;
 #endif
-    CreateShrinkImage_normalize_FixRate(0, pTempBuffer, bufferWidth, bufferHeight, &rScale, imgBuffer, imageWidth, imageHeight, 127, 1.0f / 128, nCropRect);
     //my_printf("[%d]CreateShrink Time = %f\n", (int)Now(), Now() - startTime);
     //rShrinkTime = Now() - startTime;
+
+    CreateShrinkImage_normalize_FixRate(0, pTempBuffer, bufferWidth, bufferHeight, &rScale, imgBuffer, imageWidth, imageHeight, 127, 1.0f / 128, nCropRect);
 
     int image_w;
     int image_h;
@@ -631,10 +637,12 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     //Detect_dnn_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &scores_ptr, &boxes_ptr, false);
     //printf("g_Detector.dnn_forward Time = %f\n", Now() - startTime);
     //startTime = Now();
+    //my_printf("before cvimodel_forward\n");
+
     cvimodel_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &boxes_ptr, &scores_ptr, 128, 0.0078125);
     //rForwardTime = Now() - startTime;
     //startTime = Now();
-
+    //my_printf("after cvimodel_forward\n");
     if (g_nStopEngine == 1)
     {
         return 0;
@@ -661,14 +669,18 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     {
         priors = priors_Portrait_hand;
         nPrior_Count = priors_Portrait_cnt_hand;
+        // priors = priors_Portrait;
+        // nPrior_Count = NUM_ANCHORS;
     }
     generateBBox(bbox_collection, &bbox_cnt, NUM_ANCHORS_2, scores_ptr, boxes_ptr, score_threshold, nPrior_Count, priors, image_w, image_h);
 
+    //my_printf("after generateBBox\n");
     if (g_nStopEngine == 1)
     {
         return 0;
     }
     nms(bbox_collection, bbox_cnt, face_list, pn_facelist_cnt, nMaxFaceNum, blending_nms);
+    //my_printf("after nms\n");
 
     int nFaceNum =  *pn_facelist_cnt;
     float rScaleX = rScale;

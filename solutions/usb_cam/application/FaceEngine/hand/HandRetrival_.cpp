@@ -108,12 +108,12 @@ int AllocEngineMemory_Hand()
             + sizeof(unsigned short*) * N_MAX_HAND_NUM   //float* g_prDNNEnrolledFeature_Admin_Hand[N_MAX_HAND_NUM];
             + sizeof(unsigned short) * KDNN_FEAT_SIZE;      //float g_arLastDNNFeature_Hand[KDNN_FEAT_SIZE];
 
-    int g_global_dic_size = ENNQ::get_blob_size(HandFeat_dnn_dic_size(),  DIC_MEM_ALIGN_);
-    int g_global_size = DIC_MEM_ALIGN_ + g_global_add_size + g_global_dic_size;
+    //int g_global_dic_size = ENNQ::get_blob_size(HandFeat_dnn_dic_size(),  DIC_MEM_ALIGN_);
+    int g_global_size = DIC_MEM_ALIGN_ + g_global_add_size;
     g_global_memory_hand = (unsigned char*)my_malloc(g_global_size);
     unsigned char* addr = (unsigned char*)(((size_t)(g_global_memory_hand + (DIC_MEM_ALIGN_ - 1))) & (-DIC_MEM_ALIGN_));
 
-    g_dic_feature_hand = addr;           addr += ENNQ::get_blob_size(HandFeat_dnn_dic_size(),    DIC_MEM_ALIGN_);
+    //g_dic_feature_hand = addr;           addr += ENNQ::get_blob_size(HandFeat_dnn_dic_size(),    DIC_MEM_ALIGN_);
     //printf("g_dic_feature_hand = 0x%x\n", (int)g_dic_feature_hand);
 
     g_pAlignBackupBuffer = addr;                     addr += 128 * 128 * HAND_ENROLL_MAX_BACKUP_FRAMECOUNT;
@@ -603,7 +603,7 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
 
     if(*fr_GetBayerYConvertedCameraIndex() != 0)
     {
-        convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage_Hand, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
+        convert_bayer2y_rotate_cm_riscv(pbLedOnImage, g_pbYIrImage_Hand, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
         *fr_GetBayerYConvertedCameraIndex() = 0;
         //printf("Camera 0 Bayer->Y converted\n");
     }
@@ -1213,7 +1213,9 @@ int     fr_RegisterHand()
     float rStart = Now();
     float rPassTime;
     float rPassTimeThreshold = 70;
-    //printf("fr_RegisterHand g_nPassedDirectionCount = %d\n", g_nPassedDirectionCount);
+    my_printf("fr_RegisterHand g_nPassedDirectionCount = %d\n", g_nPassedDirectionCount);
+    my_printf("g_nEnrollProcessCount_Hand %d\n", g_nEnrollProcessCount_Hand);
+    my_printf("g_xEngineResult_Hand.fValid %d\n", g_xEngineResult_Hand.fValid);
     if (g_nEnrollProcessCount_Hand == HAND_ENROLL_FEAT_COUNT)
     {
         g_nPassedDirectionCount ++;
