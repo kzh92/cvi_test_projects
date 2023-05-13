@@ -16,7 +16,7 @@
 #define H_DICT_SIZE2        (0x410D5C)
 
 //mfnp_ir01nq
-#define DNN_FEAT_CHECKSUM       0x32c23245
+#define DNN_FEAT_CHECKSUM       0xafa77ba8
 
 //fdir_1.0 cv
 #define DNN_DETECT_CHECKSUM     0x68d3414

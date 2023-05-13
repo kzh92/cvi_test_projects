@@ -640,6 +640,27 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     //my_printf("before cvimodel_forward\n");
 
     cvimodel_forward(p_Detector, pTempBuffer, bufferWidth, bufferHeight, &boxes_ptr, &scores_ptr, 128, 0.0078125);
+
+#if 0
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/detect_buf.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pTempBuffer, bufferWidth * bufferHeight);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+#endif
+
     //rForwardTime = Now() - startTime;
     //startTime = Now();
     //my_printf("after cvimodel_forward\n");
@@ -679,6 +700,23 @@ int detect(unsigned char* imgBuffer, int imageWidth, int imageHeight, FaceInfo* 
     {
         return 0;
     }
+
+#if 0
+    {
+        int nIndex;
+        my_printf("boxes\n");
+        for(nIndex = 0; nIndex < nPrior_Count; nIndex ++)
+        {
+            my_printf("%f, %f, %f, %f\n", boxes_ptr[nIndex * 4], boxes_ptr[nIndex * 4 + 1], boxes_ptr[nIndex * 4 + 2], boxes_ptr[nIndex * 4 + 3]);
+        }
+        my_printf("score\n");
+        for(nIndex = 0; nIndex < nPrior_Count; nIndex ++)
+        {
+            my_printf("%f, %f\n", scores_ptr[nIndex * 2], scores_ptr[nIndex * 2 + 1]);
+        }
+    }
+#endif
+
     nms(bbox_collection, bbox_cnt, face_list, pn_facelist_cnt, nMaxFaceNum, blending_nms);
     //my_printf("after nms\n");
 

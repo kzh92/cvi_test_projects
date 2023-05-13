@@ -32,6 +32,10 @@
 #include "common_types.h"
 #include <cvimodel_proc.h>
 
+#include <vfs.h>
+#include <sys/fcntl.h>
+
+
 //#define SHA_LEN 20
 //static unsigned char g_abEncData[SHA_LEN] = { 0 };
 //unsigned char*    spoof_data = 0;
@@ -85,6 +89,27 @@ float KdnnCheckValid_Hand(unsigned char * pbImage)
     {
         return -1;
     }
+
+#if 1
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/handcheck_buf_%f_%f.bin", res[0], res[1]);
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pbImage, 128 * 128);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+#endif
+
     return res[1] - res[0];
 }
 

@@ -18,6 +18,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
+#include <vfs.h>
+#include <sys/fcntl.h>
+
+
 #if (N_MAX_HAND_NUM)
 
 SEngineResult g_xEngineResult_Hand;
@@ -445,6 +451,7 @@ int getBestIndex_Hand(FaceInfo* face_info, int n_face_cnt, int &nBadCode, int &n
     return nBestFaceIndexInBadFace;
 }
 
+//int nTempIndex = 0;
 void extarctDNNFeature_process_Hand()
 {
     waitDicChecksum(&g_thread_flag_feat_h);
@@ -461,6 +468,43 @@ void extarctDNNFeature_process_Hand()
         //generateAlignImageForFeature(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, g_pbFaceDetectionBuffer, (getFaceProcessData())->rLandmarkPoint);
 
         int nRet = KdnnDetect_feat(pLiveAlignFeat, g_arLastDNNFeature_Hand, 1);
+        
+#if 0
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/handFeatAlign_buf_%d.bin", nTempIndex);
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, pLiveAlignFeat, 128 * 128);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+        
+        sprintf(szImageFilePath, "/mnt/sd/handFeat_%d.bin", nTempIndex);
+        fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, g_arLastDNNFeature_Hand, sizeof(unsigned short) * KDNN_FEAT_SIZE);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+
+        nTempIndex ++;
+    }
+#endif
         if(g_nStopEngine)
         {
             return;
@@ -1213,9 +1257,9 @@ int     fr_RegisterHand()
     float rStart = Now();
     float rPassTime;
     float rPassTimeThreshold = 70;
-    my_printf("fr_RegisterHand g_nPassedDirectionCount = %d\n", g_nPassedDirectionCount);
-    my_printf("g_nEnrollProcessCount_Hand %d\n", g_nEnrollProcessCount_Hand);
-    my_printf("g_xEngineResult_Hand.fValid %d\n", g_xEngineResult_Hand.fValid);
+    // my_printf("fr_RegisterHand g_nPassedDirectionCount = %d\n", g_nPassedDirectionCount);
+    // my_printf("g_nEnrollProcessCount_Hand %d\n", g_nEnrollProcessCount_Hand);
+    // my_printf("g_xEngineResult_Hand.fValid %d\n", g_xEngineResult_Hand.fValid);
     if (g_nEnrollProcessCount_Hand == HAND_ENROLL_FEAT_COUNT)
     {
         g_nPassedDirectionCount ++;

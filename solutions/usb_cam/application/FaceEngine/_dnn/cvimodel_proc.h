@@ -28,7 +28,7 @@ typedef struct Cvimodel_tag
 #define        DIC_LEN_FACE_LIVE_B      (442504)
 #define        DIC_LEN_FACE_LIVE_B2     (152920)
 #define        DIC_LEN_FACE_LIVE_C      (442504)
-#define        DIC_LEN_FACE_FEATURE     (1543872)
+#define        DIC_LEN_FACE_FEATURE     (3562136)
 
 #define        DIC_LEN_HAND_DETECT      (121464)
 #define        DIC_LEN_HAND_MODELING    (496008)

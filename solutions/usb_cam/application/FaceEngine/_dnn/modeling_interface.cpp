@@ -20,6 +20,8 @@
 
 #include <cvimodel_proc.h>
 
+#include <vfs.h>
+#include <sys/fcntl.h>
 
 Cvimodel g_Modeling = { 0 };
 Cvimodel g_Modeling_Hand = { 0 };
@@ -181,6 +183,35 @@ int getHandModelPoint(unsigned char* pImageBuffer, int nImageWidth, int nImageHe
     float *pTemp = 0;
     cvimodel_forward(&g_Modeling_Hand, tempCropBuffer, 64, 64, &pTemp); // ret : box, ret1 : score
 
+#if 0
+    {
+        char szImageFilePath[255];
+        sprintf(szImageFilePath, "/mnt/sd/model_buf.bin");
+        int fd1 = aos_open(szImageFilePath, O_CREAT | O_RDWR);
+        if(fd1 >= 0)
+        {
+
+            aos_write(fd1, tempCropBuffer, 64 * 64);
+            aos_sync(fd1);
+            aos_close(fd1);
+            APP_LOG("%s saved\n", szImageFilePath);
+        }
+        else
+        {
+            APP_LOG("%s not saved\n", szImageFilePath);
+        }
+    }
+#endif
+#if 0
+    {
+        int nIndex;
+        my_printf("points\n");
+        for(nIndex = 0; nIndex < 7; nIndex ++)
+        {
+            my_printf("%f, %f\n", pTemp[nIndex * 2], pTemp[nIndex * 2 + 1]);
+        }
+    }
+#endif
     int nPointIndex;
     for (nPointIndex = 0; nPointIndex < 7; nPointIndex++)
     {
