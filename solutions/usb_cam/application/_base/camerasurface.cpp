@@ -43,6 +43,8 @@ mythread_ptr       g_capture2 = 0;
 
 mymutex_ptr         g_irWriteLock = 0;
 int                 g_irWriteCond = 0;
+mymutex_ptr         g_irWriteLock2 = 0;
+int                 g_irWriteCond2 = 0;
 mymutex_ptr         g_irOffWriteLock = 0;
 int                 g_irOffWriteCond = 0;
 mymutex_ptr         g_irOffWriteLock2 = 0;
@@ -120,10 +122,13 @@ int             g_nValueSettenPassed = 0;
         } \
     } while(0)
 
+void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height);
+
 void StartFirstCam()
 {
     dbug_printf("[%s] start, %0.3f\n", __func__, Now());
     g_irWriteLock = my_mutex_init();
+    g_irWriteLock2 = my_mutex_init();
     g_captureLock = my_mutex_init();
 
     g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
@@ -174,10 +179,6 @@ void StartCamSurface(int iMode)
     if(iMode == 0)
     {
         fr_InitIRCamera_ExpGain();
-
-        //g_nFaceFailed = 0;
-        //g_nFaceRectValid = 0;
-        //g_faceDetected = 0;
     }
 
 #if (TEST_CAM_MODE == TEST_TCMIPI || TEST_CAM_MODE == TEST_TWO)
@@ -187,22 +188,14 @@ void StartCamSurface(int iMode)
         my_mutex_lock(g_captureLock);
         if(g_iMipiCamInited == -1)
         {
-            g_iMipiCamInited = camera_init(TC_MIPI_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_SUB0);
+            g_iMipiCamInited = camera_init(TC_MIPI_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
             if(g_iMipiCamInited == -1)
             {
                 my_mutex_unlock(g_captureLock);
                 g_xSS.iCamError |= CAM_ERROR_MIPI1;
-#if 0
-                if(g_xSS.iAppType == APP_MAIN)
-                    SendGlobalMsg(MSG_ERROR, ERROR_CAMERA_TCMIPI, 0, 0);
-#endif
             }
             else
             {
-    //#if (IR_LED_ONOFF_MODE == 1)
-    //            camera_set_irled(TC_MIPI_CAM, 2, 0);
-    //#endif
-
                 if(iMode == 0)
                 {
                     camera_set_exp_byreg(TC_MIPI_CAM_LEFT, INIT_EXP);
@@ -231,18 +224,12 @@ void StartCamSurface(int iMode)
 
     if(g_iMipiCamInited == 0 && g_capture0 == 0)
     {
-#if (IR_LED_ONOFF_MODE == 0)
-        GPIO_fast_setvalue(IR_LED, ON);
-#endif
         my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, 0);
     }
 #endif
 #else // USE_VDBTASK
     g_xSS.iRunningCamSurface = 1;
 
-#if (IR_LED_ONOFF_MODE == 0)
-    GPIO_fast_setvalue(IR_LED, ON);
-#endif
     if(iMode == 0)
     {
         fr_InitIRCamera_ExpGain();
@@ -254,7 +241,7 @@ void StartCamSurface(int iMode)
     if(g_iMipiCamInited == -1)
     {
         float r = Now();
-        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2RIGHT);
+        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
         if(Now() - r > 500)
             my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
 
@@ -264,14 +251,10 @@ void StartCamSurface(int iMode)
         }
     }
 
-    if(iMode == 0)
+    if(iMode == 0 && g_iMipiCamInited == 0)
     {
         camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
         camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN, INIT_FINEGAIN);
-    }
-
-    if(iMode == 0 && g_iMipiCamInited == 0)
-    {
         camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
         camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1, INIT_FINEGAIN_1);
     }
@@ -323,6 +306,7 @@ void StopCamSurface()
 #endif // USE_VDBTASK
 
     WaitIRCancel();
+    WaitIRCancel2();
 
     g_iMipiCamInited = -1;
 
@@ -738,15 +722,16 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         unsigned char *ptr = (unsigned char*)stVideoFrame[0].stVFrame.pu8VirAddr[0];
 
-        // dbug_printf("mipi capture: %d, %d, %f, %d, %d\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
+        if (g_iTwoCamFlag != -1)
+            dbug_printf("mipi capture: %df, %do, %0.1f, %dc, %dt\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 
-        if(iFrameCount == 0 && camera_get_actIR() == MIPI_CAM_S2LEFT)
+        if(g_iTwoCamFlag == 0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
         {
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
             //swtich to id->1
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
             iNeedNext = 1;
         }
 
@@ -754,14 +739,13 @@ void* ProcessTCMipiCapture(void */*param*/)
         if(g_iTwoCamFlag == 0 && iNeedNext == 0/* && reserved == 1 && id == MIPI_CAM_SUB0 && iOldReserved == 0*/)
         {
             if(g_iLedOnStatus == 1)
-                GPIO_fast_setvalue(IR_LED, ON);
+                gpio_irled_on(ON);
 
             lockIROffBuffer();
-            //kkk test
-            //genIROffData10bit(stBufInfo.stFrameData.pVirAddr[0], fr_GetOffImageBuffer2(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            genIROffData10bit(ptr, fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
             unlockIROffBuffer();
-            g_iLedOffFrameFlag = RIGHT_IROFF_CAM_RECVED;
-            WaitIROffCancel2();
+            g_iLedOffFrameFlag = LEFT_IROFF_CAM_RECVED;
+            WaitIROffCancel();
             g_iTwoCamFlag ++;
         }
         else if(g_iTwoCamFlag == 1)
@@ -770,7 +754,38 @@ void* ProcessTCMipiCapture(void */*param*/)
         }
         else if(g_iTwoCamFlag == 2)
         {
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+
+            lockIRBuffer();
+            size_t test_pos = 0;
+            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
+            {
+                g_irOnData1[test_pos++] = ptr[k];
+                g_irOnData1[test_pos++] = ptr[k+1];
+                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                    break;
+            }
+            unlockIRBuffer();
+
+#if (USE_VDBTASK)
+            if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+            {
+                fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
+                CalcNextExposure();
+            }
+#endif // USE_VDBTASK
+            WaitIRCancel();
+
+            g_iTwoCamFlag ++;
+        }
+        else if(g_iTwoCamFlag == 3)
+        {
+            g_iTwoCamFlag ++;
+        }
+        else if(g_iTwoCamFlag == 4)
+        {
+            g_iLedOnStatus = 0;
+            gpio_irled_on(OFF);
 
             lockIRBuffer();
             size_t test_pos = 0;
@@ -784,56 +799,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             unlockIRBuffer();
 
             g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == 3)
-        {
-            g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == 4)
-        {
-            g_iLedOnStatus = 0;
-            GPIO_fast_setvalue(IR_LED, OFF);
-
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
-            lockIRBuffer();
-            size_t test_pos = 0;
-            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
-            {
-                g_irOnData1[test_pos++] = ptr[k];
-                g_irOnData1[test_pos++] = ptr[k+1];
-                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                    break;
-            }
-            unlockIRBuffer();
-#if 0
-            char szFileName[256];
-            //save image
-            int fd;
-            sprintf(szFileName, "/mnt/sd/frame%03d.bin", iFrameCount);
-            fd = aos_open(szFileName, O_CREAT | O_RDWR | O_TRUNC);
-            if (fd > -1)
-            {
-                aos_write(fd, g_irOnData1, IR_BUFFER_SIZE);
-                aos_close(fd);
-                my_printf("write ok: %s\n", szFileName);
-            }
-            else
-            {
-                my_printf("open failed: %s\n", szFileName);
-            }
-#endif
-
-            if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
-            {
-                fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
-                CalcNextExposure();
-            }
-
-            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-                my_printf("capture on images!, %d\n", iFrameCount);
-
-            g_iTwoCamFlag ++;
-            WaitIRCancel();
+            WaitIRCancel2();
         }
         else if(g_iTwoCamFlag == 5)
         {
@@ -841,18 +807,17 @@ void* ProcessTCMipiCapture(void */*param*/)
         }
         else if(g_iTwoCamFlag == 6)
         {
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 
             lockIROffBuffer();
-            //kkk test
-            // genIROffData10bit(stBufInfo.stFrameData.pVirAddr[0], fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            genIROffData10bit(ptr, fr_GetOffImageBuffer2(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
             unlockIROffBuffer();
             g_iLedOffFrameFlag |= LEFT_IROFF_CAM_RECVED;
 
             g_iTwoCamFlag = -1;
             iNeedNext = 1;
 
-            WaitIROffCancel();
+            WaitIROffCancel2();
         }
         else if(iNeedNext == 1)
         {
@@ -1326,6 +1291,41 @@ int WaitIRCancel()
     return 0;
 }
 
+int WaitIRTimeout2(int iTimeout)
+{
+    float _oldTime = Now();
+    if (iTimeout <= 0)
+        return ETIMEDOUT;
+
+    while(1)
+    {
+        float _diff = Now() - _oldTime;
+        // dbug_printf("[%s] _diff = %0.3f\n", __func__, _diff);
+        if (_diff > (float)iTimeout)
+            break;
+        my_mutex_lock(g_irWriteLock2);
+        if (g_irWriteCond2 == 1)
+        {
+            my_mutex_unlock(g_irWriteLock2);
+            // dbug_printf("[%s] return 0\n", __func__);
+            return 0;
+        }
+        my_mutex_unlock(g_irWriteLock2);
+        my_usleep(1000);
+    }
+
+    return ETIMEDOUT;
+}
+
+int WaitIRCancel2()
+{
+    my_mutex_lock(g_irWriteLock2);
+    g_irWriteCond2 = 1;
+    // dbug_printf("[%s] set 1, %0.3f\n", __func__, Now());
+    my_mutex_unlock(g_irWriteLock2);
+    return 0;
+}
+
 int camera_set_irled_on(int on)
 {
     if (on)
@@ -1333,8 +1333,10 @@ int camera_set_irled_on(int on)
         g_iLedOnStatus = 1;
         my_mutex_lock(g_irWriteLock);
         g_irWriteCond = 0;
-        dbug_printf("[%s] set 0, %0.3f\n", __func__, Now());
         my_mutex_unlock(g_irWriteLock);
+        my_mutex_lock(g_irWriteLock2);
+        g_irWriteCond2 = 0;
+        my_mutex_unlock(g_irWriteLock2);
     }
     else
         g_iLedOnStatus = 0;

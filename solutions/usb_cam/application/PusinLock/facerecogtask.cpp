@@ -407,6 +407,7 @@ void FaceRecogTask::run()
                 EndIns();
                 StartCamSurface(1);
             }
+            GetRightIrFrame(NULL, iFlag);
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
@@ -718,7 +719,6 @@ int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
     fr_CalcScreenValue(g_irOnData1, IR_SCREEN_GETIMAGE_MODE);
     unlockIRBuffer();
     CalcNextExposure();
-    my_usleep(30*1000);
     if (iFrameCount >= DEFAULT_SNAPIMG_CTRL_CNT)
     {
         if(m_iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
@@ -829,10 +829,12 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
 {
     //in case of 1st IR frame, wait for...
-    if(iUseFirstFrame && !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
+    //if(iUseFirstFrame && !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
     {
-        WAIT_CAM_FRAME(500, WaitIRTimeout);
+        WAIT_CAM_FRAME(500, WaitIRTimeout2);
     }
+    if (!pBuffer)
+        return 0;
     //caution: you should not use pInputImageBuffer2 here!!!
     if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
     {
@@ -1154,13 +1156,13 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
             return 1;
         }
 
-#if (ENGINE_USE_TWO_CAM == 1)
-        if (g_iTwoCamFlag != -1 && !(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
-        {
-            WAIT_CAM_FRAME(500, WaitIROffTimeout);
-        }
-        dbug_printf("g_iTwoCamFlag=%d\n", g_iTwoCamFlag);
-#endif // ENGINE_USE_TWO_CAM
+// #if (ENGINE_USE_TWO_CAM == 1)
+//         if (g_iTwoCamFlag != -1 && !(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
+//         {
+//             WAIT_CAM_FRAME(500, WaitIROffTimeout);
+//         }
+//         dbug_printf("g_iTwoCamFlag=%d\n", g_iTwoCamFlag);
+// #endif // ENGINE_USE_TWO_CAM
 
         g_iTwoCamFlag = 0;
         g_iLedOffFrameFlag = 0;

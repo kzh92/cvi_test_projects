@@ -23,7 +23,7 @@
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t g_i2c1_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 mymutex_ptr g_cam_init_mutex = NULL;
-static int iActiveIRCam = MIPI_CAM_S2RIGHT;
+static int iActiveIRCam = MIPI_CAM_S2LEFT;
 
 #if (USE_VDBTASK)
 mymutex_ptr g_clrBufLocker = 0;
@@ -335,7 +335,7 @@ err_snr:
     my_mi_use_unlock();
     return -1;
 #endif
-    iActiveIRCam = switchIR_to;
+    camera_switch(TC_MIPI_CAM, switchIR_to);
     return 0;
 }
 
@@ -1201,6 +1201,7 @@ int camera_switch(int id, int camid)
     pSnsObj->pfnSnsSwitch(0, camid == MIPI_CAM_S2LEFT);
     iActiveIRCam = camid;
     my_mi_use_unlock();
+    dbug_printf("[%s] %d:%s\n", __func__, iActiveIRCam, iActiveIRCam == MIPI_CAM_S2LEFT?"left":"right");
     return 0;
 }
 

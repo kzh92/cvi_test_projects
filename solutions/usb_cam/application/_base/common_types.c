@@ -93,10 +93,10 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
         //file not found
         my_printf("file not found: %s\n", filename);
     }
-    dbug_printf("[%s] %s, off=%d, %d, %p.\n", __func__, filename, file_offset, read_len, buf);
-    for (int i = 0; i < 16 && i < read_len; i++)
-        dbug_printf("%02x ", ((unsigned char*)buf)[i]);
-    dbug_printf("\n-------------------------------------\n");
+    // dbug_printf("[%s] %s, off=%d, %d, %p.\n", __func__, filename, file_offset, read_len, buf);
+    // for (int i = 0; i < 16 && i < read_len; i++)
+    //     dbug_printf("%02x ", ((unsigned char*)buf)[i]);
+    // dbug_printf("\n-------------------------------------\n");
     return read_len;
 }
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)

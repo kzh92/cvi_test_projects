@@ -68,6 +68,8 @@ void    gammaCorrection_screen(unsigned char* pBuffer, int nWidth, int nHeight);
 int     camera_set_irled_on(int on);
 int     WaitIRTimeout(int iTimeout);
 int     WaitIRCancel();
+int     WaitIRTimeout2(int iTimeout);
+int     WaitIRCancel2();
 int     WaitIROffTimeout(int iTimeout);
 int     WaitIROffCancel();
 int     WaitIROffTimeout2(int iTimeout);

@@ -13,7 +13,8 @@
 
 #define I2C_ADDR_LEFT			0x30
 #define I2C_ADDR_RIGHT			0x32
-CVI_U8 g_is_left_cam = 0;
+#define DEFAULT_LEFT_FLAG		1
+CVI_U8 g_is_left_cam = DEFAULT_LEFT_FLAG;
 
 static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe);
 
@@ -190,18 +191,19 @@ int sc201cs_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 void sc201cs_init(VI_PIPE ViPipe)
 {
 	// sc201cs_i2c_init(ViPipe);
+	int old_value = g_is_left_cam;
 
 	for (int i = 0 ; i < 2; i++)
 	{
-		g_is_left_cam = (i == 1);
+		g_is_left_cam = (i != 0);
 		sc201cs_linear_1200p30_init(ViPipe);
-		if (!g_is_left_cam)
+		if ((old_value && i == 1) || (!old_value && i == 0))
 		{
 			sc201cs_write_register(ViPipe, 0x0100,0x01);
 			sc201cs_write_register(ViPipe, 0x3019,0xfe);
 		}
 	}
-	g_is_left_cam = 0;
+	g_is_left_cam = old_value;
 
 	g_pastSc201cs[ViPipe]->bInit = CVI_TRUE;
 }
