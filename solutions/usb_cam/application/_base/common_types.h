@@ -84,8 +84,8 @@ typedef void* myi2cdesc_ptr;
 #define DICT_PART_SIZE                  (8*1024*1024) //8MB
 #define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE                     0x00100000
-#define FN_WNO_DICT_SIZE                1543872
-#define FN_WNOH_DICT_SIZE               1770624
+#define FN_WNO_DICT_SIZE                3562136
+#define FN_WNOH_DICT_SIZE               2732440
 #if (USE_FP16_ENGINE == 0)
 #define FN_A1_DICT_SIZE                 792992
 #define FN_A2_DICT_SIZE                 792992
@@ -100,11 +100,11 @@ typedef void* myi2cdesc_ptr;
 #define FN_B_DICT_SIZE                  (442504)
 #define FN_B2_DICT_SIZE                 (152920)
 #define FN_C_DICT_SIZE                  (442504)
-#define FN_CH_DICT_SIZE                 (792992 / 2)
+#define FN_CH_DICT_SIZE                 (442504)
 #define FN_DETECT_DICT_SIZE             (129320)
-#define FN_DETECT_H_DICT_SIZE           (180992 / 2)
+#define FN_DETECT_H_DICT_SIZE           (121464)
 #define FN_DLAMK_DICT_SIZE              (624696)
-#define FN_DLAMK_H_DICT_SIZE            451356
+#define FN_DLAMK_H_DICT_SIZE            (496008)
 #endif // USE_FP16_ENGINE == 0
 #define FN_ESN_DICT_SIZE                123860
 #define FN_OCC_DICT_SIZE                363416
