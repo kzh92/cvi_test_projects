@@ -75,7 +75,7 @@ enum E_Baud_Rate
 #define BD_TY_CV180xB_DEMO_V1v0     0
 #define BD_TY_FSDB_1V0              1
 
-#define DEFAULT_BOARD_TYPE          BD_TY_CV180xB_DEMO_V1v0
+#define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
 
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
@@ -334,6 +334,8 @@ enum E_Baud_Rate
 #define FIRMWARE_MAGIC                      "DBS2.0"
 // #undef N_MAX_HAND_NUM
 // #define N_MAX_HAND_NUM                      100
+// #undef DEFAULT_BOARD_TYPE
+// #define DEFAULT_BOARD_TYPE                  BD_TY_CV180xB_DEMO_V1v0
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)
