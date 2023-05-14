@@ -242,6 +242,7 @@ void*   EngineLoadAndCheckFunc(void*)
 #endif
 */
 
+#if (N_MAX_HAND_NUM)
     g_thread_flag_detect_h = 1;
     loadMachineDic(MachineFlagIndex_DNN_Detect_Hand);
     createDetectEngine(g_shared_mem, Detect_Mode_Hand);
@@ -267,7 +268,7 @@ void*   EngineLoadAndCheckFunc(void*)
     loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
     KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
     g_thread_flag_feat_h = 2;
-
+#endif // N_MAX_HAND_NUM
     releaseGlobalCVDicBuffer();
     return NULL;
 }
@@ -674,7 +675,7 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
 #endif
             if(*fr_GetBayerYConvertedCameraIndex() != 1)
             {
-                convert_bayer2y_rotate_cm(pbBayerFromCamera2, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
+                convert_bayer2y_rotate_cm_riscv(pbBayerFromCamera2, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
                 *fr_GetBayerYConvertedCameraIndex() = 1;
                 //printf("Camera 1 Bayer->Y converted\n");
 

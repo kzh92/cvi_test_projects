@@ -1685,7 +1685,7 @@ int		fr_PreExtractFace2(unsigned char *pbBayerFromCamera2)
 
 int		fr_convertCam2(unsigned char *pbBayerFromCamera2)
 {
-    convert_bayer2y_rotate_cm(pbBayerFromCamera2, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
+    convert_bayer2y_rotate_cm_riscv(pbBayerFromCamera2, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
     return ES_SUCCESS;
 }
 

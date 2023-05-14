@@ -36,7 +36,7 @@
 #include "UltraFace.hpp"
 #include "esn_detection.h"
 #include "occ_detection.h"
-#include "convertBayer2Y_cm.h"
+#include "convertBayer2Y_cm_riscv.h"
 #include "modeling_interface.h"
 
 struct  Face_Process_Data

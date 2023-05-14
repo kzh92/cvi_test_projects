@@ -7,7 +7,6 @@
 //#include "modeling.h"
 #include "modeling_interface.h"
 #include <memory.h>
-#include "convertBayer2Y_cm.h"
 #include "FaceRetrievalSystem_base.h"
 #include "manageIRCamera.h"
 #include "KDNN_handValid.h"
