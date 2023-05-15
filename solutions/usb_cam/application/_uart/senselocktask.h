@@ -60,26 +60,6 @@ public:
     static unsigned char    m_encKeyPos[ENC_KEY_SIZE];
     static mymutex_ptr            CommMutex;
 
-#if 0
-    int     SendCmd(int iType, int iP1, int iP2, int iP3);
-    int     SendData(int iType, unsigned char* pbData, int iLen);
-
-    static void             SendAck(int iType, int iSeqNum, int iQ1, int iQ2, int iQ3);
-    static void             SendData(int iType, int iSeqNum, int iAck, int iDataLen, unsigned char* pbData);
-    static unsigned char    GetCheckSum(FM_CMD* pxCmd);
-protected:
-    void    run();
-
-    FM_CMD              CommCmd(FM_CMD xCmd);
-    FM_CMD              CommData(FM_CMD xCmd, unsigned char* pbData, int iLen);
-    FM_CMD              ParseCmd(unsigned char* pbData, int iLen);
-    unsigned char       GenSeq(int iFlag, unsigned char bSeqNum);
-
-
-    int                 RecvCmd(FM_CMD* pxCmd);
-    int                 RecvData(unsigned char* pbData, int iLen);
-#endif
-
     static s_msg*       Get_Reply_Init_Encryption_Data(int iResult);
     static s_msg*       Get_Reply_PowerDown();
     static s_msg*       Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd = -1);
@@ -111,7 +91,8 @@ protected:
     static int          SetBaudrate(int index);
 
     void                Send_Msg(s_msg* msg);
-    void                SetActive(int a) {m_iActive = a;}
+    void                SetActive(int a) {m_rActive = a ? Now() : 0;}
+    int                 SendReady();
 
 protected:
     static int          Encrypt_Msg_Xor(unsigned char* pbSrc, int iSrcLen, unsigned char* pbOut);
@@ -128,7 +109,8 @@ protected:
     int                 m_iMutex;
     int                 m_iComm;
 
-    int                 m_iActive;
+    float               m_rActive;
+    float               m_rRecvCmdTime;
 #if 0
     pthread_mutex_t     m_mutex;
     pthread_cond_t      m_cond;

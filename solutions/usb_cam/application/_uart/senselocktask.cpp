@@ -73,6 +73,8 @@ void SenseLockTask::Init()
     m_cond = PTHREAD_COND_INITIALIZER;
 #endif
     m_thread = NULL;
+    m_rActive = 0;
+    m_rRecvCmdTime = 0;
 }
 
 void SenseLockTask::Deinit()
@@ -87,7 +89,7 @@ int SenseLockTask::Start()
         m_iEnd = 1;
     //    m_iSendType = 0;
         m_iComm = 0;
-        m_iActive = 0;
+        SetActive(0);
         message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 #ifndef NOTHREAD_MUL
         if(my_thread_create_ext(&m_thread, NULL, senseLockTask_ThreadProc1, this, (char*)"stask", 16384, 0 /*MYTHREAD_PRIORITY_MEDIUM*/))
@@ -515,14 +517,24 @@ void SenseLockTask::run()
 
         my_mutex_unlock(SenseLockTask::CommMutex);
         if(pMsg == NULL)
+        {
+            if (m_rRecvCmdTime == 0 && m_rActive != 0)
+            {
+                if (Now() - m_rActive > 200)
+                {
+                    SendReady();
+                }
+            }
             continue;
+        }
 
         s_msg* msg = (s_msg*)pMsg;
 
         if (g_xSS.iUsbHostMode == 0)
             g_xSS.rLastSenseCmdTime = Now();
+        m_rRecvCmdTime = Now();
 
-        if(m_iActive == 0)
+        if(m_rActive == 0)
         {
             my_printf("Recv MID (0x%x) in inactive state..... %f\n", msg->mid, Now());
             my_free(msg);
@@ -1569,7 +1581,6 @@ int SenseLockTask::Set_Key(unsigned char* pbSeed, int iSize, int iMode, char* st
     return 0;
 }
 
-
 unsigned char SenseLockTask::Get_CheckSum(unsigned char* pbData, int iLen)
 {
     unsigned char bCheckSum = 0;
@@ -1629,6 +1640,21 @@ int SenseLockTask::Get_MsgLen(s_msg* msg)
         return 0;
 
     return TO_SHORT(msg->size_heb, msg->size_leb);
+}
+
+int SenseLockTask::SendReady()
+{
+    s_msg* msg = Get_Note(NID_READY);
+    if (msg)
+    {
+        SetActive(1);
+        Send_Msg(msg);
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 void SenseLockTask::ThreadProc()
