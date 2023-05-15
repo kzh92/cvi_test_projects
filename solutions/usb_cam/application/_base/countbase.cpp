@@ -584,8 +584,8 @@ int ReadSystemRunningCount()
 
 void IncreaseSystemRunningCount()
 {
-    g_xHD2.x.iBootingCount ++;
-    UpdateHeadInfos2();
+    // g_xHD2.x.iBootingCount ++;
+    // UpdateHeadInfos2();
 }
 
 int ReadSystemRunningCount1()
@@ -595,6 +595,6 @@ int ReadSystemRunningCount1()
 
 void IncreaseSystemRunningCount1()
 {
-    g_xHD2.x.iBootingCount1 ++;
-    UpdateHeadInfos2();
+    // g_xHD2.x.iBootingCount1 ++;
+    // UpdateHeadInfos2();
 }
