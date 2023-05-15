@@ -595,7 +595,7 @@ void FaceRecogTask::run()
 
     memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
 
-#if PROTECT_ENGINE
+#if (DEFAULT_SECURE_MODE == 1)
     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
     unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
     memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
@@ -605,7 +605,7 @@ void FaceRecogTask::run()
         UpdateCommonSettings();
     if (memcmp(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2)))
         UpdateHeadInfos2();
-#endif // PROTECT_ENGINE
+#endif // DEFAULT_SECURE_MODE
 
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
     dbug_printf("[Recog] Verify Face End!\n");

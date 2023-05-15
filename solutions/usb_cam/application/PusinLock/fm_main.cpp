@@ -2734,7 +2734,7 @@ int ProcessSenseFace(int iCmd)
                     {
                         msg = SenseLockTask::Get_Reply_CamError(MID_VERIFY, MR_FAILED4_CAMERA, g_xSS.iCamError);
                     }
-#ifdef PROTECT_ENGINE
+#if (DEFAULT_SECURE_MODE == 1)
                     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
                     unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
                     memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
@@ -2744,7 +2744,7 @@ int ProcessSenseFace(int iCmd)
                         UpdateCommonSettings();
                     if (memcmp(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2)))
                         UpdateHeadInfos2();
-#endif // PROTECT_ENGINE
+#endif // DEFAULT_SECURE_MODE
 
                     ResetFaceRegisterStates();
                     if(g_xSS.iSendLastMsgMode)
@@ -2757,7 +2757,7 @@ int ProcessSenseFace(int iCmd)
                 {
                     dbug_printf("FACE_RESULT_FAILED\n");
 
-#ifdef PROTECT_ENGINE
+#if (DEFAULT_SECURE_MODE == 1)
                     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
                     unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
                     memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
@@ -2767,7 +2767,7 @@ int ProcessSenseFace(int iCmd)
                         UpdateCommonSettings();
                     if (memcmp(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2)))
                         UpdateHeadInfos2();
-#endif // PROTECT_ENGINE
+#endif // DEFAULT_SECURE_MODE
 
                     s_msg* msg = NULL;
 #if (DESMAN_ENC_MODE == 0)
@@ -2897,7 +2897,7 @@ int ProcessSenseFace(int iCmd)
                 else if(iResult == FACE_RESULT_TIMEOUT)
                 {
                     dbug_printf("FACE_RESULT_TIMEOUT\n");
-#ifdef PROTECT_ENGINE
+#if (DEFAULT_SECURE_MODE == 1)
                     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
                     unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
                     memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
@@ -2907,7 +2907,7 @@ int ProcessSenseFace(int iCmd)
                         UpdateCommonSettings();
                     if (memcmp(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2)))
                         UpdateHeadInfos2();
-#endif // PROTECT_ENGINE
+#endif // DEFAULT_SECURE_MODE
                     if(iCmd == FaceRecogTask::E_REGISTER)
                     {
                         s_msg* msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_FAILED4_TIMEOUT);
@@ -3039,7 +3039,7 @@ int ProcessSenseFace(int iCmd)
                     s_msg* msg = NULL;
                     msg = SenseLockTask::Get_Reply_Verify(MR_SUCCESS, iID + N_MAX_PERSON_NUM + 1, ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK);
 
-#if PROTECT_ENGINE
+#if (DEFAULT_SECURE_MODE == 1)
                     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
                     unsigned char _tmp_buf_hd2[sizeof(g_xHD2)];
                     memcpy(_tmp_buf_cs, &g_xCS, sizeof(g_xCS));
@@ -3049,7 +3049,7 @@ int ProcessSenseFace(int iCmd)
                         UpdateCommonSettings();
                     if (memcmp(_tmp_buf_hd2, &g_xHD2, sizeof(g_xHD2)))
                         UpdateHeadInfos2();
-#endif // PROTECT_ENGINE
+#endif // DEFAULT_SECURE_MODE
 
                     if (msg != NULL)
                         g_pSenseTask->Send_Msg(msg);

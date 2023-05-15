@@ -1415,6 +1415,7 @@ void fr_InitEngine(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum
 
 void fr_InitLive()
 {
+#if 1
 extern void* EngineLoadAndCheckFunc(void*);
     if(!g_xEngineParam.fLoadDict)
     {
@@ -1423,6 +1424,7 @@ extern void* EngineLoadAndCheckFunc(void*);
         g_xEngineParam.fLoadDict = 1;
     }
     return;
+#endif
 }
 
 void    fr_FreeEngine()

@@ -212,6 +212,7 @@ enum E_Baud_Rate
 #define DEFAULT_SECURE_FALSE_VAL    5  //caution!!! DO NOT MODIFY this value.
 #define DEFAULT_SECURE_STEP1        8
 #define DEFAULT_SECURE_STEP2        24
+#define DEFAULT_SECURE_MODE         0
 #define DEFAULT_PROTO_ENC_MODE      0  //0: plain text mode, 1: default encryption mode, 2: XOR_1
 #define DEFAULT_PROTO_EM_XOR1_KEY   PROTO_EM_XOR1_KEY_LANHENG
 #define DEFAULT_PROTO_ENC_KEY_NO    0   //no default key

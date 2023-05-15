@@ -273,19 +273,16 @@ void*   EngineLoadAndCheckFunc(void*)
     return NULL;
 }
 
-void    fr_InitEngine_dnn()
+void fr_InitEngine_dnn()
 {
-    
-// #ifdef __RTK_OS__
-//     my_thread_create_ext(&g_EngineInitThrad, 0, EngineLoadAndCheckFunc, NULL, (char*)"EngineInitThread", 16 * 1024, MYTHREAD_PRIORITY_MEDIUM);
-// #else
-//     if(g_EngineInitThrad == 0)
-//     {
-//         pthread_create (&g_EngineInitThrad, 0, EngineLoadAndCheckFunc, NULL);
-//     }
-// #endif
-
-
+#ifdef __RTK_OS__
+    my_thread_create_ext(&g_EngineInitThrad, 0, EngineLoadAndCheckFunc, NULL, (char*)"EngineInitThread", 16 * 1024, MYTHREAD_PRIORITY_MEDIUM);
+#else
+    if(g_EngineInitThrad == 0)
+    {
+        pthread_create (&g_EngineInitThrad, 0, EngineLoadAndCheckFunc, NULL);
+    }
+#endif
 }
 
 int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage)
