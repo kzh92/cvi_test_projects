@@ -348,9 +348,7 @@ int GotoMain()
     iRet = processGlobalMsg();
 #else // ! NOTHREAD_MUL
 
-    s_msg* msg = SenseLockTask::Get_Note(NID_READY);
-    g_pSenseTask->SetActive(1);
-    g_pSenseTask->Send_Msg(msg);
+    g_pSenseTask->SendReady();
     my_printf("Send Ready2: %f\n", Now());
 
     iRet = g_pSenseTask->doProcess();
@@ -1121,9 +1119,7 @@ static int main1(int argc, char** argv)
     start_restore_roofs();
 #endif
 #ifndef NOTHREAD_MUL
-    s_msg* msg = SenseLockTask::Get_Note(NID_READY);
-    g_pSenseTask->SetActive(1);
-    g_pSenseTask->Send_Msg(msg);
+    g_pSenseTask->SendReady();
     my_printf("Send Ready1: %f\n", Now());
 #endif // ! NOTHREAD_MUL
 #endif // FM_PROTOCOL
@@ -2222,13 +2218,8 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_POWERDOWN_ED)
     {
         dbug_printf("MID_POWERDOWN, ED\n");
-
         ResetFMStates();
-
         g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN_ED, MR_SUCCESS));
-#if (!USE_VDBTASK)
-        iRet = 0;
-#endif
     }
     else if(pSenseMsg->mid == MID_DEMOMODE)
     {

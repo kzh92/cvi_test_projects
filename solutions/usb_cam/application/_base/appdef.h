@@ -304,8 +304,8 @@ enum E_Baud_Rate
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "1.14.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "1.14.0_D"
+#define DEVICE_FIRMWARE_VERSION             "1.14.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "1.14.0.1_D"
 
 #define DEVICE_NID_READY_VER                0 //'C'=0x43, for desman, else 0=NID_READY
 #undef SEND_LAST_MSG
@@ -315,7 +315,7 @@ enum E_Baud_Rate
 #undef ENROLL_DUPLICATION_CHECK
 #define ENROLL_DUPLICATION_CHECK            1
 #undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              0
+#define DEFAULT_PROTO_ENC_MODE              2
 #undef USE_DEMOMODE2
 #define USE_DEMOMODE2                       1
 #undef DEFAULT_LIVENESS_MODE
@@ -332,6 +332,8 @@ enum E_Baud_Rate
 #define ENGINE_LENS_TYPE                    ENGINE_LENS_M277_2409
 #undef FIRMWARE_MAGIC
 #define FIRMWARE_MAGIC                      "DBS2.0"
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
 // #undef N_MAX_HAND_NUM
 // #define N_MAX_HAND_NUM                      100
 // #undef DEFAULT_BOARD_TYPE

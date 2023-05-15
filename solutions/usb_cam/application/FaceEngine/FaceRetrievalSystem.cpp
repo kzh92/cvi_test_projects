@@ -403,7 +403,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 1
+#if 0
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
@@ -1415,6 +1415,13 @@ void fr_InitEngine(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum
 
 void fr_InitLive()
 {
+extern void* EngineLoadAndCheckFunc(void*);
+    if(!g_xEngineParam.fLoadDict)
+    {
+        AllocEngineMemory();
+        EngineLoadAndCheckFunc(NULL);
+        g_xEngineParam.fLoadDict = 1;
+    }
     return;
 }
 
@@ -2092,7 +2099,7 @@ void extarctDNNFeature_process()
         //generateAlignImageForFeature(g_pbYIrImage, g_xEngineParam.nDetectionWidth, g_xEngineParam.nDetectionHeight, g_pbFaceDetectionBuffer, (getFaceProcessData())->rLandmarkPoint);
 
         int nRet = KdnnDetect_feat(pLiveAlignFeat, g_arLastDNNFeature, 0);
-#if 1
+#if 0
     {
         char szImageFilePath[255];
         sprintf(szImageFilePath, "/mnt/sd/FaceFeatAlign_buf_%d.bin", nTempIndex11);
