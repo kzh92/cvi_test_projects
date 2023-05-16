@@ -8,6 +8,7 @@
 #include "upgradebase.h"
 //#include "facemodulecmd.h"
 #include "facemoduletask.h"
+#include "common_types.h"
 
 // #include <stdio.h>
 #include <stdlib.h>
@@ -776,6 +777,30 @@ void* ProcessRestore(void*)
 
 void* dbPartRestore(void*)
 {
+#if 1
+    my_printf("@@@ Copy Start %f\n", Now());
+    int FILESIZE = sizeof(DB_INFO);
+    int real_file_len;
+    int write_file_len;
+    unsigned char *buf = (unsigned char*)my_malloc(FILESIZE);
+    if (buf == NULL)
+    {
+        printf("@@@ dbPartRestore buf malloc fail\n");
+        return NULL;
+    }
+    real_file_len = my_flash_part_read(dbfs_part_names[DB_PART_BACKUP], 0, buf, FILESIZE);
+    if (real_file_len != FILESIZE)
+    {
+        printf("@@@ read backupdb fail\n");
+        return NULL;
+    }
+    write_file_len = my_flash_part_write(dbfs_part_names[DB_PART1], 0, buf, FILESIZE);
+    if (write_file_len != FILESIZE)
+    {
+        printf("@@@ write userdb fail\n");
+        return NULL;
+    }
+#else
     unsigned int len;
     unsigned int copy_size = 0x2000;
     unsigned char *pbData;
@@ -833,7 +858,7 @@ void* dbPartRestore(void*)
         fail_count = 0;
         my_usleep(1);
     }
-
+#endif
     my_printf("@@@ Copy End %f\n", Now());
     my_thread_exit(NULL);
     return NULL;
@@ -901,7 +926,8 @@ int start_restore_roofs()
 
 int start_restore_dbPart()
 {
-    my_thread_create_ext(&g_restoreDB, 0, dbPartRestore, NULL, (char*)"restoreDB", 4096, MYTHREAD_PRIORITY_LOW);
+    dbPartRestore(NULL);
+    //my_thread_create_ext(&g_restoreDB, 0, dbPartRestore, NULL, (char*)"restoreDB", 4096, MYTHREAD_PRIORITY_LOW);
     return 0;
 }
 int end_restore_dbPart()

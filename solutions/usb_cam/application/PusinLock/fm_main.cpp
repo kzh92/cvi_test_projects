@@ -1010,17 +1010,11 @@ static int main1(int argc, char** argv)
         }
     }
 #else // !__RTK_OS__
-    // if (!g_xSS.idbPartNoRestore && dbfs_get_cur_part() == DB_PART_BACKUP)
-    // {
-    //     my_printf("@@@ Restore DBpartition!\n");
-    //     start_restore_dbPart();
-    // }
-    // else if(g_xROKLog.x.iDBformatCount > 0 && dbfs_get_cur_part() != DB_PART_BACKUP)
-    // {
-    //     my_printf("@@@ Restore block = %d\n", g_xROKLog.x.iDBformatCount);
-    //     g_xROKLog.x.iDBformatCount = 0;
-    //     UpdateROKLogs();
-    // }
+    if (dbfs_get_cur_part() == DB_PART_BACKUP)
+    {
+        my_printf("@@@ Restore DBpartition!\n");
+        start_restore_dbPart();
+    }
 #endif // !__RTK_OS__
 
 #if (FM_PROTOCOL == FM_EASEN)

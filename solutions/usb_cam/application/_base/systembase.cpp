@@ -76,30 +76,33 @@ exit2:
         if (iCheckOk)
             goto exit1;
 #else // N_MAX_HAND_NUM == 0
-        iRet = FaceEngine::CreateHand(ENROLL_DUPLICATION_CHECK, g_xSS.iCameraRotate, g_xPS.x.iChecksumDNN, g_xPS.x.iCheckSumH);
-        my_printf("2.h = %d, u = %d, %d.\n", dbm_GetHandCount(), g_xCS.x.bHandCount, iCheckOk);
-
-        if(iRet != ES_FILE_ERROR && dbm_GetHandCount() == g_xCS.x.bHandCount)
+        if (iCheckOk)
         {
-            if(argc != 1)
-                goto exit1;
+            iRet = FaceEngine::CreateHand(ENROLL_DUPLICATION_CHECK, g_xSS.iCameraRotate, g_xPS.x.iChecksumDNN, g_xPS.x.iCheckSumH);
+            my_printf("2.h = %d, u = %d, %d.\n", dbm_GetHandCount(), g_xCS.x.bHandCount, iCheckOk);
 
-            if(IsModifyUser())
+            if(iRet != ES_FILE_ERROR && dbm_GetHandCount() == g_xCS.x.bHandCount)
             {
-                // int iCheck = 0;
+                if(argc != 1)
+                    goto exit1;
 
-                // mount_backup_db(MS_RDONLY | MS_NOATIME);
-                // mount_backup_db();
-                // iCheck = dbm_CheckHandBackupDBInfos();
-                // umount_backup_db();
+                if(IsModifyUser())
+                {
+                    // int iCheck = 0;
 
-//                printf("[DB]: CheckBackupDBInfo: %d\n", iCheck);
-                // if(iCheck == 0)     //ok
-                //     goto exit1;
-                goto exit1;
+                    // mount_backup_db(MS_RDONLY | MS_NOATIME);
+                    // mount_backup_db();
+                    // iCheck = dbm_CheckHandBackupDBInfos();
+                    // umount_backup_db();
+
+    //                printf("[DB]: CheckBackupDBInfo: %d\n", iCheck);
+                    // if(iCheck == 0)     //ok
+                    //     goto exit1;
+                    goto exit1;
+                }
+                else
+                    goto exit1;
             }
-            else
-                goto exit1;
         }
 #endif // N_MAX_HAND_NUM == 0
 
