@@ -408,7 +408,6 @@ int processGlobalMsg()
                     }
                     pMsg = NULL;
                     iRet = 0;
-                    g_xSS.iStartOta = 1;
                     break;
                 }
                 else if (pMsg->data2 != OTA_RECV_PCK)
@@ -699,77 +698,6 @@ int main0(int argc, char** argv)
     int iRet = 0;
     g_rAppStartTime = Now();
 
-#if 0
-    int ret = 0;
-    int buf_len = 0;
-    //unsigned char buf_src[] = {0xa0, 0x54, 0x30, 0x8d, 0xa2, 0x1b, 0x4c, 0xe8, 0x77, 0x12, 0xe8, 0x89, 0x7f, 0x3e, 0x57, 0x82};
-    unsigned char* buf_src = NULL;
-    //unsigned char buf_dst[buf_len*2] = { 0 };
-    unsigned char* buf_dst;
-    size_t out_len = 0;
-    unsigned char ivect[8] = { 0 };
-    buf_src = (unsigned char*)my_malloc(FN_WNO_DICT_SIZE);
-    if (!buf_src)
-    {
-        my_printf("malloc failed\n");
-        return 0;
-    }
-    fr_ReadFileData(FN_WNO_DICT_PATH, 0, buf_src, FN_WNO_DICT_SIZE);
-    my_printf("test encryption start %0.3f\n", Now());
-    mbedtls_cipher_context_t ctx;
-    mbedtls_cipher_init(&ctx);
-    const mbedtls_cipher_info_t * cinfo = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_DES_CBC);
-    if (cinfo)
-    {
-        mbedtls_cipher_setup(&ctx, cinfo);
-        if (mbedtls_cipher_set_padding_mode(&ctx, MBEDTLS_PADDING_NONE) != 0) {
-            my_printf("set padding failed\n");
-            return 0;
-        }
-        ret = mbedtls_cipher_setkey(&ctx, g_abKey, MBEDTLS_KEY_LENGTH_DES, MBEDTLS_DECRYPT);
-        if (ret)
-        {
-            my_printf("set key fail:%08x\n", -ret);
-            return 0;
-        }
-        else
-        {
-            buf_len = FN_WNO_DICT_SIZE - (FN_WNO_DICT_SIZE % 8);
-            out_len = FN_WNO_DICT_SIZE;
-            buf_dst = (unsigned char*)my_malloc(out_len);
-            if (buf_dst)
-            {
-                ret = mbedtls_cipher_crypt(&ctx, ivect, 8, buf_src, buf_len, buf_dst, &out_len);
-                if (ret)
-                {
-                    my_printf("crypt failed: %08x\n", -ret);
-                }
-                else
-                {
-                    my_printf("crypt ok(%ld) %0.3f:", out_len, Now());
-                    for (int i = 0; i < (int)32; i ++)
-                        my_printf("%02x ", buf_dst[i]);
-                    my_printf("\n");
-                }
-                my_free(buf_dst);
-            }
-            else
-            {
-                my_printf("dst malloc fail\n");
-            }
-        }
-    }
-    else
-    {
-        my_printf("mbedtls_cipher_info_from_type failed\n");
-    }
-
-    mbedtls_cipher_free(&ctx);
-    my_free(buf_src);
-
-    my_printf("test encryption end %0.3f\n", Now());
-#endif
-
     DriverInit();
 
     message_queue_init(&g_worker, sizeof(MSG), MAX_MSG_NUM);
@@ -785,14 +713,15 @@ int main0(int argc, char** argv)
 
     ResetSystemState(APP_MAIN);
 
-    my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 4096, MYTHREAD_PRIORITY_MEDIUM);
+    fr_InitLive();
+    fr_InitIRCamera_ExpGain();
+    my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
 
 #if (USE_VDBTASK)
     StartClrCam();
 #endif // USE_VDBTASK
 
     //EngineMapInit();
-    fr_InitIRCamera_ExpGain();
 
     int iUpgradeFlag = g_xCS.x.bUpgradeFlag;
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;

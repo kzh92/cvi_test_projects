@@ -829,7 +829,7 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
 {
     //in case of 1st IR frame, wait for...
-    //if(iUseFirstFrame && !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
+    if(!iUseFirstFrame || !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
     {
         WAIT_CAM_FRAME(500, WaitIRTimeout2);
     }
@@ -1137,9 +1137,6 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
     if((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && !(g_iFirstCamFlag & FIRST_IR_PROCESSED))
     {
         g_iFirstCamFlag |= FIRST_IR_PROCESSED;
-
-        fr_InitIRCamera_ExpGain();
-
         *p_iUseFirstFrame = 1;
     }
     else

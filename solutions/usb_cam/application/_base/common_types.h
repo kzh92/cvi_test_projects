@@ -168,6 +168,11 @@ typedef void* myi2cdesc_ptr;
 #define FN_TEST_WAV_PATH    "sound/test.wav"
 #define FN_TEST_WAV_SIZE    91606
 
+typedef struct {
+    char* m_filename;
+    int m_filesize;
+    int m_checksum;
+} st_file_offsize;
 
 #ifdef __cplusplus
 extern  "C"
@@ -278,10 +283,8 @@ void            dbfs_set_cur_part(int part_no);
 int my_msync(void*, int);
 int my_munmap(void*, int);
 
-#ifdef UPGRADE_MODE
 int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
-#endif
 #define my_printf printf
 #define dbug_printf printf
 // #define dbug_printf(...)
@@ -311,5 +314,10 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
 extern const char*  dbfs_part_names[DB_PART_END+1];
 extern SHARED_MEM*  g_pxSharedMem;
 extern SHARED_MEM*  g_pxSharedLCD;
+#ifdef __cplusplus
+extern "C" st_file_offsize g_part_files[];
+#else // __cplusplus
+extern st_file_offsize g_part_files[];
+#endif // __cplusplus
 
 #endif //!_COMMON_TYPES_H

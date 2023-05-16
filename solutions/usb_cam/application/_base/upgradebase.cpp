@@ -5,6 +5,7 @@
 #include "folderfile.h"
 #include "aescrypt.h"
 #include "common_types.h"
+#include "check_firmware.h"
 #endif // !_PACK_OTA_
 
 #include <string.h>
@@ -166,6 +167,12 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
 int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned int u_size, uf_file_header* u_header)
 {
     int idx = 0;
+    if (strstr(u_filepath, "easen_check_firmware"))
+    {
+        g_xCS.x.bCheckFirmware = 1;
+        doCheckFirmware();
+        return 0;
+    }
     while(u_header->m_part_infos[idx].m_size > 0)
     {
         dbug_printf("[%s] %d:%s:%08x\n", __func__, idx, 

@@ -19,14 +19,11 @@
 #include "cvi_tpu_interface.h"
 #include "drv_gpio.h"
 
-extern void fr_InitLive();
-
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
 #endif
 
 #define TAG "app"
-
 
 int main(int argc, char *argv[])
 {
@@ -60,7 +57,6 @@ int main(int argc, char *argv[])
 	#endif
 	//init tpu
 	cvi_tpu_init();
-	fr_InitLive();
 	fmMain();
 	
 	APP_CustomEventStart();
