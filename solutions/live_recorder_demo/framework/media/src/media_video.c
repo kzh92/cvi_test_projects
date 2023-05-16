@@ -1204,14 +1204,14 @@ void efuse_fastboot()
     csi_efuse_init(&efuse, 0);
     int ret = CVI_EFUSE_EnableFastBoot();
     if (ret == CVI_SUCCESS) {
-        printf("fast boot enable\n");   
+        // printf("fast boot enable\n");   
     }else {
         printf("CVI_EFUSE_EnableFastBoot ret=%d\n", ret);
     }
     
     ret = CVI_EFUSE_IsFastBootEnabled();
     if (ret == CVI_SUCCESS) {
-        printf("fast boot enable\n");   
+        // printf("fast boot enable\n");   
     }
     else {
         printf("CVI_EFUSE_IsFastBootEnabled ret=%d\n", ret);

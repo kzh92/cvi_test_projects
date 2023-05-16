@@ -100,7 +100,7 @@ csi_error_t cvi_efuse_program_word(uint32_t addr, const uint32_t data)
     exist_data = (~exist_data) & data; 
 
     if (exist_data == 0) {
-        printf("no data need write\n");
+        // printf("no data need write\n");
         return CSI_OK;        
     }
 
