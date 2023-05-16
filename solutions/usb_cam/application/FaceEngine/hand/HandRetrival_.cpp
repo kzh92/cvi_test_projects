@@ -181,16 +181,8 @@ void*   EngineLoadAndCheckFunc_Hand(void*)
 
 int createHandEngine_()
 {
-    my_printf("createHandEngine_\n");
-#ifdef __RTK_OS__
-    my_thread_create_ext(&g_EngineInitThrad_Hand, 0, EngineLoadAndCheckFunc_Hand, NULL, (char*)"EngineInitThread", 16 * 1024, MYTHREAD_PRIORITY_MEDIUM);
-#else
-    if(g_EngineInitThrad_Hand == 0)
-    {
-        pthread_create(&g_EngineInitThrad_Hand, 0, EngineLoadAndCheckFunc_Hand, NULL);
-    }
-#endif
-
+    LOG_PRINT("createHandEngine_\n");
+    EngineLoadAndCheckFunc_Hand(NULL);
     return ES_SUCCESS;
 }
 
@@ -831,7 +823,7 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
 
     if(*fr_GetBayerYConvertedCameraIndex() != 1)
     {
-        convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage_Hand, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
+        convert_bayer2y_rotate_cm_riscv(pbLedOnImage, g_pbYIrImage_Hand, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, 1 - g_xEngineParam.iCamFlip);
         *fr_GetBayerYConvertedCameraIndex() = 1;
         //printf("Camera 1 Bayer->Y converted\n");
     }

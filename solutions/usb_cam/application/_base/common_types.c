@@ -1269,9 +1269,11 @@ int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, u
     unsigned int write_len;
     unsigned int write_off;
     unsigned int total_len = 0;
-    LOG_PRINT("[%s] %08x, %p, %08x, p=%d, s=%08x, e=%08x\n", __func__, 
-        offset, buf, length, 
-        page_count, start_off, end_off);
+    LOG_PRINT("[%s] %s, %x, %p, %x\n", __func__, part_name,
+        offset, buf, length);
+    // LOG_PRINT("[%s] %08x, %p, %08x, p=%d, s=%08x, e=%08x\n", __func__, 
+    //     offset, buf, length, 
+    //     page_count, start_off, end_off);
     _tmp_buf = (unsigned char*)my_malloc(flash_page_size);
     if (_tmp_buf == NULL)
         return 0;

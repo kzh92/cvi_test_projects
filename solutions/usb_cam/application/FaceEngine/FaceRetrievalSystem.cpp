@@ -403,7 +403,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 0
+#if 1
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
@@ -1471,8 +1471,8 @@ void fr_SetCameraFlip(int iCameraFlip)
 void fr_EnableLogFile(int iEnable)
 {
     g_xEngineParam.iEnableLogFile = iEnable;
-
-    APP_LOG("Log Start!\n");
+    if (g_xEngineParam.iEnableLogFile)
+        APP_LOG("Log Start!\n");
 }
 
 

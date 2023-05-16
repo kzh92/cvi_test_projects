@@ -86,7 +86,8 @@ int main(int /*argc*/, char** /*argv*/)
     system("cp -f " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
     //system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
 #if (N_MAX_HAND_NUM)
-    system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
+    //system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
+    system("cp -f " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
 #endif
 
 #if (USE_TWIN_ENGINE == 1)
@@ -116,6 +117,7 @@ int main(int /*argc*/, char** /*argv*/)
         FACEENGINEDIR "/Dic/detect_h.bin",
         FACEENGINEDIR "/Dic/dlamk_h.bin",
         FACEENGINEDIR "/Dic/ch.bin",
+        RESOURCEDIR "/wnh_encode.bin",
     #endif // N_MAX_HAND_NUM
     #if (USE_TWIN_ENGINE)
         FACEENGINEDIR "/Dic/hdic_2.bin",

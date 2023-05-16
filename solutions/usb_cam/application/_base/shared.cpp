@@ -412,11 +412,21 @@ void PrintFreeMem()
  */
 void UpdateUserCount()
 {
+    int iUpdateFlag = 0;
     if (g_xCS.x.bUserCount != dbm_GetPersonCount())
     {
         g_xCS.x.bUserCount = dbm_GetPersonCount();
-        UpdateCommonSettings();
+        iUpdateFlag = 1;
     }
+#if (N_MAX_HAND_NUM)
+    if (g_xCS.x.bHandCount != dbm_GetHandCount())
+    {
+        g_xCS.x.bHandCount = dbm_GetHandCount();
+        iUpdateFlag = 1;
+    }
+#endif // N_MAX_HAND_NUM
+    if (iUpdateFlag)
+        UpdateCommonSettings();
 }
 
 void ShowUsbUpgradeFail()

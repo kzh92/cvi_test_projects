@@ -335,8 +335,8 @@ enum E_Baud_Rate
 #define FIRMWARE_MAGIC                      "DBS2.0"
 #undef USE_SANJIANG3_MODE
 #define USE_SANJIANG3_MODE                  1
-// #undef N_MAX_HAND_NUM
-// #define N_MAX_HAND_NUM                      100
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
 // #undef DEFAULT_BOARD_TYPE
 // #define DEFAULT_BOARD_TYPE                  BD_TY_CV180xB_DEMO_V1v0
 

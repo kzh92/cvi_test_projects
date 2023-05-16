@@ -74,6 +74,7 @@ int do_make_ext4(const char* dev_path)
 
 int try_mount_dbfs()
 {
+    return my_mount_userdb();
     my_printf("mountstatus=%d, mountretry=%d, point=%d,\n",
            g_xROKLog.x.bMountStatus, g_xROKLog.x.bMountRetry, g_xROKLog.x.bMountPoint);
     int iMountPoint = g_xROKLog.x.bMountPoint;

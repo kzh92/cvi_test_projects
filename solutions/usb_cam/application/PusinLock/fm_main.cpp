@@ -91,7 +91,6 @@ unsigned char raw_msg_init_enc[] = {0x50, 0x00, 0x05, 0x30, 0x31, 0x32, 0x33, 0x
 #endif
 
 int GotoMain();
-int MsgProcTimer(MSG* pMsg);
 int MsgProcFM(MSG* pMsg);
 int MsgProcSense(MSG* pMsg);
 int MsgProcError(MSG* pMsg);
@@ -190,7 +189,7 @@ void ResetFaceRegisterStates()
 
 void DriverInit()
 {
-    g_pWatchTask->Init();
+    // g_pWatchTask->Init();
     g_pSenseTask->Init();
     g_pFMTask->Init();
     //gpio init
@@ -261,14 +260,14 @@ void DriverRelease()
 
     GPIO_fast_deinit();
     g_pFMTask->Deinit();
-    g_pWatchTask->Deinit();
+    // g_pWatchTask->Deinit();
     g_pSenseTask->Deinit();
     end_restore_dbPart();
 }
 
 void ReleaseAll()
 {
-    g_pWatchTask->Stop();
+    // g_pWatchTask->Stop();
 
     UART_Release();
     message_queue_destroy(&g_worker);
@@ -329,7 +328,7 @@ int GotoMain()
     ///////////////////////
     g_xSS.rMainLoopTime = Now();
     g_xSS.iMState = MS_STANDBY;
-    g_xSS.iTimeoutTimer = g_pWatchTask->AddTimer(1);
+    // g_xSS.iTimeoutTimer = g_pWatchTask->AddTimer(1);
     g_xSS.bUVCRunning = 0;
 
 #if DB_TEST
@@ -388,12 +387,7 @@ int processGlobalMsg()
             continue;
 #endif // NOTHREAD_MUL
         }
-        if(pMsg->type == MSG_WATCH)
-        {
-            if(!MsgProcTimer(pMsg))
-                break;
-        }
-        else if(pMsg->type == MSG_SENSE)
+        if(pMsg->type == MSG_SENSE)
         {
             s_msg* pSenseMsg = (s_msg*)pMsg->data1;
             if(g_xSS.iMState == MS_OTA)
@@ -566,7 +560,7 @@ void* ProcessInsmod(void *param)
     //start uvc
     // MEDIA_UVC_Init();
 
-    my_thread_exit(NULL);
+    // my_thread_exit(NULL);
     return NULL;
 }
 
@@ -703,7 +697,8 @@ int main0(int argc, char** argv)
 
     fr_InitLive();
     fr_InitIRCamera_ExpGain();
-    my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
+    //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
+    ProcessInsmod(NULL);
 
 #if (USE_VDBTASK)
     StartClrCam();
@@ -781,6 +776,7 @@ int main0(int argc, char** argv)
                 // ResetPermanenceSettings();
                 ResetROKLogs();
                 M24C64_FactoryReset();
+                my_printf("%s:%d\n", __FILE__, __LINE__);
                 fr_InitAppLog();
             }
 
@@ -895,11 +891,11 @@ int main0(int argc, char** argv)
         }
     }
 
-    if (g_xCS.x.bUsbHost != 0)
-    {
-        g_xCS.x.bUsbHost = 0;
-        UpdateCommonSettings();
-    }
+    // if (g_xCS.x.bUsbHost != 0)
+    // {
+    //     g_xCS.x.bUsbHost = 0;
+    //     UpdateCommonSettings();
+    // }
 
     iRet = main1(argc, argv);
 
@@ -985,18 +981,17 @@ static int main1(int argc, char** argv)
     if(argc == 1)
         IncreaseSystemRunningCount();
 
-    g_pWatchTask->Start(0);
+    // g_pWatchTask->Start(0);
 
     //StartBattLog();
     //////////////////////////////////////////////엔진초기화를 진행한다./////////////////////////////////////////////////
 
-    if(g_xPS.x.bEnableLogFile)
-        mount_db1();
+    // if(g_xPS.x.bEnableLogFile)
+    //     mount_db1();
 
+    // fr_EnableLogFile(g_xPS.x.bEnableLogFile);
 
-    fr_EnableLogFile(g_xPS.x.bEnableLogFile);
-
-#ifdef PROTECT_ENGINE
+#if(USE_TWIN_ENGINE)
     fr_SetDNNData();
 #endif
 
@@ -1103,60 +1098,6 @@ int fmMain()
     } while(ret != 0);
 #endif//UPGRADE_MODE
     return 0;
-}
-
-int MsgProcTimer(MSG* pMsg)
-{
-    if(pMsg->type != MSG_WATCH)
-        return -1;
-
-    if(pMsg->data1 == WATCH_TYPE_TIMER)
-    {
-        if(pMsg->data2 == g_xSS.iTimeoutTimer && pMsg->data3 == g_pWatchTask->GetCounter(g_xSS.iTimeoutTimer))
-        {
-#if (USE_VDBTASK)
-            if(g_iFirstCamFlag != FIRST_IR_NONE && !((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && (g_iFirstCamFlag & RIGHT_IR_CAM_RECVED) && (g_iFirstCamFlag & FIRST_IR_PROCESSED)))
-            {
-                if(g_iMipiCamInited != -1)
-                {
-                    camera_release(TC_MIPI_CAM);
-                    g_iMipiCamInited = -1;
-                }
-
-                g_iFirstCamFlag = FIRST_IR_NONE;
-                GPIO_fast_setvalue(IR_LED, OFF);
-
-                my_mutex_lock(g_xVDBMutex);
-                if(g_xSS.iVDBStart == 0)
-                    StopClrCam();
-                my_mutex_unlock(g_xVDBMutex);
-
-                dbug_printf("camera off: %f\n", Now());
-            }
-#else // (USE_VDBTASK)
-            // if(g_iFirstCamFlag != 0 && !((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) && (g_iFirstCamFlag & RIGHT_IR_CAM_RECVED) && (g_iFirstCamFlag & FIRST_IR_PROCESSED)))
-            // {
-            //     g_iFirstCamFlag = 0;
-
-            //     if(g_iDvpCamInited != -1)
-            //     {
-            //         camera_release(MIPI_0_CAM);
-            //         g_iDvpCamInited = -1;
-            //     }
-
-            //     if(g_iMipiCamInited != -1)
-            //     {
-            //         camera_release(MIPI_1_CAM);
-            //         g_iMipiCamInited = -1;
-            //     }
-
-            //     GPIO_fast_setvalue(IR_LED, OFF);
-            //     dbug_printf("camera off\n");
-            // }
-#endif // (USE_VDBTASK)
-        }
-    }
-    return -1;
 }
 
 int MsgProcSense(MSG* pMsg)
@@ -1480,6 +1421,7 @@ int MsgProcSense(MSG* pMsg)
         {
             SetModifyUser(1);
 
+            UpdateUserCount();
             int iBackupState = mount_backup_db(0);
 #if (N_MAX_HAND_NUM)
             if (iUserID > N_MAX_PERSON_NUM)
@@ -1493,7 +1435,6 @@ int MsgProcSense(MSG* pMsg)
             }
             umount_backup_db();
 
-            UpdateUserCount();
             ResetFaceRegisterStates();
 
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_SUCCESS);

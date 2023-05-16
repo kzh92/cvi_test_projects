@@ -164,6 +164,7 @@ void*   EngineLoadAndCheckFunc(void*)
 {
     g_nThreadCount = 1;
 
+    APP_LOG("[%s] start %0.1f\n", __func__, Now());
     allocGlobalCVDicBuffer();
     g_thread_flag_detect = 1;
 //#ifndef __RTK_OS__
@@ -270,6 +271,7 @@ void*   EngineLoadAndCheckFunc(void*)
     g_thread_flag_feat_h = 2;
 #endif // N_MAX_HAND_NUM
     releaseGlobalCVDicBuffer();
+    APP_LOG("[%s] end %0.1f\n", __func__, Now());
     return NULL;
 }
 
