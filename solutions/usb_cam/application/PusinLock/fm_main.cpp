@@ -652,22 +652,10 @@ int Upgrade_Firmware(void)
 #else // ! NOTHREAD_MUL
     g_pSenseTask->doProcess();
 #endif
-#if (CHECK_FIRMWARE == 1)
-    if (g_xCS.x.bCheckFirmware == 1)
-    {
-        g_xSS.bCheckFirmware = 1;
-        doCheckFirmware();
-    }
-#endif // CHECK_FIRMWARE == 1
+
     g_xSS.iStartOta = 0;
 
 #else//UPGRADE_MODE
-
-#if (CHECK_FIRMWARE == 1)
-    doCheckFirmware();
-#else
-    doUpgradeFirmware();
-#endif // CHECK_FIRMWARE == 1
 
     resetUpgradeInfo();
 #endif//!UPGRADE_MODE

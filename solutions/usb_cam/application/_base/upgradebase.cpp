@@ -87,7 +87,7 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
 
     //=== decrypt data ==============================================
     unsigned char* tmp_buf = NULL;
-    int blk_size = 4096;
+    int blk_size = 128;
     int read_len = 0;
     unsigned char checkSum = 0;
     tmp_buf = (unsigned char*)my_malloc(blk_size);

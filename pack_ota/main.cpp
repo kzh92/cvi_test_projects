@@ -101,6 +101,20 @@ int main(int argc, char** argv)
     fseek(fp, 0, SEEK_SET);
     printf("iFileSize : %d\n", iFileSize);
     unsigned char checkSum = 0;
+//#define MIN_FILE_SIZE 4096
+#ifdef MIN_FILE_SIZE
+    if (iFileSize < MIN_FILE_SIZE)
+    {
+        fclose(fp);
+        char cmd[256];
+        system("dd if=/dev/zero of=./upfirm.7z oflag=append conv=notrunc bs=1024 count=4");
+        fp = fopen("./upfirm.7z", "rb");
+        fseek(fp, 0, SEEK_END);
+        iFileSize = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+        printf("iFileSize expanded : %d\n", iFileSize);
+    }
+#endif // MIN_FILE_SIZE
 
     FILE* out = fopen("./upfirm.zimg", "wb");
 
