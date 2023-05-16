@@ -127,7 +127,7 @@ const struct flash_info *spi_nor_read_id(struct spi_nor *nor)
 
 #ifndef CONFIG_KERNEL_NONE
 #ifdef CONFIG_DEBUG
-	printf("spinor: ID = %s\n", buff);
+	//printf("spinor: ID = %s\n", buff);
 #endif
 #endif
 

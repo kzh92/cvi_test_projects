@@ -47,11 +47,11 @@ static void uart_init(void)
 void board_yoc_init(void)
 {
     extern unsigned int csi_tick_get_ms(void);
-    unsigned int cur_ms;
-    cur_ms = csi_tick_get_ms();
+    // unsigned int cur_ms;
+    // cur_ms = csi_tick_get_ms();
     board_init();
     uart_init();
-    printf("\n##cur_ms:%d\n", cur_ms);
+    // printf("\n##cur_ms:%d\n", cur_ms);
     // wdt_init();
 }
 

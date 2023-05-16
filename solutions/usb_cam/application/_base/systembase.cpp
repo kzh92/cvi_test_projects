@@ -41,7 +41,7 @@ int face_engine_create(int argc)
     while(iCurPart <= DB_PART_BACKUP)
     {
         int iCheckOk = 0;
-        printf("cur_part=%d,\n", iCurPart);
+        dbug_printf("cur_part=%d,\n", iCurPart);
 
         iRet = FaceEngine::Create(ENROLL_DUPLICATION_CHECK, g_xSS.iCameraRotate, g_xPS.x.iChecksumDNN, g_xPS.x.iCheckSumH);
         my_printf("1.p = %d, u = %d, %0.3f\n", dbm_GetPersonCount(), g_xCS.x.bUserCount, Now());

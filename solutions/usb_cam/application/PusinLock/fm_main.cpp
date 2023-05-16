@@ -319,12 +319,12 @@ int processGlobalMsg();
 int GotoMain()
 {
     int iRet = 0;
-    int bOldUsbHostMode = g_xSS.iUsbHostMode;
-    if(g_xSS.iUsbHostMode)
-    {
-        my_printf("[USB] insmod usb drivers\n");
-        my_system("./insmod_usb.sh");
-    }
+    // int bOldUsbHostMode = g_xSS.iUsbHostMode;
+    // if(g_xSS.iUsbHostMode)
+    // {
+    //     my_printf("[USB] insmod usb drivers\n");
+    //     my_system("./insmod_usb.sh");
+    // }
     ///////////////////////
     g_xSS.rMainLoopTime = Now();
     g_xSS.iMState = MS_STANDBY;
@@ -361,12 +361,12 @@ int GotoMain()
 
     StopCamSurface();
 
-    if (g_xSS.iUsbHostMode == 1 && bOldUsbHostMode == 1 && g_xSS.iStartOta == 0)
-    {
-        iRet = RET_POWEROFF;
-        my_usleep(1000*1000);
-        ShowUsbUpgradeFail();
-    }
+    // if (g_xSS.iUsbHostMode == 1 && bOldUsbHostMode == 1 && g_xSS.iStartOta == 0)
+    // {
+    //     iRet = RET_POWEROFF;
+    //     my_usleep(1000*1000);
+    //     ShowUsbUpgradeFail();
+    // }
 
     return iRet;
 }
@@ -1032,7 +1032,7 @@ static int main1(int argc, char** argv)
 #endif
 #ifndef NOTHREAD_MUL
     g_pSenseTask->SendReady();
-    my_printf("Send Ready1: %f\n", Now());
+    my_printf("SR1: %0.1f\n", Now());
 #endif // ! NOTHREAD_MUL
 #endif // FM_PROTOCOL
 

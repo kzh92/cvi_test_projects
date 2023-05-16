@@ -62,7 +62,7 @@ void YOC_SYSTEM_Init(void)
     cxx_system_init();
     board_init();
     stduart_init();
-    printf("###YoC###[%s,%s]\n", __DATE__, __TIME__);
+    // printf("###YoC###[%s,%s]\n", __DATE__, __TIME__);
     //printf("cpu clock is %dHz\n", soc_get_cpu_freq(0));
 }
 

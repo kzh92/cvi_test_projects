@@ -77,9 +77,9 @@ void boot_load_and_jump(void)
         }
     }else{
         memcpy((void *)load_addr,(void *)uzip_addr,image_size);
-        for (int i = 0; i < image_size; i ++)
-            ((unsigned char*)load_addr)[i] ^= 0x55;
-        printf("dec ok %d\n", image_size);
+        //for (int i = 0; i < image_size; i ++)
+        //    ((unsigned char*)load_addr)[i] ^= 0x55;
+        //printf("dec ok %d\n", image_size);
         //if (partition_split_and_copy(part, 0)) {
         //   DBG_PRINT("decompress and copy prim bin failed.\n");
         //   //goto fail;
@@ -108,8 +108,8 @@ void boot_load_and_jump(void)
     } else {
         func = (void (*)(void))(*(unsigned long *)load_addr);
     }
-    printf("j 0x%08lx\n", (unsigned long)(*func));
-    printf("##cur_ms:%d\n", csi_tick_get_ms());
+    // printf("j 0x%08lx\n", (unsigned long)(*func));
+    // printf("##cur_ms:%d\n", csi_tick_get_ms());
 
     csi_tick_uninit();
 

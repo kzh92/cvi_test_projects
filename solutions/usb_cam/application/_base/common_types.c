@@ -749,7 +749,7 @@ unsigned long long my_get_chip_id()
 
     CVI_SYS_GetChipSN(pu8SN, 8);
     unsigned long long ret = *(unsigned long long*)pu8SN;
-    my_printf("uuid: %llx\n", ret);
+    dbug_printf("uuid: %llx\n", ret);
     return ret;
 }
 
