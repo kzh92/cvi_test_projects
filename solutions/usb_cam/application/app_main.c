@@ -18,6 +18,7 @@
 #include "uvc_func.h"
 #include "cvi_tpu_interface.h"
 #include "drv_gpio.h"
+#include "common_types.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
+	MEDIA_UVC_Init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();
@@ -57,6 +59,47 @@ int main(int argc, char *argv[])
 	#endif
 	//init tpu
 	cvi_tpu_init();
+#if 0
+	extern int my_flash_part_read(const char* part_name, unsigned int offset, void* buf, unsigned int length);
+	// void* temp_buf = NULL;
+	printf("flash read test uvc...%lld\n", aos_now_ms());
+	int idx = 0;
+	float old_time = (float)aos_now_ms();
+	int total_size = 0;
+	float total_time = 0;
+	int* file_data = NULL;
+	while(g_part_files[idx].m_filename != NULL)
+    {
+        file_data = (int*)my_malloc(g_part_files[idx].m_filesize);
+        if (!file_data)
+        {
+            my_printf("check firmware, malloc failed.\n");
+            break;
+        }
+        old_time = (float)aos_now_ms();
+        fr_ReadFileData(g_part_files[idx].m_filename, 0, file_data, g_part_files[idx].m_filesize);
+        total_time += (float)aos_now_ms() - old_time;
+        total_size += g_part_files[idx].m_filesize;
+        int sum = 0;
+        for (int k = 0; k < g_part_files[idx].m_filesize / (int)sizeof(int); k ++)
+        {
+            sum = sum ^ file_data[k];
+        }
+        my_free(file_data);
+        if (sum != g_part_files[idx].m_checksum)
+        {
+            my_printf("error %s: %08x <> %08x\n", g_part_files[idx].m_filename, sum, g_part_files[idx].m_checksum);
+        }
+        else
+        {
+            my_printf("pass ok: %s\n", g_part_files[idx].m_filename);
+        }
+
+        idx ++;
+    }
+    printf("flash read end... %0.3fMB/s\n", total_size / total_time * 1000 / 1024 / 1024);
+	printf("flash read end...%lld\n", aos_now_ms());
+#endif
 	fmMain();
 	
 	APP_CustomEventStart();
