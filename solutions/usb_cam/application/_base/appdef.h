@@ -305,8 +305,8 @@ enum E_Baud_Rate
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "1.14.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "1.14.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "1.21.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "1.21.0.1_D"
 
 #define DEVICE_NID_READY_VER                0 //'C'=0x43, for desman, else 0=NID_READY
 #undef SEND_LAST_MSG
