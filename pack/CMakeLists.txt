@@ -6,6 +6,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-result")
 
 set(CONFIG_APP_SRC
     main.cpp
+    ../solutions/usb_cam/application/_aes/aescrypt.cpp
+    ../solutions/usb_cam/application/_aes/aes_ecb.c
+    ../solutions/usb_cam/application/_aes/aes_core.c
+    ../solutions/usb_cam/application/_base/config_vars.c
     )
 
 add_executable(config_app ${CONFIG_APP_SRC})
@@ -16,4 +20,5 @@ target_link_libraries(config_app -lpthread -ldl)
 include_directories(
     ../solutions/usb_cam/application/FaceEngine
     ../solutions/usb_cam/application/_base
+    ../solutions/usb_cam/application/_aes
     )

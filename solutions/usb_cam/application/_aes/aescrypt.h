@@ -8,7 +8,16 @@
 #define AES_BLOCK_SIZE (AES_KEY_BITS / 8)
 #endif
 
+#ifdef __cplusplus
+extern  "C"
+{
+#endif
+
 void AES_Encrypt(unsigned char* pbKey, unsigned char* pbInData, int nInLen, unsigned char** ppbOutData, int* pnOutLen);
 void AES_Decrypt(unsigned char* pbKey, unsigned char* pbInData, int nInLen, unsigned char** ppbOutData, int* pnOutLen);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* aes.h */

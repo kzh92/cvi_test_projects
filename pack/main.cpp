@@ -6,6 +6,8 @@
 #include <string.h>
 #include "appdef.h"
 #include "common_types.h"
+#include "config_vars.h"
+#include "aescrypt.h"
 
 #define IMG_RESOURCEDIR     "./pack"
 #define RESOURCEDIR         "./pack"
@@ -18,6 +20,35 @@
 #define APP_DIR             "data1/"
 #define DICT_DIR            "data2/"
 #endif // USE_16M_FLASH
+
+int req_crypto(const char * filename, unsigned char* file_buf)
+{
+    int idx = 0;
+    while(g_part_files[idx].m_filename != NULL)
+    {
+        if (strlen(g_part_files[idx].m_filename) > 6 && 
+            strstr(filename, g_part_files[idx].m_filename + 6))
+        {
+            if (g_part_files[idx].m_flag == FN_CRYPTO_AES)
+            {
+                unsigned char* out_buf = NULL;
+                int out_len = 0;
+                AES_Encrypt(g_part_crypto_aes_key, file_buf, g_part_files[idx].m_cryptosize, &out_buf, &out_len);
+                if (out_buf && out_len > 0)
+                {
+                    memcpy(file_buf, out_buf, out_len);
+                    free(out_buf);
+                }
+                printf("crypt(len=%d): %s\n", g_part_files[idx].m_cryptosize, filename);
+                return 1;
+            }
+            break;
+        }
+
+        idx ++;
+    }
+    return 0;
+}
 
 int merge_files(const char** file_names, const char* dest_file, int pad_size)
 {
@@ -53,6 +84,7 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
             memset(file_data, 0, malloc_len);
             fseek(fp_in, 0, SEEK_SET);
             fread(file_data, 1, file_size, fp_in);
+            req_crypto(file_names[i], (unsigned char*)file_data);
             fwrite(file_data, 1, malloc_len, fp_out);
             free(file_data);
             total_size += malloc_len;
@@ -83,19 +115,12 @@ int main(int /*argc*/, char** /*argv*/)
     system("pwd");
     printf("--------------\n");
 
-    system("cp -f " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
-    //system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wno.bin " RESOURCEDIR "/wno_encode.bin");
-#if (N_MAX_HAND_NUM)
-    //system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
-    system("cp -f " FACEENGINEDIR "/Dic/wnh.bin " RESOURCEDIR "/wnh_encode.bin");
-#endif
-
 #if (USE_TWIN_ENGINE == 1)
     system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/hdic_1.bin " RESOURCEDIR "/hdic_1_encode.bin");
 #endif
 
     const char* merge_path1[] = {
-        RESOURCEDIR "/wno_encode.bin",
+        FACEENGINEDIR "/Dic/wno.bin",
         FACEENGINEDIR "/Dic/detect.bin",
         FACEENGINEDIR "/Dic/dlamk.bin",
     #if (DESMAN_ENC_MODE == 0)
@@ -117,7 +142,7 @@ int main(int /*argc*/, char** /*argv*/)
         FACEENGINEDIR "/Dic/detect_h.bin",
         FACEENGINEDIR "/Dic/dlamk_h.bin",
         FACEENGINEDIR "/Dic/ch.bin",
-        RESOURCEDIR "/wnh_encode.bin",
+        FACEENGINEDIR "/Dic/wnh.bin",
     #endif // N_MAX_HAND_NUM
     #if (USE_TWIN_ENGINE)
         FACEENGINEDIR "/Dic/hdic_2.bin",

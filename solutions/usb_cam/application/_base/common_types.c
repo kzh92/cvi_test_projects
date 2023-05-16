@@ -1,5 +1,6 @@
 #include "common_types.h"
 #include "settings.h"
+#include "aescrypt.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -35,35 +36,6 @@ int my_wx_read(unsigned int offset, void* buf, unsigned int length);
 int my_wx_write(unsigned int offset, void* buf, unsigned int length);
 //prebuilt functions
 
-st_file_offsize g_part_files[] = {
-    {FN_WNO_DICT_PATH, FN_WNO_DICT_SIZE, DNN_FEAT_CHECKSUM},
-    {FN_DETECT_DICT_PATH, FN_DETECT_DICT_SIZE, DNN_DETECT_CHECKSUM},
-    {FN_DLAMK_DICT_PATH, FN_DLAMK_DICT_SIZE, DNN_MODELING_CHECKSUM},
-#if (DESMAN_ENC_MODE == 0)
-    {FN_OCC_DICT_PATH, FN_OCC_DICT_SIZE, DNN_OCC_CHECKSUM},
-    {FN_ESN_DICT_PATH, FN_ESN_DICT_SIZE, DNN_ESN_CHECKSUM},
-#endif // DESMAN_ENC_MODE
-    {FN_A1_DICT_PATH, FN_A1_DICT_SIZE, DNN_2D_LIVE_A1_CHECKSUM},
-    {FN_A2_DICT_PATH, FN_A2_DICT_SIZE, DNN_2D_LIVE_A2_CHECKSUM},
-#if (ENGINE_USE_TWO_CAM)
-    {FN_B_DICT_PATH, FN_B_DICT_SIZE, DNN_2D_LIVE_B_CHECKSUM},
-    {FN_B2_DICT_PATH, FN_B2_DICT_SIZE, DNN_2D_LIVE_B2_CHECKSUM},
-#endif // ENGINE_USE_TWO_CAM
-    {FN_C_DICT_PATH, FN_C_DICT_SIZE, DNN_3D_LIVE_CHECKSUM},
-#if (N_MAX_HAND_NUM)
-    {FN_DETECT_H_DICT_PATH, FN_DETECT_H_DICT_SIZE, DNN_DETECT_HAND_CHECKSUM},
-    {FN_DLAMK_H_DICT_PATH, FN_DLAMK_H_DICT_SIZE, DNN_MODELING_HAND_CHECKSUM},
-    {FN_CH_DICT_PATH, FN_CH_DICT_SIZE, DNN_CHECKVALID_HAND_CHECKSUM},
-    {FN_WNOH_DICT_PATH, FN_WNOH_DICT_SIZE, DNN_FEAT_HAND_CHECKSUM},
-#endif // N_MAX_HAND_NUM
-#if (USE_TWIN_ENGINE)
-    {FN_H1_DICT_PATH, FN_H1_DICT_SIZE, DNN_H_1_CHECKSUM},
-    {FN_H2_DICT_PATH, FN_H2_DICT_SIZE, DNN_H_2_CHECKSUM},
-#endif
-    {FN_FACE_IR_BIN_PATH, FN_FACE_IR_BIN_SIZE, 0xafb4e4d6},
-    {NULL, 0, 0},
-};
-
 int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
 {
     int read_len = -1;
@@ -88,6 +60,17 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     {
         //file not found
         my_printf("file not found: %s\n", filename);
+    }
+    if (g_part_files[idx].m_flag == FN_CRYPTO_AES && g_part_files[idx].m_cryptosize > 0)
+    {
+        unsigned char* out_buf = NULL;
+        int out_len = 0;
+        AES_Decrypt(g_part_crypto_aes_key, buf, g_part_files[idx].m_cryptosize, &out_buf, &out_len);
+        if (out_buf && out_len > 0)
+        {
+            my_memcpy(buf, out_buf, out_len);
+            my_free(out_buf);
+        }
     }
     // dbug_printf("[%s] %s, off=%d, %d, %p.\n", __func__, filename, file_offset, read_len, buf);
     // for (int i = 0; i < 16 && i < read_len; i++)
