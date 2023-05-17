@@ -57,7 +57,7 @@ void doUpgradeFirmware()
             write_len = my_flash_erase(RTOS_START_ADDR, rtos_len);
             if (write_len != rtos_len)
                 iErrorFlag = 1;
-            write_len = my_flash_write_pages(RTOS_START_ADDR, buf, rtos_len);
+            write_len = my_flash_write(RTOS_START_ADDR, buf, rtos_len);
             if (write_len != rtos_len)
                 iErrorFlag = 1;
         }

@@ -174,7 +174,6 @@ int             fr_WriteUSBScanEnableState(void);
 int             my_flash_part_read(const char* part_name, unsigned int offset, void* buf, unsigned int length);
 int             my_flash_part_write(const char* part_name, unsigned int offset, void* buf, unsigned int length);
 unsigned int    my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
-unsigned int    my_flash_write_pages(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);
 unsigned int    my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size);
 unsigned int    my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size);
 unsigned int    my_flash_write(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size);

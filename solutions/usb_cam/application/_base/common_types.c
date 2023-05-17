@@ -13,9 +13,13 @@
 #include <yoc/partition.h>
 #include "cvi_sys.h"
 #include "zstd.h"
+#include "drv/spiflash.h"
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
+
+csi_spiflash_t spiflash_handle;
+unsigned int flash_read_write_init = 0;
 
 const char* dbfs_part_names[DB_PART_END+1] =
 {
@@ -977,72 +981,58 @@ int rootfs_set_activated(int flag, int is_sync)
     return 0;
 }
 
-unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size)
+unsigned int my_flash_read_write_init(void)
 {
-    int ret = -1;
-#if 1
-    int read_len = 0;
-    int i = 0;
-    const int buf_len = 4096;
-    int start_off = 0;
-    ret = 0;
-    for (i = start_off; i < u32_size; i += buf_len)
-    {
-        if (u32_size - ret < buf_len)
-            read_len = u32_size - ret;
-        else
-            read_len = buf_len;
-        my_mutex_lock(g_FlashReadWriteLock);
-        //read_len = MDRV_FLASH_read(u32_bytes_offset + i, read_len, u32_address + i, read_len);
-
-        my_mutex_unlock(g_FlashReadWriteLock);
-        if (read_len <= 0)
-            break;
-        ret += read_len;
-    }
-    // LOG_PRINT("[%s] read=", __func__);
-    // for (i = 0; i < 16 && i < u32_size; i ++)
-    // {
-    //     LOG_PRINT("%02x ", ((unsigned char*)u32_address)[u32_size - i - 1]);
-    // }
-    // LOG_PRINT("\n");
-#else
-    ret = MDRV_FLASH_read(u32_bytes_offset, u32_limit, u32_address, u32_size);
-#endif
+    int ret;
+    ret = csi_spiflash_spi_init(&spiflash_handle, 0, NULL);
+    if (ret == 0)
+        flash_read_write_init = 1;
     return ret;
 }
 
-unsigned int my_flash_write_pages(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size)
+unsigned int my_flash_read(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size)
 {
-    // U32 ret;
-    // my_mutex_lock(g_FlashReadWriteLock);
-    // // ret = MDRV_FLASH_write_pages(u32_bytes_offset, u32_address, u32_size);
-    // ret = 0;
-    // my_mutex_unlock(g_FlashReadWriteLock);
-    // return ret;
-    return 0;
+    int ret;
+
+    if (!flash_read_write_init)
+        my_flash_read_write_init();
+    if (!flash_read_write_init)
+        return -1;
+
+    my_mutex_lock(g_FlashReadWriteLock);
+    ret = csi_spiflash_read(&spiflash_handle, u32_bytes_offset, u32_address, u32_size);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return ret;
 }
 
 unsigned int my_flash_write_parts(unsigned int u32_bytes_offset, unsigned int u32_limit, void* u32_address, unsigned int u32_size)
 {
-    // U32 ret;
-    // my_mutex_lock(g_FlashReadWriteLock);
-    // // ret = MDRV_FLASH_write_parts(u32_bytes_offset, u32_limit, u32_address, u32_size);
-    // ret = 0;
-    // my_mutex_unlock(g_FlashReadWriteLock);
-    // return ret;
-    return 0;
+    int ret;
+
+    if (!flash_read_write_init)
+        my_flash_read_write_init();
+    if (!flash_read_write_init)
+        return -1;
+
+    my_mutex_lock(g_FlashReadWriteLock);
+    ret = csi_spiflash_program(&spiflash_handle, u32_bytes_offset, u32_address, u32_size);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return ret;
 }
 
 unsigned int my_flash_erase(unsigned int u32_bytes_offset, unsigned int u32_size)
 {
-    // U32 ret;
-    // my_mutex_lock(g_FlashReadWriteLock);
-    // // ret = MDRV_FLASH_erase(u32_bytes_offset, u32_size);
-    // ret = 0;
-    // my_mutex_unlock(g_FlashReadWriteLock);
-    // return ret;
-    return 0;
+    int ret;
+
+    if (!flash_read_write_init)
+        my_flash_read_write_init();
+    if (!flash_read_write_init)
+        return -1;
+
+    my_mutex_lock(g_FlashReadWriteLock);
+    ret = csi_spiflash_erase(&spiflash_handle, u32_bytes_offset, u32_size);
+    my_mutex_unlock(g_FlashReadWriteLock);
+    return ret;
 }
 
 unsigned int my_flash_write(unsigned int u32_bytes_offset, void* u32_address, unsigned int u32_size)
