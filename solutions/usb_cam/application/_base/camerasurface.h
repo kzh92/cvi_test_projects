@@ -55,11 +55,11 @@ enum {
     IR_CAMERA_STEP_IDLE = -1,
     IR_CAMERA_STEP0 = 0, //left led off
     IR_CAMERA_STEP1 = IR_CAMERA_STEP0 + 1, //skip
-    IR_CAMERA_STEP2 = IR_CAMERA_STEP1, //left led on
+    IR_CAMERA_STEP2 = IR_CAMERA_STEP1 + 1, //left led on
     IR_CAMERA_STEP3 = IR_CAMERA_STEP2 + 1, // skip
-    IR_CAMERA_STEP4 = IR_CAMERA_STEP3, // right led on
+    IR_CAMERA_STEP4 = IR_CAMERA_STEP3 + 1, // right led on
     IR_CAMERA_STEP5 = IR_CAMERA_STEP4 + 1, // skip
-    IR_CAMERA_STEP6 = IR_CAMERA_STEP5, // right led off
+    IR_CAMERA_STEP6 = IR_CAMERA_STEP5 + 1, // right led off
 };
 
 void    IncreaseCameraCounter();
