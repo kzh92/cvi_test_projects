@@ -822,9 +822,9 @@ void* ProcessTCMipiCapture(void */*param*/)
             frm_num = 2;
 
         if (iFrameCount == 0)
-            my_printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
+            dbug_printf("image size %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
         if (frm_num >= 2)
-            my_printf("image size2. %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
+            dbug_printf("image size2. %d, %d, %0.3f\n", stVideoFrame[0].stVFrame.u32Length[0], frm_num, rOld);
 
         size_t image_size = stVideoFrame[0].stVFrame.u32Length[0];
 
@@ -836,7 +836,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             dbug_printf("mipi capture: %df, %do, %0.1f, %dc, %dt\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 
-        if(g_iTwoCamFlag == 0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
+        if(g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
         {
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
@@ -846,7 +846,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         }
 
         ///Sub0카메라로 동작할때 레드켜기지령을 받았으면 Sub0화상을 얻고 Sub1로 절환하여 두번째화상을 얻은다음 다시 Sub0으로 카메라를 절환한다.
-        if(g_iTwoCamFlag == 0 && iNeedNext == 0/* && reserved == 1 && id == MIPI_CAM_SUB0 && iOldReserved == 0*/)
+        if(g_iTwoCamFlag == IR_CAMERA_STEP0 && iNeedNext == 0/* && reserved == 1 && id == MIPI_CAM_SUB0 && iOldReserved == 0*/)
         {
             if(g_iLedOnStatus == 1)
                 gpio_irled_on(ON);
@@ -858,11 +858,11 @@ void* ProcessTCMipiCapture(void */*param*/)
             WaitIROffCancel();
             g_iTwoCamFlag ++;
         }
-        else if(g_iTwoCamFlag == 1)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP1 && g_iTwoCamFlag != IR_CAMERA_STEP2)
         {
             g_iTwoCamFlag ++;
         }
-        else if(g_iTwoCamFlag == 2)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP2)
         {
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
 
@@ -888,11 +888,11 @@ void* ProcessTCMipiCapture(void */*param*/)
 
             g_iTwoCamFlag ++;
         }
-        else if(g_iTwoCamFlag == 3)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP3 && g_iTwoCamFlag != IR_CAMERA_STEP4)
         {
             g_iTwoCamFlag ++;
         }
-        else if(g_iTwoCamFlag == 4)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP4)
         {
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
@@ -911,11 +911,11 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iTwoCamFlag ++;
             WaitIRCancel2();
         }
-        else if(g_iTwoCamFlag == 5)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP5 && g_iTwoCamFlag != IR_CAMERA_STEP6)
         {
             g_iTwoCamFlag ++;
         }
-        else if(g_iTwoCamFlag == 6)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP6)
         {
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 
@@ -924,7 +924,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             unlockIROffBuffer();
             g_iLedOffFrameFlag |= LEFT_IROFF_CAM_RECVED;
 
-            g_iTwoCamFlag = -1;
+            g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
             iNeedNext = 1;
 
             WaitIROffCancel2();

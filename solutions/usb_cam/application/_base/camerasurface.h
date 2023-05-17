@@ -24,7 +24,7 @@
         } \
         if (g_xSS.iResetFlag == 1) \
             break; \
-        dbug_printf("wait(%s:%d) %0.3f, ret=%d\n", __FILE__, __LINE__, Now() - rOldTime, ret); \
+        my_printf("wait(%s:%d) %0.3f, ret=%d\n", __FILE__, __LINE__, Now() - rOldTime, ret); \
     } while(0)
 
 enum
@@ -49,6 +49,17 @@ enum
     CAM_ERROR_IR_PATTERN_2 = 0x40,
     CAM_ERROR_CLR_PATTERN_2 = 0x80,
     CAM_ERROR_CLR_CHECKED = 0x100,
+};
+
+enum {
+    IR_CAMERA_STEP_IDLE = -1,
+    IR_CAMERA_STEP0 = 0, //left led off
+    IR_CAMERA_STEP1 = IR_CAMERA_STEP0 + 1, //skip
+    IR_CAMERA_STEP2 = IR_CAMERA_STEP1, //left led on
+    IR_CAMERA_STEP3 = IR_CAMERA_STEP2 + 1, // skip
+    IR_CAMERA_STEP4 = IR_CAMERA_STEP3, // right led on
+    IR_CAMERA_STEP5 = IR_CAMERA_STEP4 + 1, // skip
+    IR_CAMERA_STEP6 = IR_CAMERA_STEP5, // right led off
 };
 
 void    IncreaseCameraCounter();
