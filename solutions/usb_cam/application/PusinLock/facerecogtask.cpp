@@ -408,6 +408,7 @@ void FaceRecogTask::run()
                 StartCamSurface(1);
             }
             GetRightIrFrame(NULL, iFlag);
+            WAIT_CAM_FRAME(500, WaitIROffTimeout2);
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
