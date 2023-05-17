@@ -852,7 +852,7 @@ void* ProcessTCMipiCapture(void */*param*/)
                 gpio_irled_on(ON);
 
             lockIROffBuffer();
-            genIROffData10bit(ptr, fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            genIROffData10bit(ptr + (int)image_size/8, fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
             unlockIROffBuffer();
             g_iLedOffFrameFlag = LEFT_IROFF_CAM_RECVED;
             WaitIROffCancel();
@@ -920,7 +920,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 
             lockIROffBuffer();
-            genIROffData10bit(ptr, fr_GetOffImageBuffer2(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            genIROffData10bit(ptr +  (int)image_size/8, fr_GetOffImageBuffer2(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
             unlockIROffBuffer();
             g_iLedOffFrameFlag |= LEFT_IROFF_CAM_RECVED;
 
@@ -1597,7 +1597,8 @@ void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height)
     {
         return;
     }
-    unsigned short* spOrg = (unsigned short*)bufOrg;
+    int nWidthInSrc = width * 3 / 2;
+    unsigned char* spOrg = (unsigned char*)bufOrg;
     unsigned char* pIrOffData = (unsigned char*)bufDst;
     int iIdx = 0;
     int nDstIdx = 0;
@@ -1606,11 +1607,11 @@ void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height)
     {
         for(nX = 0; nX < width; nX += LEDOFFIMAGE_REDUCE_RATE)
         {
-            pIrOffData[nDstIdx] = (spOrg[iIdx] >> 2);
-            iIdx += LEDOFFIMAGE_REDUCE_RATE;
+            int nXIndex = (int)(nX / 2) * 3 + (int)(nX % 2); 
+            pIrOffData[nDstIdx] = spOrg[iIdx + nXIndex];
             nDstIdx ++;
         }
-        iIdx += (width * (LEDOFFIMAGE_REDUCE_RATE - 1));
+        iIdx += (nWidthInSrc * (LEDOFFIMAGE_REDUCE_RATE - 1));
     }
 }
 
