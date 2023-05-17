@@ -87,7 +87,7 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
 
     //=== decrypt data ==============================================
     unsigned char* tmp_buf = NULL;
-    int blk_size = 128;
+    int blk_size = 64;
     int read_len = 0;
     unsigned char checkSum = 0;
     tmp_buf = (unsigned char*)my_malloc(blk_size);
@@ -99,7 +99,7 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
         my_memcpy(tmp_buf, ota_buf + i * blk_size, read_len);
         FolderFile::decryptBuf(tmp_buf, read_len);
         for (int k = 0; k < read_len ;k ++)
-            checkSum ^= tmp_buf[i];
+            checkSum ^= tmp_buf[k];
         my_memcpy(ota_buf + i * blk_size, tmp_buf, read_len);
     }
     my_free(tmp_buf);

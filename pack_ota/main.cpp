@@ -153,18 +153,25 @@ int main(int argc, char** argv)
     unsigned char* out_buf;
     unsigned char akey[AES_BLOCK_SIZE];
     unsigned char* tmp_buf = NULL;
-    int blk_size = 128;
+    int blk_size = 64;
     int read_len = 0;
+    int i = 0;
     tmp_buf = (unsigned char*)malloc(blk_size);
-    for (int i = 0; i < (iFileSize + blk_size - 1) / blk_size; i++)
+    for (i = 0; i < iFileSize / blk_size; i++)
     {
         read_len = iFileSize - i * blk_size;
         if (read_len > blk_size)
             read_len = blk_size;
         fread(tmp_buf, 1, read_len, fp);
         for (int k = 0; k < read_len ;k ++)
-            checkSum ^= tmp_buf[i];
+            checkSum ^= tmp_buf[k];
         FolderFile::encryptBuf(tmp_buf, read_len);
+        fwrite(tmp_buf, 1, read_len, out);
+    }
+    if (i * blk_size < iFileSize)
+    {
+        read_len = iFileSize - i * blk_size;
+        fread(tmp_buf, 1, read_len, fp);
         fwrite(tmp_buf, 1, read_len, out);
     }
     free(tmp_buf);
