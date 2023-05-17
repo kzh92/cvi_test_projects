@@ -156,7 +156,7 @@ int             my_print_callstack();
 int             rootfs_is_first();
 int             rootfs_set_first_flag();
 int             rootfs_is_activated();
-int             rootfs_set_activated();
+int             rootfs_set_activated(int flag, int is_sync);
 
 void            test_led(int n);
 void            test_led2(int n);

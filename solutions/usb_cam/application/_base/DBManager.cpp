@@ -876,7 +876,7 @@ int dbm_GetHandIDOfIndex(int iIndex)
     int iIdx = -1;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
-        if(g_xHandDB.aiHandValid[i] == 0)
+        if(g_xHandDB.aiHandValid[i] != 1)
             continue;
 
         iIdx ++;
@@ -897,7 +897,7 @@ int dbm_GetHandIndexOfID(int iID)
     int iIdx = -1;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
-        if(g_xHandDB.aiHandValid[i] == 0)
+        if(g_xHandDB.aiHandValid[i] != 1)
             continue;
 
         iIdx ++;
@@ -920,7 +920,7 @@ PSMetaInfo dbm_GetHandMetaInfoByID(int iID)
 {
     if(iID < 0 || iID >= N_MAX_HAND_NUM)
         return NULL;
-    return g_xHandDB.aiHandValid[iID] == 0 ? NULL: &g_xHandDB.ax[iID].xHM;
+    return g_xHandDB.aiHandValid[iID] != 1 ? NULL: &g_xHandDB.ax[iID].xHM;
 }
 
 SHandFeatInfo*	dbm_GetHandFeatInfoByID(int nID)
@@ -928,7 +928,7 @@ SHandFeatInfo*	dbm_GetHandFeatInfoByID(int nID)
     if(nID < 0 || nID >= N_MAX_HAND_NUM)
         return NULL;
 
-    if(g_xHandDB.aiHandValid[nID] == 0)
+    if(g_xHandDB.aiHandValid[nID] != 1)
         return NULL;
     return &g_xHandDB.ax[nID].xHF;
 }
@@ -946,7 +946,7 @@ int dbm_GetNewHandUserID()
 {
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
-        if(g_xHandDB.aiHandValid[i] == 0)
+        if(g_xHandDB.aiHandValid[i] != 1)
             return i;
     }
 
@@ -963,7 +963,7 @@ int dbm_GetHandUserCount(int iUserRole)
     int iUserCount = 0;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
-        if(g_xHandDB.aiHandValid[i] == 0)
+        if(g_xHandDB.aiHandValid[i] != 1)
             continue;
         if(g_xHandDB.ax[i].xHM.fPrivilege == iUserRole || (iUserRole == -1))
             iUserCount ++;
@@ -1041,11 +1041,6 @@ void dbm_SetEmptyHandDB(int* piBlkNum)
 
 int	dbm_GetHandCount()
 {
-#ifdef MMAP_MODE
-    if(g_xDB == NULL)
-        return 0;
-#endif
-
     int iCount = 0;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
@@ -1060,7 +1055,7 @@ int	dbm_RemoveHandByID(int nID, int* piBlkNum)
     if (dbfs_get_cur_part() == DB_PART_BACKUP)
         return ES_FAILED;
 
-    if (nID < 0 || nID >= N_MAX_HAND_NUM || g_xHandDB.aiHandValid[nID] == 0)
+    if (nID < 0 || nID >= N_MAX_HAND_NUM || g_xHandDB.aiHandValid[nID] != 1)
         return ES_FAILED;
 
     g_xHandDB.aiHandValid[nID] = 0;

@@ -886,7 +886,6 @@ int main0(int argc, char** argv)
         IncreaseSystemRunningCount1();
 
         umount_dbfs();
-        CSI_PWDN_ON();
     }
 #if (DB_TEST == 1)
     umount("/db1");
@@ -3131,7 +3130,7 @@ int MsgProcFM(MSG* pMsg)
                 my_free(pbActData);
 
                 g_xSS.iActivated = 1;
-                rootfs_set_activated();
+                rootfs_set_activated(1, 1);
 //                g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_ACTIVATE_SUCCESSED);
 //                SetLed(GLED);
                 return 0;
@@ -3293,12 +3292,6 @@ int ProcessActivation(char* pbUID, int iUniqueID)
         my_printf("*** mark start\n");
         _get_activation_mark();
     }
-    
-    return 0;
-
-#ifndef __RTK_OS__
-    system("mount -o remount, rw /");
-#endif //! __RTK_OS__
 
     ///////////////////////////proca///////////////////////////////////
 #ifdef __ENCRYPT_ENGINE__
@@ -3306,26 +3299,13 @@ int ProcessActivation(char* pbUID, int iUniqueID)
         int iResult = 1;
         const char* szDictNames[] = {
             FN_WNO_DICT_PATH,
-#if (N_MAX_HAND_NUM)
-            FN_WNOH_DICT_PATH,
-#endif // N_MAX_HAND_NUM
-#if (USE_TWIN_ENGINE)
-            FN_H1_DICT_PATH, 
-#endif
             NULL};
         const unsigned long szDictLength[] = {
             FN_WNO_DICT_SIZE,
-#if (N_MAX_HAND_NUM)
-            FN_WNOH_DICT_SIZE,
-#endif // N_MAX_HAND_NUM
-#if (USE_TWIN_ENGINE)
-            FN_H1_DICT_SIZE,
-#endif
             0 };
 
         for(int i = 0; szDictNames[i] != NULL; i ++)
         {
-            int iFileLen = szDictLength[i];
             unsigned char* pbData = (unsigned char*)my_malloc(szDictLength[i]);
             if (pbData == NULL)
             {
@@ -3335,81 +3315,11 @@ int ProcessActivation(char* pbUID, int iUniqueID)
             fr_ReadFileData(szDictNames[i], 0, pbData, szDictLength[i]);
 
             dbug_printf("proca: %s\n", szDictNames[i]);
-            
 
-            //decrypt file.
-#if 1
-            for (int k = 0; k < iFileLen / 8; k ++)
-                DesEncrypt(g_abKey, pbData + k * 8, 8, MCO_DECYPHER);
-#endif
-            //calculate checksum
-            int iCheckSum = 0;
-            int* pnData = (int*)pbData;
-            for(int k = 0; k < iFileLen / 4; k ++)
-                iCheckSum ^= pnData[k];
-
-            dbug_printf("%s, chk=%08x\n", szDictNames[i], iCheckSum);
-
-            //!!!CAUTION: this must be matched with index.
-            if (!strcmp(szDictNames[i], FN_WNO_DICT_PATH))//wno.bin
-            {
-                memcpy(g_xHD.x.bChipID, aiV3S_ID, 8);
-                for (int j = 0; j < 8; j ++)
-                {
-                    g_xHD.x.bChipID[j] = ~(g_xHD.x.bChipID[j] ^ ((unsigned char*)aiV3S_ID)[j + 8]);
-                }
-
-#if 0
-                //kkk test
-                dbug_printf("aaa0: ");
-                for (int j = 0; j < 16; j ++)
-                {
-                    dbug_printf("%02x ", ((unsigned char*)aiV3S_ID)[j]);
-                }
-                dbug_printf("\n");
-                dbug_printf("aaa0-3: ");
-                for (int j = 0; j < 8; j ++)
-                {
-                    dbug_printf("%02x ", ((unsigned char*)g_xHD.x.bChipID)[j]);
-                }
-                dbug_printf("\n");
-#endif
-                UpdateHeadInfos();
-            }
-#if 0
-            my_printf("Decode DES = %d: ", ENGINE_DATA_PACKET_SIZE * 2);
-            for (int k = 0; k < ENGINE_DATA_PACKET_SIZE * 2; k++)
-                my_printf("0x%02x,", pbData[k]);
-            my_printf("\n");
-#endif
-            char abSN[256] = { 0 };
-            GetSN(abSN);
-
-            {
-                SHA1 sha1;
-                SHA1* pSHA1 = &sha1;
-                pSHA1->addBytes(abSN, strlen(abSN));
-
-                unsigned char* pDig1 = (unsigned char*)pSHA1->getDigest();
-                if(pDig1 == NULL)
-                {
-                    iResult = 0;
-                    continue;
-                }
-
-                int SHA_LEN = 20;
-                for(int a = 0; a < iFileLen / SHA_LEN; a ++)
-                {
-                    for(int b = 0; b < SHA_LEN; b ++)
-                    {
-                        pbData[a * SHA_LEN + b] = pbData[a * SHA_LEN + b] ^ pDig1[b];
-                    }
-                }
-
-                fr_WriteFileData(szDictNames[i], 0, pbData, szDictLength[i]);
-                my_free(pDig1);
-            }
-
+            //write with encrypt
+            rootfs_set_activated(1, 0);
+            fr_WriteFileData(szDictNames[i], 0, pbData, szDictLength[i]);
+            rootfs_set_activated(0, 0);
             my_free(pbData);
         }
 

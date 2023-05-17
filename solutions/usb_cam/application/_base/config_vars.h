@@ -103,7 +103,8 @@ typedef struct {
 //flags for crypto
 enum {
     FN_CRYPTO_NONE = 0,
-    FN_CRYPTO_AES = 1,
+    FN_CRYPTO_AES = 1, //aes with static key
+    FN_CRYPTO_AES_DYN_ID2 = 2, //aes with dynamic key of cpu id and spi nor flash id
 };
 
 #ifdef __cplusplus

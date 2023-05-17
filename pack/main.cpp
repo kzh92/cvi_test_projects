@@ -29,7 +29,7 @@ int req_crypto(const char * filename, unsigned char* file_buf)
         if (strlen(g_part_files[idx].m_filename) > 6 && 
             strstr(filename, g_part_files[idx].m_filename + 6))
         {
-            if (g_part_files[idx].m_flag == FN_CRYPTO_AES)
+            if (g_part_files[idx].m_flag & FN_CRYPTO_AES)
             {
                 unsigned char* out_buf = NULL;
                 int out_len = 0;

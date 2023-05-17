@@ -7,99 +7,22 @@
 #include "drv_gpio.h"
 #include "sha1.h"
 #include "mutex.h"
+#include "aescrypt.h"
 #include <debug/debug_overview.h>
 
-#define SUNXI_SID_BASE		(0x01c23800)
+#define SPI_NOR_MAX_ID_LEN      8
 
 mymutex_ptr   g_xLastDetectMutex = my_mutex_init();
 float   g_rLastDetectTime = 0;
 int     g_iUniqueID = 0;
 
-#if 0
-void WriteAverageBatt(int batt)
-{
-    FILE* fp = fopen("/db/averBatt.ini", "wb");
-    if(fp)
-    {
-        fwrite(&batt, sizeof(int), 1, fp);
-        fflush(fp);
-        fclose(fp);
-    }
-    LOG_PRINT("writeAverageBatt %d\n", batt);
-}
-
-int ReadAverageBatt()
-{
-    int batt = 0;
-    FILE* fp = fopen("/db/averBatt.ini", "rb");
-    if(fp)
-    {
-        fread(&batt, sizeof(int), 1, fp);
-        fclose(fp);
-    }
-
-    if(batt < 0)
-        return 0;
-
-    return batt;
-}
-
-int ReadLowBatteryCount()
-{
-    int iLow_count = 0;
-    int fpBat = open("/db/battery.ini", O_RDWR);
-    if (fpBat > -1)
-    {
-        read(fpBat, &iLow_count, sizeof(iLow_count));
-        close(fpBat);
-    }
-    if (iLow_count < 0)
-        iLow_count = 0;
-    return iLow_count;
-}
-
-int UpdateLowBatteryCount(int iLow_count)
-{
-    FILE* fpBat = fopen("/db/battery.ini", "wb");
-    if (fpBat)
-    {
-        fwrite(&iLow_count, sizeof(iLow_count), 1, fpBat);
-        my_fsync(fileno(fpBat));
-        fclose(fpBat);
-        return 0;
-    }
-    return 1;
-}
-#endif
+extern "C" int my_spi_nor_get_id(void *buf);
 
 void ResetDetectTimeout()
 {
     my_mutex_lock(g_xLastDetectMutex);
     g_rLastDetectTime = Now();
     my_mutex_unlock(g_xLastDetectMutex);
-}
-
-void CSI_PWDN_ON()
-{
-#if 0
-    //인식성공한다음에 재차 기동할때 색카메라 오유가 나오는 문제를 퇴치하기 위해서 전원을 끄기전에 CSI_PWDN을 H로 하게 하였다.
-    GPIO_fast_config(CSI_PWDN, OUT);
-    GPIO_fast_setvalue(CSI_PWDN, ON);
-#endif
-}
-
-void CSI_PWDN_ON1()
-{    
-#if 0
-    //인식성공한다음에 재차 기동할때 색카메라 오유가 나오는 문제를 퇴치하기 위해서 전원을 끄기전에 CSI_PWDN을 H로 하게 하였다.
-    GPIO_fast_config(CSI_RSTN, OUT);
-    GPIO_fast_setvalue(CSI_RSTN, ON);
-
-//    GPIO_fast_config(CSI_PWDN, OUT);
-//    GPIO_fast_setvalue(CSI_PWDN, ON);
-//    my_usleep(10 * 1000);
-//    GPIO_fast_setvalue(CSI_PWDN, OFF);
-#endif
 }
 
 unsigned char g_abKey[16] = { 0x12, 0x84, 0xA3, 0x9B, 0xEE, 0x34, 0x7F, 0xFE };
@@ -141,44 +64,31 @@ int base64_encode(unsigned char *in, int inlen,
     return 1;
 }
 
+int GetAesKey4ChipID(void* buf)
+{
+    if (!buf)
+        return 1;
+    char tok[128] = { 0 };
+    unsigned int anUID[10] = { 0 };
+    unsigned long long uuid = GetSSDID(anUID);
+    unsigned char spinor_id[SPI_NOR_MAX_ID_LEN];
+    my_spi_nor_get_id(spinor_id);
+    sprintf(tok, "%llx%llx", uuid, *((long long*)spinor_id));
+
+    dbug_printf("[%s] uuid:%s\n", __func__, tok);
+    SHA1 sha1;
+    sha1.addBytes(tok, strlen(tok));
+
+    unsigned char* digest = sha1.getDigest(); //length is 20 bytes
+    memcpy(buf, digest, AES_BLOCK_SIZE);
+    my_free(digest);
+    return 0;
+}
 
 void GetSerialNumber(char* serialData)
 {
     if(serialData == NULL)
         return;
-#if 0 //V3s
-    FILE* fp = fopen("/proc/cpuinfo", "r");
-    if(fp == NULL)
-        return;
-
-    char szLine[1024] = { 0 };
-    while(!feof(fp))
-    {
-        fgets(szLine, sizeof(szLine), fp);
-
-        if(strstr(szLine, "Serial"))
-            break;
-    }
-
-    fclose(fp);
-
-    char* tok = strtok(szLine, ": ");
-    if(tok == NULL)
-        return;
-
-    tok = strtok(NULL, ": \t");
-    if(tok == NULL)
-        return;
-
-    int i = 0;
-    while (tok[i])
-    {
-        char c=tok[i];
-        tok[i] = toupper(c);
-        i++;
-    }
-#endif
-#if 1
     char tok[128] = { 0 };
     unsigned int anUID[10] = { 0 };
     unsigned long long uuid = GetSSDID(anUID);
@@ -216,52 +126,6 @@ void GetSerialNumber(char* serialData)
     my_free(szEncData);
 
     dbug_printf("serial: %s\n", serialData);
-#endif
-}
-
-int GetV3SID(unsigned int* piV3SID)
-{
-#if 0
-    int fd;
-    unsigned int addr_start, addr_offset;
-    unsigned int PageSize, PageMask;
-    unsigned int sid_base;
-    void *pc;
-
-    fd = open("/dev/mem", O_RDWR);
-    if (fd < 0) {
-        my_printf("Unable to open /dev/mem\n");
-        return -1;
-    }
-
-    PageSize = sysconf(_SC_PAGESIZE);
-    PageMask = (~(PageSize-1));
-
-    addr_start  = SUNXI_SID_BASE &  PageMask;
-    addr_offset = SUNXI_SID_BASE & ~PageMask;
-
-    pc = (void *)mmap(0, 0x10, PROT_READ|PROT_WRITE, MAP_SHARED, fd, addr_start);
-    if (pc == MAP_FAILED) {
-        my_printf("Unable to mmap file\n");
-        my_printf("pc:%8.8x\n", (unsigned int)pc);
-        return -1;
-    }
-
-    sid_base = (unsigned int)pc;
-    sid_base += addr_offset;
-    close(fd);
-
-    piV3SID[0] = *((unsigned int *)sid_base);
-    piV3SID[1] = *((unsigned int *)(sid_base + 4));
-    piV3SID[2] = *((unsigned int *)(sid_base + 8));
-    piV3SID[3] = *((unsigned int *)(sid_base + 0xc));
-
-//    my_printf("V3S SID:\n");
-//    my_printf("new id = 0x%08x 0x%08x \n", piV3SID[0], piV3SID[1]);
-
-    munmap(pc, 0x10);
-#endif
-    return 0;
 }
 
 unsigned long long GetSSDID(unsigned int* piSSDID)
@@ -289,116 +153,6 @@ void GetUniquID(char* szDst)
 
     strcpy(szDst, szUniqueID);
 }
-
-
-///////////////////////////TTF Font///////////////////////
-#if 0
-char* my_fgetws(MY_WCHAR* out, int max_len, char* pos)
-{
-    int i = 0;
-    *out = 0;
-#if 0
-    my_debug("[%s] start\n", __FUNCTION__);
-#endif
-    do
-    {
-        out[i] = *(unsigned short*)pos;
-        i ++;
-        if (*pos == 0x0a && *(pos+1) == 0)
-        {
-            pos += 2; //sizeof(ushort);
-            break;
-        }
-        pos += 2; //sizeof(ushort);
-        if (i >= max_len -2)
-            break;
-    }while(1);
-    out[i] = 0;
-#if 0
-    my_debug("my_fgetws %d:", i);
-    wcsprint(out);
-    my_debug("[%s] end\n", __FUNCTION__);
-#endif
-    return pos;
-}
-
-void wcsprint(const MY_WCHAR* text)
-{
-#ifdef USE_DEBUG
-    int len = (int)wcslen(text);
-    my_debug("len=%d:", len);
-    for (int i = 0; i < len; i++)
-        my_debug("%08X ", text[i]);
-    my_debug("%s", "\n");
-#endif /* USE_DEBUG */
-}
-
-char* my_strupr(char* str)
-{
-    int len;
-    int i;
-    len = strlen(str);
-    for (i = 0; i < len; i ++)
-    {
-        if (str[i] >= 'a' && str[i] <= 'z')
-            str[i] = str[i] - 'a' + 'A';
-    }
-    return str;
-}
-
-#endif
-////////////////////////////////////////////////////////
-
-
-#if 0
-typedef struct _tagMEMINFO
-{
-    int     iTotalMem;
-    int     iFreeMem;
-    int     iBuffers;
-    int     iCaches;
-
-    int     iRealFreeMem;
-} MEMINFO;
-
-void GetMemInfo(MEMINFO* pxMemInfo)
-{
-    if(pxMemInfo == NULL)
-        return;
-#if 0
-    FILE* fp = fopen("/proc/meminfo", "rt");
-    if(fp)
-    {
-        for(int i = 0; i < 4; i ++)
-        {
-            char szLine[256] = { 0 };
-            fgets(szLine, sizeof(szLine), fp);
-//            my_printf("%s", szLine);
-
-            char* szToken = strtok(szLine, " :\r\n");
-            szToken = strtok(NULL, " :\r\n");
-
-            if(szToken)
-            {
-                if(i == 0)
-                    pxMemInfo->iTotalMem = atoi(szToken);
-                else if(i == 1)
-                    pxMemInfo->iFreeMem = atoi(szToken);
-                else if(i == 2)
-                    pxMemInfo->iBuffers = atoi(szToken);
-                else if(i == 3)
-                    pxMemInfo->iCaches = atoi(szToken);
-            }
-        }
-
-        fclose(fp);
-    }
-
-    int iUsedMem = pxMemInfo->iTotalMem - pxMemInfo->iFreeMem - pxMemInfo->iCaches - pxMemInfo->iBuffers;
-    pxMemInfo->iRealFreeMem = pxMemInfo->iTotalMem - iUsedMem;
-#endif
-}
-#endif
 
 void PrintFreeMem()
 {

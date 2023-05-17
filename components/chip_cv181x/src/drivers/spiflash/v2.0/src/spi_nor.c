@@ -94,6 +94,14 @@ const struct flash_info spi_flash_ids[] = {
 
 };
 
+int8_t g_spinor_id_buf[SPI_NOR_MAX_ID_LEN] = {0};
+
+int my_spi_nor_get_id(void *buf)
+{
+	memcpy(buf, g_spinor_id_buf, SPI_NOR_MAX_ID_LEN);
+	return 0;
+}
+
 const struct flash_info *spi_nor_read_id(struct spi_nor *nor)
 {
 	int                     tmp, offset = 0;
@@ -116,6 +124,7 @@ const struct flash_info *spi_nor_read_id(struct spi_nor *nor)
 
 		if (id[tmp] != 0xff && id[tmp] != 0) {
 			ret = sprintf((char *)(buff + offset), "%x ", id[tmp]);
+			g_spinor_id_buf[tmp] = id[tmp];
 			if (ret < 0) {
 				printf("[%s] sprintf failed, please check!\n", __func__);
 				return NULL;

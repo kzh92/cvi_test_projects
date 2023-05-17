@@ -1,6 +1,7 @@
 #include "common_types.h"
 #include "settings.h"
 #include "aescrypt.h"
+#include "shared.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -43,6 +44,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     int align_byte = FN_DICT_ALIGN_SIZE;
     int idx = 0;
     file_offset = DICT_START_ADDR;
+    char key_buf[AES_BLOCK_SIZE];
     while(g_part_files[idx].m_filename != NULL)
     {
         if (!strcmp(g_part_files[idx].m_filename, filename))
@@ -55,27 +57,32 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     {
         //found file
         read_len = my_wx_read(file_offset + u32_offset, buf, u32_length);
+        if ((g_part_files[idx].m_flag & FN_CRYPTO_AES) && (g_part_files[idx].m_cryptosize > 0))
+        {
+            unsigned char* out_buf = NULL;
+            int out_len = 0;
+            if (rootfs_is_activated() == 1 && (g_part_files[idx].m_flag & FN_CRYPTO_AES_DYN_ID2))
+                GetAesKey4ChipID(key_buf);
+            else
+                memcpy(key_buf, g_part_crypto_aes_key, AES_BLOCK_SIZE);
+            dbug_printf("[%s] %s, %02x%02x\n", __func__, filename, key_buf[0], key_buf[1]);
+            AES_Decrypt((unsigned char*)key_buf, buf, g_part_files[idx].m_cryptosize, &out_buf, &out_len);
+            if (out_buf && out_len > 0)
+            {
+                my_memcpy(buf, out_buf, out_len);
+                my_free(out_buf);
+            }
+        }
     }
     else
     {
         //file not found
         my_printf("file not found: %s\n", filename);
     }
-    if (g_part_files[idx].m_flag == FN_CRYPTO_AES && g_part_files[idx].m_cryptosize > 0)
-    {
-        unsigned char* out_buf = NULL;
-        int out_len = 0;
-        AES_Decrypt(g_part_crypto_aes_key, buf, g_part_files[idx].m_cryptosize, &out_buf, &out_len);
-        if (out_buf && out_len > 0)
-        {
-            my_memcpy(buf, out_buf, out_len);
-            my_free(out_buf);
-        }
-    }
     // dbug_printf("[%s] %s, off=%d, %d, %p.\n", __func__, filename, file_offset, read_len, buf);
-    // for (int i = 0; i < 16 && i < read_len; i++)
-    //     dbug_printf("%02x ", ((unsigned char*)buf)[i]);
-    // dbug_printf("\n-------------------------------------\n");
+    for (int i = 0; i < 16 && i < read_len; i++)
+        dbug_printf("%02x ", ((unsigned char*)buf)[i]);
+    dbug_printf("\n-------------------------------------\n");
     return read_len;
 }
 int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length)
@@ -85,6 +92,7 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
     int align_byte = FN_DICT_ALIGN_SIZE;
     int idx = 0;
     file_offset = DICT_START_ADDR;
+    char key_buf[AES_BLOCK_SIZE];
     while(g_part_files[idx].m_filename != NULL)
     {
         if (!strcmp(g_part_files[idx].m_filename, filename))
@@ -96,7 +104,27 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
     if (g_part_files[idx].m_filename)
     {
         //found file
-        read_len = my_wx_write(file_offset + u32_offset, buf, u32_length);
+        if ((g_part_files[idx].m_flag & FN_CRYPTO_AES) && (g_part_files[idx].m_cryptosize > 0))
+        {
+            unsigned char* out_buf = NULL;
+            int out_len = 0;
+            if (rootfs_is_activated() == 1 && (g_part_files[idx].m_flag & FN_CRYPTO_AES_DYN_ID2))
+                GetAesKey4ChipID(key_buf);
+            else
+                memcpy(key_buf, g_part_crypto_aes_key, AES_BLOCK_SIZE);
+            dbug_printf("[%s] %s, %02x%02x\n", __func__, filename, key_buf[0], key_buf[1]);
+            AES_Encrypt((unsigned char*)key_buf, buf, g_part_files[idx].m_cryptosize, &out_buf, &out_len);
+            if (out_buf && out_len > 0)
+            {
+                read_len = my_wx_write(file_offset + u32_offset, out_buf, out_len);
+                read_len += my_wx_write(file_offset + u32_offset + out_len, (char*)buf + out_len, u32_length - out_len);
+                my_free(out_buf);
+            }
+        }
+        else
+        {
+            read_len = my_wx_write(file_offset + u32_offset, buf, u32_length);
+        }
     }
     else
     {
@@ -910,10 +938,17 @@ int rootfs_is_activated()
         return 2;
 }
 
-int rootfs_set_activated()
+/*
+* flag: 0 not activated, 1 activated
+*/
+int rootfs_set_activated(int flag, int is_sync)
 {
-    g_xPS.x.bIsActivated = 0xAA;
-    UpdateMyAllSettings();
+    if (flag == 0)
+        g_xPS.x.bIsActivated = 0x00;
+    else
+        g_xPS.x.bIsActivated = 0xAA;
+    if (is_sync)
+        UpdateMyAllSettings();
     return 0;
 }
 
