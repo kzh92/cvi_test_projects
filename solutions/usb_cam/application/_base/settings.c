@@ -94,9 +94,12 @@ void UpdateMyAllSettings()
  */
 void ResetMyAllSettings()
 {
+    MY_ALL_SETTINGS xTemp = g_xAS;
+    my_memset(&g_xAS, 0, sizeof(g_xAS) - 1);
     ResetCS(&g_xCS);
     ResetPermanenceSettings();
-    UpdateCommonSettings();
+    if (memcmp(&xTemp, &g_xAS, sizeof(g_xAS) - 1))
+        UpdateMyAllSettings();
 }
 
 /**
@@ -116,8 +119,7 @@ void ReadPermanenceSettings()
  */
 void UpdatePermanenceSettings()
 {
-    g_xPS.x.bCheckSum = GetSettingsCheckSum(g_xPS.a, sizeof(g_xPS.a));
-    M24C64_SetPS((unsigned char*)&g_xPS);
+    UpdateMyAllSettings();
 }
 
 /**

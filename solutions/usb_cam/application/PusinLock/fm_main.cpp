@@ -104,6 +104,7 @@ void UART_Release();
 int ProcessActivation(char* pbUID, int iUniqueID);
 extern int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 extern int fr_GetAppLogLen();
+extern "C" void drv_reboot(void);
 
 extern float g_rAppStartTime;
 
@@ -116,7 +117,7 @@ extern unsigned char g_abKey[16];
 
 void SystemReboot(void)
 {
-    //kkk
+    drv_reboot();
 }
 
 void ResetPersonDB(int flag)
@@ -511,7 +512,12 @@ int GotoActivation()
     MSG* pMsg = NULL;
     while(1)
     {
-        pMsg = (MSG*)message_queue_read(&g_worker);
+        pMsg = (MSG*)message_queue_tryread(&g_worker);
+        if (pMsg == NULL)
+        {
+            my_usleep(5000);
+            continue;
+        }
         if(pMsg->type == MSG_FM)
         {
             if(!MsgProcFM(pMsg))
@@ -710,27 +716,7 @@ int main0(int argc, char** argv)
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;
     if(argc == 2 && !strcmp(argv[1], "-at"))
     {
-//        SetLed(RLED);
-        ResetCommonSettings();
-        // ResetPermanenceSettings();
-
-        UART_Create();
-
-        g_xSS.iNoActivated = 1;
-
-        if(g_pSenseTask)
-        {
-            g_pSenseTask->Stop();
-            g_pSenseTask->Wait();
-            // delete g_pSenseTask;
-            // g_pSenseTask = NULL;
-        }
-
-        //g_pFMTask = new FaceModuleTask;
-        g_pFMTask->Start();
-
-        //send uart baudrate info ?
-        g_pFMTask->SendCmd(FM_CMD_STATUS, DEFAULT_UART0_BAUDRATE, 0, STATUS_NO_ACTIVATED);
+        ResetMyAllSettings();
 
         EndIns();
         StopCamSurface();
@@ -738,11 +724,17 @@ int main0(int argc, char** argv)
         StopClrCam();
 #endif // USE_VDBTASK
 
-        GotoActivation();
+        UART_SetBaudrate(UART_Baudrate(DEFAULT_UART0_BAUDRATE));
+        // UART_Create();
 
-        //g_xROKLog.x.bKernelCounter = MAX_ROOTFS_FAIL_COUNT;
-        //g_xROKLog.x.bKernelFlag = 0x55;
-        //UpdateROKLogs();
+        g_xSS.iNoActivated = 1;
+
+        g_pFMTask->Start();
+
+        //send uart baudrate info ?
+        g_pFMTask->SendCmd(FM_CMD_STATUS, DEFAULT_UART0_BAUDRATE, 0, STATUS_NO_ACTIVATED);
+
+        GotoActivation();
 
         ReleaseAll();
         DriverRelease();
@@ -767,15 +759,8 @@ int main0(int argc, char** argv)
         iIsFirst = rootfs_is_first();
         if(iIsFirst == 1)
         {
-#if (FM_PROTOCOL == FM_EASEN)
-            if(iUpgradeFlag == 0)
-                g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_BUSY);
-#endif
             if(iUpgradeFlag == 0)
             {
-                // ResetPermanenceSettings();
-                ResetROKLogs();
-                M24C64_FactoryReset();
                 my_printf("%s:%d\n", __FILE__, __LINE__);
                 fr_InitAppLog();
             }
@@ -787,12 +772,6 @@ int main0(int argc, char** argv)
         if (try_mount_dbfs() == 1)
         {
             umount_dbfs();
-#if (FM_PROTOCOL == FM_EASEN)
-            g_pFMTask->SendCmd(FM_CMD_STATUS, 0, 0, STATUS_FINISH);
-#elif (FM_PROTOCOL == FM_DESMAN)
-            g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN, MR_SUCCESS));
-#endif
-
             ReleaseAll();
             DriverRelease();
 #ifndef LIB_TEST
@@ -3315,6 +3294,7 @@ int ProcessActivation(char* pbUID, int iUniqueID)
         _get_activation_mark();
     }
     
+    return 0;
 
 #ifndef __RTK_OS__
     system("mount -o remount, rw /");
