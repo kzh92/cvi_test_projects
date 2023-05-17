@@ -340,7 +340,7 @@ void ResetSystemState(int iAppType)
 
     g_xSS.iAppType = iAppType;
     g_xSS.iVerifyFailType = 0xFF;
-    g_xSS.iCameraRotate = !g_xPS.x.bCamFlip;
+    g_xSS.iCameraRotate = g_xPS.x.bCamFlip;
     g_xSS.iUsbHostMode = g_xCS.x.bUsbHost;
     g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
 }

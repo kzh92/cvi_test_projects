@@ -2276,7 +2276,7 @@ int MsgProcSense(MSG* pMsg)
             }
             else
             {
-                g_xSS.iCameraRotate = !g_xSS.msg_send_msg_data.enable;
+                g_xSS.iCameraRotate = g_xSS.msg_send_msg_data.enable;
                 if (g_xPS.x.bCamFlip != g_xSS.msg_send_msg_data.enable)
                 {
                     g_xPS.x.bCamFlip = g_xSS.msg_send_msg_data.enable;
