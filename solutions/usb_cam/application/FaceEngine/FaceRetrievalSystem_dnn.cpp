@@ -165,7 +165,7 @@ void*   EngineLoadAndCheckFunc(void*)
     g_nThreadCount = 1;
 
     APP_LOG("[%s] start %0.1f\n", __func__, Now());
-    allocGlobalCVDicBuffer();
+    allocGlobalCVDicBuffer(0);
     g_thread_flag_detect = 1;
 //#ifndef __RTK_OS__
 //#ifdef ENGINE_USE_DevMemInit
@@ -250,25 +250,25 @@ void*   EngineLoadAndCheckFunc(void*)
     getDicChecSumChecked(MachineFlagIndex_DNN_Detect_Hand);
     g_thread_flag_detect_h = 2;
 
-    g_thread_flag_model_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
-    createModelingEngine(g_shared_mem, 1);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
-    g_thread_flag_model_h = 2;
+    // g_thread_flag_model_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
+    // createModelingEngine(g_shared_mem, 1);
+    // getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
+    // g_thread_flag_model_h = 2;
 
 
-    unsigned char* pHand_Feat_Mem = g_shared_mem + 128 * 128;
-    g_thread_flag_checkValid_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
-    KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
-    g_thread_flag_checkValid_h = 2;
+    // unsigned char* pHand_Feat_Mem = g_shared_mem + 128 * 128;
+    // g_thread_flag_checkValid_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
+    // KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
+    // getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
+    // g_thread_flag_checkValid_h = 2;
 
 
-    g_thread_flag_feat_h = 1;
-    loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
-    KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
-    g_thread_flag_feat_h = 2;
+    // g_thread_flag_feat_h = 1;
+    // loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
+    // KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
+    // g_thread_flag_feat_h = 2;
 #endif // N_MAX_HAND_NUM
     releaseGlobalCVDicBuffer();
     APP_LOG("[%s] end %0.1f\n", __func__, Now());

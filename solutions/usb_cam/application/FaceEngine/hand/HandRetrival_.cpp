@@ -39,7 +39,7 @@ int g_thread_flag_model_h = 0;
 int g_thread_flag_feat_h = 0;
 int g_thread_flag_checkValid_h = 0;
 
-
+int g_nEngine2ndLoaded = 0;
 static int      g_nHandDetected = 0;
 
 int             g_rAverageLedOnImage_Hand;
@@ -179,6 +179,37 @@ void*   EngineLoadAndCheckFunc_Hand(void*)
     return NULL;
 }
 
+void   LoadAndCheckFunc_Hand_2nd()
+{
+    if(!g_nEngine2ndLoaded)
+    {
+        allocGlobalCVDicBuffer(1);
+
+        g_thread_flag_model_h = 1;
+        loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
+        createModelingEngine(g_shared_mem_Hand, 1);
+        getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
+        g_thread_flag_model_h = 2;
+
+
+        unsigned char* pHand_Feat_Mem = g_shared_mem_Hand + 128 * 128;
+        g_thread_flag_checkValid_h = 1;
+        loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
+        KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
+        getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
+        g_thread_flag_checkValid_h = 2;
+
+
+        g_thread_flag_feat_h = 1;
+        loadMachineDic(MachineFlagIndex_DNN_Feature_Hand);
+        KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
+        g_thread_flag_feat_h = 2;
+        releaseGlobalCVDicBuffer();
+        g_nEngine2ndLoaded = 1;
+    }
+
+}
+
 int createHandEngine_()
 {
     LOG_PRINT("createHandEngine_\n");
@@ -253,6 +284,7 @@ void    fr_FreeEngine_Hand()
         g_global_memory_hand = 0;
         APP_LOG("[%d] pecc 4-10-1-h\n", (int)Now());
     }
+    g_nEngine2ndLoaded = 0;
 }
 
 
@@ -970,6 +1002,9 @@ int		fr_ExtractHand()
 
        return ES_FAILED;
     }
+
+    LoadAndCheckFunc_Hand_2nd();
+
 
     waitDicChecksum(&g_thread_flag_model_h);
     if (g_thread_flag_model_h != 2)

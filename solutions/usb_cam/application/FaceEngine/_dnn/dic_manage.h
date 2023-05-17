@@ -49,7 +49,7 @@ int     setLoadedDicFlag(int nIndex, int nValue);
 
 int     getDicChecSumChecked(int nIndex);
 
-int     allocGlobalCVDicBuffer();
+int     allocGlobalCVDicBuffer(int nMode);
 int     releaseGlobalCVDicBuffer();
 
 int     SetKdnnFeatData(unsigned char* abData);

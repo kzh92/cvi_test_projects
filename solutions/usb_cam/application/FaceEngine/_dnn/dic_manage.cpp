@@ -118,8 +118,7 @@ unsigned char*  g_global_cv_dic = 0;
 #ifdef __RTK_OS__
 #include "FaceRetrievalSystem.h"
 #endif
-
-int     allocGlobalCVDicBuffer()
+int     allocGlobalCVDicBuffer(int nMode)
 {
     if(!g_global_cv_dic)
     {
@@ -140,7 +139,19 @@ int     allocGlobalCVDicBuffer()
 
         int nMaxDicSize = 0;
         int nDicIndex;
-        for(nDicIndex = 0; nDicIndex < 12; nDicIndex ++)
+        int nStartDicIndex = 0;
+        int nEndDicIndex = 0;
+        if(nMode == 0)
+        {
+            nStartDicIndex = 0;
+            nEndDicIndex = 8;
+        }
+        else if(nMode == 1)
+        {
+            nStartDicIndex = 9;
+            nEndDicIndex = 11;
+        }
+        for(nDicIndex = nStartDicIndex; nDicIndex <= nEndDicIndex; nDicIndex ++)
         {
             if(nMaxDicSize < nDicSize[nDicIndex])
             {
