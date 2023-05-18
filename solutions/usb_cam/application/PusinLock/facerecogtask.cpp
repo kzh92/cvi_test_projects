@@ -525,16 +525,16 @@ void FaceRecogTask::run()
                         break;
                 }
 
-                if(*fr_GetMainProcessCameraIndex() == 1)
-                {
-                    //fr_GetOffImageBuffer2() is required, wait for
-                    if (!(g_iLedOffFrameFlag & RIGHT_IROFF_CAM_RECVED))
-                    {
-                        WAIT_CAM_FRAME(500, WaitIROffTimeout2);
-                        if (g_xSS.iResetFlag == 1)
-                            break;
-                    }
-                }
+                // if(*fr_GetMainProcessCameraIndex() == 1)
+                // {
+                //     //fr_GetOffImageBuffer2() is required, wait for
+                //     if (!(g_iLedOffFrameFlag & RIGHT_IROFF_CAM_RECVED))
+                //     {
+                //         WAIT_CAM_FRAME(500, WaitIROffTimeout2);
+                //         if (g_xSS.iResetFlag == 1)
+                //             break;
+                //     }
+                // }
             }
 
             if(iNeedExp && nProcessModeIndex == nProcessModeIndexEnd)
