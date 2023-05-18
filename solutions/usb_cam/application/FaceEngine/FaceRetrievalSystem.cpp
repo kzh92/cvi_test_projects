@@ -79,6 +79,8 @@ int             g_nUpdateID = -1;
 int             g_rAverageLedOffImage;
 int             g_rAverageDiffImage;
 int             g_rAverageLedOnImage;
+int             g_rAverageLedOnImage_Camera1;
+float           g_rFaceRect_Camera1[4];
 int*            g_nHistInLEDOnImage;//g_nHistInLEDOnImage[256];
 int*            g_nHistInLEDOnImage_temp;//g_nHistInLEDOnImage_temp[256];
 int             g_nFirstImageFaceAvailable;
@@ -403,7 +405,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 1
+#if 0
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
@@ -1028,7 +1030,8 @@ void waitDicChecksum(int* pThread)
     }
 }
 
-int checkFaceIsInPhoto()
+#if 0   //Org mode
+int checkFaceIsInPhoto_org()
 {
     if(g_nMainProcessCameraIndex == -1)
     {
@@ -1108,6 +1111,134 @@ int checkFaceIsInPhoto()
 
     APP_LOG("\t\t***OffIm = %d\n", nOffImageAverVal);
     int nDeltaValue = g_rAverageLedOnImage - nOffImageAverVal;
+    my_printf("g_rAverageLedOnImage %d nOffImageAverVal %d\n", g_rAverageLedOnImage, nOffImageAverVal);
+    if(nDeltaValue < 20)
+    {
+        return ES_SUCCESS;
+    }
+
+    float rCornerValueRate = 0.1f;
+    float rFaceCenterX, rFaceCenterY;
+    float rImageCenterX, rImageCenterY;
+    rFaceCenterX = g_xFaceProcessData->rFaceRect[0] + g_xFaceProcessData->rFaceRect[2] * 0.5f;
+    rFaceCenterY = g_xFaceProcessData->rFaceRect[1] + g_xFaceProcessData->rFaceRect[3] * 0.5f;
+    rImageCenterX = g_xEngineParam.nDetectionWidth / 2;
+    rImageCenterY = g_xEngineParam.nDetectionHeight / 2;
+    float rFaceCenter_ImageCenter_Dist = sqrt((rImageCenterX - rFaceCenterX) * (rImageCenterX - rFaceCenterX) + (rImageCenterY - rFaceCenterY) * (rImageCenterY - rFaceCenterY));
+    float rImageCenter_Dist = sqrt((rImageCenterX - 120) * (rImageCenterX - 120) + (rImageCenterY - 120) * (rImageCenterY - 120));
+    float rBrightnessRate = ((rFaceCenter_ImageCenter_Dist * rCornerValueRate + (rImageCenter_Dist - rFaceCenter_ImageCenter_Dist) * 1) / rImageCenter_Dist);
+//    printf("rFaceCenterX =%f, rFaceCenterY = %f\n", rFaceCenterX, rFaceCenterY);
+//    printf("rFaceCenter_ImageCenter_Dist = %f\n", rFaceCenter_ImageCenter_Dist);
+//    printf("rBrightnessRate = %f\n", rBrightnessRate);
+
+    float rCenterThreshold = 700.0f;
+    float rCornerThreshold = 940.0f;
+    if(rFaceCenterY < rImageCenterY)
+    {
+        rCornerThreshold = 800.0f;
+    }
+    float rThreshold = ((rFaceCenter_ImageCenter_Dist * rCornerThreshold + (rImageCenter_Dist - rFaceCenter_ImageCenter_Dist) * rCenterThreshold) / rImageCenter_Dist);
+
+    float rExpValue = ((float)nExp * getGainRateFromGain_SC2355(nGain, nFineGain));
+    float rDist = sqrt(rExpValue / (nDeltaValue / rBrightnessRate));
+    float rCheckVal = rDist * nFaceWidth;
+#if (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
+    rCheckVal = rCheckVal /0.8203f;
+#endif
+    my_printf("rCheckVal_org=%f, rThreshold=%f\n", rCheckVal, rThreshold);
+
+    if(rCheckVal > rThreshold)
+        return ES_SUCCESS;
+
+
+    return ES_FAILED;
+
+}
+#endif
+
+#if 0   //Only Camera1 use mode
+int checkFaceIsInPhoto_mode1()
+{
+    if(g_nMainProcessCameraIndex == -1)
+    {
+        return ES_FAILED;
+    }
+
+    unsigned char* pbLedOffImage = g_pbOffIrImage;
+    int nExp = g_exposure_bkup;
+    int nGain = g_nGain_bkup;
+    int nFineGain = g_nFineGain_bkup;
+    int nIsLeftCam = 1;
+
+    // if(g_nMainProcessCameraIndex == 1)
+    // {
+    //     pbLedOffImage = g_pbOffIrImage2;
+    //     nExp = g_exposure2_bkup;
+    //     nGain = g_nGain2_bkup;
+    //     nFineGain = g_nFineGain2_bkup;
+    //     nIsLeftCam = 0;
+    // }
+
+    int nOffImageWidth, nOffImageHeight;
+    nOffImageWidth = g_xEngineParam.nDetectionWidth / LEDOFFIMAGE_REDUCE_RATE;
+    nOffImageHeight = g_xEngineParam.nDetectionHeight / LEDOFFIMAGE_REDUCE_RATE;
+    //get face rect average
+    float rFaceRectLeftInOff, rFaceRectRightInOff, rFaceRectTopInOff, rFaceRectBottomInOff;
+    int nFaceRectLeftInOff, nFaceRectRightInOff, nFaceRectTopInOff, nFaceRectBottomInOff;
+    float nFaceWidth = (g_rFaceRect_Camera1[2] - g_rFaceRect_Camera1[0]);
+    float nFaceHeight = (g_rFaceRect_Camera1[3] - g_rFaceRect_Camera1[1]);
+    rFaceRectLeftInOff = g_rFaceRect_Camera1[0] + nFaceWidth * 0.2f;
+    rFaceRectRightInOff = g_rFaceRect_Camera1[0] + nFaceWidth * 0.8f;
+    rFaceRectTopInOff = g_rFaceRect_Camera1[1] + nFaceHeight * 0.1f;
+    rFaceRectBottomInOff = g_rFaceRect_Camera1[1] + nFaceHeight * 0.9f;
+
+    nFaceRectLeftInOff = (int)(rFaceRectLeftInOff / LEDOFFIMAGE_REDUCE_RATE);
+    if (nFaceRectLeftInOff * LEDOFFIMAGE_REDUCE_RATE !=  rFaceRectLeftInOff)
+    {
+        nFaceRectLeftInOff ++;
+    }
+    nFaceRectRightInOff = (int)(rFaceRectRightInOff / LEDOFFIMAGE_REDUCE_RATE);
+    nFaceRectTopInOff = (int)(rFaceRectTopInOff / LEDOFFIMAGE_REDUCE_RATE);
+    if(nFaceRectTopInOff * LEDOFFIMAGE_REDUCE_RATE != rFaceRectTopInOff)
+    {
+        nFaceRectTopInOff ++;
+    }
+    nFaceRectBottomInOff = (int)(rFaceRectBottomInOff / LEDOFFIMAGE_REDUCE_RATE);
+    int nProcessCount = 0;
+    int nTotalLedOffValue = 0;
+    int nOffImageAverVal = 0;
+
+    int nY, nX;
+    for (nY = nFaceRectTopInOff; nY <= nFaceRectBottomInOff; nY ++)
+    {
+        for (nX = nFaceRectLeftInOff; nX < nFaceRectRightInOff; nX ++)
+        {
+            int nXInBayer, nYInBayer;
+            int nSrcY = nY;
+            int nSrcX = nX;
+            if ((g_xEngineParam.iCamFlip == 0 && nIsLeftCam == 1) || (g_xEngineParam.iCamFlip == 1 && nIsLeftCam == 0))
+            {
+                nYInBayer = nSrcX;
+                nXInBayer = nOffImageHeight - 1 - nSrcY;
+            }
+            else
+            {
+                nXInBayer = nSrcY;
+                nYInBayer = nOffImageWidth - nSrcX - 1;
+            }
+
+            nTotalLedOffValue += pbLedOffImage[nYInBayer * nOffImageHeight + nXInBayer];
+            nProcessCount ++;
+        }
+    }
+    if(nProcessCount)
+    {
+        nOffImageAverVal = nTotalLedOffValue / nProcessCount;
+    }
+
+    my_printf("g_rAverageLedOnImage_Camera1 = %d\n", g_rAverageLedOnImage_Camera1);
+    APP_LOG("\t\t***Camera1 OffIm = %d\n", nOffImageAverVal);
+    int nDeltaValue = g_rAverageLedOnImage_Camera1 - nOffImageAverVal;
     if(nDeltaValue < 20)
     {
         return ES_SUCCESS;
@@ -1142,12 +1273,164 @@ int checkFaceIsInPhoto()
     rCheckVal = rCheckVal /0.8203f;
 #endif
 
+    my_printf("rCheckVal 1st cam =%f, rThreshold=%f\n", rCheckVal, rThreshold);
     if(rCheckVal > rThreshold)
         return ES_SUCCESS;
 
     return ES_FAILED;
 
 }
+#endif
+
+
+#if 1   //mode 2
+int checkFaceIsInPhoto()
+{
+    if(g_nMainProcessCameraIndex == -1)
+    {
+        return ES_FAILED;
+    }
+
+    unsigned char* pbLedOffImage = g_pbOffIrImage;
+    int nExp = g_exposure_bkup;
+    int nGain = g_nGain_bkup;
+    int nFineGain = g_nFineGain_bkup;
+    int nIsLeftCam = 1;
+
+    if(g_nMainProcessCameraIndex == 1)
+    {
+//        pbLedOffImage = g_pbOffIrImage2;
+        nExp = g_exposure2_bkup;
+        nGain = g_nGain2_bkup;
+        nFineGain = g_nFineGain2_bkup;
+//        nIsLeftCam = 0;
+    }
+
+    int nOffImageWidth, nOffImageHeight;
+    nOffImageWidth = g_xEngineParam.nDetectionWidth / LEDOFFIMAGE_REDUCE_RATE;
+    nOffImageHeight = g_xEngineParam.nDetectionHeight / LEDOFFIMAGE_REDUCE_RATE;
+    //get face rect average
+    float rFaceRectLeftInOff, rFaceRectRightInOff, rFaceRectTopInOff, rFaceRectBottomInOff;
+    int nFaceRectLeftInOff, nFaceRectRightInOff, nFaceRectTopInOff, nFaceRectBottomInOff;
+    
+    float nFaceWidth, nFaceHeight;
+    
+    if(g_rAverageLedOnImage_Camera1 == -1)
+    {
+        nFaceWidth = (int)g_xFaceProcessData->rFaceRect[2];
+        rFaceRectLeftInOff = g_xFaceProcessData->rFaceRect[0] + g_xFaceProcessData->rFaceRect[2] * 0.2f;
+        rFaceRectRightInOff = g_xFaceProcessData->rFaceRect[0] + g_xFaceProcessData->rFaceRect[2] * 0.8f;
+        rFaceRectTopInOff = g_xFaceProcessData->rFaceRect[1] + g_xFaceProcessData->rFaceRect[3] * 0.1f;
+        rFaceRectBottomInOff = g_xFaceProcessData->rFaceRect[1] + g_xFaceProcessData->rFaceRect[3] * 0.9f;
+    }
+    else
+    {
+        nFaceWidth = (g_rFaceRect_Camera1[2] - g_rFaceRect_Camera1[0]);
+        nFaceHeight = (g_rFaceRect_Camera1[3] - g_rFaceRect_Camera1[1]);
+        rFaceRectLeftInOff = g_rFaceRect_Camera1[0] + nFaceWidth * 0.2f;
+        rFaceRectRightInOff = g_rFaceRect_Camera1[0] + nFaceWidth * 0.8f;
+        rFaceRectTopInOff = g_rFaceRect_Camera1[1] + nFaceHeight * 0.1f;
+        rFaceRectBottomInOff = g_rFaceRect_Camera1[1] + nFaceHeight * 0.9f;
+    }
+
+    nFaceRectLeftInOff = (int)(rFaceRectLeftInOff / LEDOFFIMAGE_REDUCE_RATE);
+    if (nFaceRectLeftInOff * LEDOFFIMAGE_REDUCE_RATE !=  rFaceRectLeftInOff)
+    {
+        nFaceRectLeftInOff ++;
+    }
+    nFaceRectRightInOff = (int)(rFaceRectRightInOff / LEDOFFIMAGE_REDUCE_RATE);
+    nFaceRectTopInOff = (int)(rFaceRectTopInOff / LEDOFFIMAGE_REDUCE_RATE);
+    if(nFaceRectTopInOff * LEDOFFIMAGE_REDUCE_RATE != rFaceRectTopInOff)
+    {
+        nFaceRectTopInOff ++;
+    }
+    nFaceRectBottomInOff = (int)(rFaceRectBottomInOff / LEDOFFIMAGE_REDUCE_RATE);
+    int nProcessCount = 0;
+    int nTotalLedOffValue = 0;
+    int nOffImageAverVal = 0;
+
+    int nY, nX;
+    for (nY = nFaceRectTopInOff; nY <= nFaceRectBottomInOff; nY ++)
+    {
+        for (nX = nFaceRectLeftInOff; nX < nFaceRectRightInOff; nX ++)
+        {
+            int nXInBayer, nYInBayer;
+            int nSrcY = nY;
+            int nSrcX = nX;
+            if ((g_xEngineParam.iCamFlip == 0 && nIsLeftCam == 1) || (g_xEngineParam.iCamFlip == 1 && nIsLeftCam == 0))
+            {
+                nYInBayer = nSrcX;
+                nXInBayer = nOffImageHeight - 1 - nSrcY;
+            }
+            else
+            {
+                nXInBayer = nSrcY;
+                nYInBayer = nOffImageWidth - nSrcX - 1;
+            }
+
+            nTotalLedOffValue += pbLedOffImage[nYInBayer * nOffImageHeight + nXInBayer];
+            nProcessCount ++;
+        }
+    }
+    if(nProcessCount)
+    {
+        nOffImageAverVal = nTotalLedOffValue / nProcessCount;
+    }
+
+    int nBlackLevel = 16;
+    if(g_nMainProcessCameraIndex == 1)
+    {
+        //calc 2nd led off value
+        float r2nd1stRate = ((float)g_exposure2_bkup * getGainRateFromGain_SC2355(g_nGain2_bkup, g_nFineGain2_bkup)) / 
+        ((float)g_exposure_bkup * getGainRateFromGain_SC2355(g_nGain_bkup, g_nFineGain_bkup));
+        nOffImageAverVal = (int)(((float)nOffImageAverVal - nBlackLevel) * r2nd1stRate + nBlackLevel);
+        //my_printf("calced nOffImageAverVal %d\n", nOffImageAverVal);
+    }
+    APP_LOG("\t\t***OffIm = %d\n", nOffImageAverVal);
+
+    int nDeltaValue = g_rAverageLedOnImage - nOffImageAverVal;
+    if(nDeltaValue < 20)
+    {
+        return ES_SUCCESS;
+    }
+
+    float rCornerValueRate = 0.1f;
+    float rFaceCenterX, rFaceCenterY;
+    float rImageCenterX, rImageCenterY;
+    rFaceCenterX = g_xFaceProcessData->rFaceRect[0] + g_xFaceProcessData->rFaceRect[2] * 0.5f;
+    rFaceCenterY = g_xFaceProcessData->rFaceRect[1] + g_xFaceProcessData->rFaceRect[3] * 0.5f;
+    rImageCenterX = g_xEngineParam.nDetectionWidth / 2;
+    rImageCenterY = g_xEngineParam.nDetectionHeight / 2;
+    float rFaceCenter_ImageCenter_Dist = sqrt((rImageCenterX - rFaceCenterX) * (rImageCenterX - rFaceCenterX) + (rImageCenterY - rFaceCenterY) * (rImageCenterY - rFaceCenterY));
+    float rImageCenter_Dist = sqrt((rImageCenterX - 120) * (rImageCenterX - 120) + (rImageCenterY - 120) * (rImageCenterY - 120));
+    float rBrightnessRate = ((rFaceCenter_ImageCenter_Dist * rCornerValueRate + (rImageCenter_Dist - rFaceCenter_ImageCenter_Dist) * 1) / rImageCenter_Dist);
+//    printf("rFaceCenterX =%f, rFaceCenterY = %f\n", rFaceCenterX, rFaceCenterY);
+//    printf("rFaceCenter_ImageCenter_Dist = %f\n", rFaceCenter_ImageCenter_Dist);
+//    printf("rBrightnessRate = %f\n", rBrightnessRate);
+
+    float rCenterThreshold = 700.0f;
+    float rCornerThreshold = 940.0f;
+    if(rFaceCenterY < rImageCenterY)
+    {
+        rCornerThreshold = 800.0f;
+    }
+    float rThreshold = ((rFaceCenter_ImageCenter_Dist * rCornerThreshold + (rImageCenter_Dist - rFaceCenter_ImageCenter_Dist) * rCenterThreshold) / rImageCenter_Dist);
+
+    float rExpValue = ((float)nExp * getGainRateFromGain_SC2355(nGain, nFineGain));
+    float rDist = sqrt(rExpValue / (nDeltaValue / rBrightnessRate));
+    float rCheckVal = rDist * nFaceWidth;
+#if (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
+    rCheckVal = rCheckVal /0.8203f;
+#endif
+
+    //my_printf("rCheckVal Calc 2nd =%f, rThreshold=%f\n", rCheckVal, rThreshold);
+    if(rCheckVal > rThreshold)
+        return ES_SUCCESS;
+
+    return ES_FAILED;
+
+}
+#endif
 
 
 int check2D_3DFake()
@@ -1648,12 +1931,12 @@ int fr_PreExtractFace(unsigned char *pbClrImage, unsigned char *pbLedOnImage)
 //    nRet = fr_PreExtractFace_dnn(pbClrImage, pbLedOnImage);
 //#endif
 
-    g_exposure_bkup = g_exposure;
-    g_nGain_bkup = g_nGain;
-    g_nFineGain_bkup = g_nFineGain;
-    g_exposure2_bkup = g_exposure2;
-    g_nGain2_bkup = g_nGain2;
-    g_nFineGain2_bkup = g_nFineGain2;
+    // g_exposure_bkup = g_exposure;
+    // g_nGain_bkup = g_nGain;
+    // g_nFineGain_bkup = g_nFineGain;
+    // g_exposure2_bkup = g_exposure2;
+    // g_nGain2_bkup = g_nGain2;
+    // g_nFineGain2_bkup = g_nFineGain2;
     g_nMainProcessCameraIndex = -1;
 
     nRet = fr_PreExtractFace_dnn(pbClrImage, pbLedOnImage);
@@ -1851,10 +2134,11 @@ int	fr_VerifyFace()
         return ES_PROCESS;
     }
 
-    if (dbm_GetPersonCount() == 0 && g_xEngineParam.iDemoMode != N_DEMO_VERIFY_MODE_ON)
-    {
-        return ES_PROCESS;
-    }
+    //temp disable
+    // if (dbm_GetPersonCount() == 0 && g_xEngineParam.iDemoMode != N_DEMO_VERIFY_MODE_ON)
+    // {
+    //     return ES_PROCESS;
+    // }
 
 #ifdef ENGINE_FOR_DESSMAN
     if(g_nWaitingOpenEye)
@@ -1873,13 +2157,17 @@ int	fr_VerifyFace()
 #endif
 
 #if (FAKE_DETECTION == 1)
-
+    // checkFaceIsInPhoto_org();
+    // checkFaceIsInPhoto_calc2nd();
     if(checkFaceIsInPhoto() == ES_FAILED && g_xEngineParam.iDemoMode != N_DEMO_FACTORY_MODE )
     {
         APP_LOG("[%d] pec 26-ps\n", (int)Now());
         g_nContinueRealCount = 0;
         return ES_PROCESS;
     }
+
+    return ES_PROCESS;
+
 
 #ifdef TimeProfiling
         float rTempStartTime = Now();

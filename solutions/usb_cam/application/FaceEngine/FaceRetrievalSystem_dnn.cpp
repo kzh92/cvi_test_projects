@@ -326,10 +326,12 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 //    g_nNeedToCalcNextExposure = 0;
     memset(&g_xEngineResult, 0, sizeof(SEngineResult));
     memset(getFaceProcessData(), 0, sizeof(Face_Process_Data));
+    g_rAverageLedOnImage_Camera1 = -1;
+
 #ifdef TimeProfiling
     setTimeProfilingInfo(0);
 #endif
-    //my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
+    my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
     if(*fr_GetBayerYConvertedCameraIndex() != 0)
     {
         //convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);
@@ -447,7 +449,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
             rFaceRects[2] = face.x2;
             rFaceRects[3] = face.y2;
             //my_printf("nFaceRects = %f %f %f %f\n", face.x1, face.y1, face.x2, face.y2);
-
+            memcpy(g_rFaceRect_Camera1, rFaceRects, sizeof(float) * 4);
             nFaceDetectSuccess = 0;
             *fr_GetFaceDetected() = 1;
 
@@ -504,7 +506,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
         rectAvg.width = aWidth * 0.6f;
         rectAvg.height = aHeight * 0.8f;
         calcAverageValues(g_pbYIrImage, 0, rectAvg);
-
+        g_rAverageLedOnImage_Camera1 = g_rAverageLedOnImage;
         APP_LOG("[%d] pes 1 %d %f\n", (int)Now(), (int)g_rAverageLedOnImage, g_rSaturatedRate);
  
 #ifdef TimeProfiling

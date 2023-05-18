@@ -284,6 +284,8 @@ extern int g_nPassedDirectionCount;
 extern int g_rAverageLedOffImage;
 extern int g_rAverageDiffImage;
 extern int g_rAverageLedOnImage;
+extern int g_rAverageLedOnImage_Camera1;
+extern float g_rFaceRect_Camera1[4];
 extern int* g_nHistInLEDOnImage;
 extern int* g_nHistInLEDOnImage_temp;
 extern int g_nFirstImageFaceAvailable;
