@@ -13,10 +13,39 @@
 #include <yoc/partition.h>
 #include <yoc/partition_device.h>
 #include <decompress.h>
+// #include <zstd.h>
 
 #define LOAD_DDR_ADRR  0x84000000
 #define MAX_YOC_SIZE   0xA00000
 #define DECOMP_DST_SIZE (16 << 20)
+
+extern int cvi_efuse_get_chip_sn(void *data, uint32_t *size);
+
+void decrypt_buf(void* buf, int length)
+{
+    unsigned char pu8SN[8] = {0};
+    uint32_t sn_size = 0;
+
+    cvi_efuse_get_chip_sn(pu8SN, &sn_size);
+    printf("\n\rsn%d, %llx\n\r", sn_size, *((long long*)pu8SN));
+#if 0
+    for (int i = 0; i < length / 8 * 8; i ++)
+        ((unsigned char*)buf)[i] ^= pu8SN[i % 8];
+    printf("dec ok %d\n\r", length);
+#elif(0)
+    unsigned long long const rSize = ZSTD_getFrameContentSize(buf, length);
+    unsigned char* temp_buf = (unsigned char*)buf + rSize;
+    memcpy(temp_buf, buf, length);
+    ZSTD_decompress(buf, rSize, temp_buf, length);
+    printf("zstd ok %d\n\r", (int)rSize);
+#else
+    unsigned char* temp_buf = (unsigned char*)buf + 3*1024*1024;
+    size_t dst_size;
+    memcpy(temp_buf, buf, length);
+    decompress(buf, &dst_size, temp_buf, length, COMP_LZ4);
+    printf("lz4 ok %d\n\r", (int)dst_size);
+#endif
+}
 
 void boot_load_and_jump(void)
 {
@@ -77,9 +106,7 @@ void boot_load_and_jump(void)
         }
     }else{
         memcpy((void *)load_addr,(void *)uzip_addr,image_size);
-        //for (int i = 0; i < image_size; i ++)
-        //    ((unsigned char*)load_addr)[i] ^= 0x55;
-        //printf("dec ok %d\n", image_size);
+        decrypt_buf((void*)load_addr, image_size);
         //if (partition_split_and_copy(part, 0)) {
         //   DBG_PRINT("decompress and copy prim bin failed.\n");
         //   //goto fail;

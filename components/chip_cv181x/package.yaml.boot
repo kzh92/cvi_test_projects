@@ -119,7 +119,7 @@ build_config:
 
     # - src/drivers/codec/cvitek/include
     # - src/drivers/i2s/dw/include
-    # - src/drivers/efuse/wj/cvi/
+    - src/drivers/efuse/wj/cvi/
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -182,7 +182,7 @@ source_file:
   - src/drivers/sdif/dw/v1.0/*.c
   - src/drivers/sha/cvi/src/*.c
   # - src/drivers/aes/cvi/src/*.c
-  # - src/drivers/efuse/wj/cvi/*.c
+  - src/drivers/efuse/wj/cvi/*.c
   # - src/drivers/rng/cvi/src/*.c
 
 ## 第五部分：配置信息
