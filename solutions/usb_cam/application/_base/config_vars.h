@@ -8,17 +8,9 @@
 #define DICT_PART_SIZE                  (8*1024*1024) //8MB
 #define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE                     0x00100000
+#if 1
 #define FN_WNO_DICT_SIZE                3562136
 #define FN_WNOH_DICT_SIZE               2732440
-#if (USE_FP16_ENGINE == 0)
-#define FN_A1_DICT_SIZE                 792992
-#define FN_A2_DICT_SIZE                 792992
-#define FN_B_DICT_SIZE                  792992
-#define FN_B2_DICT_SIZE                 246968
-#define FN_C_DICT_SIZE                  792992
-#define FN_DETECT_DICT_SIZE             180992
-#define FN_DLAMK_DICT_SIZE              1153056
-#else // USE_FP16_ENGINE == 0
 #define FN_A1_DICT_SIZE                 (442504)
 #define FN_A2_DICT_SIZE                 (442504)
 #define FN_B_DICT_SIZE                  (442504)
@@ -29,11 +21,40 @@
 #define FN_DETECT_H_DICT_SIZE           (121464)
 #define FN_DLAMK_DICT_SIZE              (624696)
 #define FN_DLAMK_H_DICT_SIZE            (496008)
-#endif // USE_FP16_ENGINE == 0
+#else
+#define FN_WNO_DICT_SIZE                1884446 //3562136
+#define FN_WNOH_DICT_SIZE               1418292 //2732440
+#define FN_A1_DICT_SIZE                 357060 //(442504)
+#define FN_A2_DICT_SIZE                 354590 //(442504)
+#define FN_B_DICT_SIZE                  351129 //(442504)
+#define FN_B2_DICT_SIZE                 118005 //(152920)
+#define FN_C_DICT_SIZE                  377862 //(442504)
+#define FN_CH_DICT_SIZE                 305807 //(442504)
+#define FN_DETECT_DICT_SIZE             81430 //(129320)
+#define FN_DETECT_H_DICT_SIZE           79016 //(121464)
+#define FN_DLAMK_DICT_SIZE              401066 //(624696)
+#define FN_DLAMK_H_DICT_SIZE            80833 //(496008)
+#endif
 #define FN_ESN_DICT_SIZE                123860
 #define FN_OCC_DICT_SIZE                363416
 #define FN_H1_DICT_SIZE                 290964
 #define FN_H2_DICT_SIZE                 4263260
+
+/*--fast=4
+wno.bin : 52.90%   (3562136 => 1884446 bytes, wno.bin.zst) 
+detect.bin : 62.97%   (129320 =>  81430 bytes, detect.bin.zst) 
+dlamk.bin : 64.20%   (624696 => 401066 bytes, dlamk.bin.zst) 
+a1.bin : 80.69%   (442504 => 357060 bytes, a1.bin.zst) 
+a2.bin : 80.13%   (442504 => 354590 bytes, a2.bin.zst) 
+b.bin : 79.35%   (442504 => 351129 bytes, b.bin.zst) 
+b2.bin : 77.17%   (152920 => 118005 bytes, b2.bin.zst) 
+c.bin : 85.39%   (442504 => 377862 bytes, c.bin.zst) 
+detect_h.bin : 65.05%   (121464 =>  79016 bytes, detect_h.bin.zst) 
+dlamk_h.bin : 16.30%   (496008 =>  80833 bytes, dlamk_h.bin.zst) 
+ch.bin : 69.11%   (442504 => 305807 bytes, ch.bin.zst) 
+wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst) 
+./pack/rc/face_ir.bin :100.01%   (427136 => 427161 bytes, ./pack/rc/face_ir.bin.zst) 
+*/
 
 #define UPGRADER_INFO_ADDR              (DICT_START_ADDR + DICT_PART_SIZE - 8192)
 
@@ -105,6 +126,7 @@ enum {
     FN_CRYPTO_NONE = 0,
     FN_CRYPTO_AES = 1, //aes with static key
     FN_CRYPTO_AES_DYN_ID2 = 2, //aes with dynamic key of cpu id and spi nor flash id
+    FN_CRYPTO_ZSTD = 4, //zstd compression
 };
 
 #ifdef __cplusplus

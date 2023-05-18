@@ -50,6 +50,25 @@ int req_crypto(const char * filename, unsigned char* file_buf)
     return 0;
 }
 
+int req_compress(const char * filename)
+{
+    int idx = 0;
+    while(g_part_files[idx].m_filename != NULL)
+    {
+        if (strlen(g_part_files[idx].m_filename) > 6 && 
+            strstr(filename, g_part_files[idx].m_filename + 6))
+        {
+            if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
+            {
+                return 1;
+            }
+        }
+
+        idx ++;
+    }
+    return 0;
+}
+
 int merge_files(const char** file_names, const char* dest_file, int pad_size)
 {
     FILE* fp_out;
@@ -64,7 +83,20 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
     {
         FILE* fp_in;
         int file_size = 0;
-        fp_in = fopen(file_names[i], "rb");
+        char cmd_[1024];
+        if (req_compress(file_names[i]))
+        {
+            sprintf(cmd_, "rm -f %s.zst", file_names[i]);
+            system(cmd_);
+            sprintf(cmd_, "zstd --fast=4 %s", file_names[i]);
+            system(cmd_);
+            sprintf(cmd_, "%s.zst", file_names[i]);
+        }
+        else
+        {
+            sprintf(cmd_, "%s", file_names[i]);
+        }
+        fp_in = fopen(cmd_, "rb");
         if (fp_in == NULL)
         {
             printf("failed to open file:%s\n", file_names[i]);

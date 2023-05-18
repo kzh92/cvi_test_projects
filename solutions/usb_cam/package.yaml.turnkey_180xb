@@ -142,6 +142,9 @@ build_config:
     - application/_aes
     - application/_des
     - application/_des/openssl
+    - application/_zstd/lib
+    - application/_zstd/lib/common
+    - application/_zstd/lib/decompress
     - application/FaceEngine
     - application/FaceEngine/HEngineLib
     - application/FaceEngine/AEngineLib
@@ -194,6 +197,8 @@ source_file:
   - application/_driver/*.cpp
   - application/_driver/*.c
   - application/z_base/*.cpp
+  - application/_zstd/lib/common/*.c
+  - application/_zstd/lib/decompress/*.c
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

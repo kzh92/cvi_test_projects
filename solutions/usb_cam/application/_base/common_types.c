@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <yoc/partition.h>
 #include "cvi_sys.h"
+#include "zstd.h"
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
@@ -56,7 +57,9 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     if (g_part_files[idx].m_filename)
     {
         //found file
-        read_len = my_wx_read(file_offset + u32_offset, buf, u32_length);
+        read_len = my_wx_read(file_offset + u32_offset, buf, g_part_files[idx].m_filesize);
+
+        //decrypt file
         if ((g_part_files[idx].m_flag & FN_CRYPTO_AES) && (g_part_files[idx].m_cryptosize > 0))
         {
             unsigned char* out_buf = NULL;
@@ -72,6 +75,28 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
                 my_memcpy(buf, out_buf, out_len);
                 my_free(out_buf);
             }
+        }
+        //decompress file
+        if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
+        {
+            unsigned char* temp_buf = NULL;
+            temp_buf = my_malloc(g_part_files[idx].m_filesize);
+            if (!temp_buf)
+            {
+                my_printf("malloc fail, temp buf\n");
+                return 0;
+            }
+            memcpy(temp_buf, buf, g_part_files[idx].m_filesize);
+            unsigned long long const rSize = ZSTD_getFrameContentSize(temp_buf, g_part_files[idx].m_filesize);
+            if (rSize != u32_length)
+            {
+                my_printf("size error: %d, %d\n", (int)rSize, (int)u32_length);
+                my_free(temp_buf);
+                return 0;
+            }
+            size_t const dSize = ZSTD_decompress(buf, rSize, temp_buf, g_part_files[idx].m_filesize);
+            my_free(temp_buf);
+            read_len = (int)dSize;
         }
     }
     else
