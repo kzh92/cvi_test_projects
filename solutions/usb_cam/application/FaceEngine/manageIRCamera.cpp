@@ -440,6 +440,16 @@ void CalcNextExposure_inner()
         *fr_GetFineGain2() = nNewFineGain;
         g_nNeedToCalcNextExposure = 1;
     }
+    else
+    {
+        if(*fr_GetExposure() != *fr_GetExposure_bkup() || *fr_GetExposure2() != *fr_GetExposure2_bkup() ||
+           *fr_GetGain() != *fr_GetGain_bkup() || *fr_GetGain2() != *fr_GetGain2_bkup() ||
+            *fr_GetFineGain() != *fr_GetFineGain_bkup() || *fr_GetFineGain2() != *fr_GetFineGain2_bkup())
+        {
+            g_nNeedToCalcNextExposure = 1;
+        }
+
+    }
 }
 
 #if (N_MAX_HAND_NUM)
