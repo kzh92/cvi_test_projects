@@ -9,7 +9,7 @@
 #include "drv/aes.h"
 #include "drv/tick.h"
 
-#include <aos/kernel.h>
+// #include <aos/kernel.h>
 
 static char encrypt_key[32] = { 0 };
 static int encrypt_key_len;
@@ -114,6 +114,8 @@ csi_error_t csi_aes_set_decrypt_key(csi_aes_t *aes, void *key, csi_aes_key_bits_
     return ret;
 }
 
+static uint8_t g_in_ex[4096 + 80];
+static uint8_t g_out_ex[4096 + 80];
 /**
   \brief       AES ecb encrypt
   \param[in]   aes     Handle to operate
@@ -132,14 +134,14 @@ csi_error_t csi_aes_ecb_encrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
     __aligned(64) uint32_t dma_descriptor[32] = { 0 };
     uint32_t status;
     uint32_t padding_size = (size + 64 - 1) & (~0x3F);
-    uint8_t *in_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *in_ex = g_in_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (in_ex == NULL) {
       return CSI_ERROR;
     }
 
-    uint8_t *out_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *out_ex = g_out_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (out_ex == NULL) {
-      aos_free(in_ex);
+      // aos_free(in_ex);
       return CSI_ERROR;
     }
 
@@ -193,8 +195,8 @@ csi_error_t csi_aes_ecb_encrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
     csi_dcache_invalid_range((uint64_t *)dst, padding_size);
 
     memcpy(out, (void *)dst, size);
-    aos_free(in_ex);
-    aos_free(out_ex);
+    // aos_free(in_ex);
+    // aos_free(out_ex);
     return CSI_OK;
 }
 
@@ -216,14 +218,14 @@ csi_error_t csi_aes_ecb_decrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
     __aligned(64) uint32_t dma_descriptor[32] = { 0 };
     uint32_t status;
     uint32_t padding_size = (size + 64 - 1) & (~0x3F);
-    uint8_t *in_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *in_ex = g_in_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (in_ex == NULL) {
       return CSI_ERROR;
     }
 
-    uint8_t *out_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *out_ex = g_out_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (out_ex == NULL) {
-      aos_free(in_ex);
+      // aos_free(in_ex);
       return CSI_ERROR;
     }
 
@@ -276,8 +278,8 @@ csi_error_t csi_aes_ecb_decrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
 
     csi_dcache_invalid_range((uint64_t *)dst, padding_size);
     memcpy(out, (void *)dst, size);
-    aos_free(in_ex);
-    aos_free(out_ex);
+    // aos_free(in_ex);
+    // aos_free(out_ex);
     return CSI_OK;
 }
 
@@ -301,14 +303,14 @@ csi_error_t csi_aes_cbc_encrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
     __aligned(64) uint32_t dma_descriptor[32] = { 0 };
     uint32_t status;
     uint32_t padding_size = (size + 64 - 1) & (~0x3F);
-    uint8_t *in_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *in_ex = g_in_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (in_ex == NULL) {
       return CSI_ERROR;
     }
 
-    uint8_t *out_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *out_ex = g_out_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (out_ex == NULL) {
-      aos_free(in_ex);
+      // aos_free(in_ex);
       return CSI_ERROR;
     }
 
@@ -362,8 +364,8 @@ csi_error_t csi_aes_cbc_encrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
 
     csi_dcache_invalid_range((uint64_t *)dst, padding_size);
     memcpy(out, (void *)dst, size);
-    aos_free(in_ex);
-    aos_free(out_ex);
+    // aos_free(in_ex);
+    // aos_free(out_ex);
     return CSI_OK;
 }
 
@@ -385,15 +387,15 @@ csi_error_t csi_aes_cbc_decrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
 
     __aligned(64) uint32_t dma_descriptor[32] = { 0 };
     uint32_t status;
-    uint32_t padding_size = (size + 64 - 1) & (~0x3F);
-    uint8_t *in_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    // uint32_t padding_size = (size + 64 - 1) & (~0x3F);
+    uint8_t *in_ex = g_in_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (in_ex == NULL) {
       return CSI_ERROR;
     }
 
-    uint8_t *out_ex = (uint8_t *)aos_malloc(padding_size + 63);
+    uint8_t *out_ex = g_out_ex;//(uint8_t *)aos_malloc(padding_size + 63);
     if (out_ex == NULL) {
-      aos_free(in_ex);
+      // aos_free(in_ex);
       return CSI_ERROR;
     }
 
@@ -447,8 +449,8 @@ csi_error_t csi_aes_cbc_decrypt(csi_aes_t *aes, void *in, void *out, uint32_t si
 
     csi_dcache_invalid_range((uint64_t *)dst, size);
     memcpy(out, (void *)dst, size);
-    aos_free(in_ex);
-    aos_free(out_ex);
+    // aos_free(in_ex);
+    // aos_free(out_ex);
     return CSI_OK;
 }
 

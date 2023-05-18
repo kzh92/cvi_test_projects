@@ -116,6 +116,7 @@ build_config:
     - src/hal/rtc/cvi/include
     - src/hal/adc/cvi/include
     - src/drivers/sdif/dw/v1.0
+    - csi/csi1/include/drv
 
     # - src/drivers/codec/cvitek/include
     # - src/drivers/i2s/dw/include
@@ -181,7 +182,7 @@ source_file:
   - src/drivers/common/ringbuffer.c
   - src/drivers/sdif/dw/v1.0/*.c
   - src/drivers/sha/cvi/src/*.c
-  # - src/drivers/aes/cvi/src/*.c
+  - src/drivers/aes/cvi/src/*.c
   - src/drivers/efuse/wj/cvi/*.c
   # - src/drivers/rng/cvi/src/*.c
 

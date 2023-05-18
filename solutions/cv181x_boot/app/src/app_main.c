@@ -13,6 +13,7 @@
 #include <yoc/partition.h>
 #include <yoc/partition_device.h>
 #include <decompress.h>
+#include "drv/aes.h"
 // #include <zstd.h>
 
 #define LOAD_DDR_ADRR  0x84000000
@@ -21,13 +22,34 @@
 
 extern int cvi_efuse_get_chip_sn(void *data, uint32_t *size);
 
+int aes_set_key(char* chipSN, char* aesKey)
+{
+    int i;
+    char tmpBuf[8];
+    memset(tmpBuf, 0, 8);
+
+    if (memcmp(chipSN, tmpBuf, 8) == 0)
+        return -1;
+
+    memcpy(tmpBuf, chipSN, 8);
+    for (i = 1; i < 8; i++)
+        tmpBuf[i] ^= chipSN[i - 1];
+
+    memcpy(aesKey, tmpBuf, 8);
+    memcpy(aesKey + 8, tmpBuf, 8);
+    return 0;
+}
+
 void decrypt_buf(void* buf, int length)
 {
     unsigned char pu8SN[8] = {0};
+    unsigned char aesKey[16] = {0};
     uint32_t sn_size = 0;
+    csi_aes_t aes;
 
     cvi_efuse_get_chip_sn(pu8SN, &sn_size);
-    printf("\n\rsn%d, %llx\n\r", sn_size, *((long long*)pu8SN));
+
+    // printf("\n\rsn%d, %llx\n\r", sn_size, *((long long*)pu8SN));
 #if 0
     for (int i = 0; i < length / 8 * 8; i ++)
         ((unsigned char*)buf)[i] ^= pu8SN[i % 8];
@@ -39,11 +61,18 @@ void decrypt_buf(void* buf, int length)
     ZSTD_decompress(buf, rSize, temp_buf, length);
     printf("zstd ok %d\n\r", (int)rSize);
 #else
+
+#if 1
+    aes_set_key((char*)pu8SN, (char*)aesKey);
+    csi_aes_set_decrypt_key(&aes, aesKey, AES_KEY_LEN_BITS_128);
+    csi_aes_ecb_decrypt(&aes, buf, buf, 4096);
+#endif
+
     unsigned char* temp_buf = (unsigned char*)buf + 3*1024*1024;
     size_t dst_size;
     memcpy(temp_buf, buf, length);
     decompress(buf, &dst_size, temp_buf, length, COMP_LZ4);
-    printf("lz4 ok %d\n\r", (int)dst_size);
+    printf("\n\rz\n\r"); // label
 #endif
 }
 
