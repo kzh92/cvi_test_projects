@@ -148,6 +148,15 @@ void StartFirstCam()
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
 #endif // USE_VDBTASK
 
+    g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
+
+    if(g_iMipiCamInited == 0)
+    {
+        camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
+        camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN, INIT_FINEGAIN);
+        camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
+        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1, INIT_FINEGAIN_1);
+    }
 #if 0
     g_iMipiCamInited = camera_init(TC_MIPI_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
 
