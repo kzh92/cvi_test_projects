@@ -90,7 +90,7 @@ float KdnnCheckValid_Hand(unsigned char * pbImage)
         return -1;
     }
 
-#if 1
+#if 0
     {
         char szImageFilePath[255];
         sprintf(szImageFilePath, "/mnt/sd/handcheck_buf_%f_%f.bin", res[0], res[1]);
