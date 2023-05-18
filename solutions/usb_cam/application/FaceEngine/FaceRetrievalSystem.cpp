@@ -2166,9 +2166,6 @@ int	fr_VerifyFace()
         return ES_PROCESS;
     }
 
-    return ES_PROCESS;
-
-
 #ifdef TimeProfiling
         float rTempStartTime = Now();
 #endif
