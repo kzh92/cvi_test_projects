@@ -1393,7 +1393,6 @@ int MsgProcSense(MSG* pMsg)
         {
             SetModifyUser(1);
 
-            UpdateUserCount();
             int iBackupState = mount_backup_db(0);
 #if (N_MAX_HAND_NUM)
             if (iUserID > N_MAX_PERSON_NUM)
@@ -1407,6 +1406,7 @@ int MsgProcSense(MSG* pMsg)
             }
             umount_backup_db();
 
+            UpdateUserCount();
             ResetFaceRegisterStates();
 
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_SUCCESS);
