@@ -22,6 +22,8 @@
 
 #define TAG "app"
 
+extern void cmd_ifconfig_func(char *wbuf, int wbuf_len, int argc, char **argv);
+char *ifconfig_args[] = {"ifconfig"};
 
 int main(int argc, char *argv[])
 {
@@ -53,6 +55,7 @@ int main(int argc, char *argv[])
 	usleep(12 * 1000);
 	isp_daemon2_init(5566);
 	#endif
+	cmd_ifconfig_func("", 0, 1, ifconfig_args);
 	LOGI(TAG, "app start........\n");
 	APP_CustomEventStart();
 	while (1) {
