@@ -395,7 +395,12 @@ void SenseLockTask::run()
 #endif // USE_UVC_PAUSE_MODE
 #ifndef NOTHREAD_MUL
             if ((g_xSS.iMState != MS_OTA || g_xSS.bCheckFirmware == 1) && iSleepTime > 0)
-                my_usleep(iSleepTime);//
+            {
+                if (g_xSS.rFaceEngineTime == 0)
+                    my_usleep(iSleepTime);//
+                else
+                    my_usleep(1000);
+            }
 #else // ! NOTHREAD_MUL
             //my_usleep(1);
 #endif // ! NOTHREAD_MUL
