@@ -2495,11 +2495,6 @@ int ProcessSenseFace(int iCmd)
 #if (USE_VDBTASK)
     if(!(g_xSS.iCamError & CAM_ERROR_DVP2 || g_xSS.iCamError & CAM_ERROR_DVP1))
         StartClrCam();
-
-#if (IR_LED_ONOFF_MODE == 1)
-    camera_set_irled(2, 0);
-#endif
-
 #endif // USE_VDBTASK
 
     g_xSS.iResetFlag = 0;

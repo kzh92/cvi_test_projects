@@ -842,7 +842,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         unsigned char *ptr = (unsigned char*)stVideoFrame[0].stVFrame.pu8VirAddr[0];
 
         if (g_iTwoCamFlag != -1 && rOld != 0)
-            dbug_printf("mipi capture: %df, %do, %0.1f, %dc, %dt\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
+            dbug_printf("[%0.1f]mc: %do, %dc, %dt\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 
         if(g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
@@ -905,6 +905,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         {
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 
             lockIRBuffer();
             size_t test_pos = 0;
@@ -916,27 +917,8 @@ void* ProcessTCMipiCapture(void */*param*/)
                     break;
             }
             unlockIRBuffer();
-
-            g_iTwoCamFlag ++;
             WaitIRCancel2();
-        }
-        else if(g_iTwoCamFlag == IR_CAMERA_STEP5 && g_iTwoCamFlag != IR_CAMERA_STEP6)
-        {
-            g_iTwoCamFlag ++;
-        }
-        else if(g_iTwoCamFlag == IR_CAMERA_STEP6)
-        {
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-
-            lockIROffBuffer();
-            genIROffData10bit(ptr +  (int)image_size/8, fr_GetOffImageBuffer2(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            unlockIROffBuffer();
-            g_iLedOffFrameFlag |= LEFT_IROFF_CAM_RECVED;
-
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-            iNeedNext = 1;
-
-            WaitIROffCancel2();
         }
         else if(iNeedNext == 1)
         {
@@ -1390,6 +1372,7 @@ int WaitIRTimeout(int iTimeout)
         my_mutex_lock(g_irWriteLock);
         if (g_irWriteCond == 1)
         {
+            g_irWriteCond = 0;
             my_mutex_unlock(g_irWriteLock);
             // dbug_printf("[%s] return 0\n", __func__);
             return 0;
@@ -1425,6 +1408,7 @@ int WaitIRTimeout2(int iTimeout)
         my_mutex_lock(g_irWriteLock2);
         if (g_irWriteCond2 == 1)
         {
+            g_irWriteCond2 = 0;
             my_mutex_unlock(g_irWriteLock2);
             // dbug_printf("[%s] return 0\n", __func__);
             return 0;
@@ -1450,12 +1434,12 @@ int camera_set_irled_on(int on)
     if (on)
     {
         g_iLedOnStatus = 1;
-        my_mutex_lock(g_irWriteLock);
-        g_irWriteCond = 0;
-        my_mutex_unlock(g_irWriteLock);
-        my_mutex_lock(g_irWriteLock2);
-        g_irWriteCond2 = 0;
-        my_mutex_unlock(g_irWriteLock2);
+        // my_mutex_lock(g_irWriteLock);
+        // g_irWriteCond = 0;
+        // my_mutex_unlock(g_irWriteLock);
+        // my_mutex_lock(g_irWriteLock2);
+        // g_irWriteCond2 = 0;
+        // my_mutex_unlock(g_irWriteLock2);
     }
     else
         g_iLedOnStatus = 0;
@@ -1476,8 +1460,9 @@ int WaitIROffTimeout(int iTimeout)
         if (_diff > (float)iTimeout)
             break;
         my_mutex_lock(g_irOffWriteLock);
-        if (g_irWriteCond == 1)
+        if (g_irOffWriteCond == 1)
         {
+            g_irOffWriteCond = 0;
             my_mutex_unlock(g_irOffWriteLock);
             // dbug_printf("[%s] return 0\n", __func__);
             return 0;

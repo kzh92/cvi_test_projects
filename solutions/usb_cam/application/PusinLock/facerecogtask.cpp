@@ -408,7 +408,7 @@ void FaceRecogTask::run()
                 StartCamSurface(1);
             }
             GetRightIrFrame(NULL, iFlag);
-            WAIT_CAM_FRAME(500, WaitIROffTimeout2);
+            // WAIT_CAM_FRAME(500, WaitIROffTimeout2);
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
@@ -449,6 +449,8 @@ void FaceRecogTask::run()
         }
 
         int nBreaks = 0;
+        int nGotRightFrame = 0;
+        int nGotOffFrame = 0;
         for(nProcessModeIndex = nProcessModeIndexStart; nProcessModeIndex <= nProcessModeIndexEnd; nProcessModeIndex ++)
         {
             //g_irOnData1 is required
@@ -466,7 +468,11 @@ void FaceRecogTask::run()
 
 #if (ENGINE_USE_TWO_CAM == 1)
             //g_irOnData2 is required here.
-            GetRightIrFrame(pInputImageBuffer1, iFlag);
+            if (nGotRightFrame == 0)
+            {
+                GetRightIrFrame(pInputImageBuffer1, iFlag);
+                nGotRightFrame = 1;
+            }
             fr_PreExtractCombo2(pInputImageBuffer1);
 #endif // ENGINE_USE_TWO_CAM
 
@@ -478,7 +484,11 @@ void FaceRecogTask::run()
             {
                 if (!(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
                 {
-                    WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                    if (nGotOffFrame == 0)
+                    {
+                        WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                        nGotOffFrame = 1;
+                    }
                     if (g_xSS.iResetFlag == 1)
                         break;
                 }
@@ -520,7 +530,11 @@ void FaceRecogTask::run()
                 //fr_GetOffImageBuffer() is required, wait for
                 if (!(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
                 {
-                    WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                    if (nGotOffFrame == 0)
+                    {
+                        WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                        nGotOffFrame = 1;
+                    }
                     if (g_xSS.iResetFlag == 1)
                         break;
                 }
@@ -1164,11 +1178,11 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
 //         dbug_printf("g_iTwoCamFlag=%d\n", g_iTwoCamFlag);
 // #endif // ENGINE_USE_TWO_CAM
 
-        g_iTwoCamFlag = 0;
-        g_iLedOffFrameFlag = 0;
 #if (IR_LED_ONOFF_MODE == 1)
         camera_set_irled_on(1);
         dbug_printf("irled on, %s:%d\n", __FILE__, __LINE__);
+        g_iTwoCamFlag = IR_CAMERA_STEP0;
+        g_iLedOffFrameFlag = 0;
 #endif
         WAIT_CAM_FRAME(500, WaitIRTimeout);
     }
