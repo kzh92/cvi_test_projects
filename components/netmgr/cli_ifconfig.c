@@ -145,7 +145,7 @@ static void cmd_ifconfig_gprs(char *wbuf, int wbuf_len, int argc, char **argv)
     printf(USAGE_INFO);
 }
 
-static void cmd_ifconfig_func(char *wbuf, int wbuf_len, int argc, char **argv)
+void cmd_ifconfig_func(char *wbuf, int wbuf_len, int argc, char **argv)
 {
     int item_count = argc;
 

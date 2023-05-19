@@ -51,7 +51,7 @@ depends:
   - drv_snd_cv181x: v7.5.1
   - lvgl: develop
   - cvi_sensor: develop
-#  - rtsp: develop
+  - rtsp: develop
 #  - cvi_mw_tpu: v0.0.1
   - cherryusb: develop
   - cvi_platform: develop
@@ -164,7 +164,7 @@ def_config:
   CONFIG_KV_ENABLE_CACHE: 1
   CONFIG_INIT_TASK_STACK_SIZE: 131072
 ## Demo APP Func config
-  CONFIG_APP_ETHERNET_SUPPORT: 0
+  CONFIG_APP_ETHERNET_SUPPORT: 1
   CONFIG_APP_WIFI_SUPPORT: 0
   CONFIG_APP_HI3861_WIFI_SUPPORT: 0
   CONFIG_APP_RTL8723DS_WIFI_SUPPORT: 0
@@ -207,7 +207,7 @@ def_config:
   CONFIG_PANEL_ILI9488: 0
 
   CONFIG_VENC_TEST_CHN: 2
-  CONFIG_PQTOOL_SUPPORT: 0
+  CONFIG_PQTOOL_SUPPORT: 1
   CONFIG_PQBIN_USE_JSON: 0
   CONFIG_ISP_SUPPORT_PROC: 0
   CONFIG_ENABLE_FASTBOOT: 0
