@@ -226,11 +226,11 @@ static int start_isp(ISP_PUB_ATTR_S stPubAttr, VI_PIPE ViPipe)
 	}
 
 	//Run ISP
-	// s32Ret = CVI_ISP_Run(ViPipe);
-	// if (s32Ret != CVI_SUCCESS) {
-	// 	MEDIABUG_PRINTF("ISP Run failed with %#x!\n", s32Ret);
-	// 	return s32Ret;
-	// }
+	s32Ret = CVI_ISP_Run(ViPipe);
+	if (s32Ret != CVI_SUCCESS) {
+		MEDIABUG_PRINTF("ISP Run failed with %#x!\n", s32Ret);
+		return s32Ret;
+	}
 
 	MEDIABUG_PRINTF("******start isp******\n");
 	return CVI_SUCCESS;
