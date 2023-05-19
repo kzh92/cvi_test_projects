@@ -8,7 +8,7 @@
 
 //list of upgrade files
 s_uf_part_info g_upg_list[] = {
-    {"pusr1", 0x00e90000, 8192, 0},
+    {"prim", 0x2E000, 0x300000, 0},
     {"", 0, 0, 0} //terminator
 };
 

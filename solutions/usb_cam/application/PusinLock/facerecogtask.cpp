@@ -679,6 +679,8 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
     my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
     if (pbJpgData)
         my_free(pbJpgData);
+    if (g_abCapturedFace)
+        my_free(g_abCapturedFace);
     return 0;
 }
 

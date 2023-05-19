@@ -105,6 +105,7 @@ int ProcessActivation(char* pbUID, int iUniqueID);
 extern int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* buf, unsigned int u32_length);
 extern int fr_GetAppLogLen();
 extern "C" void drv_reboot(void);
+extern "C" int MEDIA_VIDEO_Deinit();
 
 extern float g_rAppStartTime;
 
@@ -598,6 +599,7 @@ void EngineMapRelease()
 
 int Upgrade_Firmware(void)
 {
+    MEDIA_VIDEO_Deinit();
 #ifndef UPGRADE_MODE
     unsigned int nWaitCnt = 0;
 #endif
