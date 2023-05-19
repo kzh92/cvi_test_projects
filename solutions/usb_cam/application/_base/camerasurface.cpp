@@ -841,7 +841,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         unsigned char *ptr = (unsigned char*)stVideoFrame[0].stVFrame.pu8VirAddr[0];
 
-        if (g_iTwoCamFlag != -1)
+        if (g_iTwoCamFlag != -1 && rOld != 0)
             dbug_printf("mipi capture: %df, %do, %0.1f, %dc, %dt\n", iFrameCount, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 
