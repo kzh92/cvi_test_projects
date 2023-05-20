@@ -41,6 +41,7 @@ int g_thread_flag_checkValid_h = 0;
 
 int g_nEngine2ndLoaded = 0;
 static int      g_nHandDetected = 0;
+static int      g_nHandWidth = 0;
 
 int             g_rAverageLedOnImage_Hand;
 int             g_nHistInLEDOnImage_Hand[256];//g_nHistInLEDOnImage[256];
@@ -78,9 +79,10 @@ int g_nContinueRealCount_Hand = 0;
 #define USER_CONTINUE_FRAME_HAND	1
 
 #define HAND_ENROLL_FEAT_COUNT 3
-#define DNN_ENROLL_CHECK_THRESHOLD_HAND  74.0f
-#define DNN_VERIFY_THRESHOLD_HAND        81.0f
-#define DNN_UPDATE_THRESHOLD_HAND        82.5f
+//hfir_1.2
+#define DNN_ENROLL_CHECK_THRESHOLD_HAND  70.0f
+#define DNN_VERIFY_THRESHOLD_HAND        78.2f
+#define DNN_UPDATE_THRESHOLD_HAND        80.0f
 #define DNN_UPDATE_THRESHOLD_MAX_HAND    92.0f
 
 #define HAND_ALIGN_MIN_AVERAGE          75.0f
@@ -740,6 +742,7 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
         int nFaceWidth = (float)(rHandRects[2] - rHandRects[0]);
         int nFaceHeight = (float)(rHandRects[3] - rHandRects[1]);
         int nFaceMaxLine = nFaceWidth > nFaceHeight ? nFaceWidth : nFaceHeight;
+        g_nHandWidth = nFaceMaxLine;
 
         if(nBadCode)
         {
@@ -1231,7 +1234,7 @@ int     fr_VerifyHand_()
             GetMaxDNNScore(g_prDNNEnrolledFeature_Admin_Hand, g_nDNNFeatureCount_Admin_Hand, nAdminPersonCount, g_arLastDNNFeature_Hand, &rDNNScore, &nDNNMaxScoreIndex);
             APP_LOG("[%d] pec 32-h %f\n", (int)Now(), rDNNScore);
 
-            if (rDNNScore > DNN_VERIFY_THRESHOLD)
+            if (rDNNScore > DNN_VERIFY_THRESHOLD_HAND)
             {
                 nEntireDNNMaxScoreIndex = g_nIndexList_Admin_Hand[nDNNMaxScoreIndex];
             }
@@ -1242,7 +1245,7 @@ int     fr_VerifyHand_()
         {
             GetMaxDNNScore(g_prDNNEnrolledFeature_Hand, g_nDNNFeatureCount_Hand, nPersonCount, g_arLastDNNFeature_Hand, &rDNNScore, &nDNNMaxScoreIndex);
             APP_LOG("[%d] pec 33-h %f\n", (int)Now(), rDNNScore);
-            if (rDNNScore > DNN_VERIFY_THRESHOLD)
+            if (rDNNScore > DNN_VERIFY_THRESHOLD_HAND)
             {
                 nEntireDNNMaxScoreIndex = g_nIndexList_Hand[nDNNMaxScoreIndex];
             }
@@ -1469,6 +1472,10 @@ SEngineResult* fr_GetEngineResult_Hand()
     return &g_xEngineResult_Hand;
 }
 
+int* getHandWidth()
+{
+    return &g_nHandWidth;
+}
 
 int update_DNN_EnrollFeature_sizeChanged_Hand(unsigned short* prEnrollFeatureToUpdate, int* pnEnrolledFeatureCount, unsigned short* pVerifyFeatureToUpdate)
 {

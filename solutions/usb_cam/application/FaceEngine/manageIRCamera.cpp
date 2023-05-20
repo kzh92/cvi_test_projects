@@ -530,7 +530,7 @@ void CalcNextExposure_inner_hand()
     {
         if (rSaturatedRate > SAT_THRESHOLD)
         {
-            if(rSaturatedRate > 50 && ((float)(*fr_GetExposure_bkup()) * getGainRateFromGain_SC2355(*fr_GetGain_bkup(), *fr_GetFineGain_bkup())) > 60)
+            if(rSaturatedRate > 50 && ((float)(*fr_GetExposure_bkup()) * getGainRateFromGain_SC2355(*fr_GetGain_bkup(), *fr_GetFineGain_bkup())) > 300)
             {
                 nForceDownForSaturation = 1;
             }
@@ -638,6 +638,14 @@ void CalcNextExposure_inner_hand()
             nNewGain = 0x00;
             nNewFineGain = 0x80;
             nNewExposure = 75;
+            
+#if (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
+            int nHandWidth = *getHandWidth();
+            if(nHandWidth < 700)
+            {
+                nNewExposure = (int)(710.0f  * 75 / nHandWidth);
+            }
+#endif
         }
 
         if (nNewGain < MIN_GAIN)

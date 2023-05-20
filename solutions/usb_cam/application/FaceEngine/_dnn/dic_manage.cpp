@@ -636,7 +636,7 @@ int getDicChecSumChecked(int nMachineIndex)
 
     if(nMachineIndex == MachineFlagIndex_DNN_Feature_Hand)
     {
-        if(g_nDicCheckSum_FEAT_Hand == DNN_FEAT_HAND_CHECKSUM)
+        if((unsigned int)g_nDicCheckSum_FEAT_Hand == DNN_FEAT_HAND_CHECKSUM)
         {
             return 1;
         }

@@ -68,6 +68,7 @@ LIBFOO_DLL_EXPORTED int     fr_GetRegisteredFeatInfo_Hand(SHandFeatInfo* pFeatIn
 
 void    fr_SetEngineState_Hand(int fState, int nUpdateID);
 void    fr_LoadFeatureForDuplicateCheck_Hand(int nUpdateID);
+int*    getHandWidth();
 
 
 int*    fr_GetAverageLedOnImage_Hand();

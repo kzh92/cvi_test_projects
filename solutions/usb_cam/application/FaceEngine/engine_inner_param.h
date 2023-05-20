@@ -28,7 +28,8 @@
 #define DNN_DETECT_HAND_CHECKSUM        0x934fbc1d
 #define DNN_MODELING_HAND_CHECKSUM      0xd87613f9
 #define DNN_CHECKVALID_HAND_CHECKSUM    0x12f83321
-#define DNN_FEAT_HAND_CHECKSUM          0x6ab1922b
+//hfir_1.2
+#define DNN_FEAT_HAND_CHECKSUM          0xdd9736ec
 
 ////////     Live_SC_1.10 cv     ////////
 #define DNN_2D_LIVE_A1_CHECKSUM    	0x9f049758
