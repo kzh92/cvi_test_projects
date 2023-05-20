@@ -2134,11 +2134,10 @@ int	fr_VerifyFace()
         return ES_PROCESS;
     }
 
-    //temp disable
-    // if (dbm_GetPersonCount() == 0 && g_xEngineParam.iDemoMode != N_DEMO_VERIFY_MODE_ON)
-    // {
-    //     return ES_PROCESS;
-    // }
+    if (dbm_GetPersonCount() == 0 && g_xEngineParam.iDemoMode != N_DEMO_VERIFY_MODE_ON)
+    {
+        return ES_PROCESS;
+    }
 
 #ifdef ENGINE_FOR_DESSMAN
     if(g_nWaitingOpenEye)
