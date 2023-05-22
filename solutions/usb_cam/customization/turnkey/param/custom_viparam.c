@@ -14,9 +14,9 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
         .s32I2cAddr = -1,
-        .s8I2cDev = 2,
-        .u32Rst_port_idx = 2,//GPIOC_13
-        .u32Rst_pin = 13,
+        .s8I2cDev = 1,
+        .u32Rst_port_idx = 2,
+        .u32Rst_pin = 8,
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
     }
 };

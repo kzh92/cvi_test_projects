@@ -113,6 +113,10 @@ typedef struct _ISP_SNS_OBJ_S {
 	CVI_S32 (*pfnExpSensorCb)(ISP_SENSOR_EXP_FUNC_S *);
 	CVI_S32 (*pfnExpAeCb)(AE_SENSOR_EXP_FUNC_S *);
 	CVI_S32 (*pfnSnsProbe)(VI_PIPE ViPipe);
+	CVI_S32 (*pfnSnsSwitch)(VI_PIPE ViPipe, CVI_U8 switchCam);
+	CVI_S32 (*pfnSnsPatternEn)(VI_PIPE ViPipe, CVI_U8);
+	CVI_S32 (*pfnWriteRegEx)(VI_PIPE ViPipe, CVI_S32 s32Addr, CVI_S32 s32Data, CVI_S32 s32IsLeftCamera);
+	CVI_S32 (*pfnReadRegEx)(VI_PIPE ViPipe, CVI_S32 s32Addr, CVI_S32 s32IsLeftCamera);
 } ISP_SNS_OBJ_S;
 
 typedef enum _SNS_TYPE_E {

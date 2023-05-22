@@ -305,8 +305,8 @@ enum E_Baud_Rate
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "1.21.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "1.21.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "1.21.0.1_D2"
+#define DEVICE_FIRMWARE_VERSION_INNER       "1.21.0.1_D2"
 
 #define DEVICE_NID_READY_VER                0 //'C'=0x43, for desman, else 0=NID_READY
 #undef SEND_LAST_MSG
@@ -337,8 +337,8 @@ enum E_Baud_Rate
 #define USE_SANJIANG3_MODE                  1
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
-// #undef DEFAULT_BOARD_TYPE
-// #define DEFAULT_BOARD_TYPE                  BD_TY_CV180xB_DEMO_V1v0
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_CV180xB_DEMO_V1v0
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)

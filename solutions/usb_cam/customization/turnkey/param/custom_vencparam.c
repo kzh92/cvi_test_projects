@@ -31,7 +31,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u16Gop = 25,
             .u8SrcFrameRate = 25,
             .u8DstFrameRate = 25,
-            .u16BitRate = 1024,
+            .u16BitRate = 2048,
             .u8Qfactor = 60,
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
             .u8VariFpsEn = 0,
@@ -53,6 +53,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
         },
         .s8RoiNumber = -1,
     },
+#if 0
     {
         .stChnParam = {
             .u8InitStatus = 0,
@@ -73,8 +74,8 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
         },
         .stRcParam = {
             .u16Gop = 25,
-            .u8SrcFrameRate = 25,
-            .u8DstFrameRate = 25,
+            .u8SrcFrameRate = 15,
+            .u8DstFrameRate = 15,
             .u16BitRate = 1024,
             .u8Qfactor = 60,
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
@@ -97,6 +98,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
         },
         .s8RoiNumber = -1,
     }
+#endif
 };
 
 PARAM_VENC_CFG_S  g_stVencCtx = {

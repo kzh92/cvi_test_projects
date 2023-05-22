@@ -41,7 +41,8 @@ extern	"C"
 // #endif
 
 #if (DEFAULT_BOARD_TYPE == BD_TY_CV180xB_DEMO_V1v0)
-#define IR_LED                  420 /* PWR_GPIO[20] Group:4 Num:20 */
+#define IR_LED                  19 /* XGPIOA[19] Group:0 Num:19 */
+#define CAM_PWDN		        213 /* XGPIOC_13 Group:2 Num:13*/
 #elif (DEFAULT_BOARD_TYPE == BD_TY_FSDB_1V0)
 #define IR_LED                  421 /* PWR_GPIO[21] Group:4 Num:21 */
 #else // DEFAULT_BOARD_TYPE
