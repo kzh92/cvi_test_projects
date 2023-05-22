@@ -57,8 +57,8 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
 #if 1
-    {1, 800, 600, 30, 0},
-    {2, 1600, 1200, 30, 0},
+    {1, 1600, 1200, 30, 0},
+    {2, 800, 600, 30, 0},
 #else
     {1, 800, 600, 30, 0},
     {2, 640, 480, 30, 0},
