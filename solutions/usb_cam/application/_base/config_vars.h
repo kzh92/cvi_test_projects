@@ -9,18 +9,18 @@
 #define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE                     0x00100000
 #if 1
-#define FN_WNO_DICT_SIZE                3562136
-#define FN_WNOH_DICT_SIZE               2732440
-#define FN_A1_DICT_SIZE                 (442504)
-#define FN_A2_DICT_SIZE                 (442504)
-#define FN_B_DICT_SIZE                  (442504)
-#define FN_B2_DICT_SIZE                 (152920)
-#define FN_C_DICT_SIZE                  (442504)
-#define FN_CH_DICT_SIZE                 (442504)
-#define FN_DETECT_DICT_SIZE             (129320)
-#define FN_DETECT_H_DICT_SIZE           (121464)
-#define FN_DLAMK_DICT_SIZE              (624696)
-#define FN_DLAMK_H_DICT_SIZE            (496008)
+#define FN_WNO_DICT_SIZE                2565736
+#define FN_WNOH_DICT_SIZE               1929144
+#define FN_A1_DICT_SIZE                 (434304)
+#define FN_A2_DICT_SIZE                 (434304)
+#define FN_B_DICT_SIZE                  (434304)
+#define FN_B2_DICT_SIZE                 (153392)
+#define FN_C_DICT_SIZE                  (434304)
+#define FN_CH_DICT_SIZE                 (434304)
+#define FN_DETECT_DICT_SIZE             (122720)
+#define FN_DETECT_H_DICT_SIZE           (121224)
+#define FN_DLAMK_DICT_SIZE              (603448)
+#define FN_DLAMK_H_DICT_SIZE            (477480)
 #else
 #define FN_WNO_DICT_SIZE                1884446 //3562136
 #define FN_WNOH_DICT_SIZE               1418292 //2732440
