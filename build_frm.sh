@@ -15,7 +15,7 @@ else
 	make -j4 usb_cam PROJECT=turnkey
 	echo "Compressing prim..."
 	rm -f lz4 ./solutions/usb_cam/generated/images/prim.lz4
-	lz4 ./solutions/usb_cam/generated/images/prim
-	mv ./solutions/usb_cam/generated/images/prim.lz4 ./solutions/usb_cam/generated/images/prim
+#	lz4 ./solutions/usb_cam/generated/images/prim
+#	mv ./solutions/usb_cam/generated/images/prim.lz4 ./solutions/usb_cam/generated/images/prim
 fi
 

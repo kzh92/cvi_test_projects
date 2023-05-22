@@ -33,7 +33,7 @@ extern int g_nStopEngine;
 int createModelingEngine(unsigned char* pMem, int nMode)
 {
     Cvimodel* p_Modeling = &g_Modeling;
-    int nModuleID = MachineFlagIndex_DNN_Modeling;
+    // int nModuleID = MachineFlagIndex_DNN_Modeling;
     unsigned char* p_dic_modeling = g_dic_model;
     int nDicSize = DIC_LEN_FACE_MODELING;
 
@@ -41,23 +41,24 @@ int createModelingEngine(unsigned char* pMem, int nMode)
     {
 //        Modeling_Modeling(&g_Modeling_Hand, 1);
         p_Modeling = &g_Modeling_Hand;
-        nModuleID = MachineFlagIndex_DNN_Modeling_Hand;
+        // nModuleID = MachineFlagIndex_DNN_Modeling_Hand;
         p_dic_modeling = g_dic_model_hand;
         nDicSize = DIC_LEN_HAND_MODELING;
     }
 
 
-    if(p_Modeling->m_loaded/*Modeling_getEngineLoaded(p_Modeling)*/)
-    {
-        return 0;
-    }
-    if(!getLoadedDicFlag(nModuleID))
-    {
-        return 1;
-    }
+    // if(p_Modeling->m_loaded/*Modeling_getEngineLoaded(p_Modeling)*/)
+    // {
+    //     return 0;
+    // }
+    // if(!getLoadedDicFlag(nModuleID))
+    // {
+    //     return 1;
+    // }
 
     int nRet = 0;
 
+    my_printf("tpu loading...\n");
     nRet = cvimodel_init(p_dic_modeling, nDicSize, p_Modeling);
     //nRet = Modeling_dnn_create_(p_Modeling, p_dic_modeling, nDicSize, pMem);
     if(nRet)

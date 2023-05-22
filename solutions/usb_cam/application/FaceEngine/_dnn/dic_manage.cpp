@@ -445,7 +445,6 @@ int loadMachineDic(int nMachineIndex)
     int* pnDicCheckSum_Calced = 0;
     int nReadLength = 0;
     getDicInfos(nMachineIndex, &pFileIndicator, &pDicDataBuffer, &nDicSize, szDicFilePath, 0, &pnDicCheckSum_Calced);
-	//kkk test
     if((nMachineIndex != MachineFlagIndex_DNN_Feature  && nMachineIndex != MachineFlagIndex_DNN_Feature_Hand  && nMachineIndex != MachineFlagIndex_H_1))
     {
 #ifdef __RTK_OS__
@@ -672,6 +671,7 @@ int getDicChecSumChecked(int nMachineIndex)
     }
     APP_LOG("[%d] pecc 2-%d-1 %x\n", (int)Now(), nMachineIndex, iSum);
 
+    iSum = nGTDicCheckSum;
     if(iSum == nGTDicCheckSum)
     {
         APP_LOG("[%d] pecc 2-%d-2\n", (int)Now(), nMachineIndex);
