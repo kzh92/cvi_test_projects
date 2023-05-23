@@ -449,7 +449,9 @@ void FaceRecogTask::run()
         }
 
         int nBreaks = 0;
+#if (ENGINE_USE_TWO_CAM == 1)
         int nGotRightFrame = 0;
+#endif
         int nGotOffFrame = 0;
         for(nProcessModeIndex = nProcessModeIndexStart; nProcessModeIndex <= nProcessModeIndexEnd; nProcessModeIndex ++)
         {

@@ -48,16 +48,6 @@
 #define RET_CANCEL 0
 #define RET_OK 1
 
-#if FRM_PRODUCT_TYPE < FRM_PT_DEFAULT_3_4
-#if defined(_SENSOR_GC2145_)
-#error "FRM_PRODUCT_TYPE must be 3.4"
-#endif
-#else//FRM_PRODUCT_TYPE >= FRM_PT_DEFAULT_3_4
-#if !defined(_SENSOR_GC2145_)
-#error "Please set USE_GC2145_SENSOR = TRUE in options_pioneer3_64_nor_isw_uvc.mak"
-#endif // !_SENSOR_GC2145_
-#endif
-
 //shared
 WatchTask  g_WatchTask;
 WatchTask*  g_pWatchTask = &g_WatchTask;

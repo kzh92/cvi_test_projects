@@ -74,8 +74,13 @@ enum E_Baud_Rate
 //board types
 #define BD_TY_CV180xB_DEMO_V1v0     0
 #define BD_TY_FSDB_1V0              1
-
+#define BD_TY_CV181xC_DEMO_V1v0     2
 #define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
+
+//chip types
+#define MY_CHIP_D10                 0
+#define MY_CHIP_D20                 1
+#define DEFAULT_CHIP_TYPE           MY_CHIP_D10
 
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
@@ -84,7 +89,7 @@ enum E_Baud_Rate
 #define EDC_DISABLE                 0   //disable duplication check
 #define EDC_ENABLE_WITH_SKIP        1   //enable duplication check, but registering possible on dup error
 #define EDC_ENABLE_NO_SKIP          2   //enable duplication check, registering impossible on dup error
-#define ENROLL_DUPLICATION_CHECK    EDC_DISABLE
+#define ENROLL_DUPLICATION_CHECK    EDC_ENABLE_WITH_SKIP
 #define ENROLL_HAND_DUP_CHECK       1
 #define DEBUG_EN                    0
 #define FAKE_DETECTION              1
@@ -118,6 +123,8 @@ enum E_Baud_Rate
 #define ENROLL_ANGLE_MODE           0
 #define ENGINE_USE_TWO_CAM          1
 #define YAOYANG_MODE                0
+#define SEND_LAST_MSG               0
+#define USE_3M_MODE                 0
 
 #define CLR_CAM_WIDTH               1280
 #define CLR_CAM_HEIGHT              960
@@ -126,31 +133,35 @@ enum E_Baud_Rate
 #define CAPTURE_WIDTH               (360)
 #define CAPTURE_HEIGHT              (640)
 
-#define UVC_MAX_WIDTH       1280
-#define UVC_MAX_HEIGHT      720
-#define UVC_MIN_WIDTH       320
-#define UVC_MIN_HEIGHT      240
-#define UVC_WIDTH           640
-#define UVC_HEIGHT          480
-#define CHECK_CLR_IR_SWITCH_THR         40
-#define UVC_CLR_LUMINANCE   0x80
-#define UVC_CLR_SAT_Gl      0x50
-#define UVC_CLR_SAT_Cb      0x42
-#define UVC_CLR_SAT_Cr      0x42
-#define UVC_CLR_SHARP       0x85
-#define UVC_CLR_AWB_EN      0
-#define UVC_CLR_R_GAIN      0x50
-#define UVC_CLR_G_GAIN      0x40
-#define UVC_CLR_B_GAIN      0x54
-#define UVC_UNIQ_COMPRESS   1
-#define UVC_RES_720P        1       //1280x720
-#define UVC_RES_480P        2       //640x480
-#define UVC_RES_432x240     4
-#define UVC_RES_480x320     8       //480x320
-#define UVC_RES_240P        16      //320x240
-#define UVC_RES_320x480     32      //320x480
-#define UVC_RES_FLAG        UVC_RES_480P
-#define UVC_RES_COUNT       1
+#define UVC_MAX_WIDTH               1280
+#define UVC_MAX_HEIGHT              720
+#define UVC_MIN_WIDTH               320
+#define UVC_MIN_HEIGHT              240
+#define UVC_WIDTH                   640
+#define UVC_HEIGHT                  480
+#define CHECK_CLR_IR_SWITCH_THR     40
+#define UVC_CLR_LUMINANCE           0x80
+#define UVC_CLR_SAT_Gl              0x50
+#define UVC_CLR_SAT_Cb              0x42
+#define UVC_CLR_SAT_Cr              0x42
+#define UVC_CLR_SHARP               0x85
+#define UVC_CLR_AWB_EN              0
+#define UVC_CLR_R_GAIN              0x50
+#define UVC_CLR_G_GAIN              0x40
+#define UVC_CLR_B_GAIN              0x54
+#define UVC_UNIQ_COMPRESS           1
+#define UVC_RES_720P                1       //1280x720
+#define UVC_RES_480P                2       //640x480
+#define UVC_RES_432x240             4
+#define UVC_RES_480x320             8       //480x320
+#define UVC_RES_240P                16      //320x240
+#define UVC_RES_320x480             32      //320x480
+#define UVC_RES_FLAG                UVC_RES_480P
+#define UVC_RES_COUNT               1
+#define UVC_MAX_FRAME_SIZE          0
+#define UVC_PAUSE_LIMIT_TIME        0
+#define UVC_MAX_FPS_TIME            40      //25fps
+#define UVC_FIX_COMPRATE            0
 
 #define SETTING_TIMEOUT             30
 #define RESET_TIMEOUT               9
@@ -166,6 +177,7 @@ enum E_Baud_Rate
 #define USB_UPGRADE_TIMEOUT         8
 #define USB_DETECT_TIMEOUT          3
 #define MOUNT_RETRY_COUNT           15
+#define DEVICE_NID_READY_VER        0 //'C'=0x43, for desman, else 0=NID_READY
 
 #define N_MAX_FACE_FAILED_COUNT     5
 #define N_MAX_PASS_FAILED_COUNT     5
@@ -207,7 +219,7 @@ enum E_Baud_Rate
 #define DEFAULT_UVC_COMP_PARAM_BT_MAX   6
 #define DEFAULT_UVC_COMP_PARAM_BT_DEF   4
 #define DEFAULT_UVC_COMP_PARAM_RPFR     1
-#define DEFAULT_LIVENESS_MODE       1   //engine state for liveness, for special use only
+#define DEFAULT_LIVENESS_MODE       0   //engine state for liveness, for special use only
 #define DEFAULT_SECURE_VALUE        75  //caution!!! DO NOT MODIFY this value.
 #define DEFAULT_SECURE_FALSE_VAL    5  //caution!!! DO NOT MODIFY this value.
 #define DEFAULT_SECURE_STEP1        8
@@ -298,8 +310,9 @@ enum E_Baud_Rate
 
 #define FRM_DBS20_DEFAULT                       0   //default
 #define FRM_PT_DEFAULT_3_4                      100   //3.4 default
+#define FRM_DBS3M_D20_DEF                       200   //D20, 3M default
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS20_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_D20_DEF
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -405,6 +418,32 @@ enum E_Baud_Rate
 #define USE_UVC_PAUSE_MODE                  1
 #undef DEFAULT_LIVENESS_MODE
 #define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_D20_DEF)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "9.14.0_D2"
+#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.0_D2"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              2
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     1
+#undef UVC_RES_FLAG
+#define UVC_RES_FLAG                        (UVC_RES_480P | UVC_RES_720P)
+#undef UVC_RES_COUNT
+#define UVC_RES_COUNT                       2
+// #undef USE_VDBTASK
+// #define USE_VDBTASK                         1
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  2
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_CV181xC_DEMO_V1v0
 
 #endif // FRM_PRODUCT_TYPE
 

@@ -532,8 +532,6 @@ int dbm_RemovePersonByIndex(int nIndex, int* piBlkNum)
 
 int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
 {
-    int FILESIZE = sizeof(DB_INFO);
-
     LOG_PRINT("[%s] start(%d), uid=%d, %0.1f\n", __func__, nIsHand, nUserID, Now());
 
     if ((dbfs_get_cur_part() == DB_PART1 || nUserID == -1) && nIsHand == 0)
@@ -567,8 +565,10 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
         }
         LOG_PRINT("[%s] write end, %0.3f\n", __func__, Now());
     }
+#if (N_MAX_HAND_NUM)
     else if ((dbfs_get_cur_part() == DB_PART1 || nUserID == -1) && nIsHand == 1)
     {
+        int FILESIZE = sizeof(DB_INFO);
         if (nUserID == -1)
         {
             my_userdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
@@ -598,6 +598,7 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
         }
         LOG_PRINT("[%s] write end, %0.3f\n", __func__, Now());
     }
+#endif // N_MAX_HAND_NUM
     else
         return 1;
 

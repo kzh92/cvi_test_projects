@@ -18,33 +18,13 @@ extern	"C"
 {
 #endif
 
-// #if (USE_SSD210)
-// #define IR_LED          23 /* PAD_TTL0 */
-// #define M24C64_WP       34 /* PAD_GPIO0 */
-// #define PSENSE_DET      33 /* PAD_SD_GPIO0 */
-// #define GPIO_USBSense   32 /* PAD_SD_GPIO1 */
-// #else
-// #if (!NFS_DEBUG_EN)
-// #define IR_LED          17 /* PAD_TTL0 */
-// #else
-// #define IR_LED          16 /* PAD_TTL0 */
-// #endif
-// #define M24C64_WP       61 /* PAD_GPIO0 */
-// #define PSENSE_DET      59 /* PAD_SD_GPIO0 */
-// #define GPIO_USBSense   60 /* PAD_SD_GPIO1 */
-// #define UART_EN     	44 /* PAD_KEY5 */
-// #if (USE_WIFI_MODULE)
-// #define IOCtl           43 /* PAD_KEY4 */
-// #define SPI_CS          49 /* PAD_KEY10 */
-// #define AUDIO_EN        69 /* PAD_GPIO8 */
-// #endif // USE_WIFI_MODULE
-// #endif
-
 #if (DEFAULT_BOARD_TYPE == BD_TY_CV180xB_DEMO_V1v0)
-#define IR_LED                  19 /* XGPIOA[19] Group:0 Num:19 */
-#define CAM_PWDN		        213 /* XGPIOC_13 Group:2 Num:13*/
+#define IR_LED                  420 /* PWR_GPIO[20] Group:4 Num:20 */
 #elif (DEFAULT_BOARD_TYPE == BD_TY_FSDB_1V0)
 #define IR_LED                  421 /* PWR_GPIO[21] Group:4 Num:21 */
+#elif (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)
+#define IR_LED                  19 /* XGPIOA[19] Group:0 Num:19 */
+#define CAM_PWDN		        213 /* XGPIOC_13 Group:2 Num:13*/
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"
 #endif // DEFAULT_BOARD_TYPE
