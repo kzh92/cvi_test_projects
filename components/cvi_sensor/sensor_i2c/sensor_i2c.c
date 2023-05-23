@@ -2,8 +2,13 @@
 
 static csi_iic_t iic_adapter_list[5] = {0};
 
+static unsigned int iInitState[5] = {0};
+
 int sensor_i2c_init(CVI_U8 i2c_id)
 {
+	if (iInitState[i2c_id])
+		return CVI_SUCCESS;
+
 	csi_iic_t *iic; 
 
 	if (i2c_id >= IIC_MAX) {
@@ -31,6 +36,8 @@ int sensor_i2c_init(CVI_U8 i2c_id)
 		printf("iic-%d csi_iic_speed error", i2c_id);
 		goto INIT_FAIL;
 	}
+
+	iInitState[i2c_id] = 1;
 
 	return CVI_SUCCESS;
 
