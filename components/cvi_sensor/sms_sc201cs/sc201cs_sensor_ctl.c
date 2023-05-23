@@ -13,7 +13,7 @@
 
 #define I2C_ADDR_LEFT			0x30
 #define I2C_ADDR_RIGHT			0x32
-#define DEFAULT_LEFT_FLAG		1
+#define DEFAULT_LEFT_FLAG		0
 CVI_U8 g_is_left_cam = DEFAULT_LEFT_FLAG;
 
 static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe);
@@ -158,6 +158,7 @@ int sc201cs_probe(VI_PIPE ViPipe)
 
 int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 {
+	return CVI_SUCCESS;
 	if (switchCam == g_is_left_cam)
 		return CVI_SUCCESS;
 
