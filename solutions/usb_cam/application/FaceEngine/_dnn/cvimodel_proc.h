@@ -21,19 +21,19 @@ typedef struct Cvimodel_tag
 } Cvimodel;
 
 
-#define        DIC_LEN_FACE_DETECT      (129320)
-#define        DIC_LEN_FACE_MODELING    (624696)
-#define        DIC_LEN_FACE_LIVE_A1     (442504)
-#define        DIC_LEN_FACE_LIVE_A2     (442504)
-#define        DIC_LEN_FACE_LIVE_B      (442504)
-#define        DIC_LEN_FACE_LIVE_B2     (152920)
-#define        DIC_LEN_FACE_LIVE_C      (442504)
-#define        DIC_LEN_FACE_FEATURE     (3562136)
+#define        DIC_LEN_FACE_DETECT      (122720)
+#define        DIC_LEN_FACE_MODELING    (603448)
+#define        DIC_LEN_FACE_LIVE_A1     (434304)
+#define        DIC_LEN_FACE_LIVE_A2     (434304)
+#define        DIC_LEN_FACE_LIVE_B      (434304)
+#define        DIC_LEN_FACE_LIVE_B2     (153392)
+#define        DIC_LEN_FACE_LIVE_C      (434304)
+#define        DIC_LEN_FACE_FEATURE     (2565736)
 
-#define        DIC_LEN_HAND_DETECT      (121464)
-#define        DIC_LEN_HAND_MODELING    (496008)
-#define        DIC_LEN_HAND_CHECK       (442504)
-#define        DIC_LEN_HAND_FEATURE     (2732440)
+#define        DIC_LEN_HAND_DETECT      (121224)
+#define        DIC_LEN_HAND_MODELING    (477480)
+#define        DIC_LEN_HAND_CHECK       (434304)
+#define        DIC_LEN_HAND_FEATURE     (1929144)
 
 int cvimodel_init(const char* fn, Cvimodel* model);
 int cvimodel_init(const unsigned char* pDicData, int nDicLen, Cvimodel* model);

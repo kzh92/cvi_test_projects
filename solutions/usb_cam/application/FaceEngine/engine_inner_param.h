@@ -16,27 +16,27 @@
 #define H_DICT_SIZE2        (0x410D5C)
 
 //mfnp_ir01nq
-#define DNN_FEAT_CHECKSUM       0xafa77ba8
+#define DNN_FEAT_CHECKSUM       0x1d71082f
 
 //fdir_1.0 cv
-#define DNN_DETECT_CHECKSUM     0x68d3414
+#define DNN_DETECT_CHECKSUM     0xa2891b75
 
 //vfl_1.10 cv
-#define DNN_MODELING_CHECKSUM   0x5721b59a
+#define DNN_MODELING_CHECKSUM   0x66314cda
 
 //hand
-#define DNN_DETECT_HAND_CHECKSUM        0x934fbc1d
-#define DNN_MODELING_HAND_CHECKSUM      0xd87613f9
-#define DNN_CHECKVALID_HAND_CHECKSUM    0x12f83321
+#define DNN_DETECT_HAND_CHECKSUM        0x2c84b277
+#define DNN_MODELING_HAND_CHECKSUM      0x36f4ab9f
+#define DNN_CHECKVALID_HAND_CHECKSUM    0x7a3a7686
 //hfir_1.2
-#define DNN_FEAT_HAND_CHECKSUM          0xdd9736ec
+#define DNN_FEAT_HAND_CHECKSUM          0x5cf61877
 
 ////////     Live_SC_1.10 cv     ////////
-#define DNN_2D_LIVE_A1_CHECKSUM    	0x9f049758
-#define DNN_2D_LIVE_A2_CHECKSUM    	0xc7decdf9
-#define DNN_2D_LIVE_B_CHECKSUM  	0xba850a53
-#define DNN_2D_LIVE_B2_CHECKSUM 	0x3216f6b8
-#define DNN_3D_LIVE_CHECKSUM    	0xc7dd8e2d
+#define DNN_2D_LIVE_A1_CHECKSUM    	0xea683c52
+#define DNN_2D_LIVE_A2_CHECKSUM    	0x2c9b3619
+#define DNN_2D_LIVE_B_CHECKSUM  	0x08afb275
+#define DNN_2D_LIVE_B2_CHECKSUM 	0x50594a4f
+#define DNN_3D_LIVE_CHECKSUM    	0xa60d8eed
 
 #define DNN_ESN_CHECKSUM        0x554ad340
 #define DNN_OCC_CHECKSUM        0x7e3a5a09
