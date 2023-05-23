@@ -57,8 +57,11 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
 #if 1
-    {1, 1600, 1200, 30, 0},
-    {2, 800, 600, 30, 0},
+    {1, 1280, 720, 30, 0},
+    {2, 640, 480, 30, 0},
+    {3, 320, 240, 30, 0},
+    {4, 1920, 1080, 30, 0},
+    {5, 1600, 1200, 30, 0},
 #else
     {1, 800, 600, 30, 0},
     {2, 640, 480, 30, 0},
@@ -230,8 +233,29 @@ void uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
+#if 1
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
+#else
+	stVpssChnAttr.u32Width = 1600;
+	stVpssChnAttr.u32Height = 1200;
+#endif
+	VPSS_CROP_INFO_S pstCropInfo;
+    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
+    if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)
+    {
+    	pstCropInfo.bEnable = CVI_FALSE;
+    }
+    else
+    {
+		pstCropInfo.bEnable = CVI_TRUE;
+		pstCropInfo.stCropRect.s32X = 0;
+		pstCropInfo.stCropRect.s32Y = 150;
+		pstCropInfo.stCropRect.u32Width = 1600;
+		pstCropInfo.stCropRect.u32Height = 900;
+    }
+	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
+
 	CVI_VPSS_SetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Width = uvc_frame_info.width;
