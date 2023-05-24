@@ -82,6 +82,11 @@ enum E_Baud_Rate
 #define MY_CHIP_D20                 1
 #define DEFAULT_CHIP_TYPE           MY_CHIP_D10
 
+//camera mipi types
+#define CAM_MIPI_TY_121             0 //one sensor on one mipi
+#define CAM_MIPI_TY_122             1 //two sensors on one mipi
+#define DEFAULT_CAM_MIPI_TYPE       CAM_MIPI_TY_122
+
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE               0
@@ -444,6 +449,8 @@ enum E_Baud_Rate
 #define USE_3M_MODE                         1
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_CV181xC_DEMO_V1v0
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
 
 #endif // FRM_PRODUCT_TYPE
 

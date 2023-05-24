@@ -6,9 +6,10 @@
  *   ....
  */
 #include "custom_param.h"
-#if 1
+#define MY_USE_DMA_BUF
+#ifdef MY_USE_DMA_BUF
 void * g_ViDmaBuf = NULL;
-unsigned int g_ViDmaBufSize = 13 * 1024 * 1024;
+unsigned int g_ViDmaBufSize = 19 * 1024 * 1024;
 #endif
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
@@ -18,7 +19,17 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
         .u32Rst_port_idx = 2,//GPIOC_13
         .u32Rst_pin = 13,
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+    },
+#if (CONFIG_SNS1_TYPE)
+    {
+        .enSnsType = CONFIG_SNS1_TYPE,
+        .s32I2cAddr = -1,
+        .s8I2cDev = 2,
+        .u32Rst_port_idx = 2,//GPIOC_13
+        .u32Rst_pin = 13,
+        .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
     }
+#endif // CONFIG_SNS1_TYPE
 };
 
 PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
@@ -41,14 +52,14 @@ PARAM_CLASSDEFINE(PARAM_DEV_CFG_S,VIDEVCFG,CTX,VI)[] = {
 };
 
 PARAM_VI_CFG_S g_stViCtx = {
-    .u32WorkSnsCnt = 1,
+    .u32WorkSnsCnt = (CONFIG_SNS0_TYPE > 0) + (CONFIG_SNS1_TYPE > 0),
     .pstSensorCfg = PARAM_CLASS(SENSORCFG,CTX,Sensor),
     .pstIspCfg = PARAM_CLASS(ISPCFG,CTX,ISP),
     .pstDevInfo = PARAM_CLASS(VIDEVCFG,CTX,VI)
 };
 
 PARAM_VI_CFG_S * PARAM_GET_VI_CFG(void) {
-#if 1
+#ifdef MY_USE_DMA_BUF
     if(g_ViDmaBuf == NULL) {
         g_ViDmaBuf = (void *)malloc(g_ViDmaBufSize);
     }

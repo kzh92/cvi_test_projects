@@ -3,6 +3,7 @@
 #include "cvi_sns_ctrl.h"
 #include "drv/common.h"
 #include "sensor_i2c.h"
+#include "appdef.h"
 #include <unistd.h>
 
 #include "sc201cs_cmos_ex.h"
@@ -13,7 +14,7 @@
 
 #define I2C_ADDR_LEFT			0x30
 #define I2C_ADDR_RIGHT			0x32
-#define DEFAULT_LEFT_FLAG		0
+#define DEFAULT_LEFT_FLAG		(DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121 ? 0 : 1)
 CVI_U8 g_is_left_cam = DEFAULT_LEFT_FLAG;
 
 static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe);
@@ -158,7 +159,8 @@ int sc201cs_probe(VI_PIPE ViPipe)
 
 int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 {
-	return CVI_SUCCESS;
+	if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121)
+		return CVI_SUCCESS;
 	if (switchCam == g_is_left_cam)
 		return CVI_SUCCESS;
 
@@ -197,7 +199,8 @@ void sc201cs_init(VI_PIPE ViPipe)
 	for (int i = 0 ; i < 2; i++)
 	{
 		g_is_left_cam = (i != 0);
-		sc201cs_linear_1200p30_init(ViPipe);
+		if (DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_121 || g_is_left_cam == DEFAULT_LEFT_FLAG)
+			sc201cs_linear_1200p30_init(ViPipe);
 		if ((old_value && i == 1) || (!old_value && i == 0))
 		{
 			sc201cs_write_register(ViPipe, 0x0100,0x01);

@@ -693,7 +693,7 @@ int main0(int argc, char** argv)
 
     ResetSystemState(APP_MAIN);
 
-    fr_InitLive();
+    //fr_InitLive();
     fr_InitIRCamera_ExpGain();
     //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
     ProcessInsmod(NULL);

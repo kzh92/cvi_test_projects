@@ -25,6 +25,7 @@ extern	"C"
 #elif (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)
 #define IR_LED                  19 /* XGPIOA[19] Group:0 Num:19 */
 #define CAM_PWDN		        213 /* XGPIOC_13 Group:2 Num:13*/
+#define WHITE_LED               18 /* XGPIOA[18] Group:0 Num:18 */
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"
 #endif // DEFAULT_BOARD_TYPE

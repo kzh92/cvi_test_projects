@@ -157,122 +157,6 @@ void StartFirstCam()
         camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
         camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1, INIT_FINEGAIN_1);
     }
-#if 0
-    g_iMipiCamInited = camera_init(TC_MIPI_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
-
-    //get first ir frames
-    VIDEO_FRAME_INFO_S stVideoFrame[2];
-    VI_DUMP_ATTR_S attr;
-    CVI_U32 dev = 0;
-    CVI_S32 s_ret = 0;
-
-    float rOld = Now();
-
-    attr.bEnable = 1;
-    attr.u32Depth = 0;
-    attr.enDumpType = VI_DUMP_TYPE_RAW;
-
-    CVI_VI_SetPipeDumpAttr(dev, &attr);
-
-    attr.bEnable = 0;
-    attr.enDumpType = VI_DUMP_TYPE_IR;
-
-    CVI_VI_GetPipeDumpAttr(dev, &attr);
-
-    for (int i = 0; i < 7; i ++)
-    {
-        memset(stVideoFrame, 0, sizeof(stVideoFrame));
-        stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
-        stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
-
-        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
-        if (s_ret != CVI_SUCCESS)
-        {
-            g_xSS.iCamError = CAM_ERROR_MIPI2;
-            GPIO_fast_setvalue(IR_LED, OFF);
-            break;
-        }
-
-        size_t image_size = stVideoFrame[0].stVFrame.u32Length[0];
-
-        stVideoFrame[0].stVFrame.pu8VirAddr[0] = (CVI_U8 *)stVideoFrame[0].stVFrame.u64PhyAddr[0];
-
-        unsigned char *ptr = (unsigned char*)stVideoFrame[0].stVFrame.pu8VirAddr[0];
-
-        dbug_printf("1st cap: %df, %do, %0.1f, %dc, %0.1f\n", i, g_iLedOnStatus, Now() - rOld, camera_get_actIR(), Now());
-        rOld = Now();
-
-        if(i == 0)
-        {
-            gpio_irled_on(ON);
-
-            lockIROffBuffer();
-            genIROffData10bit(ptr, fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            unlockIROffBuffer();
-            g_iLedOffFrameFlag = LEFT_IROFF_CAM_RECVED;
-            WaitIROffCancel();
-            g_rFirstCamTime = Now();
-        }
-        else if(i == 1)
-        {
-        }
-        else if(i == 2)
-        {
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
-
-            lockIRBuffer();
-            size_t test_pos = 0;
-            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
-            {
-                g_irOnData1[test_pos++] = ptr[k];
-                g_irOnData1[test_pos++] = ptr[k+1];
-                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                    break;
-            }
-            g_iFirstCamFlag |= LEFT_IR_CAM_RECVED;
-            unlockIRBuffer();
-            WaitIRCancel();
-            g_rFirstCamTime = Now();
-        }
-        else if(i == 3)
-        {
-        }
-        else if(i == 4)
-        {
-            gpio_irled_on(OFF);
-
-            lockIRBuffer();
-            size_t test_pos = 0;
-            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
-            {
-                g_irOnData2[test_pos++] = ptr[k];
-                g_irOnData2[test_pos++] = ptr[k+1];
-                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                    break;
-            }
-            g_iFirstCamFlag |= RIGHT_IR_CAM_RECVED;
-            unlockIRBuffer();
-            WaitIRCancel2();
-            g_rFirstCamTime = Now();
-        }
-        else if(i == 5)
-        {
-        }
-        else if(i == 6)
-        {
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-
-            lockIROffBuffer();
-            genIROffData10bit(ptr, fr_GetOffImageBuffer2(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            unlockIROffBuffer();
-            g_iLedOffFrameFlag |= LEFT_IROFF_CAM_RECVED;
-            WaitIROffCancel2();
-            g_rFirstCamTime = Now();
-        }
-
-        CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
-    }
-#endif
 }
 
 #if (USE_VDBTASK)
@@ -783,7 +667,7 @@ void* ProcessDVPCapture(void */*param*/)
 void* ProcessTCMipiCapture(void */*param*/)
 {
     VIDEO_FRAME_INFO_S stVideoFrame[2];
-    VI_DUMP_ATTR_S attr;
+    VI_DUMP_ATTR_S attr[2];
     int frm_num = 1;
     CVI_U32 dev = 0;
     CVI_S32 s_ret = 0;
@@ -793,18 +677,14 @@ void* ProcessTCMipiCapture(void */*param*/)
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
+    for (dev = 0; dev < 2; dev ++)
+    {
+        attr[dev].bEnable = 1;
+        attr[dev].u32Depth = 0;
+        attr[dev].enDumpType = VI_DUMP_TYPE_RAW;
 
-    attr.bEnable = 1;
-    attr.u32Depth = 0;
-    attr.enDumpType = VI_DUMP_TYPE_RAW;
-
-    CVI_VI_SetPipeDumpAttr(dev, &attr);
-
-    attr.bEnable = 0;
-    attr.enDumpType = VI_DUMP_TYPE_IR;
-
-    CVI_VI_GetPipeDumpAttr(dev, &attr);
-
+        CVI_VI_SetPipeDumpAttr(dev, &attr[dev]);
+    }
     if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
     {
         camera_set_pattern_mode(TC_MIPI_CAM, 1);
@@ -819,6 +699,8 @@ void* ProcessTCMipiCapture(void */*param*/)
         memset(stVideoFrame, 0, sizeof(stVideoFrame));
         stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
+
+        dev = (camera_get_actIR() == MIPI_CAM_S2RIGHT ? 0: 1);
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)
