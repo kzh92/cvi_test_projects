@@ -12,6 +12,7 @@ extern "C" {
 #else
 #include "cif_uapi.h"
 #endif
+#include "appdef.h"
 #include "cvi_type.h"
 #include "cvi_sns_ctrl.h"
 #include "sc201cs_cmos_ex.h"
@@ -98,11 +99,15 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
-		.lane_id = {0, 1, -1, -1, -1},
+		.lane_id = {0/*clock*/, 1/*data*/, -1, -1, -1},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 	},
 	.mclk = {
-		.cam = 1,
+#if (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)
+		.cam = 1, //mclk
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FMDASS_1V0J)
+		.cam = 0, //mclk
+#endif
 		.freq = CAMPLL_FREQ_24M,
 	},
 	.devno = 0,

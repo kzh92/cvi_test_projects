@@ -13,9 +13,7 @@
 
 
 #ifdef __cplusplus
-#if __cplusplus
 extern "C" {
-#endif
 #endif /* End of #ifdef __cplusplus */
 
 typedef struct _SNS_SIZE_S {
@@ -33,9 +31,7 @@ CVI_S32 getPipeAttr(VI_DEV ViDev, VI_PIPE_ATTR_S *pstViPipeAttr);
 CVI_S32 getChnAttr(VI_DEV ViDev, VI_CHN_ATTR_S *pstViChnAttr);
 
 #ifdef __cplusplus
-#if __cplusplus
 }
-#endif
 #endif /* End of #ifdef __cplusplus */
 
 #endif /* End of #ifndef __APP_REGION_H__*/

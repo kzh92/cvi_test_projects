@@ -73,8 +73,9 @@ enum E_Baud_Rate
 
 //board types
 #define BD_TY_CV180xB_DEMO_V1v0     0
-#define BD_TY_FSDB_1V0              1
+#define BD_TY_FSDB_1V0              1   //D10 2.0
 #define BD_TY_CV181xC_DEMO_V1v0     2
+#define BD_TY_FMDASS_1V0J           3   //D20 3M
 #define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
 
 //chip types
@@ -448,7 +449,7 @@ enum E_Baud_Rate
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
 #undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_CV181xC_DEMO_V1v0
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
 

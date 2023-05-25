@@ -6,18 +6,20 @@
  *   ....
  */
 #include "custom_param.h"
+#include "appdef.h"
 #define MY_USE_DMA_BUF
 #ifdef MY_USE_DMA_BUF
 void * g_ViDmaBuf = NULL;
 unsigned int g_ViDmaBufSize = 19 * 1024 * 1024;
 #endif
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
+#if (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)
     {
         .enSnsType = CONFIG_SNS0_TYPE,
         .s32I2cAddr = -1,
         .s8I2cDev = 2,
-        .u32Rst_port_idx = 2,//GPIOC_13
-        .u32Rst_pin = 13,
+        .u32Rst_port_idx = 2,
+        .u32Rst_pin = 13,//GPIOC_13
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
     },
 #if (CONFIG_SNS1_TYPE)
@@ -25,11 +27,29 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
         .enSnsType = CONFIG_SNS1_TYPE,
         .s32I2cAddr = -1,
         .s8I2cDev = 2,
-        .u32Rst_port_idx = 2,//GPIOC_13
-        .u32Rst_pin = 13,
+        .u32Rst_port_idx = 2,
+        .u32Rst_pin = 13,//GPIOC_13
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
     }
 #endif // CONFIG_SNS1_TYPE
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FMDASS_1V0J)
+    {
+        .enSnsType = CONFIG_SNS0_TYPE,
+        .s32I2cAddr = -1,
+        .s8I2cDev = 2, //iic2
+        .u32Rst_port_idx = 2, //group
+        .u32Rst_pin = 16,//GPIOC_16
+        .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+    },
+    {
+        .enSnsType = CONFIG_SNS1_TYPE,
+        .s32I2cAddr = -1,
+        .s8I2cDev = 4, //iic4
+        .u32Rst_port_idx = 2, //group
+        .u32Rst_pin = 17,//GPIOC_17
+        .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+    }
+#endif //DEFAULT_BOARD_TYPE
 };
 
 PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
