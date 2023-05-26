@@ -53,104 +53,72 @@ extern void APP_LOG(const char * format, ...);
 
 #define KDNN_INPUTSIZE 128
 
-int     KdnnCreateLivenessEngine_2DA1(unsigned char* pMem)
+int     KdnnCreateLivenessEngine(int nMode)
 {
-    if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_A1))
+    Cvimodel* pLiveModel = 0;
+    unsigned char*  dic_live = 0;
+    int nDicSize = 0;
+    int ret = 0;
+
+    switch (nMode)
+    {
+        case MachineFlagIndex_DNN_Liveness_A1:
+        {
+            pLiveModel = &g_n2DLive_A1;
+            nDicSize = DIC_LEN_FACE_LIVE_A1;
+            dic_live = g_dic_live_a1;
+            break;
+        }
+        case MachineFlagIndex_DNN_Liveness_A2:
+        {
+            pLiveModel = &g_n2DLive_A2;
+            nDicSize = DIC_LEN_FACE_LIVE_A2;
+            dic_live = g_dic_live_a2;
+            break;
+        }
+        case MachineFlagIndex_DNN_Liveness_B:
+        {
+            pLiveModel = &g_n2DLive_B;
+            nDicSize = DIC_LEN_FACE_LIVE_B;
+            dic_live = g_dic_live_b;
+            break;
+        }
+        case MachineFlagIndex_DNN_Liveness_B2:
+        {
+            pLiveModel = &g_n2DLive_B2;
+            nDicSize = DIC_LEN_FACE_LIVE_B2;
+            dic_live = g_dic_live_b2;
+            break;
+        }
+        case MachineFlagIndex_DNN_Liveness_C:
+        {
+            pLiveModel = &g_n3DLive;
+            nDicSize = DIC_LEN_FACE_LIVE_C;
+            dic_live = g_dic_live_c;
+            break;
+        }
+        default:
+            break;
+    }
+
+    if(!getLoadedDicFlag(nMode))
             return KDNN_FAILED;
 
-    if (/*LiveMnSE_getEngineLoaded(&g_n2DLive_A1)*/g_n2DLive_A1.m_loaded)
+    if (pLiveModel->m_loaded)
         return KDNN_SUCCESS;
 
-//    int nDicSize = LiveMnSE_dnn_dic_size();
-    int nDicSize = DIC_LEN_FACE_LIVE_A1;
-    int ret = 0;
-    //ret = LiveMnSE_dnn_create_(&g_n2DLive_A1, g_dic_live_a1, nDicSize, g_rSecurityValue, pMem);
-    ret = cvimodel_init(g_dic_live_a1, nDicSize, &g_n2DLive_A1);
+    if(!getDicChecSumChecked(nMode))
+    {
+        return KDNN_FAILED;
+    }
+
+    ret = cvimodel_init(dic_live, nDicSize, pLiveModel);
     if(ret)
     {
         return KDNN_FAILED;
     }
     return KDNN_SUCCESS;
 }
-
-int     KdnnCreateLivenessEngine_2DA2(unsigned char* pMem)
-{
-    if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_A2))
-            return KDNN_FAILED;
-
-    if (/*LiveMnSE_getEngineLoaded(&g_n2DLive_A2)*/g_n2DLive_A2.m_loaded)
-        return KDNN_SUCCESS;
-
-    //int nDicSize = LiveMnSE_dnn_dic_size();
-    int nDicSize = DIC_LEN_FACE_LIVE_A2;
-    int ret = 0;
-//    ret = LiveMnSE_dnn_create_(&g_n2DLive_A2, g_dic_live_a2, nDicSize, g_rSecurityValue, pMem);
-    ret = cvimodel_init(g_dic_live_a2, nDicSize, &g_n2DLive_A2);
-    if(ret)
-       return KDNN_FAILED;
-
-    return KDNN_SUCCESS;
-}
-
-int     KdnnCreateLivenessEngine_2DB(unsigned char* pMem)
-{
-    if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_B))
-            return KDNN_FAILED;
-
-    if (/*LiveMnSE_getEngineLoaded(&g_n2DLive_B)*/g_n2DLive_B.m_loaded)
-        return KDNN_SUCCESS;
-
-//    int nDicSize = LiveMnSE_dnn_dic_size();
-    int nDicSize = DIC_LEN_FACE_LIVE_B;
-    int ret = 0;
-    //ret = LiveMnSE_dnn_create_(&g_n2DLive_B, g_dic_live_b, nDicSize, g_rSecurityValue, pMem);
-    ret = cvimodel_init(g_dic_live_b, nDicSize, &g_n2DLive_B);
-    if(ret)
-       return KDNN_FAILED;
-
-    return KDNN_SUCCESS;
-}
-
-
-int     KdnnCreateLivenessEngine_2DB2(unsigned char* pMem)
-{
-    if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_B2))
-            return KDNN_FAILED;
-
-    if (/*LiveMnSE3_getEngineLoaded(&g_n2DLive_B2)*/g_n2DLive_B2.m_loaded)
-        return KDNN_SUCCESS;
-
-//    int nDicSize = LiveMnSE3_dnn_dic_size();
-    int nDicSize = DIC_LEN_FACE_LIVE_B2;
-    int ret = 0;
-    // ret = LiveMnSE3_dnn_create_(&g_n2DLive_B2, g_dic_live_b2, nDicSize, g_rSecurityValue, pMem);
-    ret = cvimodel_init(g_dic_live_b2, nDicSize, &g_n2DLive_B2);
-    if(ret)
-       return KDNN_FAILED;
-
-    return KDNN_SUCCESS;
-}
-
-
-int     KdnnCreateLivenessEngine_3D(unsigned char* pMem)
-{
-    if(!getLoadedDicFlag(MachineFlagIndex_DNN_Liveness_C))
-            return KDNN_FAILED;
-
-    if (/*LiveMnSE_getEngineLoaded(&g_n3DLive)*/g_n3DLive.m_loaded)
-        return KDNN_SUCCESS;
-
-//    int nDicSize = LiveMnSE_dnn_dic_size();
-    int nDicSize = DIC_LEN_FACE_LIVE_C;
-    int ret = 0;
-    //ret = LiveMnSE_dnn_create_(&g_n3DLive, g_dic_live_c, nDicSize, g_rSecurityValue, pMem);
-    ret = cvimodel_init(g_dic_live_c, nDicSize, &g_n3DLive);
-    if(ret)
-       return KDNN_FAILED;
-
-    return KDNN_SUCCESS;
-}
-
 
 float KdnnDetectLiveness2D_A(unsigned char * pbImage)
 {

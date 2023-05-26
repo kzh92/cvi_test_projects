@@ -56,8 +56,13 @@ int createModelingEngine(unsigned char* pMem, int nMode)
         return 1;
     }
 
-    int nRet = 0;
+    if(!getDicChecSumChecked(nModuleID))
+    {
+        return 1;
+    }
 
+
+    int nRet = 0;
     nRet = cvimodel_init(p_dic_modeling, nDicSize, p_Modeling);
     //nRet = Modeling_dnn_create_(p_Modeling, p_dic_modeling, nDicSize, pMem);
     if(nRet)

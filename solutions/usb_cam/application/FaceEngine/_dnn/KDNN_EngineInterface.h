@@ -6,11 +6,7 @@
 #define  KDNN_FAILED			0
 #define	 KDNN_NOVALUE			-1
 
-int     KdnnCreateLivenessEngine_2DA1(unsigned char* pMem);
-int     KdnnCreateLivenessEngine_2DA2(unsigned char* pMem);
-int     KdnnCreateLivenessEngine_2DB(unsigned char* pMem);
-int     KdnnCreateLivenessEngine_2DB2(unsigned char* pMem);
-int     KdnnCreateLivenessEngine_3D(unsigned char* pMem);
+int     KdnnCreateLivenessEngine(int nMode);
 
 float   KdnnDetectLiveness2D_A(unsigned char * pbImage);
 float KdnnDetectLiveness_2D_B(unsigned char * pbImage);

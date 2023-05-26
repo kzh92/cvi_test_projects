@@ -381,6 +381,11 @@ int createDetectEngine(unsigned char* pMem, int nMode)
         return 1;
     }
 
+    if(!getDicChecSumChecked(nModuleID))
+    {
+        return 1;
+    }
+
     int nRet = 0;
     nRet = cvimodel_init(p_dic_detect, nDicSize, p_Detector);
     if(nRet)

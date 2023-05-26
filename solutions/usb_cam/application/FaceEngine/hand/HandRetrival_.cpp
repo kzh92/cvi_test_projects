@@ -190,7 +190,7 @@ void   LoadAndCheckFunc_Hand_2nd()
         g_thread_flag_model_h = 1;
         loadMachineDic(MachineFlagIndex_DNN_Modeling_Hand);
         createModelingEngine(g_shared_mem_Hand, 1);
-        getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
+        //getDicChecSumChecked(MachineFlagIndex_DNN_Modeling_Hand);
         g_thread_flag_model_h = 2;
 
 
@@ -198,7 +198,7 @@ void   LoadAndCheckFunc_Hand_2nd()
         g_thread_flag_checkValid_h = 1;
         loadMachineDic(MachineFlagIndex_DNN_CheckValid_Hand);
         KdnnCreateCheckValid_Hand(pHand_Feat_Mem);
-        getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
+        //getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand);
         g_thread_flag_checkValid_h = 2;
 
 

@@ -176,13 +176,13 @@ void*   EngineLoadAndCheckFunc(void*)
         loadMachineDic(MachineFlagIndex_DNN_Detect);
     }
     createDetectEngine(g_shared_mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Detect);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Detect);
     g_thread_flag_detect = 2;
     
     g_thread_flag_model = 1;
     loadMachineDic(MachineFlagIndex_DNN_Modeling);
     createModelingEngine(g_shared_mem, 0);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Modeling);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Modeling);
     g_thread_flag_model = 2;
     
     
@@ -190,7 +190,7 @@ void*   EngineLoadAndCheckFunc(void*)
     g_thread_flag_occ = 1;
     loadMachineDic(MachineFlagIndex_DNN_OCC);
     init_occ_detection(g_shared_mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_OCC);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_OCC);
     g_thread_flag_occ = 2;
 #endif
 
@@ -198,34 +198,35 @@ void*   EngineLoadAndCheckFunc(void*)
     unsigned char* pLive_Feat_Mem = g_shared_mem + (128 * 128 * 3 + 88 * 128);
     g_thread_flag_spoofa1 = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_A1);
-    KdnnCreateLivenessEngine_2DA1(pLive_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_A1);
+    KdnnCreateLivenessEngine(MachineFlagIndex_DNN_Liveness_A1);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_A1);
     g_thread_flag_spoofa1 = 2;
 
     g_thread_flag_spoofa2 = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_A2);
-    KdnnCreateLivenessEngine_2DA2(pLive_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_A2);
+    KdnnCreateLivenessEngine(MachineFlagIndex_DNN_Liveness_A2);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_A2);
     g_thread_flag_spoofa2 = 2;
 
 #if (ENGINE_USE_TWO_CAM != 0)//ENGINE_USE_TWO_CAM=0:2D, 1:common, 2:3M
     g_thread_flag_spoofb = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_B);
-    KdnnCreateLivenessEngine_2DB(pLive_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B);
+    KdnnCreateLivenessEngine(MachineFlagIndex_DNN_Liveness_B);
+
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B);
     g_thread_flag_spoofb = 2;
 
     g_thread_flag_spoofb2 = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_B2);
-    KdnnCreateLivenessEngine_2DB2(pLive_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B2);
+    KdnnCreateLivenessEngine(MachineFlagIndex_DNN_Liveness_B2);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_B2);
     g_thread_flag_spoofb2 = 2;
 #endif
 
     g_thread_flag_spoofc = 1;
     loadMachineDic(MachineFlagIndex_DNN_Liveness_C);
-    KdnnCreateLivenessEngine_3D(pLive_Feat_Mem);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_C);
+    KdnnCreateLivenessEngine(MachineFlagIndex_DNN_Liveness_C);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Liveness_C);
     g_thread_flag_spoofc = 2;
 
     g_nThreadCount = 2;
@@ -247,7 +248,7 @@ void*   EngineLoadAndCheckFunc(void*)
     g_thread_flag_detect_h = 1;
     loadMachineDic(MachineFlagIndex_DNN_Detect_Hand);
     createDetectEngine(g_shared_mem, Detect_Mode_Hand);
-    getDicChecSumChecked(MachineFlagIndex_DNN_Detect_Hand);
+    //getDicChecSumChecked(MachineFlagIndex_DNN_Detect_Hand);
     g_thread_flag_detect_h = 2;
 
     // g_thread_flag_model_h = 1;

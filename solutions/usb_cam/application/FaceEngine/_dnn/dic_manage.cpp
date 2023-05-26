@@ -645,6 +645,18 @@ int getDicChecSumChecked(int nMachineIndex)
             return 0;
         }
     }
+    if(nMachineIndex == MachineFlagIndex_DNN_Feature)
+    {
+        if((unsigned int)g_nDicCheckSum_FEAT == DNN_FEAT_CHECKSUM)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     int nDicSize = 0;
     unsigned char** ppDicDataBuffer = 0;
     int nGTDicCheckSum = 0;

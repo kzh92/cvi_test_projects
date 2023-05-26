@@ -409,41 +409,42 @@ void normalize_(float* feat, int sz)
 
 int	KdnnCreateEngine_feat(unsigned char* pMem, int nMode)
 {
+    Cvimodel* pFeatModel = 0;
+    unsigned char*  dic_feat = 0;
+    int nDicSize = 0;
+    int ret = 0;
+    int nModuleID = 0;
+
     if(nMode == 0)
     {
-        if(!getLoadedDicFlag(MachineFlagIndex_DNN_Feature))
-                return KDNN_FAILED;
-
-        if (/*feat.getEngineLoaded()*/feat.m_loaded)
-            return KDNN_SUCCESS;
-
-        //int nDicSize = feat.dnn_dic_size();
-        //int ret = feat.dnn_create(g_dic_feature, nDicSize, 75.0f, pMem);
-        int nDicSize = DIC_LEN_FACE_FEATURE;
-        int ret = cvimodel_init(g_dic_feature, nDicSize, &feat);
-
-        if (ret)
-        {
-            APP_LOG("[%d] pecc 3-9-4-%d\n", (int)Now(), nMode);
-            return KDNN_FAILED;
-        }
+        nModuleID = MachineFlagIndex_DNN_Feature;
+        pFeatModel = &feat;
+        nDicSize = DIC_LEN_FACE_FEATURE;
+        dic_feat = g_dic_feature;
     }
     else
     {
-        if(!getLoadedDicFlag(MachineFlagIndex_DNN_Feature_Hand))
-                return KDNN_FAILED;
+        nModuleID = MachineFlagIndex_DNN_Feature_Hand;
+        pFeatModel = &feat_hand;
+        nDicSize = DIC_LEN_HAND_FEATURE;
+        dic_feat = g_dic_feature_hand;
+    }
 
-        if (/*HandFeat_getEngineLoaded(&feat_hand)*/feat_hand.m_loaded)
-            return KDNN_SUCCESS;
-
-        int nDicSize = DIC_LEN_HAND_FEATURE;
-        //int ret = HandFeat_dnn_create_(&feat_hand, g_dic_feature_hand, nDicSize, 75.0f, pMem);
-        int ret = cvimodel_init(g_dic_feature_hand, nDicSize, &feat_hand);
-        if (ret)
-        {
-            APP_LOG("[%d] pecc 3-9-4-%d\n", (int)Now(), nMode);
+    if(!getLoadedDicFlag(nModuleID))
             return KDNN_FAILED;
-        }
+    
+    if(!getDicChecSumChecked(nModuleID))
+        return KDNN_FAILED;
+    
+    if (pFeatModel->m_loaded)
+        return KDNN_SUCCESS;
+
+    ret = cvimodel_init(dic_feat, nDicSize, pFeatModel);
+
+    if (ret)
+    {
+        APP_LOG("[%d] pecc 3-9-4-%d\n", (int)Now(), nMode);
+        return KDNN_FAILED;
     }
 
     return KDNN_SUCCESS;
