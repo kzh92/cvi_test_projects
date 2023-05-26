@@ -26,6 +26,7 @@ extern	"C"
 LIBFOO_DLL_EXPORTED void    fr_InitEngine(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
 LIBFOO_DLL_EXPORTED void    fr_FreeEngine();
 LIBFOO_DLL_EXPORTED void    fr_InitLive();
+LIBFOO_DLL_EXPORTED void    fr_InitEngine_Hand();
 LIBFOO_DLL_EXPORTED void    fr_EndThread();
 LIBFOO_DLL_EXPORTED void    fr_SetDupCheck(int iDupCheck);
 LIBFOO_DLL_EXPORTED void    fr_SetCameraFlip(int iCameraFlip);

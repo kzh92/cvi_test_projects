@@ -1710,6 +1710,13 @@ extern void* EngineLoadAndCheckFunc(void*);
 #endif
 }
 
+extern void   LoadAndCheckFunc_Hand_2nd();
+void    fr_InitEngine_Hand()
+{
+    LoadAndCheckFunc_Hand_2nd();
+}
+
+
 void    fr_FreeEngine()
 {
     fr_EndThread();
