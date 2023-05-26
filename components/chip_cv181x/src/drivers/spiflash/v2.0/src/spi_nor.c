@@ -94,7 +94,7 @@ const struct flash_info spi_flash_ids[] = {
 
 };
 
-int8_t g_spinor_id_buf[SPI_NOR_MAX_ID_LEN] = {0};
+int8_t g_spinor_id_buf[SPI_NOR_MAX_ID_LEN + 16] = {0};
 
 int my_spi_nor_get_id(void *buf)
 {

@@ -6,6 +6,14 @@
 #include "spi_nor.h"
 
 static struct cvi_spif g_cvi_spif = {0};
+extern int8_t g_spinor_id_buf[SPI_NOR_MAX_ID_LEN + 16];\
+int spi_nor_uniq_buf_inited = 0;
+
+int csi_flash_get_uniq_id(void* buf)
+{
+    memcpy(buf, g_spinor_id_buf, SPI_NOR_MAX_ID_LEN + 16);
+    return 0;
+}
 
 int hal_spiflash_init(void)
 {
@@ -93,6 +101,11 @@ csi_error_t csi_spiflash_get_flash_info(csi_spiflash_t *spiflash, csi_spiflash_i
 	flash_info->flash_size = info->sector_size * info->n_sectors;
 	flash_info->page_size = info->page_size;
 	flash_info->sector_size = nor->erase_size;
+	if (spi_nor_uniq_buf_inited == 0)
+	{
+		csi_spiflash_get_unique_id(spiflash, g_spinor_id_buf + SPI_NOR_MAX_ID_LEN, 16);
+		spi_nor_uniq_buf_inited = 1;
+	}
 	return 0;
 }
 
