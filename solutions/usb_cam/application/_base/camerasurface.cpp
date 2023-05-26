@@ -162,21 +162,21 @@ void StartFirstCam()
 #if (USE_VDBTASK)
 void StartClrCam()
 {
-    if(g_xSS.iRunningDvpCam == 0)
-    {
-        g_xSS.iRunningDvpCam = 1;
-        my_thread_create_ext(&g_capture1, 0, ProcessDVPCapture, NULL, (char*)"getdvp1", 8192, 0);
-    }
+    // if(g_xSS.iRunningDvpCam == 0)
+    // {
+    //     g_xSS.iRunningDvpCam = 1;
+    //     my_thread_create_ext(&g_capture1, 0, ProcessDVPCapture, NULL, (char*)"getdvp1", 8192, 0);
+    // }
 }
 
 void StopClrCam()
 {
-    g_xSS.iRunningDvpCam = 0;
-    if(g_capture1)
-    {
-        my_thread_join(&g_capture1);
-        g_capture1 = 0;
-    }
+    // g_xSS.iRunningDvpCam = 0;
+    // if(g_capture1)
+    // {
+    //     my_thread_join(&g_capture1);
+    //     g_capture1 = 0;
+    // }
 }
 #endif // USE_VDBTASK
 
@@ -677,6 +677,7 @@ void* ProcessTCMipiCapture(void */*param*/)
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
+    dev = 0;
     for (dev = 0; dev < 2; dev ++)
     {
         attr[dev].bEnable = 1;
@@ -700,7 +701,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
-        dev = (camera_get_actIR() == MIPI_CAM_S2RIGHT ? 0: 1);
+        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 0: 1);
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)
@@ -776,9 +777,17 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
 #endif // USE_VDBTASK
             WaitIRCancel();
-
+#if (!USE_3M_MODE || 1)
             g_iTwoCamFlag ++;
+#else
+            g_iLedOnStatus = 0;
+            gpio_irled_on(OFF);
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+            WaitIRCancel2();
+            g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
+#endif
         }
+#if (!USE_3M_MODE || 1)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP3 && g_iTwoCamFlag != IR_CAMERA_STEP4)
         {
             g_iTwoCamFlag ++;
@@ -802,6 +811,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             WaitIRCancel2();
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
         }
+#endif // !USE_3M_MODE
         else if(iNeedNext == 1)
         {
             iNeedNext = 0;

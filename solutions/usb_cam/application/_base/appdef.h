@@ -452,6 +452,8 @@ enum E_Baud_Rate
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
+#undef CAM_ROTATION_MODE
+#define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 
 #endif // FRM_PRODUCT_TYPE
 

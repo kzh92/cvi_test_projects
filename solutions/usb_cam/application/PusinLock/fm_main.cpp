@@ -96,6 +96,7 @@ extern int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* bu
 extern int fr_GetAppLogLen();
 extern "C" void drv_reboot(void);
 extern "C" int MEDIA_VIDEO_Deinit();
+extern "C" int MEDIA_AV_Init();
 
 extern float g_rAppStartTime;
 
@@ -554,8 +555,9 @@ void UART_Release()
 void* ProcessInsmod(void *param)
 {
     StartFirstCam();
-    //start uvc
-    // MEDIA_UVC_Init();
+    // start uvc
+    MEDIA_UVC_Init();
+    //MEDIA_AV_Init();
 
     // my_thread_exit(NULL);
     return NULL;
@@ -695,8 +697,8 @@ int main0(int argc, char** argv)
 
     //fr_InitLive();
     fr_InitIRCamera_ExpGain();
-    //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
-    ProcessInsmod(NULL);
+    my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
+    //ProcessInsmod(NULL);
 
 #if (USE_VDBTASK)
     StartClrCam();

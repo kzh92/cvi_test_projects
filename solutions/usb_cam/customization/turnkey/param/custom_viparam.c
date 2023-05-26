@@ -7,6 +7,8 @@
  */
 #include "custom_param.h"
 #include "appdef.h"
+extern unsigned char rgb_color_mode_param[];
+extern unsigned int rgb_color_len;
 #define MY_USE_DMA_BUF
 #ifdef MY_USE_DMA_BUF
 void * g_ViDmaBuf = NULL;
@@ -58,7 +60,7 @@ PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
         .bUseSingleBin = 0,
         .stPQBinDes =
         {
-            .pIspBinData = NULL,
+            .pIspBinData = NULL, //rgb_color_mode_param,
             .u32IspBinDataLen = 0,
         },
     },
@@ -86,6 +88,7 @@ PARAM_VI_CFG_S * PARAM_GET_VI_CFG(void) {
     g_stViCtx.pstDevInfo[0].pViDmaBuf = g_ViDmaBuf;
     g_stViCtx.pstDevInfo[0].u32ViDmaBufSize = g_ViDmaBufSize;
 #endif
+    //g_stViCtx.pstIspCfg[0].stPQBinDes.u32IspBinDataLen = rgb_color_len;
     return &g_stViCtx;
 }
 
