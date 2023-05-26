@@ -684,7 +684,8 @@ void* ProcessTCMipiCapture(void */*param*/)
         attr[dev].u32Depth = 0;
         attr[dev].enDumpType = VI_DUMP_TYPE_RAW;
 
-        CVI_VI_SetPipeDumpAttr(dev, &attr[dev]);
+        if (CVI_VI_SetPipeDumpAttr(dev, &attr[dev]) != CVI_SUCCESS)
+            my_printf("dev=%d SetPipeDumpAttr failed\n", dev);
     }
     if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
     {
@@ -777,7 +778,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
 #endif // USE_VDBTASK
             WaitIRCancel();
-#if (!USE_3M_MODE || 1)
+#if (!USE_3M_MODE)
             g_iTwoCamFlag ++;
 #else
             g_iLedOnStatus = 0;
@@ -787,7 +788,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
 #endif
         }
-#if (!USE_3M_MODE || 1)
+#if (!USE_3M_MODE)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP3 && g_iTwoCamFlag != IR_CAMERA_STEP4)
         {
             g_iTwoCamFlag ++;

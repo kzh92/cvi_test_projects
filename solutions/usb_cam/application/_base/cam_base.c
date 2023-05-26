@@ -1189,6 +1189,7 @@ void unlockIRBuffer()
 
 int camera_switch(int id, int camid)
 {
+#if (!USE_3M_MODE)
     my_mi_use_lock();
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
@@ -1199,6 +1200,7 @@ int camera_switch(int id, int camid)
         return -1;
     }
     pSnsObj->pfnSnsSwitch(0, camid == MIPI_CAM_S2LEFT);
+#endif // !USE_3M_MODE
     iActiveIRCam = camid;
     my_mi_use_unlock();
     dbug_printf("[%s] %d:%s\n", __func__, iActiveIRCam, iActiveIRCam == MIPI_CAM_S2LEFT?"left":"right");

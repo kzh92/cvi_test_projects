@@ -34,7 +34,6 @@
 #include "upgrade_firmware.h"
 #include "vdbtask.h"
 #include "uvc_func.h"
-#include "mbedtls/cipher.h"
 
 #include <fcntl.h>
 #include <string.h>

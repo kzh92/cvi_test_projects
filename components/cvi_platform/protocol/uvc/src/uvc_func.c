@@ -59,9 +59,6 @@ static struct uvc_frame_info_st mjpeg_frame_info[] = {
 #if 1
     {1, 1280, 720, 30, 0},
     {2, 640, 480, 30, 0},
-    {3, 320, 240, 30, 0},
-    {4, 1920, 1080, 30, 0},
-    {5, 1600, 1200, 30, 0},
 #else
     {1, 800, 600, 30, 0},
     {2, 640, 480, 30, 0},
@@ -233,13 +230,9 @@ void uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
-#if 1
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
-#else
-	stVpssChnAttr.u32Width = 1600;
-	stVpssChnAttr.u32Height = 1200;
-#endif
+
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
     if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)
