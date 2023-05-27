@@ -48,6 +48,7 @@ unsigned char*  g_abJpgData = NULL;
 int             g_iJpgDataLen = 0;
 
 #if (USE_VDBTASK)
+void* vdbTask_ThreadProc1(void* param);
 int ConvertYuvToSceneJpeg(unsigned char* pbSrc, int iYUYVMode)
 {
     unsigned char* pbTmp = pbSrc;
@@ -151,6 +152,7 @@ int ConvertIRToSceneJpeg(unsigned char* pbSrc)
 VDBTask::VDBTask()
 {
     m_iRunning = 0;
+    m_thread = 0;
 }
 
 VDBTask::~VDBTask()
@@ -160,17 +162,26 @@ VDBTask::~VDBTask()
 
 void VDBTask::Start()
 {
+    my_printf("%s:%d\n", __FILE__, __LINE__);
     VDBTask::CaptureCam = -1;
 
     m_iCounter ++;
     m_iRunning = 1;
-    Thread::Start();
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    if(my_thread_create_ext(&m_thread, NULL, vdbTask_ThreadProc1, this, (char*)"vdbtask", 8192, MYTHREAD_PRIORITY_MEDIUM))
+        my_printf("[VDBTask]create thread error.\n");
+    // Thread::Start();
 }
 
 void VDBTask::Stop()
 {
-    m_iRunning = 0;    
-    Thread::Wait();
+    m_iRunning = 0;
+    if (m_thread != NULL)
+    {
+        my_thread_join(&m_thread);
+        m_thread = NULL;
+    }
+    // Thread::Wait();
 }
 
 void VDBTask::Pause()
@@ -186,9 +197,11 @@ int VDBTask::IsStreaming()
 
 void VDBTask::run()
 {
-    dbug_printf("before uvc init\n");
+    // start uvc
+    my_printf("before uvc init\n");
     MEDIA_UVC_Init();
-    dbug_printf("after uvc init\n");
+    //MEDIA_AV_Init();
+    my_printf("after uvc init\n");
 #if 0
     float rOld = Now();
 
@@ -586,6 +599,18 @@ void VDBTask::run()
     }
 #endif
     my_printf("vdb task end\n");
+}
+
+void VDBTask::ThreadProc()
+{
+    run();
+}
+
+void* vdbTask_ThreadProc1(void* param)
+{
+    VDBTask* pThread = (VDBTask*)(param);
+    pThread->ThreadProc();
+    return NULL;
 }
 
 #if (USE_WIFI_MODULE)

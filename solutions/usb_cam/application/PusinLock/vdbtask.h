@@ -78,6 +78,7 @@ public:
     void    Start();
     void    Stop();
     void    Pause();
+    void    ThreadProc();
 
     int     GetCounter(){return m_iCounter;}
 
@@ -89,6 +90,7 @@ protected:
     static int  m_iCounter;
 
     int     m_iRunning;
+    mythread_ptr m_thread;
 };
 #endif // USE_VDBTASK
 

@@ -554,9 +554,6 @@ void UART_Release()
 void* ProcessInsmod(void *param)
 {
     StartFirstCam();
-    // start uvc
-    MEDIA_UVC_Init();
-    //MEDIA_AV_Init();
 
     // my_thread_exit(NULL);
     return NULL;
@@ -694,16 +691,17 @@ int main0(int argc, char** argv)
 
     ResetSystemState(APP_MAIN);
 
-    //fr_InitLive();
-    fr_InitIRCamera_ExpGain();
-    my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
-    //ProcessInsmod(NULL);
-
+    if (argc == 1)
+    {
+        fr_InitLive();
+        fr_InitIRCamera_ExpGain();
+        //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
+        ProcessInsmod(NULL);
 #if (USE_VDBTASK)
-    StartClrCam();
+        StartClrCam();
 #endif // USE_VDBTASK
-
-    //EngineMapInit();
+        //EngineMapInit();
+    }
 
     int iUpgradeFlag = g_xCS.x.bUpgradeFlag;
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;

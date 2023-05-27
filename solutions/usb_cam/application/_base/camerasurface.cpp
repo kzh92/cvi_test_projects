@@ -139,13 +139,13 @@ void StartFirstCam()
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
 
 #if (USE_VDBTASK)
-    g_clrWriteLock = my_mutex_init();
-    g_clrYuvData_tmp = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
-    if (g_clrYuvData_tmp == NULL)
-        my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-    g_clrYuvData = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
-    if (g_clrYuvData == NULL)
-        my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
+    // g_clrWriteLock = my_mutex_init();
+    // g_clrYuvData_tmp = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
+    // if (g_clrYuvData_tmp == NULL)
+    //     my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
+    // g_clrYuvData = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
+    // if (g_clrYuvData == NULL)
+    //     my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
 #endif // USE_VDBTASK
 
     g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
@@ -182,60 +182,7 @@ void StopClrCam()
 
 void StartCamSurface(int iMode)
 {
-#if (USE_VDBTASK)
-    g_xSS.iRunningCamSurface = 1;
-
-    if(iMode == 0)
-    {
-        fr_InitIRCamera_ExpGain();
-    }
-
-#if (TEST_CAM_MODE == TEST_TCMIPI || TEST_CAM_MODE == TEST_TWO)
-    //init tc mipi camera
-    if(g_iMipiCamInited == -1)
-    {
-        my_mutex_lock(g_captureLock);
-        if(g_iMipiCamInited == -1)
-        {
-            g_iMipiCamInited = camera_init(TC_MIPI_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
-            if(g_iMipiCamInited == -1)
-            {
-                my_mutex_unlock(g_captureLock);
-                g_xSS.iCamError |= CAM_ERROR_MIPI1;
-            }
-            else
-            {
-                if(iMode == 0)
-                {
-                    camera_set_exp_byreg(TC_MIPI_CAM_LEFT, INIT_EXP);
-                    camera_set_gain_byreg(TC_MIPI_CAM_LEFT, INIT_GAIN);
-
-                    camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, INIT_EXP_1);
-                    camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, INIT_GAIN_1);
-                }
-                my_mutex_unlock(g_captureLock);
-            }
-        }
-        else
-            my_mutex_unlock(g_captureLock);
-    }
-
-    if (g_iMipiCamInited == 0)
-    {
-        my_mutex_lock(g_captureLock);
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-        {
-            //test pattern
-            camera_set_pattern_mode(TC_MIPI_CAM);
-        }
-        my_mutex_unlock(g_captureLock);
-    }
-
-    if(g_iMipiCamInited == 0 && g_capture0 == 0)
-    {
-        my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, 0);
-    }
-#endif
+#if (USE_VDBTASK && 0)
 #else // USE_VDBTASK
     g_xSS.iRunningCamSurface = 1;
 
@@ -855,13 +802,8 @@ void reset_ir_exp_gain()
     my_mutex_lock(g_captureLock);
     if(g_iMipiCamInited == 0)
     {
-        camera_set_exp_byreg(TC_MIPI_CAM_LEFT, INIT_EXP);
-        camera_set_gain_byreg(TC_MIPI_CAM_LEFT, INIT_GAIN);
-
-        camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, INIT_EXP_1);
-        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, INIT_GAIN_1);
-
         fr_InitIRCamera_ExpGain();
+        CalcNextExposure();
     }
     my_mutex_unlock(g_captureLock);
 #endif // USE_VDBTASK
@@ -1002,24 +944,7 @@ int GetYAVGValueOfClr(unsigned char* pbClrBuf)
 
 int CalcClrNextExposure(unsigned char* pbClrBuf)
 {
-    //changed by KSB 20180711
-    int nNewGain, nNewExposure;
-    int nEntireCurYAVG = 0;
-    int nFaceCurYAVG = 0;
-    float rDeltaValue = 1.0f;
-
-    g_nClrFramePassCount++;
-    g_nValueSettenPassed++;
-
-    if (g_nClrFramePassCount < 1)
-    {
-//        return;
-    }
-
-    g_nClrFramePassCount = 0;
-    nEntireCurYAVG = GetYAVGValueOfClr(pbClrBuf);
-    nFaceCurYAVG = nEntireCurYAVG;
-    return nEntireCurYAVG;
+    return 0;
 }
 
 int WaitClrTimeout(int iTimeout)
@@ -1142,6 +1067,7 @@ void* ProcessDVPCaptureFirst(void*)
 
 void rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle)
 {
+    return;
     int nIndex = ((nDegreeAngle + 360) / 90) % 4;
 
     if (nIndex == 0)

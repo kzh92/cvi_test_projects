@@ -29,14 +29,14 @@
 #if (USE_VDBTASK)
 int Get_Camera_my_Image(int PADId, unsigned char** buf)
 {
-    if (PADId == DVP_CAM)
-    {
-        *buf = g_clrYuvData_tmp;
-    }
-    else
-    {
-        *buf = g_irOnData1;
-    }
+    // if (PADId == DVP_CAM)
+    // {
+    //     *buf = g_clrYuvData_tmp;
+    // }
+    // else
+    // {
+    //     *buf = g_irOnData1;
+    // }
     return 0;
 }
 
@@ -51,47 +51,48 @@ int camera_IR_led_on(int on)
 
 int my_WaitIRTimeout(int iTimeout)
 {
-    return WaitIRTimeout(iTimeout);
+    // return WaitIRTimeout(iTimeout);
+    return 0;
 }
 
 void my_StartCamSurface(int iMode)
 {
-    StartCamSurface(iMode);
+    // StartCamSurface(iMode);
 }
 
 void my_StartClrCam()
 {
-    StartClrCam();
+    // StartClrCam();
 }
 
 int my_WaitClrTimeout(int iTimeout)
 {
-    WaitClrTimeout(iTimeout);
+    // WaitClrTimeout(iTimeout);
     return 0;
 }
 
 void my_ConvertToSceneJpeg(int PADId)
 {
-    int m_iCounter = 1;//VDBTask::m_iCounter
-    if (PADId == DVP_CAM)
-    {
-        int iWriteLen = ConvertYuvToSceneJpeg(g_clrYuvData_tmp, 1);
-        SendGlobalMsg(MSG_VDB_TASK, VDB_CAPTURED_IMAGE, iWriteLen, m_iCounter);
-    }
-    else
-    {
-        int width = IR_CAM_HEIGHT / 3 * 4;
-        lockIRBuffer();
-        for(int y = 0; y < IR_CAM_HEIGHT; y ++)
-            memcpy(g_clrYuvData + y * IR_CAM_HEIGHT, g_irOnData1 + y * IR_CAM_WIDTH + 160, IR_CAM_HEIGHT);
-        unlockIRBuffer();
+    // int m_iCounter = 1;//VDBTask::m_iCounter
+    // if (PADId == DVP_CAM)
+    // {
+    //     int iWriteLen = ConvertYuvToSceneJpeg(g_clrYuvData_tmp, 1);
+    //     SendGlobalMsg(MSG_VDB_TASK, VDB_CAPTURED_IMAGE, iWriteLen, m_iCounter);
+    // }
+    // else
+    // {
+    //     int width = IR_CAM_HEIGHT / 3 * 4;
+    //     lockIRBuffer();
+    //     for(int y = 0; y < IR_CAM_HEIGHT; y ++)
+    //         memcpy(g_clrYuvData + y * IR_CAM_HEIGHT, g_irOnData1 + y * IR_CAM_WIDTH + 160, IR_CAM_HEIGHT);
+    //     unlockIRBuffer();
 
-        rotateImage_inner(g_clrYuvData, width, IR_CAM_HEIGHT, g_xPS.x.bCamFlip == 0 ? 270: 90);
-        memset(g_clrYuvData + width * IR_CAM_HEIGHT, 0x80, width * IR_CAM_HEIGHT / 2);
-        int iWriteLen = ConvertIRToSceneJpeg(g_clrYuvData);
+    //     rotateImage_inner(g_clrYuvData, width, IR_CAM_HEIGHT, g_xPS.x.bCamFlip == 0 ? 270: 90);
+    //     memset(g_clrYuvData + width * IR_CAM_HEIGHT, 0x80, width * IR_CAM_HEIGHT / 2);
+    //     int iWriteLen = ConvertIRToSceneJpeg(g_clrYuvData);
 
-        SendGlobalMsg(MSG_VDB_TASK, VDB_CAPTURED_IMAGE, iWriteLen, m_iCounter);
-    }
+    //     SendGlobalMsg(MSG_VDB_TASK, VDB_CAPTURED_IMAGE, iWriteLen, m_iCounter);
+    // }
 }
 #if (USE_WIFI_MODULE)
 void my_ConvertYUYV_toYUV420(unsigned char* data)

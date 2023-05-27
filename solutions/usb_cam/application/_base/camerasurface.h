@@ -121,6 +121,7 @@ int     CalcClrNextExposure(unsigned char* pbClrBuf);
 int     WaitClrTimeout(int iTimeout);
 int     WaitClrCancel();
 void    StartClrCam();
+void    StopClrCam();
 extern unsigned char*  g_abCapturedClrFace;
 extern unsigned char*  g_clrYuvData_tmp;
 extern unsigned char*  g_clrYuvData_tmp1;

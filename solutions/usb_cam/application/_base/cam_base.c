@@ -395,170 +395,6 @@ int camera_release(int id)
     return 0;
 }
 
-#if 0
-
-#if (USE_SSD210)
-#define I2C_ADDR_MIPI0_CAMERA 0x34
-#define I2C_ADDR_MIPI1_CAMERA 0x36
-#else
-#define I2C_ADDR_MIPI0_CAMERA 0x36
-#define I2C_ADDR_MIPI1_CAMERA 0x36
-#endif
-
-static myi2cdesc_ptr g_iMipiCam0 = 0;
-static myi2cdesc_ptr g_iMipiCam1 = 0;
-
-int camera_mipi0_set_regval(unsigned char regaddr, unsigned char regval)
-{
-    unsigned char szBuf[2] = { 0 };
-    if (g_iMipiCam0 == 0) {
-        my_i2c_open(MIPI0_I2C_PORT, &g_iMipiCam0);
-    }
-    if (g_iMipiCam0)
-    {
-        szBuf[0] = regaddr;
-        szBuf[1] = regval;
-        my_i2c_write8(g_iMipiCam0, I2C_ADDR_MIPI0_CAMERA, szBuf, 2);
-    }
-    my_usleep(1000);
-    return 0;
-}
-
-int camera_mipi0_get_regval(unsigned char regaddr)
-{
-    unsigned char szBuf[2] = { 0 };
-    if (g_iMipiCam0 == 0) {
-        my_i2c_open(MIPI0_I2C_PORT, &g_iMipiCam0);
-    }
-    if (g_iMipiCam0)
-    {
-        szBuf[0] = regaddr;
-        my_i2c_write8(g_iMipiCam0, I2C_ADDR_MIPI0_CAMERA, szBuf, 1);
-        my_i2c_read8(g_iMipiCam0, I2C_ADDR_MIPI0_CAMERA, szBuf, 1);
-    }
-    return szBuf[0];
-}
-
-
-int camera_mipi1_set_regval(unsigned char regaddr, unsigned char regval)
-{
-    unsigned char szBuf[2] = { 0 };
-    if (g_iMipiCam1 == 0) {
-        my_i2c_open(MIPI1_I2C_PORT, &g_iMipiCam1);
-    }
-    if (g_iMipiCam1)
-    {
-        szBuf[0] = regaddr;
-        szBuf[1] = regval;
-        my_i2c_write8(g_iMipiCam1, I2C_ADDR_MIPI1_CAMERA, szBuf, 2);
-    }
-    my_usleep(1000);
-    return 0;
-}
-
-int camera_mipi1_get_regval(unsigned char regaddr)
-{
-    unsigned char szBuf[2] = { 0 };
-    if (g_iMipiCam1 == 0) {
-        my_i2c_open(MIPI1_I2C_PORT, &g_iMipiCam1);
-    }
-    if (g_iMipiCam1)
-    {
-        szBuf[0] = regaddr;
-        my_i2c_write8(g_iMipiCam1, I2C_ADDR_MIPI1_CAMERA, szBuf, 1);
-        my_i2c_read8(g_iMipiCam1, I2C_ADDR_MIPI1_CAMERA, szBuf, 1);
-    }
-    return szBuf[0];
-}
-#endif
-int camera_set_regval(int id, unsigned char regaddr, unsigned char regval)
-{
-    // int ret = -1;
-    // if(id == MIPI_0_CAM)
-    //     return camera_mipi0_set_regval(regaddr, regval);
-    // else if(id == MIPI_1_CAM)
-    //     return camera_mipi1_set_regval(regaddr, regval);
-
-    // return ret;
-    return 0;
-}
-
-int camera_get_regval(int id, unsigned char regaddr)
-{
-    // if(id == MIPI_0_CAM)
-    //     return camera_mipi0_get_regval(regaddr);
-    // else if(id == MIPI_1_CAM)
-    //     return camera_mipi1_get_regval(regaddr);
-    return 0;
-}
-
-int camera_set_exp_byreg(int id, int value)
-{
-    my_mi_use_lock();
-    ISP_SNS_OBJ_S *pSnsObj = NULL;
-
-    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
-    if (!pSnsObj)
-    {
-        my_mi_use_unlock();
-        return -1;
-    }
-
-    unsigned char b0x3e00Value, b0x3e01Value, b0x3e02Value;
-
-    b0x3e00Value = (unsigned char)(value >> 12);
-    b0x3e01Value = (unsigned char)((value & 0xFF0) >> 4);
-    b0x3e02Value = (unsigned char)((value & 0xF) << 4);
-
-    pSnsObj->pfnWriteRegEx(0, 0x3e00, b0x3e00Value, id == TC_MIPI_CAM_LEFT);
-    pSnsObj->pfnWriteRegEx(0, 0x3e01, b0x3e01Value, id == TC_MIPI_CAM_LEFT);
-    pSnsObj->pfnWriteRegEx(0, 0x3e02, b0x3e02Value, id == TC_MIPI_CAM_LEFT);
-
-    my_mi_use_unlock();
-
-    dbug_printf("Set ExP: %d, %d\n", id, value);
-
-    return 0;
-}
-int camera_get_exp_byreg(int id)
-{
-    // int value = 0;
-    // value = camera_get_regval(id, 0x01) & 0xFF;
-    // value = value | ((camera_get_regval(id, 0x02) << 8) & 0xFF00);
-    // return value;
-    return 0;
-}
-
-int camera_set_gain_byreg(int id, int value, int nFineValue)
-{
-    my_mi_use_lock();
-    ISP_SNS_OBJ_S *pSnsObj = NULL;
-
-    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
-    if (!pSnsObj)
-    {
-        my_mi_use_unlock();
-        return -1;
-    }
-
-    pSnsObj->pfnWriteRegEx(0, 0x3e09, (unsigned char)value, id == TC_MIPI_CAM_LEFT);
-    pSnsObj->pfnWriteRegEx(0, 0x3e06, 0x00, id == TC_MIPI_CAM_LEFT);
-    pSnsObj->pfnWriteRegEx(0, 0x3e07, (unsigned char)nFineValue, id == TC_MIPI_CAM_LEFT);
-
-    my_mi_use_unlock();
-
-    dbug_printf("Set Gain: %d, %d\n", id, value);
-    return 0;
-}
-
-int camera_set_irled(int enable, int count)
-{
-    int ret = -1;
-    //my_printf("----------  camera_set_irled\n");
-
-    return ret;
-}
-
 #else // !USE_VDBTASK
 
 // #include "cam_base_vdb.c"
@@ -999,128 +835,39 @@ int camera_dvp_get_regval(unsigned char regaddr)
     return 0;
 }
 
-int camera_set_regval(int id, unsigned char regaddr, unsigned char regval)
-{
-    int i = 0;
-    int ret = -1;
-    for(i = 0; i < 3; i ++)
-    {
-        if(id == DVP_CAM)
-        {
-            //pthread_mutex_lock(&g_i2c0_reg_mutex);
-            ret = camera_dvp_set_regval(regaddr, regval);
-            //pthread_mutex_unlock(&g_i2c0_reg_mutex);
-        }
-        else
-        {
-            //pthread_mutex_lock(&g_i2c1_reg_mutex);
-            if(id == TC_MIPI_CAM)
-            {
-                ret = camera_mipi0_set_regval(regaddr, regval);
-            }
-            else if(id == TC_MIPI_CAM1)
-            {
-                ret = camera_mipi1_set_regval(regaddr, regval);
-            }
-            //pthread_mutex_unlock(&g_i2c1_reg_mutex);
-        }
-
-        if(ret == 0)
-            break;
-    }
-
-    return ret;
-}
-
-int camera_get_regval(int id, unsigned char regaddr)
-{
-    int ret = -1;
-    int i = 0;
-    for(i = 0; i < 3; i ++)
-    {
-        if(id == DVP_CAM)
-        {
-            //pthread_mutex_lock(&g_i2c0_reg_mutex);
-            ret = camera_dvp_get_regval(regaddr);
-            //pthread_mutex_unlock(&g_i2c0_reg_mutex);
-        }
-        else
-        {
-            //pthread_mutex_lock(&g_i2c1_reg_mutex);
-            if(id == TC_MIPI_CAM)
-            {
-                ret = camera_mipi0_get_regval(regaddr);
-            }
-            else if(id == TC_MIPI_CAM1)
-            {
-                ret = camera_mipi1_get_regval(regaddr);
-            }
-            //pthread_mutex_unlock(&g_i2c1_reg_mutex);
-        }
-
-        if(ret == 0)
-            break;
-    }
-
-    return ret;
-}
-
-int camera_set_exp_byreg(int id, int value)
-{
-    camera_set_regval(id, 0x01, (unsigned char)(value & 0xFF));
-    camera_set_regval(id, 0x02, (unsigned char)((value >> 8) & 0x0F));
-
-//  my_printf("Set ExP: %d, %d\n", id, value);
-
-    return 0;
-}
-
-int camera_set_gain_byreg(int id, int value)
-{
-    camera_set_regval(id, 0x00, value);
-//    printf("Set Gain: %d, %d\n", id, value);
-    return 0;
-}
-
-int camera_set_irled(int id, int enable)
-{
-    int ret = -1;
-//  my_printf("----------  camera_set_irled\n");
-
-    return ret;
-}
-
 int camera_clr_set_exp(int value)
 {
-    camera_set_regval(DVP_CAM, 0xfe, 0);
-    camera_set_regval(DVP_CAM, 0x04, (unsigned char)value);
-    camera_set_regval(DVP_CAM, 0x03, (unsigned char)((value >> 8) & 0xFF));
+    // camera_set_regval(DVP_CAM, 0xfe, 0);
+    // camera_set_regval(DVP_CAM, 0x04, (unsigned char)value);
+    // camera_set_regval(DVP_CAM, 0x03, (unsigned char)((value >> 8) & 0xFF));
     return 0;
 }
 
 int camera_clr_get_exp()
 {
-    unsigned char b1, b2;
-    camera_set_regval(DVP_CAM, 0xfe, 0); //page select
+    // unsigned char b1, b2;
+    // camera_set_regval(DVP_CAM, 0xfe, 0); //page select
 
-    b1 = camera_get_regval(DVP_CAM, 0x04);
-    b2 = camera_get_regval(DVP_CAM, 0x04);
-    return b1 | (b2 << 8);
+    // b1 = camera_get_regval(DVP_CAM, 0x04);
+    // b2 = camera_get_regval(DVP_CAM, 0x04);
+    // return b1 | (b2 << 8);
+    return 0;
 }
 
 int camera_clr_set_gain(int value)
 {
-    camera_set_regval(DVP_CAM, 0xfe, 0); //page select
-    camera_set_regval(DVP_CAM, 0xb0, (unsigned char)value);
+    // camera_set_regval(DVP_CAM, 0xfe, 0); //page select
+    // camera_set_regval(DVP_CAM, 0xb0, (unsigned char)value);
     return 0;
 }
 
 int camera_clr_get_gain()
 {
-    unsigned char b1;
-    camera_set_regval(DVP_CAM, 0xfe, 0); //page select
-    b1 = camera_get_regval(DVP_CAM, 0xb0);
-    return b1;
+    // unsigned char b1;
+    // camera_set_regval(DVP_CAM, 0xfe, 0); //page select
+    // b1 = camera_get_regval(DVP_CAM, 0xb0);
+    // return b1;
+    return 0;
 }
 
 void lockClrBuffer()
@@ -1210,4 +957,93 @@ int camera_switch(int id, int camid)
 int camera_get_actIR()
 {
     return iActiveIRCam;
+}
+
+
+int camera_set_regval(int id, unsigned char regaddr, unsigned char regval)
+{
+    // int ret = -1;
+    // if(id == MIPI_0_CAM)
+    //     return camera_mipi0_set_regval(regaddr, regval);
+    // else if(id == MIPI_1_CAM)
+    //     return camera_mipi1_set_regval(regaddr, regval);
+
+    // return ret;
+    return 0;
+}
+
+int camera_get_regval(int id, unsigned char regaddr)
+{
+    // if(id == MIPI_0_CAM)
+    //     return camera_mipi0_get_regval(regaddr);
+    // else if(id == MIPI_1_CAM)
+    //     return camera_mipi1_get_regval(regaddr);
+    return 0;
+}
+
+int camera_set_exp_byreg(int id, int value)
+{
+    my_mi_use_lock();
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    unsigned char b0x3e00Value, b0x3e01Value, b0x3e02Value;
+
+    b0x3e00Value = (unsigned char)(value >> 12);
+    b0x3e01Value = (unsigned char)((value & 0xFF0) >> 4);
+    b0x3e02Value = (unsigned char)((value & 0xF) << 4);
+
+    pSnsObj->pfnWriteRegEx(0, 0x3e00, b0x3e00Value, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e01, b0x3e01Value, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e02, b0x3e02Value, id == TC_MIPI_CAM_LEFT);
+
+    my_mi_use_unlock();
+
+    dbug_printf("Set ExP: %d, %d\n", id, value);
+
+    return 0;
+}
+int camera_get_exp_byreg(int id)
+{
+    // int value = 0;
+    // value = camera_get_regval(id, 0x01) & 0xFF;
+    // value = value | ((camera_get_regval(id, 0x02) << 8) & 0xFF00);
+    // return value;
+    return 0;
+}
+
+int camera_set_gain_byreg(int id, int value, int nFineValue)
+{
+    my_mi_use_lock();
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    pSnsObj->pfnWriteRegEx(0, 0x3e09, (unsigned char)value, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e06, 0x00, id == TC_MIPI_CAM_LEFT);
+    pSnsObj->pfnWriteRegEx(0, 0x3e07, (unsigned char)nFineValue, id == TC_MIPI_CAM_LEFT);
+
+    my_mi_use_unlock();
+
+    dbug_printf("Set Gain: %d, %d\n", id, value);
+    return 0;
+}
+
+int camera_set_irled(int enable, int count)
+{
+    int ret = -1;
+    //my_printf("----------  camera_set_irled\n");
+
+    return ret;
 }

@@ -162,7 +162,6 @@ int fr_UpdateFeat_DNN(int nUserIndex, unsigned short* prDNNFeature, unsigned cha
 
 void*   EngineLoadAndCheckFunc(void*)
 {
-    return NULL;
     g_nThreadCount = 1;
 
     APP_LOG("[%s] start %0.1f\n", __func__, Now());

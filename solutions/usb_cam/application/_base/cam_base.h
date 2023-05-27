@@ -8,21 +8,21 @@ extern "C"{
 // #include <pthread.h>
 #include "appdef.h"
 
-#if (USE_VDBTASK)
-#define DVP_CAM                 0   //color camera
-#define TC_MIPI_CAM             1   //left IR
-#define TC_MIPI_CAM1            2   //right IR
+// #if (USE_VDBTASK)
+// #define DVP_CAM                 0   //color camera
+// #define TC_MIPI_CAM             1   //left IR
+// #define TC_MIPI_CAM1            2   //right IR
 
-#define TC_MIPI_CAM_LEFT        TC_MIPI_CAM   //left IR
-#define TC_MIPI_CAM_RIGHT       TC_MIPI_CAM1  //right IR
+// #define TC_MIPI_CAM_LEFT        TC_MIPI_CAM   //left IR
+// #define TC_MIPI_CAM_RIGHT       TC_MIPI_CAM1  //right IR
 
-#else // USE_VDBTASK
+// #else // USE_VDBTASK
 #define MIPI_0_CAM              0
 #define MIPI_1_CAM              1
 #define TC_MIPI_CAM             MIPI_0_CAM   //left IR
 #define TC_MIPI_CAM_LEFT        MIPI_0_CAM   //left IR
 #define TC_MIPI_CAM_RIGHT       MIPI_1_CAM  //right IR
-#endif // USE_VDBTASK
+// #endif // USE_VDBTASK
 
 #define MIPI_CAM_SUB0           0 // right IR
 #define MIPI_CAM_SUB1           1 // left IR

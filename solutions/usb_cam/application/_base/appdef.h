@@ -454,6 +454,8 @@ enum E_Baud_Rate
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
 #undef CAM_ROTATION_MODE
 #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
 
 #endif // FRM_PRODUCT_TYPE
 
