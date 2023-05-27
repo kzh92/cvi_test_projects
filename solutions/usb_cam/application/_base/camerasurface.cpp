@@ -678,7 +678,7 @@ void* ProcessTCMipiCapture(void */*param*/)
     int iNeedNext = 0;
     float rOld = Now();
     dev = 0;
-    for (dev = 0; dev < 2; dev ++)
+    //for (dev = 0; dev < 2; dev ++)
     {
         attr[dev].bEnable = 1;
         attr[dev].u32Depth = 0;
@@ -702,7 +702,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
-        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 0: 1);
+        //dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 0: 1);
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)

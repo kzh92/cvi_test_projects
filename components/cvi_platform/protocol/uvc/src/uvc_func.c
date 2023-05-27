@@ -187,7 +187,7 @@ void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 	uvc_set_video_format_info(format_info);
 	uvc_set_video_frame_info(&format_info->frames[bFrameIndex - 1]);
 }
-
+extern int32_t cli_handle_input(char *inbuf);
 void uvc_media_update(){
 	PAYLOAD_TYPE_E enType;
 	PIXEL_FORMAT_E enPixelFormat;
@@ -259,6 +259,16 @@ void uvc_media_update(){
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index)
 		MEDIA_VIDEO_VencInit(pstVencCfg);
+
+    printf("-------------proc_vi--------------------\n");
+    cli_handle_input((char*)"proc_vi");
+    printf("-------------proc_vpss--------------------\n");
+    cli_handle_input((char*)"proc_vpss");
+    printf("-------------proc_venc--------------------\n");
+    cli_handle_input((char*)"proc_venc");
+    printf("-------------proc_sys--------------------\n");
+    cli_handle_input((char*)"proc_sys");
+    printf("---------------------------------\n");
 }
 
 void uvc_streaming_on(int is_on) {

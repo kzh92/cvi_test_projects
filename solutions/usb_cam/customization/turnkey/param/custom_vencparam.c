@@ -20,7 +20,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u16Width = 0,
             .u16Height = 0,
             .u8EsBufQueueEn = 0,
-            .u16EnType = PT_H264,
+            .u16EnType = PT_MJPEG,
             .u32BitStreamBufSize = 1024 * 1024,
         },
         .stGopParam = {
@@ -36,7 +36,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
             .u8VariFpsEn = 0,
             .u8StartTime = 2,
-            .u16RcMode = VENC_RC_MODE_H264CBR,
+            .u16RcMode = VENC_RC_MODE_MJPEGCBR,
             .u16FirstFrmstartQp = 30,
             .u16InitialDelay = CVI_INITIAL_DELAY_DEFAULT, // RW = , Range:[10, 3000] Rate control initial delay (ms).
             .u16ThrdLv = 2,/*RW = , Range:[0, 4] = , Mad threshold for controlling the macroblock-level bit rate */
@@ -59,8 +59,8 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u8InitStatus = 0,
             .u8VencChn = 1,
             .u8ModId = CVI_ID_VPSS,
-            .u8DevId = 0,
-            .u8DevChnid = 1,
+            .u8DevId = 1,
+            .u8DevChnid = 0,
             .u8Profile = 0,
             .u16Width = 0,
             .u16Height = 0,
