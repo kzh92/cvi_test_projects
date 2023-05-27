@@ -25,7 +25,7 @@
 
 #define UVC_VENC_CHN   (0)
 #define UVC_VPSS_CHN   (0)
-#define UVC_VPSS_GRP   (1)
+#define UVC_VPSS_GRP   (0)
 
 #define MJPEG_FORMAT_INDEX  (1)
 #define H264_FORMAT_INDEX   (2)
@@ -70,9 +70,6 @@ static struct uvc_frame_info_st mjpeg_frame_info[] = {
 #if 1
     {1, 1280, 720, 30, 0},
     {2, 640, 480, 30, 0},
-    {3, 320, 240, 30, 0},
-    {4, 1920, 1080, 30, 0},
-    {5, 1600, 1200, 30, 0},
 #else
     {1, 800, 600, 30, 0},
     {2, 640, 480, 30, 0},
