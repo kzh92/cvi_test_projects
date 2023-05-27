@@ -861,6 +861,17 @@ static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 	return sc201cs_slave_probe(ViPipe);
 }
 
+static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
+{
+	//return sc201cs_switch(ViPipe, switchCam);
+	return CVI_SUCCESS;
+}
+
+static CVI_S32 sensor_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
+{
+	return sc201cs_slave_pattern_enable(ViPipe, enablePattern);
+}
+
 ISP_SNS_OBJ_S stSnsSC201CS_SLAVE_Obj = {
 	.pfnRegisterCallback    = sensor_register_callback,
 	.pfnUnRegisterCallback  = sensor_unregister_callback,
@@ -877,5 +888,10 @@ ISP_SNS_OBJ_S stSnsSC201CS_SLAVE_Obj = {
 	.pfnExpSensorCb         = cmos_init_sensor_exp_function,
 	.pfnExpAeCb             = cmos_init_ae_exp_function,
 	.pfnSnsProbe            = sensor_probe,
+	.pfnSnsSwitch			= sensor_switch,
+	.pfnSnsPatternEn		= sensor_pattern_enable,
+	.pfnWriteRegEx          = sc201cs_slave_write_register_ex,
+	.pfnReadRegEx           = sc201cs_slave_read_register_ex,
+
 };
 

@@ -14,7 +14,7 @@
 #define SAMPLE_TONGXIN      1
 #define SAMPLE_NAME         SAMPLE_TONGXIN
 
-#define USE_IRSNR_SC2355    0
+#define USE_IRSNR_SC2355    1
 
 #define LM_AUTO             0
 #define LM_SEMI_AUTO        1

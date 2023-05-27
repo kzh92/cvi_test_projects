@@ -47,6 +47,16 @@ int sc201cs_slave_write_register(VI_PIPE ViPipe, int addr, int data)
 		(CVI_U32)data, sc201cs_slave_data_byte);
 }
 
+int sc201cs_slave_read_register_ex(VI_PIPE ViPipe, int addr, int is_left_camera)
+{
+	return sc201cs_slave_read_register(ViPipe, addr);
+}
+
+int sc201cs_slave_write_register_ex(VI_PIPE ViPipe, int addr, int data, int is_left_camera)
+{
+	return sc201cs_slave_write_register(ViPipe, addr, data);
+}
+
 static void delay_ms(int ms)
 {
 	udelay(ms * 1000);
@@ -123,6 +133,12 @@ int sc201cs_slave_probe(VI_PIPE ViPipe)
 		return CVI_FAILURE;
 	}
 
+	return CVI_SUCCESS;
+}
+
+int sc201cs_slave_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
+{
+	sc201cs_slave_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
 	return CVI_SUCCESS;
 }
 

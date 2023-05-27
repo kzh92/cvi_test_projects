@@ -618,6 +618,7 @@ void* ProcessTCMipiCapture(void */*param*/)
     int frm_num = 1;
     CVI_U32 dev = 0;
     CVI_S32 s_ret = 0;
+    int pat_set = 0;
 
     dbug_printf("[%s]\n", __func__);
 
@@ -634,13 +635,15 @@ void* ProcessTCMipiCapture(void */*param*/)
         if (CVI_VI_SetPipeDumpAttr(dev, &attr[dev]) != CVI_SUCCESS)
             my_printf("dev=%d SetPipeDumpAttr failed\n", dev);
     }
-    if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
-    {
-        camera_set_pattern_mode(TC_MIPI_CAM, 1);
-    }
 
     while (g_xSS.iRunningCamSurface)
     {
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && pat_set == 0)
+        {
+            pat_set = 1;
+            camera_set_pattern_mode(TC_MIPI_CAM, 1);
+        }
+
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
 
         frm_num = 1;
@@ -717,7 +720,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
             unlockIRBuffer();
 
-#if (USE_VDBTASK)
+#if (USE_VDBTASK && !USE_3M_MODE)
             if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             {
                 fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
@@ -725,7 +728,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
 #endif // USE_VDBTASK
             WaitIRCancel();
-#if (!USE_3M_MODE)
+#if (!USE_3M_MODE || 1)
             g_iTwoCamFlag ++;
 #else
             g_iLedOnStatus = 0;
@@ -735,7 +738,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
 #endif
         }
-#if (!USE_3M_MODE)
+#if (!USE_3M_MODE || 1)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP3 && g_iTwoCamFlag != IR_CAMERA_STEP4)
         {
             g_iTwoCamFlag ++;
