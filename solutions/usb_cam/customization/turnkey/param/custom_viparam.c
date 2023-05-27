@@ -12,7 +12,7 @@ extern unsigned int rgb_color_len;
 #define MY_USE_DMA_BUF
 #ifdef MY_USE_DMA_BUF
 void * g_ViDmaBuf = NULL;
-unsigned int g_ViDmaBufSize = 19 * 1024 * 1024;
+unsigned int g_ViDmaBufSize = 18883840;
 #endif
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
 #if (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)

@@ -17,14 +17,6 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,
     },
-    {
-        .u16width = 608,
-        .u16height = 342,
-        .u8VbBlkCnt = 4,
-        .fmt = PIXEL_FORMAT_RGB_888_PLANAR,
-        .enBitWidth = DATA_BITWIDTH_8,
-        .enCmpMode = COMPRESS_MODE_NONE,
-    },
 };
 
 PARAM_SYS_CFG_S  g_stSysCtx = {

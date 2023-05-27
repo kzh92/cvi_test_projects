@@ -1067,7 +1067,6 @@ void* ProcessDVPCaptureFirst(void*)
 
 void rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle)
 {
-    return;
     int nIndex = ((nDegreeAngle + 360) / 90) % 4;
 
     if (nIndex == 0)

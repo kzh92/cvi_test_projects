@@ -2838,6 +2838,11 @@ int ProcessSenseFace(int iCmd)
                     s_msg* msg = SenseLockTask::Get_Reply(MID_SNAPIMAGE, MR_SUCCESS);
                     g_pSenseTask->Send_Msg(msg);
                 }
+                else if(iResult == FACE_RESULT_CAPTURED_FACE_FAILED)
+                {
+                    s_msg* msg = SenseLockTask::Get_Reply(MID_SNAPIMAGE, MR_FAILED4_UNKNOWNREASON);
+                    g_pSenseTask->Send_Msg(msg);
+                }
 #if (N_MAX_HAND_NUM)
                 else if(iResult == HAND_RESULT_SUCCESS)
                 {

@@ -262,8 +262,9 @@ void FaceRecogTask::run()
                 EndIns();
                 StartCamSurface(1);
             }
+#if (!USE_3M_MODE)
             GetRightIrFrame(NULL, iFlag);
-            // WAIT_CAM_FRAME(500, WaitIROffTimeout2);
+#endif
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
@@ -546,13 +547,19 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
     {
         memcpy((unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE, pbJpgData, iWriteLen);
         g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
+        my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
     }
-    my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
+    else
+    {
+        my_printf("[%s]: %d, exceed size, time=%0.3f\n", __func__, iSaveIdx, Now() - rOld);
+        iWriteLen = 0;
+    }
     if (pbJpgData)
         my_free(pbJpgData);
     if (g_abCapturedFace)
         my_free(g_abCapturedFace);
-    return 0;
+
+    return iWriteLen;
 }
 
 int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
@@ -591,6 +598,7 @@ int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
 
 int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
 {
+    int ret = 0;
     lockIRBuffer();
     fr_CalcScreenValue(g_irOnData1, IR_SCREEN_GETIMAGE_MODE);
     unlockIRBuffer();
@@ -602,7 +610,7 @@ int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
         {
             lockIRBuffer();
             gammaCorrection_screen(g_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            SaveImage(g_irOnData1, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
+            ret += SaveImage(g_irOnData1, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 270: 90);
             unlockIRBuffer();
             m_iCaptureCount ++;
         }
@@ -612,7 +620,7 @@ int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
         {
             lockIRBuffer();
             gammaCorrection_screen(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            SaveImage(g_irOnData2, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
+            ret += SaveImage(g_irOnData2, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
             unlockIRBuffer();
             m_iCaptureCount ++;
         }
@@ -620,7 +628,10 @@ int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
         if(!(m_iCaptureCount < g_xSS.msg_snap_image_data.image_counts &&
              g_xSS.msg_snap_image_data.start_number + m_iCaptureCount <= N_MAX_SAVE_IMG_NUM))
         {
-            m_iResult = FACE_RESULT_CAPTURED_FACE;
+            if (ret > 0)
+                m_iResult = FACE_RESULT_CAPTURED_FACE;
+            else
+                m_iResult = FACE_RESULT_CAPTURED_FACE_FAILED;
             return 1;
         }
     }

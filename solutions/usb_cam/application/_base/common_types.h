@@ -131,7 +131,7 @@ void            my_mutex_destroy(mymutex_ptr mtx);
 void            my_mutex_lock_real(mymutex_ptr mtx);
 void            my_mutex_unlock_real(mymutex_ptr mtx);
 void            my_mutex_lock_real_debug(mymutex_ptr mtx, const char*, int);
-void            my_mutex_unlock_readl_debug(mymutex_ptr mtx, const char*, int);
+void            my_mutex_unlock_real_debug(mymutex_ptr mtx, const char*, int);
 int             my_thread_create(mythread_ptr *thread, void *attr, void *(*start_routine) (void *), void *arg);
 int             my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine) (void *), void *arg, char* thd_name, int stack_size, int priority);
 int             my_thread_join(mythread_ptr *thread);
@@ -206,15 +206,15 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
 #define my_malloc(sz) my_malloc_real_debug(sz, __FILE__, __LINE__)
 #define my_calloc(n, sz) my_calloc_real_debug(n, sz, __FILE__, __LINE__)
 #define my_free(ptr) my_free_real_debug(ptr, __FILE__, __LINE__)
-#define my_mutex_lock(a) my_mutex_lock_real_debug(a, __FILE__, __LINE__)
-#define my_mutex_unlock(a) my_mutex_unlock_real_debug(a, __FILE__, __LINE__)
+// #define my_mutex_lock(a) my_mutex_lock_real_debug(a, __FILE__, __LINE__)
+// #define my_mutex_unlock(a) my_mutex_unlock_real_debug(a, __FILE__, __LINE__)
 #else
 #define my_malloc(sz) my_malloc_real(sz)
 #define my_calloc(n, sz) my_calloc_real(n, sz)
 #define my_free(ptr) my_free_real(ptr)
+#endif
 #define my_mutex_lock(a) my_mutex_lock_real(a)
 #define my_mutex_unlock(a) my_mutex_unlock_real(a)
-#endif
 
 #define my_memcpy           memcpy
 #define my_memset           memset
