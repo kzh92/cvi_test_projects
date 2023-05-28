@@ -1990,33 +1990,6 @@ int		fr_PreExtractFaceClr(unsigned char *pbYUV222, int nWidth, int nHeight)
     float rFaceRectInClr[4];
     float rIr2RGB_Rate = 1;
 
-#if (CLR_LENS_TYPE == CLR_LENS_M277_1450)
-#if (ENGINE_LENS_TYPE == ENGINE_LENS_40143)
-    rIr2RGB_Rate = 1.05f * nWidth / g_xEngineParam.nDetectionHeight;
-#elif (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
-    rIr2RGB_Rate = 1.306f * nWidth / g_xEngineParam.nDetectionHeight;
-#endif
-#endif
-
-#if (CLR_LENS_TYPE == CLR_LENS_M030_1450)
-    if(g_xEngineParam.iDemoMode == N_DEMO_FACTORY_MODE)
-    {
-#if (ENGINE_LENS_TYPE == ENGINE_LENS_40143)
-        rIr2RGB_Rate = 1.05f * nWidth / g_xEngineParam.nDetectionHeight;
-#elif (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
-        rIr2RGB_Rate = 1.306f * nWidth / g_xEngineParam.nDetectionHeight;
-#endif
-    }
-    else
-    {
-#if (ENGINE_LENS_TYPE == ENGINE_LENS_40143)
-        rIr2RGB_Rate = 0.824f * nWidth / g_xEngineParam.nDetectionHeight;
-#elif (ENGINE_LENS_TYPE == ENGINE_LENS_M277_2409)
-        rIr2RGB_Rate = 1.0f * nWidth / g_xEngineParam.nDetectionHeight;
-#endif
-    }
-
-#endif
     float rFaceCenterX, rFaceCenterY, rFaceWidth, rFaceHeight;
     float rClrFaceCenterX, rClrFaceCenterY, rClrFaceWidth, rClrFaceHeight;
     rFaceCenterX = g_xFaceProcessData->rFaceRect[0] + g_xFaceProcessData->rFaceRect[2] / 2;
@@ -2036,6 +2009,7 @@ int		fr_PreExtractFaceClr(unsigned char *pbYUV222, int nWidth, int nHeight)
     rFaceRectInClr[3] = rClrFaceHeight;
 
     int nFaceCheck = checkFaceInClr_expand_shrink_DNN(pbYUV222, nHeight, nWidth, rFaceRectInClr);
+    my_printf("fr_PreExtractFaceClr nFaceCheck:%d\n", nFaceCheck);
     if(!nFaceCheck)
     {
         (getFaceProcessData())->nFaceDetected = 0;
