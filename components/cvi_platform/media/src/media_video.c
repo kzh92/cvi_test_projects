@@ -481,6 +481,7 @@ int MEDIA_VIDEO_ViInit(PARAM_VI_CFG_S * pstViCfg)
         if(pSnsObj[i]->pfnMirrorFlip) {
             CVI_VI_RegChnFlipMirrorCallBack(i,ViDev,(void *)pSnsObj[i]->pfnMirrorFlip);
         }
+        printf("before CVI_VI_EnableChn %d,%d\n", ViDev, ViChn);
         MEDIA_CHECK_RET(CVI_VI_EnableChn(ViDev, ViChn), "CVI_VI_EnableChn fail");
         if(pstViCfg->pstSensorCfg[i].u8Rotation != ROTATION_0) {
             MEDIA_CHECK_RET(CVI_VI_SetChnRotation(ViDev,ViChn,pstViCfg->pstSensorCfg[i].u8Rotation),"CVI_VI_SetChnRotation fail");
@@ -639,7 +640,6 @@ int MEDIA_VIDEO_VpssInit(PARAM_VPSS_CFG_S * pstVpssCtx)
     VPSS_CHN_ATTR_S * pstVpssChn = NULL;
     CVI_U8 i = 0;
     CVI_U8 j = 0;
-
 
     if(pstVpssCtx == NULL) {
         MEDIABUG_PRINTF("********MEDIA_VIDEO_VpssInit pstVpssCtx NULL err \n");
@@ -972,6 +972,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     MMF_CHN_S stDestChn;
     ROTATION_E enRotation;
     PARAM_VENC_CHN_CFG_S *pstVecncChnCtx = NULL;
+    printf("MEDIA_VIDEO_VencChnInit 01\n");
 
     if(!pstVencCfg) {
         return CVI_FAILURE;
@@ -1180,6 +1181,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     stRefParam.u32Base = 0;
     stRefParam.u32Enhance = 0;
     MEDIA_CHECK_RET(CVI_VENC_SetRefParam(VencChn, &stRefParam), "CVI_VENC_SetRefParam");
+    printf("MEDIA_VIDEO_VencChnInit 10\n");
 
     MEDIA_CHECK_RET(CVI_VENC_GetChnParam(VencChn, &stChnParam), "CVI_VENC_GetChnParam");
     stChnParam.stFrameRate.s32SrcFrmRate = pstVecncChnCtx->stRcParam.u8SrcFrameRate;
@@ -1429,6 +1431,7 @@ int MEDIA_VIDEO_Init()
         printf("Media_Video_Init please deinit and try again \n");
         return 0;
     }
+    printf("MEDIA_VIDEO_Init() 1\n");
     MEDIA_CHECK_RET(_MEDIA_VIDEO_SysVbInit(),"MEDIA_VIDEO_SysVbInit failed");
     MEDIA_CHECK_RET(_MEDIA_VIDEO_ViInit(),"MEDIA_VIDEO_ViInit failed");
     MEDIA_CHECK_RET(_MEDIA_VIDEO_VpssInit(),"MEDIA_VIDEO_VpssInit failed");
@@ -1443,6 +1446,7 @@ int MEDIA_VIDEO_Init()
 #if (CONFIG_ENABLE_FASTBOOT == 1)
     efuse_fastboot();
 #endif
+    printf("MEDIA_VIDEO_Init() 8\n");
     g_mediaVideoRunStatus = 1;
     return CVI_SUCCESS;
 }

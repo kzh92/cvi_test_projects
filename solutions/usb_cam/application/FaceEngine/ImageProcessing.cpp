@@ -1233,12 +1233,10 @@ int CheckValidColorImage(unsigned char* pBuffer, int nImageWidth, int nImageHeig
     return 0;
 }
 
-
-
 void Shrink_RGB(unsigned char *src, int src_height, int src_width, unsigned char *dst, int dst_height, int dst_width)
-{    
-    int* E05BFF1C_2 = (int*)malloc((dst_width + dst_height) * 2 * sizeof(int));
-    int* E05C83D4_2 = (int*)malloc((dst_width + dst_height) * 2 * sizeof(int));//E05C83D4;
+{
+    int E05BFF1C_2[(1600 + 1200) * 2];
+    int E05C83D4_2[(1600 + 1200) * 2];
     int nRateXDesToSrc = ((src_width - 1) << 10) / (dst_width - 1);
     int nRateYDesToSrc = ((src_height - 1) << 10) / (dst_height - 1);
 
@@ -1337,10 +1335,6 @@ void Shrink_RGB(unsigned char *src, int src_height, int src_width, unsigned char
         } //while (R12 != R2);//BNE		loc_E03160F4
 
     }
-
-    //LOGE("In shrink 3");
-    free(E05BFF1C_2);
-    free(E05C83D4_2);
 }
 
 void Shrink_Grey(unsigned char *src, int src_height, int src_width, unsigned char *dst, int dst_height, int dst_width)

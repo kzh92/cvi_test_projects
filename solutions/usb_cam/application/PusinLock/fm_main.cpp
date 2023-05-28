@@ -1791,96 +1791,16 @@ int MsgProcSense(MSG* pMsg)
 #if (USE_VDBTASK)
         else
         {
-            int iFlag = 0;
-            unsigned char* g_abCapturedClrFace = (unsigned char*)my_malloc(CLR_CAM_WIDTH * CLR_CAM_HEIGHT * 2);
-            if (g_abCapturedClrFace == NULL)
+            int iSuccessCode = saveUvcScene();
+            if (iSuccessCode != MR_SUCCESS)
             {
-                my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, MR_FAILED4_NOMEMORY);
+                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, iSuccessCode);
                 g_pSenseTask->Send_Msg(reply_msg);
             }
             else
             {
-                my_mutex_lock(g_xVDBMutex);
-                if(g_xSS.iVDBStart == 0)
-                {
-                    if(g_iCapturedClrFlag == CLR_CAPTURE_OK)
-                    {
-                        dbug_printf("clr capture result\n");
-
-                        lockClrBuffer();
-                        int iWriteLen = ConvertYuvToSceneJpeg(g_clrYuvData_tmp, 1);
-                        unlockClrBuffer();
-                        if(iWriteLen > 0)
-                        {
-                            s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(MR_SUCCESS, iWriteLen);
-                            g_pSenseTask->Send_Msg(reply_msg);
-                            g_iCapturedClrFlag = CLR_CAPTURE_NONE;
-                            iFlag = 1;
-                        }
-                        else
-                        {
-                            g_iCapturedClrFlag = IR_CAPTURE_OK;
-                        }
-                    }
-
-                    if(iFlag == 0)
-                    {
-                        if(g_iCapturedClrFlag == IR_CAPTURE_OK)
-                        {
-                            g_clrYuvData_tmp1 = (unsigned char*)my_malloc(IR_CAM_WIDTH * ALIGN_16B(IR_CAM_HEIGHT) * 2);
-                            if (g_clrYuvData_tmp1 == NULL)
-                            {
-                                my_printf("@@@ g_clrYuvData_tmp1 malloc fail\n");
-                                free(pSenseMsg);
-                                g_xSS.iMState = MS_STANDBY;
-                                return -1;
-                            }
-                            dbug_printf("ir capture result\n");
-                            lockIRBuffer();
-                            memcpy(g_abCapturedClrFace, g_irOnData1, IR_BUFFER_SIZE);
-                            unlockIRBuffer();
-                            int width = IR_CAM_HEIGHT / 3 * 4;
-                            int height = IR_CAM_HEIGHT;
-                            //적외선카메라 1280 * 720을 960 * 720으로 crop한다.
-                                for(int y = 0; y < height; y ++)
-                                    memcpy(g_clrYuvData_tmp1 + y * width, g_abCapturedClrFace + y * IR_CAM_WIDTH + (IR_CAM_WIDTH - width) / 2, width);
-
-                                rotateImage_inner(g_clrYuvData_tmp1, width, height, g_xSS.iCameraRotate == 0 ? 270: 90);
-                                memset(g_clrYuvData_tmp1 + width * height, 0x80, width * height / 2);
-
-                            int iWriteLen = ConvertIRToSceneJpeg(g_clrYuvData_tmp1);
-                            if(iWriteLen > 0)
-                            {
-                                s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(MR_SUCCESS, iWriteLen);
-                                g_pSenseTask->Send_Msg(reply_msg);
-                            }
-                            else
-                            {
-                                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, MR_FAILED4_UNKNOWNREASON);
-                                g_pSenseTask->Send_Msg(reply_msg);
-                            }
-
-                            g_iCapturedClrFlag = CLR_CAPTURE_NONE;
-                            iFlag = 1;
-                            my_free(g_clrYuvData_tmp1);
-                        }
-                        else
-                        {
-                            g_xSS.iVDBCmd = MID_GETSAVEDIMAGE;
-                            g_xSS.iVDBStart = 2;
-                            if(g_pVDBTask == NULL)
-                                g_pVDBTask = &g_VDBTask;
-
-                            g_pVDBTask->Start();
-                            g_xSS.iGetImage = 1;
-                        }
-                    }
-                }
-                else
-                    g_xSS.iGetImage = 1;
-                my_mutex_unlock(g_xVDBMutex);
-                my_free(g_abCapturedClrFace);
+                s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(MR_SUCCESS, g_iJpgDataLen);
+                g_pSenseTask->Send_Msg(reply_msg);
             }
         }
 #else //USE_VDBTASK

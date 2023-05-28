@@ -90,6 +90,7 @@ void    unlockIRBuffer();
 void    lockIROffBuffer();
 void    unlockIROffBuffer();
 void    reset_ir_exp_gain();
+int     saveUvcScene();
 
 extern int g_iDvpCamInited;
 extern int g_iMipiCamInited;

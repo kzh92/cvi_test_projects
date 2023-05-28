@@ -136,8 +136,8 @@ enum E_Baud_Rate
 #define CLR_CAM_HEIGHT              960
 #define IR_CAM_WIDTH                1600
 #define IR_CAM_HEIGHT               900
-#define CAPTURE_WIDTH               (360)
-#define CAPTURE_HEIGHT              (640)
+#define CAPTURE_WIDTH               (180)
+#define CAPTURE_HEIGHT              (320)
 
 #define UVC_MAX_WIDTH               1280
 #define UVC_MAX_HEIGHT              720

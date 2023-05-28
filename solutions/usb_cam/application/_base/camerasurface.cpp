@@ -11,6 +11,8 @@
 #include "engineparam.h"
 #include "DBManager.h"
 #include "FaceRetrievalSystem.h"
+#include "ImageProcessing.h"
+#include "jpge.h"
 #include "mutex.h"
 #include <cvi_base.h>
 #include "cvi_vb.h"
@@ -19,6 +21,7 @@
 #include "cvi_isp.h"
 #include "cvi_buffer.h"
 #include "vfs.h"
+#include "cvi_vpss.h"
 #include <fcntl.h>
 
 #include <errno.h>
@@ -625,8 +628,8 @@ void* ProcessTCMipiCapture(void */*param*/)
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
-    dev = 0;
-    //for (dev = 0; dev < 2; dev ++)
+    // dev = 0;
+    for (dev = 0; dev < 2; dev ++)
     {
         attr[dev].bEnable = 1;
         attr[dev].u32Depth = 0;
@@ -652,7 +655,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
-        //dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 0: 1);
+        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 0: 1);
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)
@@ -1378,8 +1381,8 @@ void ConvertYUV420_NV21toRGB888(unsigned char* data, int width, int height, unsi
             y4 = y2;
         }
 
-        u = data[k];
-        v = data[k + 1];
+        u = data[k + 1];
+        v = data[k];
         v = v - 128;
         u = u - 128;
 
@@ -1449,4 +1452,174 @@ void genIROffData10bit_Full(void* bufOrg, void* bufDst, int width, int height)
             spOrg ++;
         }
     }
+}
+
+extern unsigned char*  g_abJpgData;
+extern int             g_iJpgDataLen;
+int vpss_width = 0, vpss_height = 0;
+
+int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned char* outBuf)
+{
+    CVI_S32 s32MilliSec = 1000;
+    CVI_U32 u32Cnt = u32FrameCnt;
+    // CVI_CHAR szFrameName[128], szPixFrm[10];
+    CVI_BOOL bFlag = CVI_TRUE;
+    // int fd = 0;
+    CVI_S32 i;
+    CVI_U32 u32DataLen;
+    VIDEO_FRAME_INFO_S stFrameInfo;
+    int buf_offset = 0;
+
+    /* get frame  */
+    while (u32Cnt--) {
+        if (CVI_VPSS_GetChnFrame(Grp, Chn, &stFrameInfo, s32MilliSec) != CVI_SUCCESS) {
+            printf("Get frame fail \n");
+            usleep(1000);
+            continue;
+        }
+        buf_offset = 0;
+        if (bFlag) {
+            /* make file name */
+            // GetFmtName(stFrameInfo.stVFrame.enPixelFormat, szPixFrm);
+            // snprintf(szFrameName, 128, SD_FATFS_MOUNTPOINT"/vpss_grp%d_chn%d_%dx%d_%s_%d.yuv", Grp, Chn,
+            //          stFrameInfo.stVFrame.u32Width, stFrameInfo.stVFrame.u32Height,
+            //          szPixFrm, u32FrameCnt);
+            // printf("Dump frame of vpss chn %d to file: \"%s\"\n", Chn, szFrameName);
+
+            // fd = aos_open(szFrameName, O_CREAT | O_RDWR | O_TRUNC);
+            // if (fd <= 0) {
+            //     printf("aos_open dst file failed\n");
+            //     CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo);
+            //     return;
+            // }
+            my_printf("dump frame %dx%d, fmt=%d\n", stFrameInfo.stVFrame.u32Width, stFrameInfo.stVFrame.u32Height, stFrameInfo.stVFrame.enPixelFormat);
+            vpss_width = stFrameInfo.stVFrame.u32Width;
+            vpss_height = stFrameInfo.stVFrame.u32Height;
+
+            bFlag = CVI_FALSE;
+        }
+
+        for (i = 0; i < 3; ++i) {
+            u32DataLen = stFrameInfo.stVFrame.u32Stride[i] * stFrameInfo.stVFrame.u32Height;
+            if (u32DataLen == 0)
+                continue;
+            if (i > 0 && ((stFrameInfo.stVFrame.enPixelFormat == PIXEL_FORMAT_YUV_PLANAR_420) ||
+                (stFrameInfo.stVFrame.enPixelFormat == PIXEL_FORMAT_NV12) ||
+                (stFrameInfo.stVFrame.enPixelFormat == PIXEL_FORMAT_NV21)))
+                u32DataLen >>= 1;
+
+            printf("plane(%d): paddr(%lx) vaddr(%p) stride(%d)\n",
+                   i, stFrameInfo.stVFrame.u64PhyAddr[i],
+                   stFrameInfo.stVFrame.pu8VirAddr[i],
+                   stFrameInfo.stVFrame.u32Stride[i]);
+            printf(" data_len(%d) plane_len(%d)\n",
+                      u32DataLen, stFrameInfo.stVFrame.u32Length[i]);
+            // aos_write(fd, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
+            memcpy(outBuf + buf_offset, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
+            buf_offset += u32DataLen;
+        }
+
+        if (CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo) != CVI_SUCCESS)
+            printf("CVI_VPSS_ReleaseChnFrame fail\n");
+    }
+    // if (fd) {
+    //     aos_sync(fd);
+    //     aos_close(fd);
+    // }
+    return buf_offset;
+}
+
+int saveUvcScene()
+{
+    // unsigned char* vpss_frame = NULL;
+    //vpss_frame = (unsigned char*)my_malloc(1280*720*3/2);
+    // if (!vpss_frame)
+    //     return MR_FAILED4_NOMEMORY;
+    // int dump_len = 0;
+    PrintFreeMem();
+    lockIRBuffer();
+    int buf_len = test_vpss_dump(0, 0, 1, g_irOnData1);
+    if (buf_len <= 0)
+    {
+        my_printf("dump vpss fail\n");
+        // my_free(vpss_frame);
+        unlockIRBuffer();
+        return MR_FAILED4_CAMERA;
+    }
+    my_printf("dump vpss ok\n");
+    if(!g_abJpgData)
+    {
+        g_abJpgData = (unsigned char*)my_malloc(128 * 1024);
+        g_iJpgDataLen = 0;
+    }
+    if (!g_abJpgData)
+    {
+        // my_free(vpss_frame);
+        unlockIRBuffer();
+        return MR_FAILED4_NOMEMORY;
+    }
+    //compress image
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    rotateYUV420SP_flip(g_irOnData1, vpss_width, vpss_height, g_irOnData2, g_xPS.x.bCamFlip == 0 ? 270: 90, 1);
+    // printf("----------------------------stage1----\n\n");
+    // dump_len = vpss_width * vpss_height * 3 / 2;
+    // for (int i = 0; i < dump_len; i ++)
+    //     printf("%02x ", g_irOnData2[i]);
+    // printf("\n\n--------------------------------\n\n");
+    // if (vpss_height * vpss_width * 3 > IR_BUFFER_SIZE) //sizeof g_irOnData1
+    // {
+    //     // my_free(vpss_frame);
+    //     unlockIRBuffer();
+    //     return MR_FAILED4_NOMEMORY;
+    // }
+    my_printf("w:h=%d, %d\n", vpss_width, vpss_height);
+    my_printf("%s:%d---1\n", __FILE__, __LINE__);
+    // my_usleep(20*1000);
+    ConvertYUV420_NV21toRGB888(g_irOnData2, vpss_height, vpss_width, g_irOnData1);
+    // memcpy(g_irOnData1, g_irOnData2, vpss_height * vpss_width);
+    // memcpy(g_irOnData1 + vpss_height * vpss_width, g_irOnData2, vpss_height * vpss_width);
+    // memcpy(g_irOnData1 + vpss_height * vpss_width * 2, g_irOnData2, vpss_height * vpss_width);
+    // printf("----------------------------stage2----\n\n");
+    // dump_len = vpss_width * vpss_height * 3;
+    // for (int i = 0; i < dump_len; i ++)
+    //     printf("%02x ", g_irOnData2[i]);
+    // printf("\n\n--------------------------------\n\n");
+
+    my_printf("%s:%d---2\n", __FILE__, __LINE__);
+    // my_usleep(100*1000);
+    Shrink_RGB(g_irOnData1, vpss_height, vpss_width, g_irOnData2, CAPTURE_WIDTH, CAPTURE_HEIGHT);
+
+    // printf("----------------------------stage3----\n\n");
+    // dump_len = CAPTURE_WIDTH * CAPTURE_HEIGHT * 3;
+    // for (int i = 0; i < dump_len; i ++)
+    //     printf("%02x ", g_irOnData2[i]);
+    // printf("\n\n--------------------------------\n\n");
+
+    // memcpy(g_irOnData2, g_irOnData1, CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
+    my_printf("%s:%d\n", __FILE__, __LINE__);
+    int iWriteLen = 0;
+    for(int i = 60; i >= 10; i -= 10)
+    {
+        jpge::params params;
+        params.m_quality = i;
+        params.m_subsampling = jpge::H2V2;
+
+        iWriteLen = 128 * 1024;
+        if(!jpge::compress_image_to_jpeg_file_in_memory(g_abJpgData, iWriteLen, CAPTURE_WIDTH, CAPTURE_HEIGHT, 3, g_irOnData2, params))
+        {
+            iWriteLen = 0;
+            break;
+        }
+
+        if(iWriteLen < SI_MAX_IMAGE_SIZE)
+        {
+            my_printf("[%s] size=%d\n", __func__, iWriteLen);
+            break;
+        }
+    }
+
+    g_iJpgDataLen = iWriteLen;
+    unlockIRBuffer();
+    // my_free(vpss_frame);
+    return MR_SUCCESS;
 }

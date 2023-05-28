@@ -38,10 +38,6 @@
 #endif // USE_FP16_ENGINE
 
 //#define USE_STATIC_IMAGE
-
-#define CAPTURE_WIDTH   (360)
-#define CAPTURE_HEIGHT  (640)
-
 unsigned char *g_abCapturedFace = NULL;
 
 int FaceRecogTask::m_iCounter = 0;
@@ -262,9 +258,7 @@ void FaceRecogTask::run()
                 EndIns();
                 StartCamSurface(1);
             }
-#if (!USE_3M_MODE)
             GetRightIrFrame(NULL, iFlag);
-#endif
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
