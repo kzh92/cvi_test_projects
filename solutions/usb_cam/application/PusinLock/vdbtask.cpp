@@ -164,12 +164,10 @@ VDBTask::~VDBTask()
 
 void VDBTask::Start()
 {
-    my_printf("%s:%d\n", __FILE__, __LINE__);
     VDBTask::CaptureCam = -1;
 
     m_iCounter ++;
     m_iRunning = 1;
-    my_printf("%s:%d\n", __FILE__, __LINE__);
     if(my_thread_create_ext(&m_thread, NULL, vdbTask_ThreadProc1, this, (char*)"vdbtask", 8192, MYTHREAD_PRIORITY_MEDIUM))
         my_printf("[VDBTask]create thread error.\n");
     // Thread::Start();
