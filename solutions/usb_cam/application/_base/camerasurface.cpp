@@ -804,7 +804,6 @@ void CalcNextExposure()
 
 void reset_ir_exp_gain()
 {
-#if (USE_VDBTASK)
     my_mutex_lock(g_captureLock);
     if(g_iMipiCamInited == 0)
     {
@@ -812,7 +811,6 @@ void reset_ir_exp_gain()
         CalcNextExposure();
     }
     my_mutex_unlock(g_captureLock);
-#endif // USE_VDBTASK
 }
 
 #if (USE_VDBTASK)
