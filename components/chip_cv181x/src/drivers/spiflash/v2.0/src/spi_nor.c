@@ -179,7 +179,7 @@ int spi_nor_read_unique_id(struct spi_nor *nor, uint8_t *id, uint32_t id_len)
 		}
 	}
 
-	printf("spinor: unique ID = %s\n", buff);
+	// printf("spinor: unique ID = %s\n", buff);
 	return 0;
 }
 

@@ -16,7 +16,7 @@ mymutex_ptr   g_xLastDetectMutex = my_mutex_init();
 float   g_rLastDetectTime = 0;
 int     g_iUniqueID = 0;
 
-extern "C" int my_spi_nor_get_id(void *buf);
+extern "C" int csi_flash_get_uniq_id(void* buf);
 
 void ResetDetectTimeout()
 {
@@ -71,9 +71,9 @@ int GetAesKey4ChipID(void* buf)
     char tok[128] = { 0 };
     unsigned int anUID[10] = { 0 };
     unsigned long long uuid = GetSSDID(anUID);
-    unsigned char spinor_id[SPI_NOR_MAX_ID_LEN];
-    my_spi_nor_get_id(spinor_id);
-    sprintf(tok, "%llx%llx", uuid, *((long long*)spinor_id));
+    unsigned char spinor_id[SPI_NOR_MAX_ID_LEN + 16] = {0};
+    csi_flash_get_uniq_id(spinor_id);
+    sprintf(tok, "%llx%llx%llx%llx", uuid, ((long long*)spinor_id)[0], ((long long*)spinor_id)[1], ((long long*)spinor_id)[2]);
 
     dbug_printf("[%s] uuid:%s\n", __func__, tok);
     SHA1 sha1;
