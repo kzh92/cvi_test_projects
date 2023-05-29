@@ -362,10 +362,10 @@ static int _meida_sensor_init(PARAM_VI_CFG_S * pstViCtx,CVI_U8 *devNum)
         }
         if(pstViCtx->pstSensorCfg[i].u8DisableRst != CVI_TRUE) {
             pSnsObj[i]->pfnGetRxAttr(i, &devAttr);
-            cif_enable_snsr_clk(i, 1);
-            usleep(100);
             cif_reset_snsr_gpio(i, 0);
             udelay(100);
+            cif_enable_snsr_clk(i, 1);
+            usleep(4000);
         }
         if (pSnsObj[i]->pfnSnsProbe) {
             s32Ret = pSnsObj[i]->pfnSnsProbe(i);
