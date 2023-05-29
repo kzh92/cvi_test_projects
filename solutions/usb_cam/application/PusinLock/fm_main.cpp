@@ -2780,6 +2780,9 @@ int ProcessSenseFace(int iCmd)
                         iID = pxMetaInfo->iID;
                     }
 
+                    if(g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON)
+                        iID = -2 - N_MAX_PERSON_NUM;
+
                     s_msg* msg = NULL;
                     msg = SenseLockTask::Get_Reply_Verify(MR_SUCCESS, iID + N_MAX_PERSON_NUM + 1, ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK);
 

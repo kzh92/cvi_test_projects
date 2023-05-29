@@ -818,6 +818,16 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     }
 #endif // USE_DEMOMODE2
 
+    if (g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON &&
+            (m_isFaceDetected[FMI_HAND] == FDS_HAND_DETECTED))
+    {
+        m_iResult = HAND_RESULT_SUCCESS;
+        m_iRecogIndex = 0;
+        //검출결과와 인증결과가 간격이 없어 조종기판쪽에서 받지 못하는 문제가 있어 지연을 주었음.
+        usleep(20*1000);
+        return 1;
+    }
+
     memset(arEngineResult, 0, sizeof(arEngineResult));
     int iFindIndex = FaceEngine::VerifyFace(arEngineResult);
 
