@@ -657,7 +657,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121)
-        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 0: 1);
+        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 1: 0);
 #endif
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
@@ -1565,7 +1565,7 @@ int saveUvcScene()
         return MR_FAILED4_NOMEMORY;
     }
     //compress image
-    rotateYUV420SP_flip(g_irOnData1, vpss_width, vpss_height, imgBuf, g_xPS.x.bCamFlip == 0 ? 90: 270, 1);
+    rotateYUV420SP_flip(g_irOnData1, vpss_width, vpss_height, imgBuf, g_xPS.x.bCamFlip == 0 ? 270: 90, 1);
     ConvertYUV420_NV21toRGB888(imgBuf, vpss_height, vpss_width, g_irOnData1);
     Shrink_RGB(g_irOnData1, vpss_width/*height*/, vpss_height/*width*/, 
         imgBuf, CAPTURE_HEIGHT/*height*/, CAPTURE_WIDTH/*width*/);
