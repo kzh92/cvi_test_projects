@@ -449,7 +449,7 @@ enum E_Baud_Rate
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
 #undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J//BD_TY_CV181xC_DEMO_V1v0//
+#define DEFAULT_BOARD_TYPE                  BD_TY_CV181xC_DEMO_V1v0//BD_TY_FMDASS_1V0J//
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
 // #undef CAM_ROTATION_MODE
