@@ -525,7 +525,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
         params.m_subsampling = jpge::Y_ONLY;
 
         iWriteLen = iMaxLen;
-        if(!jpge::compress_image_to_jpeg_file_in_memory(pbJpgData, iWriteLen, CAPTURE_WIDTH, CAPTURE_HEIGHT, 1, g_abCapturedFace, params))
+        if(!jpge::compress_image_to_jpeg_file_in_memory(pbJpgData, iWriteLen, CAPTURE_WIDTH, CAPTURE_HEIGHT, 1, g_abCapturedFace, params, NULL))
         {
             iWriteLen = 0;
             break;

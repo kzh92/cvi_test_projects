@@ -242,13 +242,9 @@ void uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
-#if 1
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
-#else
-	stVpssChnAttr.u32Width = 1600;
-	stVpssChnAttr.u32Height = 1200;
-#endif
+	printf("uvc(%dx%d)\n", uvc_frame_info.width, uvc_frame_info.height);
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
     if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)

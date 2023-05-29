@@ -18,6 +18,7 @@
 
 #ifndef JPEG_ENCODER_H
 #define JPEG_ENCODER_H
+#include "appdef.h"
 
 namespace jpge {
     typedef unsigned char  uint8;
@@ -78,7 +79,7 @@ namespace jpge {
     // Writes JPEG image to memory buffer.
     // On entry, buf_size is the size of the output buffer pointed at by pBuf, which should be at least ~1024 bytes.
     // If return value is true, buf_size will be set to the size of the compressed data.
-    bool compress_image_to_jpeg_file_in_memory(void *pBuf, int &buf_size, int width, int height, int num_channels, const uint8 *pImage_data, const params &comp_params = params());
+    bool compress_image_to_jpeg_file_in_memory(void *pBuf, int &buf_size, int width, int height, int num_channels, const uint8 *pImage_data, const params &comp_params = params(), void* tmp_buf = 0);
 
     // Output stream abstract class - used by the jpeg_encoder class to write to the output stream.
     // put_buf() is generally called with len==JPGE_OUT_BUF_SIZE bytes, but for headers it'll be called with smaller amounts.
@@ -123,6 +124,7 @@ namespace jpge {
         dctq_t *get_dctq(int x, int y);
 
         void subsample(image &luma, int v_samp);
+        image();
 
     private:
         float *m_pixels;

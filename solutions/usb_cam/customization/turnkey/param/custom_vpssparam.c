@@ -13,8 +13,8 @@ PARAM_CLASSDEFINE(PARAM_VPSS_CHN_CFG_S,CHNCFG,GRP0,CHN)[] = {
     {
         .u8Rotation = ROTATION_0,
         .stVpssChnAttr = {
-            .u32Width = 1920,
-            .u32Height = 1080,
+            .u32Width = 640,
+            .u32Height = 480,
             .enVideoFormat = VIDEO_FORMAT_LINEAR,
             .enPixelFormat = PIXEL_FORMAT_NV21,
             .stFrameRate.s32SrcFrameRate = 30,
@@ -26,7 +26,13 @@ PARAM_CLASSDEFINE(PARAM_VPSS_CHN_CFG_S,CHNCFG,GRP0,CHN)[] = {
             .stAspectRatio.bEnableBgColor = CVI_TRUE,
             //.stAspectRatio.u32BgColor    = COLOR_RGB_BLACK,
             .stNormalize.bEnable         = CVI_FALSE,
-        }
+        },
+        /*
+        .stVpssChnCropInfo = {
+            .bEnable = CVI_TRUE,
+            .enCropCoordinate = 0,
+            .stCropRect = {0, 150, 1600, 900},
+        }*/
     },
 };
 

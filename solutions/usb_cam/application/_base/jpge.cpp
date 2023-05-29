@@ -33,14 +33,26 @@ jpge::jpeg_encoder encoder;
 
 namespace jpge
 {
+    unsigned char *j_global_buffer = NULL;
+    int j_global_buffer_used = 0;
 
     static inline void *jpge_malloc(size_t nSize)
     {
-        return my_malloc(nSize);
+        my_printf("jpge: going to malloc %ld.\n", nSize);
+        if (j_global_buffer)
+        {
+            my_printf("[%s] jg=%p, %d\n", __func__, j_global_buffer, j_global_buffer_used);
+            void* ret_ptr = j_global_buffer + j_global_buffer_used;
+            j_global_buffer_used += nSize;
+            return ret_ptr;
+        }
+        else
+            return my_malloc(nSize);
     }
     static inline void jpge_free(void *p)
     {
-        my_free(p);
+        if (!j_global_buffer)
+            my_free(p);
     }
 
     // Various JPEG enums and tables.
@@ -712,6 +724,11 @@ namespace jpge
             + get_px(x, y + 1)*c
             + get_px(x + 1, y + 1)*d) / (a + b + c + d);
     }
+    image::image()
+    {
+        m_pixels = NULL;
+        m_dctqs = NULL;
+    }
 
     inline static dctq_t round_to_zero(const dct_t j, const int32 quant)
     {
@@ -1051,7 +1068,7 @@ namespace jpge
         return true;
     }
 
-    bool compress_image_to_jpeg_file_in_memory(void *pDstBuf, int &buf_size, int width, int height, int num_channels, const uint8 *pImage_data, const params &comp_params)
+    bool compress_image_to_jpeg_file_in_memory(void *pDstBuf, int &buf_size, int width, int height, int num_channels, const uint8 *pImage_data, const params &comp_params, void* tmp_buf)
     {
         if ((!pDstBuf) || (!buf_size)) {
             return false;
@@ -1059,6 +1076,8 @@ namespace jpge
 
         memory_stream dst_stream;
         dst_stream.init(pDstBuf, buf_size);
+        j_global_buffer = (unsigned char*)tmp_buf;
+        j_global_buffer_used = 0;
 
         compress_image_to_stream(&dst_stream, width, height, num_channels, pImage_data, comp_params);
 
