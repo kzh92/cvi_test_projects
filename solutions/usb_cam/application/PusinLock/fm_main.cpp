@@ -2444,7 +2444,10 @@ int ProcessSenseFace(int iCmd)
                     }
 
                     if(g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON)
+                    {
+                        my_usleep(20*1000); //delay 20ms for host
                         iID = -2;
+                    }
 #if (USE_VDBTASK)
                     if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
                     {
