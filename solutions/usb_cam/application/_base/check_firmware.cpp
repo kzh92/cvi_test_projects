@@ -63,6 +63,9 @@ void doCheckFirmware()
         my_free(file_data);
         if (sum != g_part_files[idx].m_checksum)
         {
+            iErrorFlag = idx + 1;
+            if (iErrorFlag > 15)
+                iErrorFlag = 15;
             my_printf("error %s: %08x <> %08x\n", g_part_files[idx].m_filename, sum, g_part_files[idx].m_checksum);
         }
         else

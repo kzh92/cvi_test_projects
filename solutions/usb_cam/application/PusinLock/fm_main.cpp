@@ -1955,6 +1955,7 @@ int MsgProcSense(MSG* pMsg)
         iRet = 0;
         ResetFMStates();
         g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN, MR_SUCCESS));
+        my_usleep(50 * 1000);
     }
     else if(pSenseMsg->mid == MID_POWERDOWN_ED)
     {
