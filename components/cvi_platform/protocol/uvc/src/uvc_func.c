@@ -259,7 +259,7 @@ void uvc_media_update(){
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index)
 		MEDIA_VIDEO_VencInit(pstVencCfg);
-
+#if 0
     printf("-------------proc_vi--------------------\n");
     cli_handle_input((char*)"proc_vi");
     printf("-------------proc_vpss--------------------\n");
@@ -269,6 +269,7 @@ void uvc_media_update(){
     printf("-------------proc_sys--------------------\n");
     cli_handle_input((char*)"proc_sys");
     printf("---------------------------------\n");
+#endif
 }
 
 void uvc_streaming_on(int is_on) {

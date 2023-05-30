@@ -38,6 +38,7 @@ mythread_ptr       spi_thread = NULL;
 #define     N_MAX_JPEG_SEND_LEN     (UVC_WIDTH * UVC_HEIGHT * 3 / 2)
 
 extern "C" int MEDIA_AV_Init();
+extern "C" int MEDIA_UVC_Init();
 
 #if (USE_VDBTASK)
 int VDBTask::CaptureCam = -1;
@@ -199,8 +200,8 @@ void VDBTask::run()
 {
     // start uvc
     my_printf("before av init\n");
-    //MEDIA_UVC_Init();
-    MEDIA_AV_Init();
+    MEDIA_UVC_Init();
+    //MEDIA_AV_Init();
     my_printf("after av init\n");
 #if 0
     float rOld = Now();
