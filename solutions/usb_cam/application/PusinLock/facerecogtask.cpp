@@ -319,7 +319,7 @@ void FaceRecogTask::run()
 
 #if (ENGINE_USE_TWO_CAM == 1)
             //g_irOnData2 is required here.
-            if (nGotRightFrame == 0)
+            if (nGotRightFrame == 0 && fr_GetNeedSecondImageCheck())
             {
                 GetRightIrFrame(pInputImageBuffer1, iFlag);
                 nGotRightFrame = 1;
@@ -405,6 +405,7 @@ void FaceRecogTask::run()
             if(iNeedExp && nProcessModeIndex == nProcessModeIndexEnd)
             {
                 CalcNextExposure();
+                fr_SetNeedDelayForCameraControl(1);
             }
 
             if(iSecondImageReCheck)
