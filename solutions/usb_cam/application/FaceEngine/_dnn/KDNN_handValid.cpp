@@ -61,6 +61,11 @@ int     KdnnCreateCheckValid_Hand(unsigned char* pMem)
     if (g_nCheckValid_Hand.m_loaded)
         return KDNN_SUCCESS;
 
+    if(!getDicChecSumChecked(MachineFlagIndex_DNN_CheckValid_Hand))
+    {
+        return KDNN_FAILED;
+    }
+
     int nDicSize = DIC_LEN_HAND_CHECK;
     int ret = 0;
     ret = cvimodel_init(g_dic_checkValid_hand, nDicSize, &g_nCheckValid_Hand);
