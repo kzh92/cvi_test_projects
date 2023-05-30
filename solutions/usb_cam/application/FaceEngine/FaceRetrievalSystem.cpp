@@ -1949,7 +1949,7 @@ int fr_PreExtractFace(unsigned char *pbClrImage, unsigned char *pbLedOnImage)
     // g_exposure2_bkup = g_exposure2;
     // g_nGain2_bkup = g_nGain2;
     // g_nFineGain2_bkup = g_nFineGain2;
-    g_nMainProcessCameraIndex = -1;
+    //g_nMainProcessCameraIndex = -1;
 
     nRet = fr_PreExtractFace_dnn(pbClrImage, pbLedOnImage);
 
@@ -3049,6 +3049,8 @@ void    fr_BackupIRCamera_ExpGain()
     *fr_GetFaceDetected() = 0;
     g_nNeedToCalcNextExposure = 0;
     g_nNeedDelayForCameraControl = 0;
+    g_nMainProcessCameraIndex = -1;
+
 #ifdef TimeProfiling
     initTimeProfiling();
 #endif

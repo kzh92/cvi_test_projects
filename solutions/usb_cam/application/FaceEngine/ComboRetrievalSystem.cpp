@@ -73,12 +73,25 @@ int     fr_PreExtractCombo(unsigned char *pbLedOnImage, int nProcessMode)
     {
         g_nNeedSecondImageCheck = 1;
         nRet = fr_PreExtractFace(0, pbLedOnImage);
+
+        if(!(*fr_GetFaceDetected()))
+        {
+            if(*fr_GetExposure_bkup() == INIT_EXP && *fr_GetGain_bkup() == INIT_GAIN && *fr_GetFineGain_bkup() == INIT_FINEGAIN &&
+                *fr_GetExposure2_bkup() == INIT_EXP_1 && *fr_GetGain2_bkup() == INIT_GAIN_1 && *fr_GetFineGain2_bkup() == INIT_FINEGAIN_1)
+            {
+                g_nNeedSecondImageCheck = 0;
+            }
+        }
     }
     else if(g_nComboProcessMode == 1)
     {
         reset_FaceProcessVars();
+#if (HAND_VERIFY_PRIORITY == HAND_VERIFY_PRIORITY_NORMAL)
         g_nNeedSecondImageCheck = 0;
         nRet = fr_PreExtractHand(pbLedOnImage);
+#else
+        g_nNeedSecondImageCheck = 1;
+#endif
 
     }
     else
@@ -91,10 +104,7 @@ int     fr_PreExtractCombo(unsigned char *pbLedOnImage, int nProcessMode)
         else
         {
             nRet = fr_PreExtractFace(0, pbLedOnImage);
-            if(*fr_GetFaceDetected())
-            {
-                g_nComboProcessMode = 0;
-            }
+            g_nComboProcessMode = 0;
         }
     }
 #else
@@ -109,10 +119,19 @@ int     fr_PreExtractCombo(unsigned char *pbLedOnImage, int nProcessMode)
 int fr_PreExtractCombo2(unsigned char *pbBayerFromCamera2)
 {
     int nRet = ES_FAILED;
+
     if(g_nComboProcessMode == 0)
     {
         nRet = fr_PreExtractFace2(pbBayerFromCamera2);
     }
+#if (N_MAX_HAND_NUM)
+#if (HAND_VERIFY_PRIORITY == HAND_VERIFY_PRIORITY_HIGH)
+    else
+    {
+        nRet = fr_PreExtractHand2(pbBayerFromCamera2);
+    }
+#endif
+#endif
     return nRet;
 }
 

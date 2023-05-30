@@ -82,86 +82,108 @@ void setInitExp()
     nCurEnv = fr_GetCurEnvForCameraControl();
     int nSelectedEnvIndex = -1;
     int nNewIndex = 0;
-#if (ENGINE_USE_TWO_CAM == 1)//ENGINE_USE_TWO_CAM=0:2D, 1:common, 2:3M
-    if (nCurEnv == 0)//dark
-    {
-        nStartEnvIndex = 0;
-        nEndEnvIndex = 3;
-    }
-    else if (nCurEnv == 1)//indoor
-    {
-        nStartEnvIndex = 4;
-        nEndEnvIndex = 7;
-    }
-    else//outdoor
-    {
-        nStartEnvIndex = 8;
-        nEndEnvIndex = 13;
-    }
-    for (nEnvIndex = nStartEnvIndex; nEnvIndex <= nEndEnvIndex; nEnvIndex += 2)
-    {
-        if (*fr_GetExposure_bkup() == iInitExps[nEnvIndex] && *fr_GetGain_bkup() == iInitGains[nEnvIndex] &&
-            *fr_GetExposure2_bkup() == iInitExps[nEnvIndex + 1] && *fr_GetGain2_bkup() == iInitGains[nEnvIndex + 1])
-        {
-            nSelectedEnvIndex = nEnvIndex;
-        }
-    }
-    if (nSelectedEnvIndex == -1)
-    {
-        nNewIndex = nStartEnvIndex;
-    }
-    else if (nSelectedEnvIndex < nEndEnvIndex - 1)
-    {
-        nNewIndex = nSelectedEnvIndex + 2;
-    }
-    else
-    {
-        nNewIndex = nStartEnvIndex;
-    }
-#else
-    if (nCurEnv == 0)//dark
-    {
-        nStartEnvIndex = 0;
-        nEndEnvIndex = 3;
-    }
-    else if (nCurEnv == 1)//indoor
-    {
-        nStartEnvIndex = 4;
-        nEndEnvIndex = 7;
-    }
-    else//outdoor
-    {
-        nStartEnvIndex = 8;
-        nEndEnvIndex = 11;
-    }
 
-    for (nEnvIndex = nStartEnvIndex; nEnvIndex <= nEndEnvIndex; nEnvIndex ++)
-    {
-        if (*fr_GetExposure() == iInitExps[nEnvIndex] && *fr_GetGain() == iInitGains[nEnvIndex])
-        {
-            nSelectedEnvIndex = nEnvIndex;
-        }
-    }
-    if (nSelectedEnvIndex == -1)
-    {
-        nNewIndex = nStartEnvIndex;
-    }
-    else if (nSelectedEnvIndex < nEndEnvIndex)
-    {
-        nNewIndex = nSelectedEnvIndex + 1;
-    }
-    else
-    {
-        nNewIndex = nStartEnvIndex;
-    }
+    int nFaceCameraCount = 2;
+
+#if (ENGINE_USE_TWO_CAM != 1)
+    nFaceCameraCount = 1;
+#else//ENGINE_USE_TWO_CAM == 1
+#if (N_MAX_HAND_NUM) && (HAND_VERIFY_PRIORITY == HAND_VERIFY_PRIORITY_HIGH)
+    nFaceCameraCount = 1;
+#endif
 #endif
 
-    *fr_GetExposure() = iInitExps[nNewIndex];
-    *fr_GetGain() = iInitGains[nNewIndex];
-    *fr_GetFineGain() = iInitFineGains[nNewIndex];
-    *fr_GetExposure2() = iInitExps[nNewIndex + 1];
-    *fr_GetGain2() = iInitGains[nNewIndex + 1];
-    *fr_GetFineGain2() = iInitFineGains[nNewIndex + 1];
+    if(nFaceCameraCount == 2)
+    {
+        if (nCurEnv == 0)//dark
+        {
+            nStartEnvIndex = 0;
+            nEndEnvIndex = 3;
+        }
+        else if (nCurEnv == 1)//indoor
+        {
+            nStartEnvIndex = 4;
+            nEndEnvIndex = 7;
+        }
+        else//outdoor
+        {
+            nStartEnvIndex = 8;
+            nEndEnvIndex = 13;
+        }
+        for (nEnvIndex = nStartEnvIndex; nEnvIndex <= nEndEnvIndex; nEnvIndex += 2)
+        {
+            if (*fr_GetExposure_bkup() == iInitExps[nEnvIndex] && *fr_GetGain_bkup() == iInitGains[nEnvIndex] &&
+                *fr_GetExposure2_bkup() == iInitExps[nEnvIndex + 1] && *fr_GetGain2_bkup() == iInitGains[nEnvIndex + 1])
+            {
+                nSelectedEnvIndex = nEnvIndex;
+            }
+        }
+        if (nSelectedEnvIndex == -1)
+        {
+            nNewIndex = nStartEnvIndex;
+        }
+        else if (nSelectedEnvIndex < nEndEnvIndex - 1)
+        {
+            nNewIndex = nSelectedEnvIndex + 2;
+        }
+        else
+        {
+            nNewIndex = nStartEnvIndex;
+        }
+        *fr_GetExposure() = iInitExps[nNewIndex];
+        *fr_GetGain() = iInitGains[nNewIndex];
+        *fr_GetFineGain() = iInitFineGains[nNewIndex];
+        *fr_GetExposure2() = iInitExps[nNewIndex + 1];
+        *fr_GetGain2() = iInitGains[nNewIndex + 1];
+        *fr_GetFineGain2() = iInitFineGains[nNewIndex + 1];
+    }
+    else//one camera control
+    {
+        if (nCurEnv == 0)//dark
+        {
+            nStartEnvIndex = 0;
+            nEndEnvIndex = 3;
+        }
+        else if (nCurEnv == 1)//indoor
+        {
+            nStartEnvIndex = 4;
+            nEndEnvIndex = 7;
+        }
+        else//outdoor
+        {
+            nStartEnvIndex = 8;
+            nEndEnvIndex = 11;
+        }
+
+        for (nEnvIndex = nStartEnvIndex; nEnvIndex <= nEndEnvIndex; nEnvIndex ++)
+        {
+            if (*fr_GetExposure_bkup() == iInitExps[nEnvIndex] && *fr_GetGain_bkup() == iInitGains[nEnvIndex])
+            {
+                nSelectedEnvIndex = nEnvIndex;
+            }
+        }
+        if (nSelectedEnvIndex == -1)
+        {
+            nNewIndex = nStartEnvIndex;
+        }
+        else if (nSelectedEnvIndex < nEndEnvIndex)
+        {
+            nNewIndex = nSelectedEnvIndex + 1;
+        }
+        else
+        {
+            nNewIndex = nStartEnvIndex;
+        }
+        *fr_GetExposure() = iInitExps[nNewIndex];
+        *fr_GetGain() = iInitGains[nNewIndex];
+        *fr_GetFineGain() = iInitFineGains[nNewIndex];
+
+#if (N_MAX_HAND_NUM) && (HAND_VERIFY_PRIORITY == HAND_VERIFY_PRIORITY_HIGH)
+        *fr_GetExposure2() = INIT_HAND_EXP;
+        *fr_GetGain2() = INIT_HAND_GAIN;
+        *fr_GetFineGain2() = INIT_HAND_FINEGAIN;
+#endif
+    }
 }
 
 #define SC2355_COARSE_GAIN_COUNT    5
@@ -570,11 +592,22 @@ void CalcNextExposure_inner_hand()
 
     float rGainRate = 1.0;
 
+    int nMainControlCameraIndex = *fr_MainControlCameraIndex();
+
     int nOldGain, nOldExposure, nOldFineGain;
 
-    nOldGain = *fr_GetGain_bkup();
-    nOldExposure = *fr_GetExposure_bkup();
-    nOldFineGain = *fr_GetFineGain_bkup();
+    if(nMainControlCameraIndex == 0)
+    {
+        nOldGain = *fr_GetGain_bkup();
+        nOldExposure = *fr_GetExposure_bkup();
+        nOldFineGain = *fr_GetFineGain_bkup();
+    }
+    else
+    {
+        nOldGain = *fr_GetGain2_bkup();
+        nOldExposure = *fr_GetExposure2_bkup();
+        nOldFineGain = *fr_GetFineGain2_bkup();
+    }
 
     nNewGain = nOldGain;
     nNewExposure = nOldExposure;

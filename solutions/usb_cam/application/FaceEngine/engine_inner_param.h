@@ -125,8 +125,18 @@
 //added by KSB 20180710
 #define MIN_HAND_LUM        (120)
 #define MAX_HAND_LUM        (140)
-#define INIT_HAND_EXP       (300)
-#define INIT_HAND_EXP_PLANB (150)
+#define INIT_HAND_EXP       (0x50)
+#define INIT_HAND_GAIN      (0x00)
+#define INIT_HAND_FINEGAIN  (0x80)
+
+#if (N_MAX_HAND_NUM) && (HAND_VERIFY_PRIORITY == HAND_VERIFY_PRIORITY_HIGH)
+#undef INIT_EXP_1
+#define INIT_EXP_1          INIT_HAND_EXP
+#undef INIT_GAIN_1
+#define INIT_GAIN_1         INIT_HAND_GAIN
+#undef INIT_FINEGAIN_1
+#define INIT_FINEGAIN_1     INIT_HAND_FINEGAIN
+#endif
 
 #define DETECT_FAIL_COUNT   (1)
 

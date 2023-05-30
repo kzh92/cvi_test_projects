@@ -785,7 +785,6 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
         }
         IF_FLAG_STOP1(ES_FAILED);
 
-        initEngine_dnn_2nd();
     }
     else
     {
@@ -793,6 +792,8 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
         nHandDetectSuccess = -1;
 //            my_printf("Face is not detected\r\n");
     }
+
+    initEngine_dnn_2nd();
 
     if(g_nHandDetected)
     {
@@ -815,6 +816,7 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
         calcAverageValues_Hand(g_pbYIrImage_Hand, 0, rectAvg);
 
         APP_LOG("[%d] pes 1-h %d %f\n", (int)Now(), (int)g_rAverageLedOnImage_Hand, g_rSaturatedRate_Hand);
+        *fr_MainControlCameraIndex() = 0;
 
 #ifdef TimeProfiling
             my_printf("[%d] calcAverageValues_HandTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
@@ -872,7 +874,7 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
 
     memset(&g_xEngineResult_Hand, 0, sizeof(SEngineResult));
     memset(&g_xHandProcessData, 0, sizeof(Hand_Process_Data));
-
+    g_nHandDetected = 0;
 
     if(*fr_GetBayerYConvertedCameraIndex() != 1)
     {
@@ -932,6 +934,7 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
         int nFaceWidth = (float)(rHandRects[2] - rHandRects[0]);
         int nFaceHeight = (float)(rHandRects[3] - rHandRects[1]);
         int nFaceMaxLine = nFaceWidth > nFaceHeight ? nFaceWidth : nFaceHeight;
+        g_nHandWidth = nFaceMaxLine;
 
         if(nBadCode)
         {
@@ -964,6 +967,7 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
         nHandDetectSuccess = -1;
 //            my_printf("Face is not detected\r\n");
     }
+    initEngine_dnn_2nd();
 
     if(nTempHandDetected)
     {
@@ -987,6 +991,7 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
         calcAverageValues_Hand(g_pbYIrImage_Hand, 0, rectAvg);
 
         APP_LOG("[%d] pes 1 %d %f\n", (int)Now(), (int)g_rAverageLedOnImage_Hand, g_rSaturatedRate_Hand);
+        *fr_MainControlCameraIndex() = 1;
 
 #ifdef TimeProfiling
             my_printf("[%d] calcAverageValues_rotateTime111 = %f\r\n", (int)Now(), Now() - g_rStartTime);
@@ -1005,7 +1010,7 @@ int fr_PreExtractHand2(unsigned char *pbLedOnImage)
             g_xHandProcessData.nHandDetected = 1;
         }
     }
-
+    CalcNextExposure_inner_hand();
     return ES_SUCCESS;
 }
 
