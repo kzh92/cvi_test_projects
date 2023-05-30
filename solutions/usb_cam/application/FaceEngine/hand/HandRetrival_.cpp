@@ -181,10 +181,12 @@ void*   EngineLoadAndCheckFunc_Hand(void*)
     return NULL;
 }
 
-void   LoadAndCheckFunc_Hand_2nd()
+void*   LoadAndCheckFunc_Hand_2nd(void*)
 {
     if(!g_nEngine2ndLoaded)
     {
+        g_nEngine2ndLoaded = 1;
+
         allocGlobalCVDicBuffer(1);
 
         g_thread_flag_model_h = 1;
@@ -207,11 +209,25 @@ void   LoadAndCheckFunc_Hand_2nd()
         KdnnCreateEngine_feat(pHand_Feat_Mem, 1);
         g_thread_flag_feat_h = 2;
         releaseGlobalCVDicBuffer();
-        g_nEngine2ndLoaded = 1;
+        g_nEngine2ndLoaded = 2;
     }
-
+    return NULL;
 }
 
+void initEngine_dnn_2nd()
+{
+    if(!g_nEngine2ndLoaded)
+    {
+#ifdef __RTK_OS__
+        my_thread_create_ext(&g_EngineInitThrad_Hand, 0, LoadAndCheckFunc_Hand_2nd, NULL, (char*)"EngineInitThreadHand", 16 * 1024, MYTHREAD_PRIORITY_MEDIUM);
+#else
+        if(g_EngineInitThrad == 0)
+        {
+            pthread_create (&g_EngineInitThrad_Hand, 0, LoadAndCheckFunc_Hand_2nd, NULL);
+        }
+#endif
+    }
+}
 int createHandEngine_()
 {
     LOG_PRINT("createHandEngine_\n");
@@ -768,6 +784,8 @@ int fr_PreExtractHand(unsigned char *pbLedOnImage)
             }
         }
         IF_FLAG_STOP1(ES_FAILED);
+
+        initEngine_dnn_2nd();
     }
     else
     {
@@ -1006,7 +1024,7 @@ int		fr_ExtractHand()
        return ES_FAILED;
     }
 
-    LoadAndCheckFunc_Hand_2nd();
+    //LoadAndCheckFunc_Hand_2nd(NULL);
 
 
     waitDicChecksum(&g_thread_flag_model_h);
@@ -1157,7 +1175,7 @@ int     fr_VerifyHand_()
 
     if (g_xEngineResult_Hand.fValid == 0)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)
@@ -1304,7 +1322,7 @@ int     fr_RegisterHand()
 
     if (g_xEngineResult_Hand.fValid == 0)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)

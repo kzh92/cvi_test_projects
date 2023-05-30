@@ -1033,7 +1033,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
 
     if (g_xEngineResult.fValid == 0 /*|| fr_GetNeedSmallFaceCheck() == 0*/)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)
@@ -1052,7 +1052,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
 
     if(g_nPassedDirectionCount == g_nEnrollDirectionMax)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)
@@ -1067,7 +1067,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
 
     if(!isCorrectPose(iFaceDir) && g_xEngineParam.iDemoMode != N_DEMO_FACTORY_MODE)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)
@@ -1124,7 +1124,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
         }
         else
         {
-            if (g_nNeedToCalcNextExposure)
+            if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
             {
                rPassTime = Now() - rStart;
                if (rPassTime < rPassTimeThreshold)
@@ -1148,7 +1148,7 @@ int	fr_RegisterFace_dnn(int iFaceDir)
     if(!(*getDNNFeatureExtracted()))
     {
 //        my_printf("extract DNN Feature falied\r\n");
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)

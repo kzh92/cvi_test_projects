@@ -133,6 +133,8 @@ static int		g_nContinueRealCount = 0;
 static int		g_nLivenessCheckStrong_On_NoUser = 1;
 
 int g_nNeedToCalcNextExposure = 0;
+int g_nNeedDelayForCameraControl = 0;
+
 int g_nStopEngine = 0;
 float g_rSecurityValue = 0;
 int g_nSecurityMode = SECURITY_LEVEL_COMMON;
@@ -262,6 +264,8 @@ int g_nHDicCheckSumMatched = 0;
 
 /////////////////////////////////////////////////////       Thread     ////////////////////////////////////////////////////////
 int g_nThreadCount = ENGINE_THREAD_COUNT;
+
+
 
 
 #ifdef TimeProfiling
@@ -2104,7 +2108,7 @@ int	fr_VerifyFace()
 
     if (g_xEngineResult.fValid == 0 || g_xEngineResult.nOcclusion == 1 || g_nNeedSmallFaceCheck == 0)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)
@@ -2174,7 +2178,7 @@ int	fr_VerifyFace()
 
     if (g_nContinueRealCount < nRealFrameThreshold)
     {
-        if (g_nNeedToCalcNextExposure)
+        if (g_nNeedToCalcNextExposure && g_nNeedDelayForCameraControl)
         {
            rPassTime = Now() - rStart;
            if (rPassTime < rPassTimeThreshold)
@@ -3040,7 +3044,7 @@ void    fr_BackupIRCamera_ExpGain()
 
     *fr_GetFaceDetected() = 0;
     g_nNeedToCalcNextExposure = 0;
-
+    g_nNeedDelayForCameraControl = 0;
 
 #ifdef TimeProfiling
     initTimeProfiling();
@@ -3250,6 +3254,11 @@ int* fr_GetBayerYConvertedCameraIndex()
 int* fr_GetEntireImageAnalysed()
 {
     return &g_nEntireImageAnalysed;
+}
+int     fr_SetNeedDelayForCameraControl(int nNeedDelayForCameraControl)
+{
+    g_nNeedDelayForCameraControl = nNeedDelayForCameraControl;
+    return 0;
 }
 
 int fr_CheckFaceInSecondImage(unsigned char *pbBayerNeedReCheck)
