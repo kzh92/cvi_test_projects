@@ -24,7 +24,7 @@
 
 #define UVC_VENC_CHN   (0)
 #define UVC_VPSS_CHN   (0)
-#define UVC_VPSS_GRP   (0)
+#define UVC_VPSS_GRP   (1)
 
 #define MJPEG_FORMAT_INDEX  (1)
 #define H264_FORMAT_INDEX   (2)
