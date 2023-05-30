@@ -98,6 +98,9 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 
 #define FN_FACE_IR_BIN_SIZE     427136
 
+#define FN_TESTAUDIO_PCM_PATH   "/test/audiotest.pcm"
+#define FN_TESTAUDIO_PCM_SIZE   66416
+
 #define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
 #define FN_031TTS_WAV_SIZE  250028
 #define FN_032TTS_WAV_PATH  "sound/032TTS.wav"
