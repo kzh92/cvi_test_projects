@@ -99,6 +99,7 @@ LIBFOO_DLL_EXPORTED unsigned char* fr_GetFullOffImageBuffer();
 
 LIBFOO_DLL_EXPORTED int*    fr_GetFaceDetectedMode();
 LIBFOO_DLL_EXPORTED int    	fr_SetNeedDelayForCameraControl(int nNeedDelayForCameraControl);
+LIBFOO_DLL_EXPORTED int		fr_GetNeedSecondImageCheck();
 
 
 #ifdef __RTK_OS__

@@ -68,13 +68,16 @@ int     fr_PreExtractCombo(unsigned char *pbLedOnImage, int nProcessMode)
         g_nComboProcessMode = nProcessMode;
     }
     int nRet = ES_SUCCESS;
+
     if(g_nComboProcessMode == 0)
     {
+        g_nNeedSecondImageCheck = 1;
         nRet = fr_PreExtractFace(0, pbLedOnImage);
     }
     else if(g_nComboProcessMode == 1)
     {
         reset_FaceProcessVars();
+        g_nNeedSecondImageCheck = 0;
         nRet = fr_PreExtractHand(pbLedOnImage);
 
     }

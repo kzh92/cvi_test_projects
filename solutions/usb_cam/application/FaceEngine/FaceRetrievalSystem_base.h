@@ -280,6 +280,7 @@ extern int g_nThreadCount;
 extern int g_nStopEngine;
 extern int g_nNeedToCalcNextExposure;
 extern int g_nNeedDelayForCameraControl;
+extern int g_nNeedSecondImageCheck;
 extern int g_nPassedDirectionCount;
 
 extern int g_rAverageLedOffImage;

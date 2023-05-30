@@ -174,6 +174,7 @@ int g_nNeedSmallFaceCheck = 0;
 
 int g_nBayerYConvertedCameraIndex = -1;
 int g_nEntireImageAnalysed = 0;
+int g_nNeedSecondImageCheck = 0;
 
 //int g_exposureImage = 0;
 //int g_exposurePrev = 0;
@@ -1951,6 +1952,9 @@ int fr_PreExtractFace(unsigned char *pbClrImage, unsigned char *pbLedOnImage)
     g_nMainProcessCameraIndex = -1;
 
     nRet = fr_PreExtractFace_dnn(pbClrImage, pbLedOnImage);
+
+
+
 #if (ENGINE_USE_TWO_CAM != 1)//ENGINE_USE_TWO_CAM=0:2D, 1:common, 2:3M
     //if(g_nNeedToCalcNextExposure)
     {
@@ -3045,7 +3049,6 @@ void    fr_BackupIRCamera_ExpGain()
     *fr_GetFaceDetected() = 0;
     g_nNeedToCalcNextExposure = 0;
     g_nNeedDelayForCameraControl = 0;
-
 #ifdef TimeProfiling
     initTimeProfiling();
 #endif
@@ -3229,7 +3232,7 @@ unsigned char* fr_GetFullOffImageBuffer()
 
 void reset_FaceProcessVars()
 {
-    g_nBayerYConvertedCameraIndex = -1;
+    //g_nBayerYConvertedCameraIndex = -1;
     g_nSecondImageNeedReCheck = 0;
 }
 
@@ -3261,6 +3264,10 @@ int     fr_SetNeedDelayForCameraControl(int nNeedDelayForCameraControl)
     return 0;
 }
 
+int fr_GetNeedSecondImageCheck()
+{
+    return g_nNeedSecondImageCheck;
+}
 int fr_CheckFaceInSecondImage(unsigned char *pbBayerNeedReCheck)
 {
     if(!g_nSecondImageNeedReCheck)

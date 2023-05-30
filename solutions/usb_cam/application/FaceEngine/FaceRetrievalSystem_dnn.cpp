@@ -536,6 +536,14 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
         APP_LOG("pes %d Satu %f\n", g_rAverageLedOnImage, g_rSaturatedRate);
 
     }
+    else
+    {
+        if(*fr_GetExposure_bkup() == INIT_EXP && *fr_GetGain_bkup() == INIT_GAIN && *fr_GetFineGain_bkup() == INIT_FINEGAIN &&
+            *fr_GetExposure2_bkup() == INIT_EXP_1 && *fr_GetGain2_bkup() == INIT_GAIN_1 && *fr_GetFineGain2_bkup() == INIT_FINEGAIN_1)
+        {
+            g_nNeedSecondImageCheck = 0;
+        }
+    }
     APP_LOG("pes 11 %d %d\n", *fr_GetFaceDetected(), nFaceDetectSuccess);
     IF_FLAG_STOP1(ES_FAILED);
     if (!nFaceDetectSuccess)
@@ -614,7 +622,10 @@ int		fr_PreExtractFace2_dnn(unsigned char *pbBayerFromCamera2)
         }
     }
 #endif
-
+    if(!g_nNeedSecondImageCheck)
+    {
+        return ES_PROCESS;
+    }
     int rAverageLedOnImage_temp = g_rAverageLedOnImage;//save left camera values
     float rSaturatedRate_temp = g_rSaturatedRate;
     memcpy(g_nHistInLEDOnImage_temp, g_nHistInLEDOnImage, sizeof(int) * 256);
