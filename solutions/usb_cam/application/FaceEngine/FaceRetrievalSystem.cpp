@@ -1715,10 +1715,10 @@ extern void* EngineLoadAndCheckFunc(void*);
 #endif
 }
 
-extern void   LoadAndCheckFunc_Hand_2nd();
+extern void*   LoadAndCheckFunc_Hand_2nd(void*);
 void    fr_InitEngine_Hand()
 {
-    LoadAndCheckFunc_Hand_2nd();
+    LoadAndCheckFunc_Hand_2nd(NULL);
 }
 
 
