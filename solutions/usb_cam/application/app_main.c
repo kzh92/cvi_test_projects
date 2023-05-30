@@ -15,6 +15,7 @@
 #include "wifi_if.h"
 #include "ethernet_init.h"
 #include "uvc_func.h"
+#include <debug/debug_overview.h>
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
 	#endif
 	// cmd_ifconfig_func("", 0, 1, ifconfig_args);
 	LOGI(TAG, "app start........\n");
+	debug_mm_overview(printf);
 	APP_CustomEventStart();
 	while (1) {
 		aos_msleep(3000);
