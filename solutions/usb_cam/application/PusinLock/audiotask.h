@@ -3,6 +3,10 @@
 
 #include "appdef.h"
 
+#if (USE_UAC_MODE)
+void test_Audio();
+#endif
+
 #if (USE_WIFI_MODULE)
 
 #include "thread.h"

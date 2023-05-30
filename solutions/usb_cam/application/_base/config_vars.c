@@ -27,7 +27,9 @@ st_file_offsize g_part_files[] = {
     {FN_H2_DICT_PATH, FN_H2_DICT_SIZE, DNN_H_2_CHECKSUM, FN_CRYPTO_NONE, 0},
 #endif
     {FN_FACE_IR_BIN_PATH, FN_FACE_IR_BIN_SIZE, 0xafb4e4d6, FN_CRYPTO_NONE, 0},
+#if (USE_UAC_MODE)
     {FN_TESTAUDIO_PCM_PATH, FN_TESTAUDIO_PCM_SIZE, 0x60196019, FN_CRYPTO_NONE, 0},
+#endif
     {NULL, 0, 0},
 };
 

@@ -131,6 +131,7 @@ enum E_Baud_Rate
 #define YAOYANG_MODE                0
 #define SEND_LAST_MSG               0
 #define USE_3M_MODE                 0
+#define USE_UAC_MODE                0
 
 #define CLR_CAM_WIDTH               1280
 #define CLR_CAM_HEIGHT              960
@@ -448,6 +449,8 @@ enum E_Baud_Rate
 #define ENGINE_USE_TWO_CAM                  2
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J//BD_TY_CV181xC_DEMO_V1v0//
 #undef DEFAULT_CAM_MIPI_TYPE
