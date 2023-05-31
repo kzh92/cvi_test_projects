@@ -331,7 +331,7 @@ int fr_PreExtractFace_dnn(unsigned char *pbClrImage, unsigned char *pbLedOnImage
 #ifdef TimeProfiling
     setTimeProfilingInfo(0);
 #endif
-    my_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
+    dbug_printf("g_xEngineParam.iCamFlip %d\n", g_xEngineParam.iCamFlip);    
     if(*fr_GetBayerYConvertedCameraIndex() != 0)
     {
         //convert_bayer2y_rotate_cm(pbLedOnImage, g_pbYIrImage, E_IMAGE_WIDTH, E_IMAGE_HEIGHT, g_xEngineParam.iCamFlip);

@@ -19,7 +19,6 @@
 // #include "shared.h"
 #include "check_camera_pattern.h"
 #include "sn.h"
-#include <cviruntime.h>
 #include <vfs.h>
 
 // #include <unistd.h>
@@ -281,7 +280,7 @@ void FaceRecogTask::run()
         if(m_iCmd == E_VERIFY)
         {
             nProcessModeIndexStart = 0;
-            nProcessModeIndexEnd = 1;
+            nProcessModeIndexEnd = (N_MAX_HAND_NUM > 0) ? 1: 0;;
             if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
                 nProcessModeIndexEnd = 0;

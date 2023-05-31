@@ -24,7 +24,7 @@
         } \
         if (g_xSS.iResetFlag == 1) \
             break; \
-        my_printf("wait(%s:%d) %0.3f, ret=%d\n", __FILE__, __LINE__, Now() - rOldTime, ret); \
+        dbug_printf("wait(%s:%d) %0.3f, ret=%d\n", __FILE__, __LINE__, Now() - rOldTime, ret); \
     } while(0)
 
 enum

@@ -153,10 +153,8 @@ void StartFirstCam()
 
     if(g_iMipiCamInited == 0)
     {
-        camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
-        camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN, INIT_FINEGAIN);
-        camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
-        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1, INIT_FINEGAIN_1);
+        fr_InitIRCamera_ExpGain();
+        CalcNextExposure();
     }
 }
 
@@ -187,11 +185,6 @@ void StartCamSurface(int iMode)
 #else // USE_VDBTASK
     g_xSS.iRunningCamSurface = 1;
 
-    if(iMode == 0)
-    {
-        fr_InitIRCamera_ExpGain();
-    }
-
     g_iDvpCamInited = 0;
 
     //init tc mipi camera
@@ -210,10 +203,8 @@ void StartCamSurface(int iMode)
 
     if(iMode == 0 && g_iMipiCamInited == 0)
     {
-        camera_set_exp_byreg(MIPI_0_CAM, INIT_EXP);
-        camera_set_gain_byreg(MIPI_0_CAM, INIT_GAIN, INIT_FINEGAIN);
-        camera_set_exp_byreg(MIPI_1_CAM, INIT_EXP_1);
-        camera_set_gain_byreg(MIPI_1_CAM, INIT_GAIN_1, INIT_FINEGAIN_1);
+        fr_InitIRCamera_ExpGain();
+        CalcNextExposure();
     }
 
     if(g_iMipiCamInited == 0 && g_capture0 == 0)
@@ -1260,13 +1251,13 @@ int camera_set_irled_on(int on)
 {
     if (on)
     {
+        my_mutex_lock(g_irWriteLock);
+        g_irWriteCond = 0;
+        my_mutex_unlock(g_irWriteLock);
+        my_mutex_lock(g_irWriteLock2);
+        g_irWriteCond2 = 0;
+        my_mutex_unlock(g_irWriteLock2);
         g_iLedOnStatus = 1;
-        // my_mutex_lock(g_irWriteLock);
-        // g_irWriteCond = 0;
-        // my_mutex_unlock(g_irWriteLock);
-        // my_mutex_lock(g_irWriteLock2);
-        // g_irWriteCond2 = 0;
-        // my_mutex_unlock(g_irWriteLock2);
     }
     else
         g_iLedOnStatus = 0;
