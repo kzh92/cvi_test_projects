@@ -779,7 +779,11 @@ void* dbPartRestore(void*)
 {
 #if 1
     my_printf("@@@ Copy Start %f\n", Now());
+#if (N_MAX_HAND_NUM == 0)
     int FILESIZE = sizeof(DB_INFO);
+#else
+    int FILESIZE = sizeof(DB_INFO) + sizeof(DB_HAND_INFO);
+#endif
     int real_file_len;
     int write_file_len;
     unsigned char *buf = (unsigned char*)my_malloc(FILESIZE);
