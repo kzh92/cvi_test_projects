@@ -75,6 +75,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 #define SC201CS_DGAIN_ADDR2		0x3E07
 #define SC201CS_VMAX_ADDR		0x320E
 
+static unsigned int iSensorPatternMode = 0;
 // #define SC201CS_MIRROR_FLIP_ADDR    0x17
 
 #define SC201CS_RES_IS_1200P(w, h)      ((w) <= 1600 && (h) <= 1200)
@@ -332,6 +333,9 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 #if (!USE_3M_MODE)
 	return CVI_SUCCESS;
 #endif
+
+	if (iSensorPatternMode)
+		return CVI_SUCCESS;
 
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
@@ -875,6 +879,10 @@ static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 
 static CVI_S32 sensor_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 {
+	if (enablePattern)
+		iSensorPatternMode = 1;
+	else
+		iSensorPatternMode = 0;
 	return sc201cs_pattern_enable(ViPipe, enablePattern);
 }
 

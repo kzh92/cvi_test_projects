@@ -12,6 +12,10 @@
 #define SC201CS_CHIP_ID_ADDR_L	0x3108
 #define SC201CS_CHIP_ID		0xeb2c
 
+#define SC201CS_AGAIN_DEFAULT_VAL		0x00
+#define SC201CS_DGAIN_DEFAULT_VAL		0x00
+#define SC201CS_DGAIN2_DEFAULT_VAL		0x80
+
 #define I2C_ADDR_LEFT			0x30
 #define I2C_ADDR_RIGHT			0x32
 #define DEFAULT_LEFT_FLAG		(DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121 ? 0 : 1)
@@ -175,14 +179,29 @@ int sc201cs_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 	return CVI_SUCCESS;
 }
 
+int sc201cs_gain_reset(VI_PIPE ViPipe)
+{
+	sc201cs_write_register(ViPipe, 0x3e09, SC201CS_AGAIN_DEFAULT_VAL);
+	sc201cs_write_register(ViPipe, 0x3e06, SC201CS_DGAIN_DEFAULT_VAL);
+	sc201cs_write_register(ViPipe, 0x3e07, SC201CS_DGAIN2_DEFAULT_VAL);
+
+	return CVI_SUCCESS;
+}
+
 int sc201cs_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 {
 	int iCam = g_is_left_cam;
 	g_is_left_cam = 0;
 
+	if(enablePattern)
+		sc201cs_gain_reset(ViPipe);
+
 	sc201cs_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
 
 	g_is_left_cam = 1;
+
+	if(enablePattern)
+		sc201cs_gain_reset(ViPipe);
 
 	sc201cs_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
 

@@ -11,6 +11,10 @@
 #define SC201CS_SLAVE_CHIP_ID_ADDR_L	0x3108
 #define SC201CS_SLAVE_CHIP_ID		0xeb2c
 
+#define SC201CS_SLAVE_AGAIN_DEFAULT_VAL		0x00
+#define SC201CS_SLAVE_DGAIN_DEFAULT_VAL		0x00
+#define SC201CS_SLAVE_DGAIN2_DEFAULT_VAL	0x80
+
 static void sc201cs_slave_linear_1200p30_init(VI_PIPE ViPipe);
 
 CVI_U8 sc201cs_slave_i2c_addr = 0x30;
@@ -136,8 +140,20 @@ int sc201cs_slave_probe(VI_PIPE ViPipe)
 	return CVI_SUCCESS;
 }
 
+int sc201cs_slave_gain_reset(VI_PIPE ViPipe)
+{
+	sc201cs_slave_write_register(ViPipe, 0x3e09, SC201CS_SLAVE_AGAIN_DEFAULT_VAL);
+	sc201cs_slave_write_register(ViPipe, 0x3e06, SC201CS_SLAVE_DGAIN_DEFAULT_VAL);
+	sc201cs_slave_write_register(ViPipe, 0x3e07, SC201CS_SLAVE_DGAIN2_DEFAULT_VAL);
+
+	return CVI_SUCCESS;
+}
+
 int sc201cs_slave_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 {
+	if(enablePattern)
+		sc201cs_slave_gain_reset(ViPipe);
+	
 	sc201cs_slave_write_register(ViPipe, 0x4501, enablePattern? 0xac : 0xa4);
 	return CVI_SUCCESS;
 }
