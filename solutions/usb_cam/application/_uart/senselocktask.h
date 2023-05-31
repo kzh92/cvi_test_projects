@@ -92,6 +92,8 @@ public:
 
     void                Send_Msg(s_msg* msg);
     void                SetActive(int a) {m_rActive = a ? Now() : 0;}
+    float               GetActive() {return m_rActive;}
+    float               GetRecvCmdTime() {return m_rRecvCmdTime;}
     int                 SendReady();
 
 protected:

@@ -124,32 +124,28 @@ void SenseLockTask::Wait()
 #endif // !__RTK_OS__
 }
 
-void* senseSendThread_ThreadProc1(void*)
+void* senseSendThread_ThreadProc1(void* arg)
 {
     s_msg* msg = NULL;
     MSG* pMsg = NULL;
+    SenseLockTask* pSenseTask = (SenseLockTask*)arg;
 #if (NOTE_INTERVAL_MS)
     MSG* pMsgNext = NULL;
     float rLastSendTime = 0;
     int iLastSendMsgID = -1;
-    pMsg = (MSG*)message_queue_read(&g_queue_send);
 #endif // NOTE_INTERVAL_MS
-#ifndef NOTHREAD_MUL
     dbug_printf("send thread start\n");
-#endif // ! NOTHREAD_MUL
     while(1)
     {
-#if (!NOTE_INTERVAL_MS)
         pMsg = (MSG*)message_queue_tryread(&g_queue_send);
-#endif // NOTE_INTERVAL_MS
         if (pMsg == NULL)
         {
-#ifdef NOTHREAD_MUL
-            break;
-#else // NOTHREAD_MUL
+            if (pSenseTask->GetActive() != 0 && Now() - pSenseTask->GetActive() > 100 && pSenseTask->GetRecvCmdTime() == 0)
+            {
+                pSenseTask->SendReady();
+            }
             my_usleep(1000);
             continue;
-#endif // NOTHREAD_MUL
         }
 
         msg = (s_msg*)pMsg->data1;
@@ -295,9 +291,7 @@ void* senseSendThread_ThreadProc1(void*)
         pMsg = pMsgNext;
 #endif // NOTE_INTERVAL_MS
     }
-#ifndef NOTHREAD_MUL
     dbug_printf("send thread end\n");
-#endif // ! NOTHREAD_MUL
     return NULL;
 }
 
@@ -321,7 +315,7 @@ void SenseLockTask::run()
     dbug_printf("SenseLockTask::run start\n");
     //message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 
-    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, NULL, (char*)"sstask", 16384, 0/*MYTHREAD_PRIORITY_MEDIUM*/))
+    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, this, (char*)"sstask", 16384, 0/*MYTHREAD_PRIORITY_MEDIUM*/))
         my_printf("[SendThreadTask]create send thread error.\n");
 #endif // NOTHREAD_MUL
 
@@ -523,13 +517,6 @@ void SenseLockTask::run()
         my_mutex_unlock(SenseLockTask::CommMutex);
         if(pMsg == NULL)
         {
-            if (m_rRecvCmdTime == 0 && m_rActive != 0)
-            {
-                if (Now() - m_rActive > 200)
-                {
-                    SendReady();
-                }
-            }
             continue;
         }
 
