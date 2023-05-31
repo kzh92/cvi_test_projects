@@ -410,8 +410,8 @@ void FaceRecogTask::run()
 
             if(iSecondImageReCheck)
             {
-                camera_set_irled_on(1);
-                dbug_printf("irled on, %s:%d\n", __FILE__, __LINE__);
+                iFlag = 0;
+                GetLeftIrFrame(&iFlag);
             }
 
             if(g_xSS.iResetFlag == 1)
@@ -828,16 +828,16 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         //verify time will be greater than 300ms
         if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
         {
-            lockIRBuffer();
             if(fr_GetSecondImageIsRight())
             {
-                memcpy(pInputImageBuffer1, g_irOnData2, IR_BUFFER_SIZE);
+                GetRightIrFrame(pInputImageBuffer1, 0);
             }
             else
             {
+                lockIRBuffer();
                 memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+                unlockIRBuffer();
             }
-            unlockIRBuffer();
         }
 
         int iCheck = fr_CheckFaceInSecondImage(pInputImageBuffer1);
@@ -905,16 +905,16 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
         //register time will be greater than 300ms
         if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
         {
-            lockIRBuffer();
             if(fr_GetSecondImageIsRight())
             {
-                memcpy(pInputImageBuffer1, g_irOnData2, IR_BUFFER_SIZE);
+                GetRightIrFrame(pInputImageBuffer1, 0);
             }
             else
             {
+                lockIRBuffer();
                 memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+                unlockIRBuffer();
             }
-            unlockIRBuffer();
         }
 
         int iCheck = fr_CheckFaceInSecondImage(pInputImageBuffer1);
