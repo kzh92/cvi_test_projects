@@ -7,7 +7,7 @@
  */
 #include "custom_param.h"
 #include "appdef.h"
-#define BIN_DATA_SIZE 345345
+#define BIN_DATA_SIZE       347537
 extern unsigned char rgb_color_mode_param[];
 #define MY_USE_DMA_BUF
 #ifdef MY_USE_DMA_BUF
