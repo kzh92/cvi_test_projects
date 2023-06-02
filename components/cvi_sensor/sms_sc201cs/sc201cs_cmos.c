@@ -337,6 +337,9 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 	if (iSensorPatternMode)
 		return CVI_SUCCESS;
 
+	if (iSensorPatternMode)
+		return CVI_SUCCESS;
+
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
 	CMOS_CHECK_POINTER(pu32Again);

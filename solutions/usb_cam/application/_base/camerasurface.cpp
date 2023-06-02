@@ -781,6 +781,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 
 void CalcNextExposure()
 {
+    if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        return;
+    
     if(fr_GetExposure())
     {
         camera_set_exp_byreg(TC_MIPI_CAM_LEFT, *fr_GetExposure());
