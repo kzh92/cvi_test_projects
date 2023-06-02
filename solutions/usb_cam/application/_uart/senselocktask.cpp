@@ -124,10 +124,14 @@ void SenseLockTask::Wait()
 #endif // !__RTK_OS__
 }
 
+#include <drv/wdt.h>
+extern "C" csi_wdt_t g_wdt;
+
 void* senseSendThread_ThreadProc1(void* arg)
 {
     s_msg* msg = NULL;
     MSG* pMsg = NULL;
+    float rOldTime = Now();
     SenseLockTask* pSenseTask = (SenseLockTask*)arg;
 #if (NOTE_INTERVAL_MS)
     MSG* pMsgNext = NULL;
@@ -137,6 +141,12 @@ void* senseSendThread_ThreadProc1(void* arg)
     dbug_printf("send thread start\n");
     while(1)
     {
+        if (Now() - rOldTime >= 300)
+        {
+            csi_wdt_feed(&g_wdt);
+            my_printf("[%d]live\n", (int)Now());
+            rOldTime = Now();
+        }
         pMsg = (MSG*)message_queue_tryread(&g_queue_send);
         if (pMsg == NULL)
         {

@@ -434,8 +434,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_D20_DEF)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.14.0.20"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.0.20"
+#define DEVICE_FIRMWARE_VERSION             "9.14.0.21"
+#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.0.21"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D20

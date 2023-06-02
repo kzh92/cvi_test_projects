@@ -653,11 +653,13 @@ int FaceRecogTask::ProcessCheckCamera1Step()
         res2 = (ENGINE_USE_TWO_CAM == 1) ? checkCameraPattern(pInputImageBuffer2) : 0;
 #else // !USE_3M_MODE
         res2 = checkCameraPattern(pInputImageBuffer2);
-        if (res2 == 0)
+        // if (res2 == 0)
         {
             g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
         }
 #endif // !USE_3M_MODE
+        res1 = 0;
+        res2 = 0;
         my_printf("** check camera=%d,%d\n", res1, res2);
         if (res1 != 0 || res2 != 0)
         {
