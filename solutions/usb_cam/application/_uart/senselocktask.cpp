@@ -315,7 +315,7 @@ void SenseLockTask::run()
     dbug_printf("SenseLockTask::run start\n");
     //message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 
-    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, this, (char*)"sstask", 16384, 0/*MYTHREAD_PRIORITY_MEDIUM*/))
+    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, this, (char*)"sstask", 16384, MYTHREAD_PRIORITY_HIGH/*MYTHREAD_PRIORITY_MEDIUM*/))
         my_printf("[SendThreadTask]create send thread error.\n");
 #endif // NOTHREAD_MUL
 
