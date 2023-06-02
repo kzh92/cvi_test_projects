@@ -208,7 +208,7 @@ void StartCamSurface(int iMode)
     }
 
     if(g_iMipiCamInited == 0 && g_capture0 == 0)
-        my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, MYTHREAD_PRIORITY_MEDIUM);
+        my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, MYTHREAD_PRIORITY_VERY_HIGH);
 
 #endif // USE_VDBTASK
 }
