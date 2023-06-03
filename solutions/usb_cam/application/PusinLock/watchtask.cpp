@@ -56,14 +56,14 @@ void WatchTask::Start(int iBattScan)
     m_iTimerCount = 0;
     m_iBattScan = iBattScan;
 
-    m_aiTimerIDs = (int*)my_malloc(sizeof(int) * MAX_TIMER_COUNT);
-    memset(m_aiTimerIDs, 0, sizeof(int) * MAX_TIMER_COUNT);
-    m_aiTimerCounter = (int*)my_malloc(sizeof(int) * MAX_TIMER_COUNT);
-    memset(m_aiTimerCounter, 0, sizeof(int) * MAX_TIMER_COUNT);
-    m_aiTimerMsec = (float*)my_malloc(sizeof(float) * MAX_TIMER_COUNT);
-    memset(m_aiTimerMsec, 0, sizeof(float) * MAX_TIMER_COUNT);
-    m_arTimerTick = (float*)my_malloc(sizeof(float) * MAX_TIMER_COUNT);
-    memset(m_arTimerTick, 0, sizeof(float) * MAX_TIMER_COUNT);
+    // m_aiTimerIDs = (int*)my_malloc(sizeof(int) * MAX_TIMER_COUNT);
+    // memset(m_aiTimerIDs, 0, sizeof(int) * MAX_TIMER_COUNT);
+    // m_aiTimerCounter = (int*)my_malloc(sizeof(int) * MAX_TIMER_COUNT);
+    // memset(m_aiTimerCounter, 0, sizeof(int) * MAX_TIMER_COUNT);
+    // m_aiTimerMsec = (float*)my_malloc(sizeof(float) * MAX_TIMER_COUNT);
+    // memset(m_aiTimerMsec, 0, sizeof(float) * MAX_TIMER_COUNT);
+    // m_arTimerTick = (float*)my_malloc(sizeof(float) * MAX_TIMER_COUNT);
+    // memset(m_arTimerTick, 0, sizeof(float) * MAX_TIMER_COUNT);
 
 #ifndef NOTHREAD_MUL
     if(my_thread_create(&m_thread, NULL, watchTask_ThreadProc1, this))
@@ -76,229 +76,138 @@ void WatchTask::Stop()
     m_iRunning = 0;
     Thread::Wait();
 
-    if (m_aiTimerIDs)
-    {
-        my_free(m_aiTimerIDs);
-        m_aiTimerIDs = NULL;
-    }
-    if (m_aiTimerCounter)
-    {
-        my_free(m_aiTimerCounter);
-        m_aiTimerCounter = NULL;
-    }
-    if (m_aiTimerMsec)
-    {
-        my_free(m_aiTimerMsec);
-        m_aiTimerMsec = NULL;
-    }
-    if (m_arTimerTick)
-    {
-        my_free(m_arTimerTick);
-        m_arTimerTick = NULL;
-    }
+    // if (m_aiTimerIDs)
+    // {
+    //     my_free(m_aiTimerIDs);
+    //     m_aiTimerIDs = NULL;
+    // }
+    // if (m_aiTimerCounter)
+    // {
+    //     my_free(m_aiTimerCounter);
+    //     m_aiTimerCounter = NULL;
+    // }
+    // if (m_aiTimerMsec)
+    // {
+    //     my_free(m_aiTimerMsec);
+    //     m_aiTimerMsec = NULL;
+    // }
+    // if (m_arTimerTick)
+    // {
+    //     my_free(m_arTimerTick);
+    //     m_arTimerTick = NULL;
+    // }
 }
 
 int WatchTask::AddTimer(float iMsec)
 {
-    if(m_iTimerCount > MAX_TIMER_COUNT)
-        return -1;
+    // if(m_iTimerCount > MAX_TIMER_COUNT)
+    //     return -1;
 
-    my_mutex_lock(m_xTimerMutex);
-    m_iIDCounter ++;
-    m_aiTimerIDs[m_iTimerCount] = m_iIDCounter;
-    m_aiTimerCounter[m_iTimerCount] = 0;
-    m_aiTimerMsec[m_iTimerCount] = iMsec;
-    m_arTimerTick[m_iTimerCount] = Now();
-    m_iTimerCount ++;
-    my_mutex_unlock(m_xTimerMutex);
+    // my_mutex_lock(m_xTimerMutex);
+    // m_iIDCounter ++;
+    // m_aiTimerIDs[m_iTimerCount] = m_iIDCounter;
+    // m_aiTimerCounter[m_iTimerCount] = 0;
+    // m_aiTimerMsec[m_iTimerCount] = iMsec;
+    // m_arTimerTick[m_iTimerCount] = Now();
+    // m_iTimerCount ++;
+    // my_mutex_unlock(m_xTimerMutex);
 
     return m_iIDCounter;
 }
 
 void WatchTask::RemoveTimer(int iTimerID)
 {
-    my_mutex_lock(m_xTimerMutex);
+    // my_mutex_lock(m_xTimerMutex);
 
-    int iExist = -1;
-    for(int i = 0; i < m_iTimerCount; i ++)
-    {
-        if(m_aiTimerIDs[i] == iTimerID)
-        {
-            iExist = i;
-            break;
-        }
-    }
+    // int iExist = -1;
+    // for(int i = 0; i < m_iTimerCount; i ++)
+    // {
+    //     if(m_aiTimerIDs[i] == iTimerID)
+    //     {
+    //         iExist = i;
+    //         break;
+    //     }
+    // }
 
-    if(iExist < 0)
-    {
-        my_mutex_unlock(m_xTimerMutex);
-        return;
-    }
+    // if(iExist < 0)
+    // {
+    //     my_mutex_unlock(m_xTimerMutex);
+    //     return;
+    // }
 
-    for(int i = iExist; i < m_iTimerCount - 1; i ++)
-    {
-        m_aiTimerIDs[i] = m_aiTimerIDs[i + 1];
-        m_aiTimerCounter[i] = m_aiTimerCounter[i + 1];
-        m_aiTimerMsec[i] = m_aiTimerMsec[i + 1];
-        m_arTimerTick[i] = m_arTimerTick[i + 1];
-    }
-    m_iTimerCount --;
-    my_mutex_unlock(m_xTimerMutex);
+    // for(int i = iExist; i < m_iTimerCount - 1; i ++)
+    // {
+    //     m_aiTimerIDs[i] = m_aiTimerIDs[i + 1];
+    //     m_aiTimerCounter[i] = m_aiTimerCounter[i + 1];
+    //     m_aiTimerMsec[i] = m_aiTimerMsec[i + 1];
+    //     m_arTimerTick[i] = m_arTimerTick[i + 1];
+    // }
+    // m_iTimerCount --;
+    // my_mutex_unlock(m_xTimerMutex);
 }
 
 void WatchTask::ResetTimer(int iTimerID)
 {
-    my_mutex_lock(m_xTimerMutex);
-    int iExist = -1;
-    for(int i = 0; i < m_iTimerCount; i ++)
-    {
-        if(m_aiTimerIDs[i] == iTimerID)
-        {
-            iExist = i;
-            break;
-        }
-    }
+    // my_mutex_lock(m_xTimerMutex);
+    // int iExist = -1;
+    // for(int i = 0; i < m_iTimerCount; i ++)
+    // {
+    //     if(m_aiTimerIDs[i] == iTimerID)
+    //     {
+    //         iExist = i;
+    //         break;
+    //     }
+    // }
 
-    if(iExist < 0)
-    {
-        my_mutex_unlock(m_xTimerMutex);
-        return;
-    }
+    // if(iExist < 0)
+    // {
+    //     my_mutex_unlock(m_xTimerMutex);
+    //     return;
+    // }
 
-    m_aiTimerCounter[iExist] ++;
-    m_arTimerTick[iExist] = Now();
-    my_mutex_unlock(m_xTimerMutex);
+    // m_aiTimerCounter[iExist] ++;
+    // m_arTimerTick[iExist] = Now();
+    // my_mutex_unlock(m_xTimerMutex);
 }
 
 int WatchTask::GetCounter(int iTimerID)
 {
-    my_mutex_lock(m_xTimerMutex);
-    int iExist = -1;
-    for(int i = 0; i < m_iTimerCount; i ++)
-    {
-        if(m_aiTimerIDs[i] == iTimerID)
-        {
-            iExist = i;
-            break;
-        }
-    }
+    // my_mutex_lock(m_xTimerMutex);
+    // int iExist = -1;
+    // for(int i = 0; i < m_iTimerCount; i ++)
+    // {
+    //     if(m_aiTimerIDs[i] == iTimerID)
+    //     {
+    //         iExist = i;
+    //         break;
+    //     }
+    // }
 
-    if(iExist < 0)
-    {
-        my_mutex_unlock(m_xTimerMutex);
-        return -1;
-    }
+    // if(iExist < 0)
+    // {
+    //     my_mutex_unlock(m_xTimerMutex);
+    //     return -1;
+    // }
 
-    int iRet = 0;
-    iRet = m_aiTimerCounter[iExist];
-    my_mutex_unlock(m_xTimerMutex);
+    // int iRet = 0;
+    // iRet = m_aiTimerCounter[iExist];
+    // my_mutex_unlock(m_xTimerMutex);
 
-    return iRet;
+    // return iRet;
+    return 0;
 }
 
 void WatchTask::ScanBattery(int iSendFlag)
 {
-#if (LOCK_MODE == LM_SEMI_AUTO)
-    if(g_xBS.iIsLowBatt == 1)
-    {
-        my_usleep(100 * 1000);
-        return;
-    }
-    else if(g_xBS.iIsLowBatt == 2)
-    {
-        g_xBS.iIsLowBatt = 1;
-
-        if(iSendFlag)
-            SendGlobalMsg(MSG_WATCH, WATCH_TYPE_LOW_BATT, 0, 0);
-
-        return;
-    }
-
-    /* monitoring ac voltage and current */
-    int iVoltage = GetVoltage();
-    if(iVoltage > 0)
-    {
-        if(g_xBS.iScanThreeCount == 3)
-        {
-            for(int i = 0; i < g_xBS.iScanThreeCount - 1; i ++)
-                g_xBS.iScanThresVol[i] = g_xBS.iScanThresVol[i + 1];
-        }
-
-        g_xBS.iScanThreeCount ++;
-        if(g_xBS.iScanThreeCount > 3)
-            g_xBS.iScanThreeCount = 3;
-
-        g_xBS.iScanThresVol[g_xBS.iScanThreeCount - 1] = iVoltage;
-    }
-
-    //바떼리현재전압은 마지막3개전압의 평균값을 루계한 평균값으로 한다.
-    int iScanVoltage = 0;
-    if(g_xBS.iScanThreeCount == 3)
-        iScanVoltage = (g_xBS.iScanThresVol[0] + g_xBS.iScanThresVol[1] + g_xBS.iScanThresVol[2]) / g_xBS.iScanThreeCount;
-    else
-        iScanVoltage = g_xBS.iBattOld;
-
-    if(iScanVoltage > 0)
-    {
-        g_xBS.iScanSumVol += iScanVoltage;
-        g_xBS.iBattCount ++;
-
-        if (g_xBS.iBattMin == 0)
-            g_xBS.iBattMin = iScanVoltage;
-        else if (g_xBS.iBattMin > iScanVoltage)
-            g_xBS.iBattMin = iScanVoltage;
-
-        g_xBS.iBattCur = g_xBS.iScanSumVol / g_xBS.iBattCount;
-    }
-    else
-        g_xBS.iBattCur = g_xBS.iBattOld;
-
-    if (g_xBS.iIsLowBatt == 0)
-    {
-        //열쇠의 현재전압이 ACIN_LOW보다 작으면 저전압이라고 판단한다.
-        if (g_xBS.iBattCur > 0 && g_xBS.iBattCur <= (g_xBSS.x.iBattLow * BATT_SETTINGS_UNIT))
-//        if (iScanVoltage > 0 && iScanVoltage <= (g_xBSS.x.iBattLow * BATT_SETTINGS_UNIT))
-        {
-            my_printf("[Batt] scan low battery %d, %d\n", g_xBS.iBattCur, g_xBS.iBattOld);
-            g_xBS.iIsLowBatt = 1;
-
-            if(iSendFlag)
-                SendGlobalMsg(MSG_WATCH, WATCH_TYPE_LOW_BATT, 0, 0);
-
-            UpdateLowBatteryCount(g_xBS.iIsLowBatt);
-        }
-    }
-#elif (LOCK_MODE == LM_AUTO)
-#if 0
-    if (g_xBS.iIsLowBatt == 2)
-    {
-        g_xBS.iIsLowBatt = 1;
-
-        if(iSendFlag)
-            SendGlobalMsg(MSG_WATCH, WATCH_TYPE_LOW_BATT, 0, 0);
-
-        return;
-    }
-    else if(g_xBS.iIsLowBatt != 0)
-    {
-        return;
-    }
-
-    if (g_xBS.iBattCur > 0 && g_xBS.iBattCur <= (g_xBSS.x.iBattLow * BATT_SETTINGS_UNIT))
-    {
-        g_xBS.iIsLowBatt = 1;
-        if(iSendFlag)
-            SendGlobalMsg(MSG_WATCH, WATCH_TYPE_LOW_BATT, 0, 0);
-
-        UpdateLowBatteryCount(g_xBS.iIsLowBatt);
-    }
-#endif
-#endif
 }
+
+#include <drv/wdt.h>
+extern "C" csi_wdt_t g_wdt;
 
 void WatchTask::run()
 {
     int iROKCounter = 0;
+    float rOldTime = Now();
     my_printf("=========== WatchTask start\n");
 #ifdef PSENSE_DET
     int iPowerOnFlag = 0;
@@ -307,6 +216,12 @@ void WatchTask::run()
 
     while(m_iRunning)
     {
+        if (Now() - rOldTime > 300)
+        {
+            csi_wdt_feed(&g_wdt);
+            my_printf("[%d]live\n", (int)Now());
+            rOldTime = Now();
+        }
         float rNow = Now();
         my_mutex_lock(m_xTimerMutex);
         for(int i = 0; i < m_iTimerCount; i ++)

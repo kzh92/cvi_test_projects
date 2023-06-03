@@ -180,7 +180,7 @@ void ResetFaceRegisterStates()
 
 void DriverInit()
 {
-    // g_pWatchTask->Init();
+    g_pWatchTask->Init();
     g_pSenseTask->Init();
     g_pFMTask->Init();
     //gpio init
@@ -251,14 +251,14 @@ void DriverRelease()
 
     GPIO_fast_deinit();
     g_pFMTask->Deinit();
-    // g_pWatchTask->Deinit();
+    g_pWatchTask->Deinit();
     g_pSenseTask->Deinit();
     end_restore_dbPart();
 }
 
 void ReleaseAll()
 {
-    // g_pWatchTask->Stop();
+    g_pWatchTask->Stop();
 
     UART_Release();
     message_queue_destroy(&g_worker);
@@ -704,6 +704,7 @@ int main0(int argc, char** argv)
 
     int iUpgradeFlag = g_xCS.x.bUpgradeFlag;
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;
+    g_pWatchTask->Start(0);
     if(argc == 2 && !strcmp(argv[1], "-at"))
     {
         ResetMyAllSettings();
@@ -948,8 +949,6 @@ static int main1(int argc, char** argv)
     //g_xSS.bPresentation = g_xCS.x.bPresentation;
     if(argc == 1)
         IncreaseSystemRunningCount();
-
-    // g_pWatchTask->Start(0);
 
     //StartBattLog();
     //////////////////////////////////////////////엔진초기화를 진행한다./////////////////////////////////////////////////
