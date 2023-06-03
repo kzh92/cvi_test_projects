@@ -72,8 +72,8 @@ int camera_release (int id);
 int camera_set_exp_byreg(int id, int value);
 int camera_get_exp_byreg(int id);
 int camera_set_gain_byreg(int id, int value, int nFineValue);
-int camera_set_regval(int id, unsigned char regaddr, unsigned char regval);
-int camera_get_regval(int id, unsigned char regaddr);
+int camera_set_regval(int id, int regaddr, int regval);
+int camera_get_regval(int id, int regaddr);
 int camera_set_irled(int enable, int count);
 int camera_set_pattern_mode(int cam_id, int enable);
 void my_mi_use_lock();
@@ -99,6 +99,8 @@ void unlockClrBuffer();
 int camera_init(int id, int width, int height, int switchIR_to);
 int camera_switch(int id, int camid);
 int camera_get_actIR();
+int camera_sleep(int id);
+int camera_wakeup(int id);
 
 #ifdef __cplusplus
 }

@@ -108,236 +108,14 @@ int wait_camera_ready(int id)
 #endif
     return 0;
 }
-
-#if (! USE_VDBTASK)
-
 int camera_init(int id, int width, int height, int switchIR_to)
 {
-#if 0
-    my_mi_use_lock();
-    if (g_cam_inited[id] != 0)
-    {
-        if (g_cam_inited[id] == 1)
-        {
-            my_mi_use_unlock();
-            return 0;
-        }
-    }
-    g_cam_inited[id] = -1;
-
-    MI_S32 s32Ret = MI_SUCCESS;
-    MI_U32 u32CapWidth = 0, u32CapHeight = 0;
-    MI_SYS_PixelFormat_e ePixFormat;
-    MI_VIF_FrameRate_e eFrameRate = E_MI_VIF_FRAMERATE_FULL;
-    MI_SYS_ChnPort_t stChnPort;
-
-    MI_SNR_PAD_ID_e   ePADId      = (MI_SNR_PAD_ID_e)id;
-    MI_U32            u32PlaneID  = 0;
-    MI_SNR_Res_t      stSensorCurRes;
-    MI_U32            u32SnrResCount;
-    MI_U8             u8ResIndex;
-
-    dbug_printf("[%s:%d] start\n", __func__, id);
-
-    STCHECKRESULT02(s32Ret, MI_SNR_SetPlaneMode(ePADId, 0));
-
-    STCHECKRESULT02(s32Ret, MI_SNR_QueryResCount(ePADId, &u32SnrResCount));
-    for (u8ResIndex = 0; u8ResIndex < u32SnrResCount; u8ResIndex++)
-    {
-        memset(&stSensorCurRes, 0x00, sizeof(MI_SNR_Res_t));
-        s32Ret = MI_SNR_GetRes(ePADId, u8ResIndex, &stSensorCurRes);
-        if (MI_SUCCESS != s32Ret)
-        {
-            dbug_printf("[%s %d] Get sensor resolution index %d error!\n", __FUNCTION__, __LINE__, u8ResIndex);
-            void my_mi_use_unlock();
-            return s32Ret;
-        }
-
-        dbug_printf(BLU_BOLD"[%s %d] index %d, Crop(%d,%d,%d,%d), outputsize(%d,%d), maxfps %d, minfps %d, ResDesc %s\n"COLOR_NONE,__func__, __LINE__,
-                      u8ResIndex,
-                      stSensorCurRes.stCropRect.u16X,
-                      stSensorCurRes.stCropRect.u16Y,
-                      stSensorCurRes.stCropRect.u16Width,
-                      stSensorCurRes.stCropRect.u16Height,
-                      stSensorCurRes.stOutputSize.u16Width,
-                      stSensorCurRes.stOutputSize.u16Height,
-                      stSensorCurRes.u32MaxFps,
-                      stSensorCurRes.u32MinFps,
-                      stSensorCurRes.strResDesc);
-    }
-
-    MI_U8   u8FinalResIdx = u32SnrResCount - 1;
-
-    dbug_printf(RED_BOLD"[%s %d] choose index %d\n"COLOR_NONE,__func__, __LINE__,u8FinalResIdx);
-
-    STCHECKRESULT02(s32Ret, MI_SNR_SetRes(ePADId,  u8FinalResIdx));//imx415 4k@30fps
-
-    if(MI_SNR_Enable(ePADId) != MI_SUCCESS)
-    {
-        my_printf("[%s] MI_SNR_Enable %d failed\n", __func__, id);
-        goto err_snr;
-    }
-    MI_SNR_SetFps(ePADId, 30);
-
-    MI_SNR_PlaneInfo_t stSnrPlane0Info;
-    MI_SNR_PADInfo_t  stPad0Info;
-    memset(&stPad0Info, 0, sizeof(MI_SNR_PADInfo_t));
-    memset(&stSnrPlane0Info, 0x0, sizeof(MI_SNR_PlaneInfo_t));
-    if (MI_SNR_GetPlaneInfo(ePADId, u32PlaneID, &stSnrPlane0Info) != MI_SUCCESS)
-    {
-        my_printf("[%s] MI_SNR_GetPlaneInfo %d failed\n", __func__, id);
-        goto err_vif;
-    }
-    if (MI_SNR_GetPadInfo(ePADId, &stPad0Info) != MI_SUCCESS)
-    {
-        my_printf("[%s] MI_SNR_GetPadInfo %d failed\n", __func__, id);
-        goto err_vif;
-    }
-    u32CapWidth = stSnrPlane0Info.stCapRect.u16Width;
-    u32CapHeight = stSnrPlane0Info.stCapRect.u16Height;
-    dbug_printf(RED_BOLD"[%s %d]stSnrPlane0Info.stCapRect.u16Width=%d\n"COLOR_NONE,  __FUNCTION__, __LINE__, stSnrPlane0Info.stCapRect.u16Width);
-    dbug_printf(RED_BOLD"[%s %d]stSnrPlane0Info.stCapRect.u16Height=%d\n"COLOR_NONE, __FUNCTION__, __LINE__, stSnrPlane0Info.stCapRect.u16Height);
-    stSnrPlane0Info.ePixPrecision = E_MI_SYS_DATA_PRECISION_16BPP;
-    ePixFormat = (MI_SYS_PixelFormat_e)RGB_BAYER_PIXEL(stSnrPlane0Info.ePixPrecision, stSnrPlane0Info.eBayerId);
-
-    /************************************************
-    Step1:    init VIF
-    *************************************************/
-
-#if 0
-    MI_U32 u32VifDevId = 0;
-    MI_U32 u32VifChnId = 0;
-    MI_U32 u32VifPortId = 0;
-    MI_VIF_DevAttr_t stVifDevAttr;
-    MI_VIF_ChnPortAttr_t stVifChnPortAttr;
-    memset(&stVifDevAttr, 0x0, sizeof(MI_VIF_DevAttr_t));
-    stVifDevAttr.eIntfMode=E_MI_VIF_MODE_MIPI;
-    stVifDevAttr.eWorkMode=E_MI_VIF_WORK_MODE_RGB_FRAMEMODE;//E_MI_VIF_WORK_MODE_RGB_REALTIME;
-    stVifDevAttr.eHDRType=E_MI_VIF_HDR_TYPE_OFF;
-    stVifDevAttr.eClkEdge=E_MI_VIF_CLK_EDGE_DOUBLE;
-    stVifDevAttr.eDataSeq=E_MI_VIF_INPUT_DATA_YUYV;
-    stVifDevAttr.eBitOrder=FALSE;
-    STCHECKRESULT(s32Ret, MI_VIF_SetDevAttr(u32VifDevId, &stVifDevAttr));
-    STCHECKRESULT(s32Ret, MI_VIF_EnableDev(u32VifDevId));
-#endif
-
-    //ST_Stream_Attr_T *pstStreamPipeLine = g_stStreamPipeLine;
-    MI_U32 u32VifDevId = id;
-    MI_U32 u32VifChnId = id * 4;
-    MI_U32 u32VifPortId = 0;
-
-    MI_VIF_WorkMode_e eVifWorkMode = E_MI_VIF_WORK_MODE_RGB_FRAMEMODE; //E_MI_VIF_WORK_MODE_RGB_REALTIME;
-    MI_VIF_HDRType_e eVifHdrType = E_MI_VIF_HDR_TYPE_OFF;
-    if(ST_Vif_EnableDev(u32VifDevId, eVifWorkMode, eVifHdrType, &stPad0Info) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vif_EnableDev %d failed\n", __func__, id);
-        goto err_vif;
-    }
-
-    ST_VIF_PortInfo_T stVifPortInfoInfo;
-    memset(&stVifPortInfoInfo, 0, sizeof(ST_VIF_PortInfo_T));
-    stVifPortInfoInfo.u32RectX = 0;
-    stVifPortInfoInfo.u32RectY = 0;
-    stVifPortInfoInfo.u32RectWidth = u32CapWidth;
-    stVifPortInfoInfo.u32RectHeight = u32CapHeight;
-    stVifPortInfoInfo.u32DestWidth = u32CapWidth;
-    stVifPortInfoInfo.u32DestHeight = u32CapHeight;
-    stVifPortInfoInfo.eFrameRate = eFrameRate;
-    stVifPortInfoInfo.ePixFormat = ePixFormat;
-
-    if (ST_Vif_CreatePort(u32VifChnId, u32VifPortId, &stVifPortInfoInfo) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vif_CreatePort %d failed\n", __func__, id);
-        goto err_vif_1;
-    }
-    if (ST_Vif_StartPort(u32VifDevId, u32VifChnId, u32VifPortId) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vif_StartPort %d failed\n", __func__, id);
-        goto err_vif_1;
-    }
-
-    stChnPort.eModId = E_MI_MODULE_ID_VIF;
-    stChnPort.u32ChnId = u32VifChnId;
-    stChnPort.u32DevId = u32VifDevId;
-    stChnPort.u32PortId = u32VifPortId;
-    STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 1, 5));
-    /************************************************
-    Step2:    init VPE
-    *************************************************/
-    MI_VPE_ChannelAttr_t stChannelVpeAttr;
-    MI_VPE_ChannelAttr_t stVpeChnAttr;
-    memset(&stChannelVpeAttr, 0, sizeof(MI_VPE_ChannelAttr_t));
-    memset(&stVpeChnAttr, 0x0, sizeof(MI_VPE_ChannelAttr_t));
-    stVpeChnAttr.u16MaxW = u32CapWidth;
-    stVpeChnAttr.u16MaxH = u32CapHeight;
-    stVpeChnAttr.bNrEn = FALSE;
-    stVpeChnAttr.bEsEn = FALSE;
-    stVpeChnAttr.bEdgeEn = FALSE;
-    stVpeChnAttr.bUvInvert = FALSE;
-    stVpeChnAttr.bContrastEn = FALSE;
-    stVpeChnAttr.ePixFmt  = ePixFormat;
-    stVpeChnAttr.eHDRType = E_MI_VPE_HDR_TYPE_OFF;
-    stVpeChnAttr.eRunningMode = E_MI_VPE_RUN_CAM_MODE; //E_MI_VPE_RUN_REALTIME_MODE;
-    stVpeChnAttr.eSensorBindId = (MI_VPE_SensorChannel_e)(ePADId + 1);
-#if 0
-    pstEarlyInitParam = (MasterEarlyInitParam_t*) &stVpeChnAttr.tIspInitPara.u8Data[0];
-    pstEarlyInitParam->u16SnrEarlyFps = pCameraBootSetting->u8SensorFrameRate;
-    pstEarlyInitParam->u16SnrEarlyFlicker = pCameraBootSetting->u8AntiFlicker;
-    pstEarlyInitParam->u32SnrEarlyShutter = pCameraBootSetting->u32shutter;
-    pstEarlyInitParam->u32SnrEarlyGainX1024 = pCameraBootSetting->u32SensorGain;
-    pstEarlyInitParam->u32SnrEarlyDGain = pCameraBootSetting->u32DigitalGain;
-    pstEarlyInitParam->u16SnrEarlyAwbRGain = pCameraBootSetting->u16AWBRGain;
-    pstEarlyInitParam->u16SnrEarlyAwbGGain = pCameraBootSetting->u16AWBGGain;
-    pstEarlyInitParam->u16SnrEarlyAwbBGain = pCameraBootSetting->u16AWBBGain;
-    stVpeChnAttr.tIspInitPara.u32Revision = EARLYINIT_PARAM_TYPE_MASTER;
-    stVpeChnAttr.tIspInitPara.u32Size = sizeof(MasterEarlyInitParam_t);
-#endif
-    if(MI_VPE_CreateChannel(id, &stVpeChnAttr) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vpe_CreateChannel %d failed\n", __func__, id);
-        goto err_vpe;
-    }
-    //STCHECKRESULT(MI_VPE_StartChannel(id));
-
-#if 0
-    /************************************************
-    Step3:    Bind VIF & VPE
-    *************************************************/
-    ST_Sys_BindInfo_T stBindInfo;
-    memset(&stBindInfo, 0x0, sizeof(ST_Sys_BindInfo_T));
-    stBindInfo.stSrcChnPort.eModId = E_MI_MODULE_ID_VIF;
-    stBindInfo.stSrcChnPort.u32DevId = u32VifDevId;
-    stBindInfo.stSrcChnPort.u32ChnId = u32VifChnId;
-    stBindInfo.stSrcChnPort.u32PortId = u32VifPortId;
-    stBindInfo.stDstChnPort.eModId = E_MI_MODULE_ID_VPE;
-    stBindInfo.stDstChnPort.u32DevId = 0;
-    stBindInfo.stDstChnPort.u32ChnId = pstStreamPipeLine[id].u32VpeChn;
-    stBindInfo.stDstChnPort.u32PortId = 0;
-    stBindInfo.u32SrcFrmrate = 30;
-    stBindInfo.u32DstFrmrate = 30;
-    stBindInfo.eBindType = E_MI_SYS_BIND_TYPE_FRAME_BASE;//E_MI_SYS_BIND_TYPE_REALTIME;
-    STCHECKRESULT02(s32Ret, ST_Sys_Bind(&stBindInfo));
-#endif
-    dbug_printf("[%s:%d] ended\n", __func__, id);
-    g_cam_inited[id] = 1;
-    my_mi_use_unlock();
-
-    return 0;
-
-err_vpe:
-    STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 0, 5));
-    STCHECKRESULT(ST_Vif_StopPort(u32VifChnId, u32VifPortId));
-err_vif_1:
-    STCHECKRESULT(ST_Vif_DisableDev(u32VifDevId));
-err_vif:
-err_snr:
-    STCHECKRESULT(MI_SNR_Disable(ePADId));
-    my_mi_use_unlock();
-    return -1;
-#endif
     camera_switch(TC_MIPI_CAM, switchIR_to);
     return 0;
 }
+
+
+#if (! USE_VDBTASK)
 
 int camera_release(int id)
 {
@@ -396,265 +174,6 @@ int camera_release(int id)
 }
 
 #else // !USE_VDBTASK
-
-// #include "cam_base_vdb.c"
-int camera_init(int id, int width, int height, int switchIR_to)
-{
-#if 0
-    my_mi_use_lock();
-    if (g_cam_inited[id] != 0)
-    {
-        if (g_cam_inited[id] == 1)
-        {
-            my_mi_use_unlock();
-            return 0;
-        }
-        else if (id == TC_MIPI_CAM)
-        {
-            my_mi_use_unlock();
-            return -1;
-        }
-    }
-    g_cam_inited[id] = -1;
-
-    MI_S32 s32Ret = MI_SUCCESS;
-    MI_U32 u32CapWidth = 0, u32CapHeight = 0;
-    MI_SYS_PixelFormat_e ePixFormat;
-    MI_VIF_FrameRate_e eFrameRate = E_MI_VIF_FRAMERATE_FULL;
-    MI_SYS_ChnPort_t stChnPort;
-
-    MI_SNR_PAD_ID_e   ePADId      = (MI_SNR_PAD_ID_e)id;
-    MI_U32            u32PlaneID  = 0;
-    MI_SNR_Res_t      stSensorCurRes;
-    MI_U32            u32SnrResCount;
-    MI_U8             u8ResIndex;
-
-    dbug_printf("[%s:%d] start\n", __func__, id);
-
-    STCHECKRESULT02(s32Ret, MI_SNR_SetPlaneMode(ePADId, 0));
-
-    STCHECKRESULT02(s32Ret, MI_SNR_QueryResCount(ePADId, &u32SnrResCount));
-    for (u8ResIndex = 0; u8ResIndex < u32SnrResCount; u8ResIndex++)
-    {
-        memset(&stSensorCurRes, 0x00, sizeof(MI_SNR_Res_t));
-        s32Ret = MI_SNR_GetRes(ePADId, u8ResIndex, &stSensorCurRes);
-        if (MI_SUCCESS != s32Ret)
-        {
-            dbug_printf("[%s %d] Get sensor resolution index %d error!\n", __FUNCTION__, __LINE__, u8ResIndex);
-            my_mi_use_unlock();
-            return s32Ret;
-        }
-
-        dbug_printf(BLU_BOLD"[%s %d] index %d, Crop(%d,%d,%d,%d), outputsize(%d,%d), maxfps %d, minfps %d, ResDesc %s\n"COLOR_NONE,__func__, __LINE__,
-                      u8ResIndex,
-                      stSensorCurRes.stCropRect.u16X,
-                      stSensorCurRes.stCropRect.u16Y,
-                      stSensorCurRes.stCropRect.u16Width,
-                      stSensorCurRes.stCropRect.u16Height,
-                      stSensorCurRes.stOutputSize.u16Width,
-                      stSensorCurRes.stOutputSize.u16Height,
-                      stSensorCurRes.u32MaxFps,
-                      stSensorCurRes.u32MinFps,
-                      stSensorCurRes.strResDesc);
-    }
-
-    MI_U8   u8FinalResIdx = u32SnrResCount - 1;
-
-    dbug_printf(RED_BOLD"[%s %d] choose index %d\n"COLOR_NONE,__func__, __LINE__,u8FinalResIdx);
-
-    STCHECKRESULT02(s32Ret, MI_SNR_SetRes(ePADId,  u8FinalResIdx));//imx415 4k@30fps
-
-    if(MI_SNR_Enable(ePADId) != MI_SUCCESS)
-    {
-        my_printf("[%s] MI_SNR_Enable %d failed\n", __func__, id);
-        goto err_snr;
-    }
-    MI_SNR_SetFps(ePADId, 30);
-
-    if(id == TC_MIPI_CAM)
-        camera_switch(TC_MIPI_CAM, switchIR_to);
-
-    MI_SNR_PlaneInfo_t stSnrPlane0Info;
-    MI_SNR_PADInfo_t  stPad0Info;
-    memset(&stPad0Info, 0, sizeof(MI_SNR_PADInfo_t));
-    memset(&stSnrPlane0Info, 0x0, sizeof(MI_SNR_PlaneInfo_t));
-    if (MI_SNR_GetPlaneInfo(ePADId, u32PlaneID, &stSnrPlane0Info) != MI_SUCCESS)
-    {
-        my_printf("[%s] MI_SNR_GetPlaneInfo %d failed\n", __func__, id);
-        goto err_vif;
-    }
-    if (MI_SNR_GetPadInfo(ePADId, &stPad0Info) != MI_SUCCESS)
-    {
-        my_printf("[%s] MI_SNR_GetPadInfo %d failed\n", __func__, id);
-        goto err_vif;
-    }
-    u32CapWidth = stSnrPlane0Info.stCapRect.u16Width;
-    u32CapHeight = stSnrPlane0Info.stCapRect.u16Height;
-    dbug_printf(RED_BOLD"[%s %d]stSnrPlane0Info.stCapRect.u16Width=%d\n"COLOR_NONE,  __FUNCTION__, __LINE__, stSnrPlane0Info.stCapRect.u16Width);
-    dbug_printf(RED_BOLD"[%s %d]stSnrPlane0Info.stCapRect.u16Height=%d\n"COLOR_NONE, __FUNCTION__, __LINE__, stSnrPlane0Info.stCapRect.u16Height);
-    if(id == DVP_CAM)
-    {
-        u32CapWidth = u32CapWidth * 2;//8BPP로 색카메라자료를 받을때 2바이트에 자료가 중복되는 문제가 있으므로 자료를 1600*600으로 받는다.
-        stSnrPlane0Info.ePixPrecision = E_MI_SYS_DATA_PRECISION_8BPP;
-    }
-    else
-        stSnrPlane0Info.ePixPrecision = E_MI_SYS_DATA_PRECISION_16BPP;
-    ePixFormat = (MI_SYS_PixelFormat_e)RGB_BAYER_PIXEL(stSnrPlane0Info.ePixPrecision, stSnrPlane0Info.eBayerId);
-
-    /************************************************
-    Step1:    init VIF
-    *************************************************/
-
-#if 0
-    MI_U32 u32VifDevId = 0;
-    MI_U32 u32VifChnId = 0;
-    MI_U32 u32VifPortId = 0;
-    MI_VIF_DevAttr_t stVifDevAttr;
-    MI_VIF_ChnPortAttr_t stVifChnPortAttr;
-    memset(&stVifDevAttr, 0x0, sizeof(MI_VIF_DevAttr_t));
-    stVifDevAttr.eIntfMode=E_MI_VIF_MODE_MIPI;
-    stVifDevAttr.eWorkMode=E_MI_VIF_WORK_MODE_RGB_FRAMEMODE;//E_MI_VIF_WORK_MODE_RGB_REALTIME;
-    stVifDevAttr.eHDRType=E_MI_VIF_HDR_TYPE_OFF;
-    stVifDevAttr.eClkEdge=E_MI_VIF_CLK_EDGE_DOUBLE;
-    stVifDevAttr.eDataSeq=E_MI_VIF_INPUT_DATA_YUYV;
-    stVifDevAttr.eBitOrder=FALSE;
-    STCHECKRESULT(s32Ret, MI_VIF_SetDevAttr(u32VifDevId, &stVifDevAttr));
-    STCHECKRESULT(s32Ret, MI_VIF_EnableDev(u32VifDevId));
-#endif
-
-    //ST_Stream_Attr_T *pstStreamPipeLine = g_stStreamPipeLine;
-    MI_U32 u32VifDevId = id;
-    MI_U32 u32VifChnId = id * 4;
-    MI_U32 u32VifPortId = 0;
-
-    MI_VIF_WorkMode_e eVifWorkMode = E_MI_VIF_WORK_MODE_RGB_FRAMEMODE; //E_MI_VIF_WORK_MODE_RGB_REALTIME;
-    MI_VIF_HDRType_e eVifHdrType = E_MI_VIF_HDR_TYPE_OFF;
-    if(ST_Vif_EnableDev(u32VifDevId, eVifWorkMode, eVifHdrType, &stPad0Info) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vif_EnableDev %d failed\n", __func__, id);
-        goto err_vif;
-    }
-
-    ST_VIF_PortInfo_T stVifPortInfoInfo;
-    memset(&stVifPortInfoInfo, 0, sizeof(ST_VIF_PortInfo_T));
-    stVifPortInfoInfo.u32RectX = 0;
-    stVifPortInfoInfo.u32RectY = 0;
-    stVifPortInfoInfo.u32RectWidth = u32CapWidth;
-    stVifPortInfoInfo.u32RectHeight = u32CapHeight;
-    stVifPortInfoInfo.u32DestWidth = u32CapWidth;
-    stVifPortInfoInfo.u32DestHeight = u32CapHeight;
-    stVifPortInfoInfo.eFrameRate = eFrameRate;
-    stVifPortInfoInfo.ePixFormat = ePixFormat;
-
-    if (ST_Vif_CreatePort(u32VifChnId, u32VifPortId, &stVifPortInfoInfo) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vif_CreatePort %d failed\n", __func__, id);
-        goto err_vif_1;
-    }
-    if (ST_Vif_StartPort(u32VifDevId, u32VifChnId, u32VifPortId) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vif_StartPort %d failed\n", __func__, id);
-        goto err_vif_1;
-    }
-
-    stChnPort.eModId = E_MI_MODULE_ID_VIF;
-    stChnPort.u32ChnId = u32VifChnId;
-    stChnPort.u32DevId = u32VifDevId;
-    stChnPort.u32PortId = u32VifPortId;
-#if (USE_222MODE == 0)
-    if(id == DVP_CAM)
-        STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 3, 5));
-    else
-        STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 1, 5));
-#else // USE_222MODE == 0
-    if(id == DVP_CAM)
-        STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 2, 2));
-    else
-        STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 1, 5));
-#endif // USE_222MODE == 0
-    /************************************************
-    Step2:    init VPE
-    *************************************************/
-    MI_VPE_ChannelAttr_t stChannelVpeAttr;
-    MI_VPE_ChannelAttr_t stVpeChnAttr;
-    memset(&stChannelVpeAttr, 0, sizeof(MI_VPE_ChannelAttr_t));
-    memset(&stVpeChnAttr, 0x0, sizeof(MI_VPE_ChannelAttr_t));
-    stVpeChnAttr.u16MaxW = u32CapWidth;
-    stVpeChnAttr.u16MaxH = u32CapHeight;
-    stVpeChnAttr.bNrEn = FALSE;
-    stVpeChnAttr.bEsEn = FALSE;
-    stVpeChnAttr.bEdgeEn = FALSE;
-    stVpeChnAttr.bUvInvert = FALSE;
-    stVpeChnAttr.bContrastEn = FALSE;
-    stVpeChnAttr.ePixFmt  = ePixFormat;
-    stVpeChnAttr.eHDRType = E_MI_VPE_HDR_TYPE_OFF;
-    stVpeChnAttr.eRunningMode = E_MI_VPE_RUN_CAM_MODE; //E_MI_VPE_RUN_REALTIME_MODE;
-    stVpeChnAttr.eSensorBindId = (MI_VPE_SensorChannel_e)(ePADId + 1);
-#if 0
-    pstEarlyInitParam = (MasterEarlyInitParam_t*) &stVpeChnAttr.tIspInitPara.u8Data[0];
-    pstEarlyInitParam->u16SnrEarlyFps = pCameraBootSetting->u8SensorFrameRate;
-    pstEarlyInitParam->u16SnrEarlyFlicker = pCameraBootSetting->u8AntiFlicker;
-    pstEarlyInitParam->u32SnrEarlyShutter = pCameraBootSetting->u32shutter;
-    pstEarlyInitParam->u32SnrEarlyGainX1024 = pCameraBootSetting->u32SensorGain;
-    pstEarlyInitParam->u32SnrEarlyDGain = pCameraBootSetting->u32DigitalGain;
-    pstEarlyInitParam->u16SnrEarlyAwbRGain = pCameraBootSetting->u16AWBRGain;
-    pstEarlyInitParam->u16SnrEarlyAwbGGain = pCameraBootSetting->u16AWBGGain;
-    pstEarlyInitParam->u16SnrEarlyAwbBGain = pCameraBootSetting->u16AWBBGain;
-    stVpeChnAttr.tIspInitPara.u32Revision = EARLYINIT_PARAM_TYPE_MASTER;
-    stVpeChnAttr.tIspInitPara.u32Size = sizeof(MasterEarlyInitParam_t);
-#endif
-    if(MI_VPE_CreateChannel(id, &stVpeChnAttr) != MI_SUCCESS)
-    {
-        my_printf("[%s] ST_Vpe_CreateChannel %d failed\n", __func__, id);
-        goto err_vpe;
-    }
-    //STCHECKRESULT(MI_VPE_StartChannel(id));
-
-#if 0
-    /************************************************
-    Step3:    Bind VIF & VPE
-    *************************************************/
-    ST_Sys_BindInfo_T stBindInfo;
-    memset(&stBindInfo, 0x0, sizeof(ST_Sys_BindInfo_T));
-    stBindInfo.stSrcChnPort.eModId = E_MI_MODULE_ID_VIF;
-    stBindInfo.stSrcChnPort.u32DevId = u32VifDevId;
-    stBindInfo.stSrcChnPort.u32ChnId = u32VifChnId;
-    stBindInfo.stSrcChnPort.u32PortId = u32VifPortId;
-    stBindInfo.stDstChnPort.eModId = E_MI_MODULE_ID_VPE;
-    stBindInfo.stDstChnPort.u32DevId = 0;
-    stBindInfo.stDstChnPort.u32ChnId = pstStreamPipeLine[id].u32VpeChn;
-    stBindInfo.stDstChnPort.u32PortId = 0;
-    stBindInfo.u32SrcFrmrate = 30;
-    stBindInfo.u32DstFrmrate = 30;
-    stBindInfo.eBindType = E_MI_SYS_BIND_TYPE_FRAME_BASE;//E_MI_SYS_BIND_TYPE_REALTIME;
-    STCHECKRESULT02(s32Ret, ST_Sys_Bind(&stBindInfo));
-#endif
-    dbug_printf("[%s:%d] ended\n", __func__, id);
-    g_cam_inited[id] = 1;
-    my_mi_use_unlock();
-    return 0;
-
-err_vpe:
-#if (USE_222MODE == 0)
-    STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 0, 5));
-#else
-    if(id == DVP_CAM)
-        STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 0, 3));
-    else
-        STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 0, 2));
-#endif
-    STCHECKRESULT(ST_Vif_StopPort(u32VifChnId, u32VifPortId));
-err_vif_1:
-    STCHECKRESULT(ST_Vif_DisableDev(u32VifDevId));
-err_vif:
-    STCHECKRESULT(MI_SNR_Disable(ePADId));
-err_snr:
-    STCHECKRESULT(MI_SNR_Disable(ePADId));
-    my_mi_use_unlock();
-    return -1;
-#endif
-    return 0;
-}
 
 int camera_release(int id)
 {
@@ -954,9 +473,13 @@ int camera_switch(int id, int camid)
         return -1;
     }
     pSnsObj->pfnSnsSwitch(0, camid == MIPI_CAM_S2LEFT);
+    my_mi_use_unlock();
+#else // !USE_3M_MODE
+    //if (iActiveIRCam != MIPI_0_CAM)
+    //    camera_sleep(iActiveIRCam);
+    //camera_wakeup(camid);
 #endif // !USE_3M_MODE
     iActiveIRCam = camid;
-    my_mi_use_unlock();
     dbug_printf("[%s] %d:%s\n", __func__, iActiveIRCam, iActiveIRCam == MIPI_CAM_S2LEFT?"left":"right");
     return 0;
 }
@@ -966,20 +489,63 @@ int camera_get_actIR()
     return iActiveIRCam;
 }
 
-
-int camera_set_regval(int id, unsigned char regaddr, unsigned char regval)
+int camera_sleep(int id)
 {
-    // int ret = -1;
-    // if(id == MIPI_0_CAM)
-    //     return camera_mipi0_set_regval(regaddr, regval);
-    // else if(id == MIPI_1_CAM)
-    //     return camera_mipi1_set_regval(regaddr, regval);
-
-    // return ret;
+    my_printf("*********[%s] id=%d\n", __func__, id);
+#if (USE_IRSNR_SC2355)
+    camera_set_regval(id, 0x3019,0xff);
+    camera_set_regval(id, 0x0100,0x00);
+#endif
     return 0;
 }
 
-int camera_get_regval(int id, unsigned char regaddr)
+int camera_wakeup(int id)
+{
+    my_printf("*********[%s] id=%d\n", __func__, id);
+#if (USE_IRSNR_SC2355)
+    camera_set_regval(id, 0x0100,0x01);
+    camera_set_regval(id, 0x3019,0xfe);
+#endif
+    return 0;
+}
+
+int camera_set_regval(int id, int regaddr, int regval)
+{
+    int snr_id = 0;
+    int vipe_no = 0;
+    if (id == MIPI_0_CAM)
+    {
+        snr_id = SMS_SC201CS_MIPI_2M_30FPS_10BIT;
+        vipe_no = 0;
+    }
+    else if (id == MIPI_1_CAM)
+    {
+        snr_id = SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT;
+        vipe_no = 1;
+    }
+    else
+    {
+        my_printf("invalid camera id(%d)\n", id);
+        return -1;
+    }
+
+    my_mi_use_lock();
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    pSnsObj = getSnsObj(snr_id);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    pSnsObj->pfnWriteRegEx(vipe_no, regaddr, regval, 0);
+
+    my_mi_use_unlock();
+    return 0;
+}
+
+int camera_get_regval(int id, int regaddr)
 {
     // if(id == MIPI_0_CAM)
     //     return camera_mipi0_get_regval(regaddr);
