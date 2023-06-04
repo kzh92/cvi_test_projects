@@ -86,6 +86,7 @@ void FaceRecogTask::Start(int iCmd)
     {
 
     }
+    fr_SetCameraFlip(g_xSS.iCameraRotate);
     m_isFaceOcculution = 0;
     memset(m_iFaceNearFar, 0, sizeof(m_iFaceNearFar));
     memset(m_iFacePosition, 0, sizeof(m_iFacePosition));
@@ -280,7 +281,7 @@ void FaceRecogTask::run()
         if(m_iCmd == E_VERIFY)
         {
             nProcessModeIndexStart = 0;
-            nProcessModeIndexEnd = (N_MAX_HAND_NUM > 0) ? 1: 0;;
+            nProcessModeIndexEnd = (N_MAX_HAND_NUM > 0) ? 1: 0;
             if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
                 nProcessModeIndexEnd = 0;
@@ -389,17 +390,6 @@ void FaceRecogTask::run()
                     if (g_xSS.iResetFlag == 1)
                         break;
                 }
-
-                // if(*fr_GetMainProcessCameraIndex() == 1)
-                // {
-                //     //fr_GetOffImageBuffer2() is required, wait for
-                //     if (!(g_iLedOffFrameFlag & RIGHT_IROFF_CAM_RECVED))
-                //     {
-                //         WAIT_CAM_FRAME(500, WaitIROffTimeout2);
-                //         if (g_xSS.iResetFlag == 1)
-                //             break;
-                //     }
-                // }
             }
 
             if(iNeedExp && nProcessModeIndex == nProcessModeIndexEnd)
@@ -797,7 +787,6 @@ int FaceRecogTask::GetFaceState()
 
 int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
 {
-    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
     float arEngineResult[10] = { 0 };
     SendFaceDetectMsg();
 
@@ -835,6 +824,24 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     if(g_xSS.iResetFlag == 1)
         return 1;
 
+#if (USE_3M_MODE)
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] ==  0) //face mode only
+    {
+        lockIRBuffer();
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        {
+            ReadStaticIRImage(g_irOnData2, 1);
+        }
+
+        int iCheck = fr_PreExtractFaceClr(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+        unlockIRBuffer();
+        if(iCheck != ES_SUCCESS)
+        {
+            arEngineResult[0] = ES_PROCESS;
+        }
+    }
+#else // USE_3M_MODE
+    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && iSecondImageReCheck)
     {
         //verify time will be greater than 300ms
@@ -858,7 +865,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
             arEngineResult[0] = ES_PROCESS;
         }
     }
-
+#endif // USE_3M_MODE
     if(arEngineResult[0] == ES_PROCESS && m_rFaceFailTime != 0)
     {
         if(Now() - m_rFaceFailTime >= N_MAX_FAILED_TIME * 1000)
@@ -903,7 +910,6 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
 }
 int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 {
-    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
     float arEngineResult[10] = { 0 };
     int ret = 0;
     SendFaceDetectMsg();
@@ -911,7 +917,24 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 
     if(g_xSS.iResetFlag == 1)
         return 1;
+#if (USE_3M_MODE)
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] ==  0) //face mode only
+    {
+        lockIRBuffer();
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        {
+            ReadStaticIRImage(g_irOnData2, 1);
+        }
 
+        int iCheck = fr_PreExtractFaceClr(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+        unlockIRBuffer();
+        if(iCheck != ES_SUCCESS)
+        {
+            arEngineResult[0] = ES_PROCESS;
+        }
+    }
+#else // USE_3M_MODE
+    unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && iSecondImageReCheck)
     {
         //register time will be greater than 300ms
@@ -935,7 +958,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             arEngineResult[0] = ES_PROCESS;
         }
     }
-
+#endif // USE_3M_MODE
     if(arEngineResult[0] != ES_PROCESS)
     {
         if(arEngineResult[1] ==  0) //face mode only
