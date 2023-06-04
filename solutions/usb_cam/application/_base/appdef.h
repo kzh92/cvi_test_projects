@@ -132,6 +132,7 @@ enum E_Baud_Rate
 #define SEND_LAST_MSG               0
 #define USE_3M_MODE                 0
 #define USE_UAC_MODE                0
+#define USE_WHITE_LED               0
 
 #define CLR_CAM_WIDTH               1280
 #define CLR_CAM_HEIGHT              960
@@ -467,6 +468,8 @@ enum E_Baud_Rate
 #define USE_SANJIANG3_MODE                  1
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
 
 #endif // FRM_PRODUCT_TYPE
 

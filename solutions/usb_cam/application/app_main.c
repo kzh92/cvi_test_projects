@@ -76,7 +76,7 @@ int watch_dog_test()
     /* STEP 4: start work */
     ret = csi_wdt_start(&g_wdt);
     CHECK_RETURN(ret);
-    printf("watchdog started\n");
+    printf("wd.\n");
 
     // /* STEP 5: delay 1194ms */
     // mdelay(WDT_TIMEOUT_MS + 200);
@@ -127,12 +127,9 @@ int main(int argc, char *argv[])
 	usleep(12 * 1000);
 	isp_daemon2_init(5566);
 	#endif
-	printf("%s:%d\n", __FILE__, __LINE__);
 	//init tpu
 	cvi_tpu_init();
-	printf("%s:%d\n", __FILE__, __LINE__);
 	watch_dog_test();
-	printf("%s:%d\n", __FILE__, __LINE__);
 	fmMain();
 	
 	APP_CustomEventStart();

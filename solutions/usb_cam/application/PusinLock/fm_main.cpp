@@ -2060,6 +2060,9 @@ int MsgProcSense(MSG* pMsg)
             {
                 g_xSS.iDemoMode = N_DEMO_FACTORY_MODE;
                 g_xSS.iSendLastMsgMode = 0;
+#if (USE_WHITE_LED)
+                gpio_whiteled_on(1);
+#endif
             }
             if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
