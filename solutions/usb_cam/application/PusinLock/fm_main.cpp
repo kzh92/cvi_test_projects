@@ -690,9 +690,11 @@ int main0(int argc, char** argv)
 
     ResetSystemState(APP_MAIN);
 
+    g_pWatchTask->Start(0);
     if (argc == 1)
     {
         fr_InitLive();
+        fr_InitEngine_Hand();
         fr_InitIRCamera_ExpGain();
         //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
         ProcessInsmod(NULL);
@@ -704,7 +706,6 @@ int main0(int argc, char** argv)
 
     int iUpgradeFlag = g_xCS.x.bUpgradeFlag;
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;
-    g_pWatchTask->Start(0);
     if(argc == 2 && !strcmp(argv[1], "-at"))
     {
         ResetMyAllSettings();

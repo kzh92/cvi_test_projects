@@ -434,8 +434,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_D20_DEF)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.14.0.21"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.0.21"
+#define DEVICE_FIRMWARE_VERSION             "9.14.0.4_D2"
+#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.0.4_D2"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
@@ -463,6 +463,10 @@ enum E_Baud_Rate
 // #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
 
 #endif // FRM_PRODUCT_TYPE
 
