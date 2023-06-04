@@ -617,7 +617,6 @@ void* ProcessTCMipiCapture(void */*param*/)
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
-    my_printf("%s:%d\n", __FILE__, __LINE__);
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     dev = 0;
 #else
@@ -631,7 +630,6 @@ void* ProcessTCMipiCapture(void */*param*/)
         if (CVI_VI_SetPipeDumpAttr(dev, &attr[dev]) != CVI_SUCCESS)
             my_printf("dev=%d SetPipeDumpAttr failed\n", dev);
     }
-    my_printf("%s:%d\n", __FILE__, __LINE__);
 
     while (g_xSS.iRunningCamSurface)
     {
@@ -652,7 +650,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121)
         dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 1: 0);
 #endif
-        my_printf("[%0.1f]mc.0: %do, %dc, %dt, dev=%d\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag, dev);
+        // my_printf("[%0.1f]mc.0: %do, %dc, %dt, dev=%d\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag, dev);
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)
@@ -675,8 +673,8 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         unsigned char *ptr = (unsigned char*)stVideoFrame[0].stVFrame.pu8VirAddr[0];
 
-        if (/*g_iTwoCamFlag != -1 &&*/ rOld != 0)
-            my_printf("[%0.1f]mc: %do, %dc, %dt\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag);
+        if (g_iTwoCamFlag != -1 && rOld != 0)
+            dbug_printf("[%0.1f]mc: %do, %dc, %dt\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 
         if(g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
