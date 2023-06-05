@@ -14,7 +14,6 @@
 #include "cvi_param.h"
 #include "wifi_if.h"
 #include "ethernet_init.h"
-#include "uvc_func.h"
 #include <debug/debug_overview.h>
 
 #if CONFIG_PQTOOL_SUPPORT == 1
@@ -22,7 +21,7 @@
 #endif
 
 #define TAG "app"
-
+extern int MEDIA_AV_Init();
 extern void cmd_ifconfig_func(char *wbuf, int wbuf_len, int argc, char **argv);
 char *ifconfig_args[] = {"ifconfig"};
 
@@ -42,7 +41,6 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
-	MEDIA_UVC_Init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();
