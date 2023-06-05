@@ -548,10 +548,8 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
 
 int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
 {
-    static unsigned char* test_tmp_buff = NULL;
-    if (test_tmp_buff == NULL)
-        test_tmp_buff = (unsigned char*)my_malloc(IR_TEST_BIN_WIDTH * IR_TEST_BIN_HEIGHT);
-    if (test_tmp_buff)
+    unsigned char* test_tmp_buff = g_irOnData1;
+    //if (test_tmp_buff)
     {
         fr_ReadFileData(FN_FACE_IR_BIN_PATH, 0, test_tmp_buff, IR_TEST_BIN_WIDTH * IR_TEST_BIN_HEIGHT);
         memset(dst, 0, IR_CAM_WIDTH * IR_CAM_HEIGHT);
@@ -573,10 +571,8 @@ int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
         }
         my_printf("@@@ read IR static image ok\n");
     }
-    else
-        my_printf("@@@ read IR static image fail\n");
-    // if (test_tmp_buff)
-    //     my_free(test_tmp_buff);
+    // else
+    //     my_printf("@@@ read IR static image fail\n");
     return 0;
 }
 
