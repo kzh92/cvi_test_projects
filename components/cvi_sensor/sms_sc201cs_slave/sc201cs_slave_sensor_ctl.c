@@ -256,5 +256,5 @@ static void sc201cs_slave_linear_1200p30_init(VI_PIPE ViPipe)
 
 	sc201cs_slave_default_reg_init(ViPipe);
 
-	printf("ViPipe:%d,===SC201CS_SLAVE 1200P 30fps 10bit LINEAR Init OK!===\n", ViPipe);
+	printf("ViPipe:%d, OK\n", ViPipe);
 }

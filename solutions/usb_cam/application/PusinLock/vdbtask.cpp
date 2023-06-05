@@ -199,10 +199,10 @@ int VDBTask::IsStreaming()
 void VDBTask::run()
 {
     // start uvc
-    my_printf("before av init\n");
+    //my_printf("before av init\n");
     // MEDIA_UVC_Init();
     MEDIA_AV_Init();
-    my_printf("after av init\n");
+    //my_printf("after av init\n");
 #if 0
     float rOld = Now();
 

@@ -66,7 +66,7 @@ void WatchTask::Start(int iBattScan)
     // memset(m_arTimerTick, 0, sizeof(float) * MAX_TIMER_COUNT);
 
 #ifndef NOTHREAD_MUL
-    if(my_thread_create(&m_thread, NULL, watchTask_ThreadProc1, this))
+    if (my_thread_create_ext(&m_thread, NULL, watchTask_ThreadProc1, this, (char*)"wdt", 8192, MYTHREAD_PRIORITY_MEDIUM))
         my_printf("[WatchTask]create thread error.\n");
 #endif // NOTHREAD_MUL
 }
@@ -219,8 +219,9 @@ void WatchTask::run()
         if (Now() - rOldTime > 300)
         {
             csi_wdt_feed(&g_wdt);
-            my_printf("[%d]live\n", (int)Now());
+            my_printf("[%d]ROK\n", (int)Now());
             rOldTime = Now();
+            my_usleep(20*1000);
         }
         float rNow = Now();
         my_mutex_lock(m_xTimerMutex);
