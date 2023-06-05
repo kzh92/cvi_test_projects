@@ -158,7 +158,7 @@ int GPIO_fast_config(int gpio, int inout);
 int GPIO_fast_setvalue(int gpio_pin, int value);
 
 int GPIO_fast_getvalue(int gpio);
-#define gpio_irled_on(on) GPIO_fast_setvalue(IR_LED, on)
+#define gpio_irled_on(on) //GPIO_fast_setvalue(IR_LED, on)
 #define gpio_whiteled_on(on) GPIO_fast_setvalue(WHITE_LED, on)
 
 #endif
