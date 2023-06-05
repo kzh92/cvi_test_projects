@@ -1070,80 +1070,449 @@ void* ProcessDVPCaptureFirst(void*)
 
 #endif // USE_VDBTASK
 
-void rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle)
+void rotate_image_inplace_square_private(unsigned char* pbBuffer, int nLineStep, int nSize, int nChannel, int nDegreeAngle, int flip)
 {
     int nIndex = ((nDegreeAngle + 360) / 90) % 4;
+    if (nIndex == 0) return;
 
-    if (nIndex == 0)
-        return;
+    int x, y;
+    int nSizeHalf = (nSize + 1) / 2;
+    int nSizeHalf_1 = nSize / 2;
 
-    unsigned char* pTempBuffer = (unsigned char*)my_malloc(nOrgWidth * nOrgHeight);
+    unsigned char *p0, *p1, *p2, *p3;
 
-    int nDstWidth = nOrgWidth;
-    int nDstHeight = nOrgHeight;
+    int nStep0 = nChannel;                  // TopLet => TopRight
+    int nStep1 = nLineStep * nChannel;      // TopRight => BottomRight
+    int nStep2 = -nChannel;                 // BottomRight => BottomLeft
+    int nStep3 = -nLineStep * nChannel;     // BottomLeft => TopLeft
 
-    if (nIndex % 2 == 1)
-    {
-        nDstWidth = nOrgHeight;
-        nDstHeight = nOrgWidth;
-    }
+    int nNextStep0 = (nLineStep - nSizeHalf) * nChannel;
+    int nNextStep1 =  (-1 - nLineStep * nSizeHalf) * nChannel;
+    int nNextStep2 = (-nLineStep + nSizeHalf) * nChannel;
+    int nNextStep3 = (1 + nLineStep * nSizeHalf) * nChannel;
 
-    int nStartOffset = 0;
-    int nNextOffset = 0;
-    int nLineOffset = 0;
+    p0 = pbBuffer;
+    p1 = pbBuffer + (nSize - 1) * nChannel;
+    p2 = p1 + nLineStep * (nSize - 1) * nChannel;
+    p3 = p0 + nLineStep * (nSize - 1) * nChannel;
 
     if (nIndex == 1)
     {
-        // 90
-        nStartOffset = nOrgWidth * (nOrgHeight - 1);
-        nNextOffset = -nOrgWidth;
-        nLineOffset = (nOrgWidth * nOrgHeight + 1);
+        if (flip)
+        {
+            for (y = 0; y < nSize; y++)
+            {
+                for (x = y + 1; x < nSize; x++)
+                {
+                    unsigned char t[3];
+                    p0 = pbBuffer + y * nLineStep * nChannel + x * nChannel;
+                    p1 = pbBuffer + x * nLineStep * nChannel + y * nChannel;
+                    memcpy(t, p0, nChannel);
+                    memcpy(p0, p1, nChannel);
+                    memcpy(p1, t, nChannel);
+                }
+            }
+        }
+        else
+        {
+            for (y = 0; y < nSizeHalf; y++)
+            {
+                for (x = 0; x < nSizeHalf_1; x++)
+                {
+                    unsigned char t[3];
+
+                    memcpy(t, p0, nChannel);
+                    memcpy(p0, p3, nChannel);
+                    memcpy(p3, p2, nChannel);
+                    memcpy(p2, p1, nChannel);
+                    memcpy(p1, t, nChannel);
+
+                    p0 += nStep0;
+                    p1 += nStep1;
+                    p2 += nStep2;
+                    p3 += nStep3;
+                }
+
+                p0 += nNextStep0;
+                p1 += nNextStep1;
+                p2 += nNextStep2;
+                p3 += nNextStep3;
+            }
+        }
+    }
+    else if (nIndex == 3)
+    {
+        if (flip)
+        {
+            for (y = 0; y < nSize; y++)
+            {
+                for (x = 0; x < nSize - y - 1; x++)
+                {
+                    unsigned char t[3];
+                    p0 = pbBuffer + y * nLineStep * nChannel + x * nChannel;
+                    p1 = pbBuffer + (nSize - x - 1) * nLineStep * nChannel + (nSize - y - 1) * nChannel;
+                    memcpy(t, p0, nChannel);
+                    memcpy(p0, p1, nChannel);
+                    memcpy(p1, t, nChannel);
+                }
+            }
+        }
+        else
+        {
+            for (y = 0; y < nSizeHalf; y++)
+            {
+                for (x = 0; x < nSizeHalf_1; x++)
+                {
+                    unsigned char t[3];
+                    memcpy(t, p0, nChannel);
+                    memcpy(p0, p1, nChannel);
+                    memcpy(p1, p2, nChannel);
+                    memcpy(p2, p3, nChannel);
+                    memcpy(p3, t, nChannel);
+
+                    p0 += nStep0;
+                    p1 += nStep1;
+                    p2 += nStep2;
+                    p3 += nStep3;
+                }
+
+                p0 += nNextStep0;
+                p1 += nNextStep1;
+                p2 += nNextStep2;
+                p3 += nNextStep3;
+            }
+        }
+    }
+}
+
+int rotate_image_private_gcd(int n1, int n2)
+{
+    int a, b = n1, d = n2;
+
+    do 
+    {
+        a = b;
+        b = d;
+        d = a % b;
+    } while (d > 0);
+
+    return b;
+}
+
+bool rotate_image_inplace(unsigned char* pbBuffer, int nSrcWidth, int nSrcHeight, int nChannel, int nDegreeAngle, int flip)
+{
+    int i, nx, ny, s;
+
+    int nIndex = ((nDegreeAngle + 360) / 90) % 4;
+
+    if (nIndex == 0)
+    {
+        if (flip)
+        {
+            int nSrcWidth_2 = nSrcWidth / 2;
+            int y, x;
+            unsigned char t[3];
+            unsigned char* p0;
+            unsigned char* p1;
+            for (y = 0; y < nSrcHeight; y++)
+            {
+                p0 = pbBuffer + nSrcWidth * nChannel * y;
+                p1 = p0 + (nSrcWidth - 1) * nChannel;
+
+                for (x = 0; x < nSrcWidth_2; x++)
+                {
+                    memcpy(t, p0, nChannel);
+                    memcpy(p0, p1, nChannel);
+                    memcpy(p1, t, nChannel);
+                    p0 += nChannel;
+                    p1 -= nChannel;
+                }
+            }
+        }
+        return true;
     }
 
     if (nIndex == 2)
     {
-        // 180
-        nStartOffset = nOrgWidth * nOrgHeight - 1;
-        nNextOffset = -1;
-        nLineOffset = 0;
-    }
-
-    if (nIndex == 3)
-    {
-        // 270
-        nStartOffset = nOrgWidth - 1;
-        nNextOffset = nOrgWidth;
-        nLineOffset = -nOrgWidth * nOrgHeight - 1;
-    }
-
-    unsigned char* pSrcBuf = pbBuffer + nStartOffset;
-    unsigned char* pDstBuf = pTempBuffer;
-
-    int nMinPos = 10000000, nMaxPos = -1;
-    for (int nY = 0; nY < nDstHeight; nY++)
-    {
-        for (int nX = 0; nX < nDstWidth; nX++)
+        if (flip)
         {
-            int nDstOffset = pDstBuf - pTempBuffer;
-            int nSrcOffset = pSrcBuf - pbBuffer;
+            int nSrcHeight_2 = nSrcHeight / 2;
+            unsigned char* p0 = pbBuffer;
+            unsigned char* p1 = pbBuffer + (nSrcHeight - 1) * nSrcWidth * nChannel;
+            unsigned char t[3];
 
-            if (nDstOffset > nMaxPos) nMaxPos = nDstOffset;
-            if (nDstOffset < nMinPos) nMinPos = nDstOffset;
-            if (nSrcOffset > nMaxPos) nMaxPos = nSrcOffset;
-            if (nSrcOffset < nMinPos) nMinPos = nSrcOffset;
-
-            *pDstBuf = *pSrcBuf;
-            pDstBuf++;
-            pSrcBuf += nNextOffset;
+            for (i = 0; i < nSrcHeight_2; i++)
+            {
+                for (int j = 0; j < nSrcWidth; j++)
+                {
+                    memcpy(t, p0, nChannel);
+                    memcpy(p0, p1, nChannel);
+                    memcpy(p1, t, nChannel);
+                    p0 += nChannel;
+                    p1 += nChannel;
+                }
+                p1 -= (2 * nSrcWidth * nChannel);
+            }
         }
+        else
+        {
+            int nSize = nSrcWidth * nSrcHeight;
+            int nHalfSize = nSize / 2;
 
-        pSrcBuf += nLineOffset;
+            unsigned char* p0 = pbBuffer;
+            unsigned char* p1 = pbBuffer + (nSize - 1) * nChannel;
+            unsigned char t[3];
+
+            for (i = 0; i < nHalfSize; i++)
+            {
+                memcpy(t, p0, nChannel);
+                memcpy(p0, p1, nChannel);
+                memcpy(p1, t, nChannel);
+                p0 += nChannel;
+                p1 -= nChannel;
+            }
+        }
+        return true;
     }
 
-    dbug_printf("[%s]%d %d \n", __func__, nMaxPos, nMinPos);
+    int gcd = rotate_image_private_gcd(nSrcWidth, nSrcHeight);
 
-    memcpy(pbBuffer, pTempBuffer, nOrgWidth * nOrgHeight);
-    my_free(pTempBuffer);
+    if (gcd < 16)
+        return false;
+
+    int nSrcWidthSec = nSrcWidth / gcd;
+    int nSrcHeightSec = nSrcHeight / gcd;
+    int nDstWidthSec = nSrcHeightSec;
+    int nDstHeightSec = nSrcWidthSec;
+    int nSizeSec = nSrcHeightSec * nSrcWidthSec * gcd; // 14400
+
+    if (nSizeSec > 65535)
+        return false;
+
+    unsigned char* pbBufferIt = pbBuffer;
+    unsigned char* pb_alloc_buf = (unsigned char*)malloc(nSizeSec * 3 + gcd * nChannel);
+
+    unsigned short *n_rep_idx = (unsigned short*)pb_alloc_buf;                  // (unsigned short*)malloc(nSizeSec * 2);
+    unsigned char  *b_rep_idx = (unsigned char*)(pb_alloc_buf + nSizeSec * 2);  // (unsigned char*)malloc(nSizeSec);
+    unsigned char  *pb_temp = (unsigned char*)(pb_alloc_buf + nSizeSec * 3);    // (unsigned char*)malloc(gcd * nChannel);
+
+    memset(b_rep_idx, 0, nSizeSec);
+
+    for (ny = 0; ny < nSrcHeightSec; ny++)
+    {
+        for (nx = 0; nx < nSrcWidthSec; nx++)
+        {
+            rotate_image_inplace_square_private(pbBufferIt, nSrcWidth, gcd, nChannel, nDegreeAngle, flip);
+            pbBufferIt += gcd * nChannel;
+        }
+        pbBufferIt += (gcd - 1) * nSrcWidth * nChannel;
+    }
+
+    for (ny = 0; ny < nSrcHeightSec; ny++)
+    {
+        for (s = 0; s < gcd; s++)
+        {
+            int ny_ = (ny * gcd + s);
+            for (nx = 0; nx < nSrcWidthSec; nx++)
+            {
+                int nSrc = ny_ * nSrcWidthSec + nx;
+                int nDst = 0;
+                int my = 0;
+                int mx = 0;
+
+                if (nIndex == 1)
+                {
+                    if (flip)
+                    {
+                        mx = ny;
+                        my = nx;
+                    }
+                    else
+                    {
+                        mx = nDstWidthSec - 1 - ny;
+                        my = nx;
+                    }
+                }
+                if (nIndex == 3)
+                {
+                    if (flip)
+                    {
+                        mx = nDstWidthSec - 1 - ny;
+                        my = nDstHeightSec - 1 - nx;
+                    }
+                    else
+                    {
+                        mx = ny;
+                        my = nDstHeightSec - 1 - nx;
+                    }
+                }
+
+                nDst = (my * gcd + s) * nDstWidthSec + mx;
+                n_rep_idx[nDst] = nSrc;
+            }
+        }
+    }
+
+    int st = 0, cu, ne;
+    
+    while (1)
+    {
+        for (; st < nSizeSec; st++)
+        {
+            if (b_rep_idx[st] == 0)
+                break;
+        }
+        if (st == nSizeSec) break;
+
+        memcpy(pb_temp, pbBuffer + st * gcd * nChannel, gcd * nChannel);
+
+        for (cu = st; ; cu = ne)
+        {
+            ne = n_rep_idx[cu];
+            if (ne == st)
+            {
+                memcpy(pbBuffer + cu * gcd * nChannel, pb_temp, gcd * nChannel);
+                b_rep_idx[cu] = 1;
+                break;
+            }
+            
+            memcpy(pbBuffer + cu * gcd * nChannel, pbBuffer + ne * gcd * nChannel, gcd * nChannel);
+            b_rep_idx[cu] = 1;
+        }
+    }
+    free(pb_alloc_buf);
+    return true;
+}
+
+inline void YUV420ToRGB(unsigned char y, unsigned char u, unsigned char v, unsigned char &r, unsigned char &g, unsigned char &b)
+{
+    int Y = y - 16;
+    if (Y < 0) Y = 0;
+    int U = u - 128;
+    int V = v - 128;
+
+    int R = (Y * 1192 + V * 1634) >> 10;
+    int G = (Y * 1192 - V * 834 - 400 * U) >> 10;
+    int B = (Y * 1192 + U * 2066) >> 10;
+
+    r = R > 255 ? 255 : R < 0 ? 0 : R;
+    g = G > 255 ? 255 : G < 0 ? 0 : G;
+    b = B > 255 ? 255 : B < 0 ? 0 : B;
+}
+
+void yuv_to_rgb_shrink(unsigned char* yuv, int n_src_width, int n_src_height, unsigned char* rgb, int n_dst_width, int n_dst_height)
+{
+    int* pnPosDiff = (int*)malloc((n_dst_width + n_dst_height) * 4 * sizeof(int));
+
+    int* posX0 = pnPosDiff;                 // posX0[320];
+    int* posX1 = posX0 + n_dst_width;       // posX1[320];
+    int* posY0 = posX1 + n_dst_width;       // posY0[180];
+    int* posY1 = posY0 + n_dst_height;      // posY1[180];
+
+    int* diffX0 = posY1 + n_dst_height;     // diffX0[320];
+    int* diffX1 = diffX0 + n_dst_width;     // diffX1[320];
+    int* diffY0 = diffX1 + n_dst_width;     // diffY0[180];
+    int* diffY1 = diffY0 + n_dst_height;    // diffY1[180];
+
+    int n_y_size = n_src_height * n_src_width;
+    int nRateXDesToSrc = ((n_src_width - 1) << 10) / (n_dst_width - 1);
+    int nRateYDesToSrc = ((n_src_height - 1) << 10) / (n_dst_height - 1);
+
+    int nX, nY;
+    int nSrcX_10 = 0;
+    for (nX = 0; nX < n_dst_width; nX++)
+    {
+        int nSrcX = nSrcX_10 >> 10;
+        if (n_src_width - 1 <= nSrcX)
+        {
+            posX0[nX] = n_src_width - 1;
+            posX1[nX] = n_src_width - 1;
+            diffX0[nX] = 0;
+            diffX1[nX] = 0x400;
+        }
+        else
+        {
+            int nDiffX = nSrcX_10 - (nSrcX << 10);
+            posX0[nX] = nSrcX;
+            posX1[nX] = nSrcX + 1;
+            diffX0[nX] = nDiffX;
+            diffX1[nX] = 0x400 - nDiffX;
+        }
+        nSrcX_10 += nRateXDesToSrc;
+    }
+
+    int nSrcY_10 = 0;
+    for (nY = 0; nY < n_dst_height; nY++)
+    {
+        int nSrcY = nSrcY_10 >> 10;
+
+        if (n_src_height - 1 <= nSrcY)
+        {
+            posY0[nY] = n_src_height - 1;
+            posY1[nY] = n_src_height - 1;
+            diffY0[nY] = 0;
+            diffY1[nY] = 0x400;
+        }
+        else
+        {
+            int nDiffY = nSrcY_10 - (nSrcY << 10);
+            posY0[nY] = nSrcY;
+            posY1[nY] = nSrcY + 1;
+            diffY0[nY] = nDiffY;
+            diffY1[nY] = 0x400 - nDiffY;
+        }
+        nSrcY_10 += nRateYDesToSrc;
+    }
+
+    unsigned char* pDst = rgb;
+    for (nY = 0; nY < n_dst_height; nY++)
+    {
+        unsigned char* py0 = yuv + n_src_width * posY0[nY];
+        unsigned char* py1 = yuv + n_src_width * posY1[nY];
+
+        unsigned char* puv0 = yuv + n_y_size + n_src_width * (posY0[nY] / 2);
+        unsigned char* puv1 = yuv + n_y_size + n_src_width * (posY1[nY] / 2);
+
+        int dY0 = diffY0[nY];
+        int dY1 = diffY1[nY];
+
+        for (nX = 0; nX < n_dst_width; nX++)
+        {
+            int nSrcIndexX0 = posX0[nX];
+            int nSrcIndexX1 = posX1[nX];
+            int dX0 = diffX0[nX];
+            int dX1 = diffX1[nX];
+
+            unsigned char* py00 = py0 + nSrcIndexX0;
+            unsigned char* py01 = py0 + nSrcIndexX1;
+            unsigned char* py10 = py1 + nSrcIndexX0;
+            unsigned char* py11 = py1 + nSrcIndexX1;
+
+            unsigned char* puv00 = puv0 + (nSrcIndexX0 & 0xFFFFFFFE);
+            unsigned char* puv01 = puv0 + (nSrcIndexX1 & 0xFFFFFFFE);
+            unsigned char* puv10 = puv1 + (nSrcIndexX0 & 0xFFFFFFFE);
+            unsigned char* puv11 = puv1 + (nSrcIndexX1 & 0xFFFFFFFE);
+
+            unsigned char r00, g00, b00, r01, g01, b01, r10, g10, b10, r11, g11, b11;
+
+            YUV420ToRGB(*py00, puv00[1], puv00[0], r00, g00, b00);
+            YUV420ToRGB(*py01, puv01[1], puv01[0], r01, g01, b01);
+            YUV420ToRGB(*py10, puv10[1], puv10[0], r10, g10, b10);
+            YUV420ToRGB(*py11, puv11[1], puv11[0], r11, g11, b11);
+
+            pDst[0] = (dX1 * dY1 * r00 + dY0 * dX1 * r10 + dX0 * dY1 * r01 + dY0 * dX0 * r11 + 0x80000) >> 20;
+            pDst[1] = (dX1 * dY1 * g00 + dY0 * dX1 * g10 + dX0 * dY1 * g01 + dY0 * dX0 * g11 + 0x80000) >> 20;
+            pDst[2] = (dX1 * dY1 * b00 + dY0 * dX1 * b10 + dX0 * dY1 * b01 + dY0 * dX0 * b11 + 0x80000) >> 20;
+
+            pDst += 3;
+        }
+    }
+    free(pnPosDiff);
+}
+
+void rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle)
+{
+    rotate_image_inplace(pbBuffer, nOrgWidth, nOrgHeight, 1, nDegreeAngle, 0);
 }
 
 //gamma = 0.65
