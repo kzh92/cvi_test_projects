@@ -124,28 +124,32 @@ void SenseLockTask::Wait()
 #endif // !__RTK_OS__
 }
 
-void* senseSendThread_ThreadProc1(void* arg)
+void* senseSendThread_ThreadProc1(void*)
 {
     s_msg* msg = NULL;
     MSG* pMsg = NULL;
-    SenseLockTask* pSenseTask = (SenseLockTask*)arg;
 #if (NOTE_INTERVAL_MS)
     MSG* pMsgNext = NULL;
     float rLastSendTime = 0;
     int iLastSendMsgID = -1;
+    pMsg = (MSG*)message_queue_read(&g_queue_send);
 #endif // NOTE_INTERVAL_MS
+#ifndef NOTHREAD_MUL
     dbug_printf("send thread start\n");
+#endif // ! NOTHREAD_MUL
     while(1)
     {
+#if (!NOTE_INTERVAL_MS)
         pMsg = (MSG*)message_queue_tryread(&g_queue_send);
+#endif // NOTE_INTERVAL_MS
         if (pMsg == NULL)
         {
-            if (pSenseTask->GetActive() != 0 && Now() - pSenseTask->GetActive() > 100 && pSenseTask->GetRecvCmdTime() == 0)
-            {
-                pSenseTask->SendReady();
-            }
+#ifdef NOTHREAD_MUL
+            break;
+#else // NOTHREAD_MUL
             my_usleep(1000);
             continue;
+#endif // NOTHREAD_MUL
         }
 
         msg = (s_msg*)pMsg->data1;
@@ -291,7 +295,9 @@ void* senseSendThread_ThreadProc1(void* arg)
         pMsg = pMsgNext;
 #endif // NOTE_INTERVAL_MS
     }
+#ifndef NOTHREAD_MUL
     dbug_printf("send thread end\n");
+#endif // ! NOTHREAD_MUL
     return NULL;
 }
 
@@ -517,6 +523,13 @@ void SenseLockTask::run()
         my_mutex_unlock(SenseLockTask::CommMutex);
         if(pMsg == NULL)
         {
+            if (m_rRecvCmdTime == 0 && m_rActive != 0)
+            {
+                if (Now() - m_rActive > 200)
+                {
+                    SendReady();
+                }
+            }
             continue;
         }
 
