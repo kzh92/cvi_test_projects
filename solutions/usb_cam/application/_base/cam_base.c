@@ -557,18 +557,20 @@ int camera_get_regval(int id, int regaddr)
 int camera_set_exp_byreg(int id, int value)
 {
     int vi_pipe = 0;
-    my_mi_use_lock();
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
+#if (USE_3M_MODE)
+    if (id == MIPI_1_CAM)
+        return 0;
+    vi_pipe = 1;
+#endif
+    my_mi_use_lock();
     pSnsObj = getSnsObj(!USE_3M_MODE ? SMS_SC201CS_MIPI_2M_30FPS_10BIT : SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT);
     if (!pSnsObj)
     {
         my_mi_use_unlock();
         return -1;
     }
-#if (USE_3M_MODE)
-    vi_pipe = 1;
-#endif
     unsigned char b0x3e00Value, b0x3e01Value, b0x3e02Value;
 
     b0x3e00Value = (unsigned char)(value >> 12);
@@ -597,18 +599,20 @@ int camera_get_exp_byreg(int id)
 int camera_set_gain_byreg(int id, int value, int nFineValue)
 {
     int vi_pipe = 0;
-    my_mi_use_lock();
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
+#if (USE_3M_MODE)
+    if (id == MIPI_1_CAM)
+        return 0;
+    vi_pipe = 1;
+#endif
+    my_mi_use_lock();
     pSnsObj = getSnsObj(!USE_3M_MODE ? SMS_SC201CS_MIPI_2M_30FPS_10BIT : SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT);
     if (!pSnsObj)
     {
         my_mi_use_unlock();
         return -1;
     }
-#if (USE_3M_MODE)
-    vi_pipe = 1;
-#endif
 
     pSnsObj->pfnWriteRegEx(vi_pipe, 0x3e09, (unsigned char)value, id == TC_MIPI_CAM_LEFT);
     pSnsObj->pfnWriteRegEx(vi_pipe, 0x3e06, 0x00, id == TC_MIPI_CAM_LEFT);
