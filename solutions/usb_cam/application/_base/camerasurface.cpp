@@ -705,6 +705,9 @@ void* ProcessTCMipiCapture(void */*param*/)
         }
         else if(g_iTwoCamFlag == IR_CAMERA_STEP2)
         {
+#if (USE_3M_MODE)
+            gpio_irled_on(OFF);
+#endif
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
 
             lockIRBuffer();

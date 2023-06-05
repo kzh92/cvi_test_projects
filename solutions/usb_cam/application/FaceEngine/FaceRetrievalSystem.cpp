@@ -410,7 +410,7 @@ void APP_LOG(const char * format, ...)
     va_end (args);
 #endif
 #else // !__RTK_OS__
-#if 0
+#if 1
     va_list valist;
     char str[1024];
     if(g_xEngineParam.iEnableLogFile)
