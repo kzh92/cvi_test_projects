@@ -2466,6 +2466,7 @@ int ProcessSenseFace(int iCmd)
         my_usleep(20 * 1000);
 #endif
         int iUserID = dbm_GetNewUserID();
+        s_msg* reply_msg = NULL;
 #if (N_MAX_HAND_NUM)
         if (g_xSS.iRegisterHand)
         {
@@ -2474,18 +2475,17 @@ int ProcessSenseFace(int iCmd)
 #endif // N_MAX_HAND_NUM
         if(iUserID == -1)
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_FAILED4_MAXUSER);
-            g_pSenseTask->Send_Msg(reply_msg);
-#if (USE_VDBTASK && IR_LED_ONOFF_MODE == 1)
-            if (VDBTask::CaptureCam != TC_MIPI_CAM)
-                camera_set_irled(0, 0);
-#endif // USE_VDBTASK
-            g_xSS.rFaceEngineTime = 0;
-            return -1;
+            reply_msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_FAILED4_MAXUSER);
         }
-        else if(g_xSS.iEnrollMutiDirMode && (g_xSS.iRegisterDir & g_xSS.msg_enroll_itg_data.face_direction))
+        else if(g_xSS.iEnrollMutiDirMode)
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply_Enroll(MR_SUCCESS, -1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+            if ((g_xSS.iRegisterDir & g_xSS.msg_enroll_itg_data.face_direction))
+                reply_msg = SenseLockTask::Get_Reply_Enroll(MR_SUCCESS, -1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+            else if((g_xSS.iRegisterDir & FACE_DIRECTION_MIDDLE) == 0 && g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE)
+                reply_msg = SenseLockTask::Get_Reply_Enroll(MR_FAILED4_INVALIDPARAM, -1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+        }
+        if (reply_msg)
+        {
             g_pSenseTask->Send_Msg(reply_msg);
 #if (USE_VDBTASK && IR_LED_ONOFF_MODE == 1)
             if (VDBTask::CaptureCam != TC_MIPI_CAM)
@@ -2494,7 +2494,7 @@ int ProcessSenseFace(int iCmd)
             g_xSS.rFaceEngineTime = 0;
             return -1;
         }
-        else
+
         {
             if (g_xSS.iRunningCmd == MID_ENROLL_ITG && g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_FACE_NNAME)
             {
@@ -2535,6 +2535,11 @@ int ProcessSenseFace(int iCmd)
                 g_iEnrollInit = 1;
             }
             else if (!g_xSS.iEnrollMutiDirMode)
+            {
+                FaceEngine::UnregisterFace(-1, g_xSS.iEnrollMutiDirMode);
+                g_xSS.iRegisterDir = 0;
+            }
+            else if (g_xSS.iEnrollMutiDirMode && g_xSS.msg_enroll_itg_data.face_direction == FACE_DIRECTION_MIDDLE)
             {
                 FaceEngine::UnregisterFace(-1, g_xSS.iEnrollMutiDirMode);
                 g_xSS.iRegisterDir = 0;
