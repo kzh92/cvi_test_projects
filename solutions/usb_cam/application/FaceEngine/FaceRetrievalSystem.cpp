@@ -964,6 +964,7 @@ int checkFaceInClr_expand_shrink_DNN(unsigned char* pClrBuffer_YUV222, int nBuff
 //    }
     //g_pbFaceDetectionBuffer = g_shared_mem + getDetectMenSize();
     unsigned char *pbDstBuffer = g_shared_mem + nOffset;
+    memset(pbDstBuffer, 0x80, g_DNN_Detection_input_width * g_DNN_Detection_input_height);
 
     for(nY = 0; nY < CheckFaceBufferClr_Height; nY ++)
     {
@@ -990,15 +991,17 @@ int checkFaceInClr_expand_shrink_DNN(unsigned char* pClrBuffer_YUV222, int nBuff
                     nYInBayer = nSrcX;
                 }
 
-                bDstValue = pClrBuffer_YUV222[nYInBayer * (nBufferHeight * 2) + nXInBayer * 2];
+                bDstValue = pClrBuffer_YUV222[nYInBayer * (nBufferHeight) + nXInBayer];
             }
             //g_pbCheckFaceBuffer[nY * CheckFaceBuffer_Width + nX] = bDstValue;
 
-#ifdef DETECT_USE_NCNN
-            prDstBuffer[nY * CheckFaceBuffer_Width + nX] = (float)((int)bDstValue - 127) / 128;
-#else
-            pbDstBuffer[nY * CheckFaceBufferClr_Width + nX] = bDstValue;
-#endif
+// #ifdef DETECT_USE_NCNN
+//             prDstBuffer[nY * CheckFaceBuffer_Width + nX] = (float)((int)bDstValue - 127) / 128;
+// #else
+//             pbDstBuffer[nY * CheckFaceBufferClr_Width + nX] = bDstValue;
+// #endif
+            pbDstBuffer[nY * g_DNN_Detection_input_width + nX] = bDstValue;
+
         }
     }
 
@@ -1007,7 +1010,7 @@ int checkFaceInClr_expand_shrink_DNN(unsigned char* pClrBuffer_YUV222, int nBuff
         APP_LOG("[%d] stop by flag_stop\n", (int)Now());
         return 0;
     }
-    int nFaceCheck = checkFace(pbDstBuffer, CheckFaceBufferClr_Width, CheckFaceBufferClr_Height);
+    int nFaceCheck = checkFace(pbDstBuffer, g_DNN_Detection_input_width, g_DNN_Detection_input_height);
 
     return nFaceCheck;
 }
