@@ -1791,8 +1791,8 @@ int MsgProcSense(MSG* pMsg)
 #if (USE_VDBTASK)
         else
         {
-            // int iSuccessCode = saveUvcScene();
-            int iSuccessCode = MR_FAILED4_NOCAMERA;
+            int iSuccessCode = saveUvcScene();
+            //int iSuccessCode = MR_FAILED4_NOCAMERA;
             if (iSuccessCode != MR_SUCCESS)
             {
                 s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, iSuccessCode);
