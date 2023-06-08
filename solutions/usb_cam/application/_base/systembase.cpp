@@ -76,7 +76,7 @@ exit2:
         if (iCheckOk)
             goto exit1;
 #else // N_MAX_HAND_NUM == 0
-        if (iCheckOk)
+        if (iCheckOk || iCurPart == DB_PART_BACKUP)
         {
             iRet = FaceEngine::CreateHand(ENROLL_DUPLICATION_CHECK, g_xSS.iCameraRotate, g_xPS.x.iChecksumDNN, g_xPS.x.iCheckSumH);
             my_printf("2.h = %d, u = %d, %d.\n", dbm_GetHandCount(), g_xCS.x.bHandCount, iCheckOk);
