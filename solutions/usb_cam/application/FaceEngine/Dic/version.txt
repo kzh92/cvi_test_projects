@@ -1,9 +1,0 @@
-detect.bin:fdir_1.0
-dlamk.bin:vfl_1.10
-Live_SC_1.04 (SpoofA_SC_1.04 + SpoofB_SC_1.04 + SpoofC_SC_1.04)
-a1.bin, a2.bin:SpoofA_SC_1.04
-b.bin, b2.bin:SpoofB_SC_1.04
-c.bin:SpoofC_SC_1.04
-wno.bin:mfnp_ir01nq
-occ.bin:occ_1.02
-esn.bin:esn_1.02
