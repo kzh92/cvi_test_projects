@@ -9,7 +9,7 @@
  * Device descriptor
  */
 
-#define CVITEK_VENDOR_ID        0x3346    /* cvitek vendor id */
+#define CVITEK_VENDOR_ID        0x055a    /* lenovo vendor id */
 #define CVITEK_PRODUCT_ID       0x0001    /* Webcam A/V gadget */
 #define CVITEK_DEVICE_BCD       0x0001    /* 0.01 */
 #define VIDEO_IN_EP             0x81
@@ -359,33 +359,31 @@ static const struct UVC_STRING_DESCRIPTOR(1) uvc_string_descriptor_zero = {
 };
 
 
-DECLARE_UVC_STRING_DESCRIPTOR(6);
+DECLARE_UVC_STRING_DESCRIPTOR(5);
 
-static const struct UVC_STRING_DESCRIPTOR(6) uvc_string_descriptor_manufacturer = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(6),
+static const struct UVC_STRING_DESCRIPTOR(5) uvc_string_descriptor_manufacturer = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(5),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
-        cpu_to_le16('C'),
-        cpu_to_le16('V'),
-        cpu_to_le16('I'),
-        cpu_to_le16('T'),
         cpu_to_le16('E'),
-        cpu_to_le16('K'),
+        cpu_to_le16('a'),
+        cpu_to_le16('s'),
+        cpu_to_le16('e'),
+        cpu_to_le16('n'),
     },
 };
 
-DECLARE_UVC_STRING_DESCRIPTOR(13);
+DECLARE_UVC_STRING_DESCRIPTOR(12);
 
-static const struct UVC_STRING_DESCRIPTOR(13) uvc_string_descriptor_product = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(13),
+static const struct UVC_STRING_DESCRIPTOR(12) uvc_string_descriptor_product = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(12),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
-        cpu_to_le16('C'),
-        cpu_to_le16('V'),
-        cpu_to_le16('I'),
-        cpu_to_le16('T'),
         cpu_to_le16('E'),
-        cpu_to_le16('K'),
+        cpu_to_le16('a'),
+        cpu_to_le16('s'),
+        cpu_to_le16('e'),
+        cpu_to_le16('n'),
         cpu_to_le16(' '),
         cpu_to_le16('C'),
         cpu_to_le16('a'),
@@ -396,18 +394,17 @@ static const struct UVC_STRING_DESCRIPTOR(13) uvc_string_descriptor_product = {
     },
 };
 
-DECLARE_UVC_STRING_DESCRIPTOR(12);
+DECLARE_UVC_STRING_DESCRIPTOR(11);
 
-static const struct UVC_STRING_DESCRIPTOR(12) uvc_string_descriptor_speaker = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(12),
+static const struct UVC_STRING_DESCRIPTOR(11) uvc_string_descriptor_speaker = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(11),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
-        cpu_to_le16('C'),
-        cpu_to_le16('V'),
-        cpu_to_le16('I'),
-        cpu_to_le16('T'),
         cpu_to_le16('E'),
-        cpu_to_le16('K'),
+        cpu_to_le16('a'),
+        cpu_to_le16('s'),
+        cpu_to_le16('e'),
+        cpu_to_le16('n'),
         cpu_to_le16(' '),
         cpu_to_le16('A'),
         cpu_to_le16('u'),
@@ -417,18 +414,17 @@ static const struct UVC_STRING_DESCRIPTOR(12) uvc_string_descriptor_speaker = {
     },
 };
 
-DECLARE_UVC_STRING_DESCRIPTOR(10);
+DECLARE_UVC_STRING_DESCRIPTOR(9);
 
-static const struct UVC_STRING_DESCRIPTOR(10) uvc_string_descriptor_mic = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(10),
+static const struct UVC_STRING_DESCRIPTOR(9) uvc_string_descriptor_mic = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(9),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
-        cpu_to_le16('C'),
-        cpu_to_le16('V'),
-        cpu_to_le16('I'),
-        cpu_to_le16('T'),
         cpu_to_le16('E'),
-        cpu_to_le16('K'),
+        cpu_to_le16('a'),
+        cpu_to_le16('s'),
+        cpu_to_le16('e'),
+        cpu_to_le16('n'),
         cpu_to_le16(' '),
         cpu_to_le16('M'),
         cpu_to_le16('I'),
@@ -436,8 +432,8 @@ static const struct UVC_STRING_DESCRIPTOR(10) uvc_string_descriptor_mic = {
     },
 };
 
-static const struct UVC_STRING_DESCRIPTOR(10) uvc_string_descriptor_serial = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(10),
+static const struct UVC_STRING_DESCRIPTOR(9) uvc_string_descriptor_serial = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(9),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
         cpu_to_le16('2'),
@@ -448,7 +444,6 @@ static const struct UVC_STRING_DESCRIPTOR(10) uvc_string_descriptor_serial = {
         cpu_to_le16('2'),
         cpu_to_le16('1'),
         cpu_to_le16('3'),
-        cpu_to_le16('0'),
         cpu_to_le16('0'),
     },
 };
