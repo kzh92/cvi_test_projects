@@ -12,7 +12,15 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
     {
         .u16width = 1920,
         .u16height = 1080,
-        .u8VbBlkCnt = 6,
+        .u8VbBlkCnt = 3,
+        .fmt = PIXEL_FORMAT_NV21,
+        .enBitWidth = DATA_BITWIDTH_8,
+        .enCmpMode = COMPRESS_MODE_NONE,
+    },
+    {
+        .u16width = 1280,
+        .u16height = 720,
+        .u8VbBlkCnt = 3,
         .fmt = PIXEL_FORMAT_NV21,
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,
@@ -20,7 +28,7 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
 };
 
 PARAM_SYS_CFG_S  g_stSysCtx = {
-    .u8VbPoolCnt = 1,
+    .u8VbPoolCnt = 2,
     .u8ViCnt = 2,
     .stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_ONLINE,
     .stVPSSMode.enMode = VPSS_MODE_DUAL,

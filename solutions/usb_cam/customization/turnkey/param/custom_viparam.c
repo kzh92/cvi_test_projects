@@ -9,11 +9,6 @@
 #include "appdef.h"
 #define BIN_DATA_SIZE       347537
 extern unsigned char rgb_color_mode_param[];
-#define MY_USE_DMA_BUF
-#ifdef MY_USE_DMA_BUF
-void * g_ViDmaBuf = NULL;
-unsigned int g_ViDmaBufSize = 18883840;
-#endif
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
 #if (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)
     {
@@ -81,13 +76,6 @@ PARAM_VI_CFG_S g_stViCtx = {
 };
 
 PARAM_VI_CFG_S * PARAM_GET_VI_CFG(void) {
-#ifdef MY_USE_DMA_BUF
-    if(g_ViDmaBuf == NULL) {
-        g_ViDmaBuf = (void *)malloc(g_ViDmaBufSize);
-    }
-    g_stViCtx.pstDevInfo[0].pViDmaBuf = g_ViDmaBuf;
-    g_stViCtx.pstDevInfo[0].u32ViDmaBufSize = g_ViDmaBufSize;
-#endif
     return &g_stViCtx;
 }
 
