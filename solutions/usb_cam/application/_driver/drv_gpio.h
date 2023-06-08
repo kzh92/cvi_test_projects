@@ -36,6 +36,7 @@ extern	"C"
 #define WHITE_LED               18 /* XGPIOA[18] Group:0 Num:18 */
 #define CAM_MIPI0_PWDN          217 /* XGPIOC_17 Group:2 Num:17*/
 #define CAM_MIPI1_PWDN          216 /* XGPIOC_17 Group:2 Num:16*/
+#define AUDIO_EN				15 /* XGPIOA[15] Group:0 Num:15*/
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"
 #endif // DEFAULT_BOARD_TYPE

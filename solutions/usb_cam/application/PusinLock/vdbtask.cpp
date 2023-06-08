@@ -176,6 +176,9 @@ void VDBTask::Start()
 
 void VDBTask::Stop()
 {
+#ifdef AUDIO_EN
+    GPIO_fast_setvalue(AUDIO_EN, OFF);
+#endif
     m_iRunning = 0;
     if (m_thread != NULL)
     {
@@ -201,6 +204,9 @@ void VDBTask::run()
     // start uvc
     //my_printf("before av init\n");
     // MEDIA_UVC_Init();
+#ifdef AUDIO_EN
+    GPIO_fast_setvalue(AUDIO_EN, ON);
+#endif
     MEDIA_AV_Init();
     //my_printf("after av init\n");
 #if 0

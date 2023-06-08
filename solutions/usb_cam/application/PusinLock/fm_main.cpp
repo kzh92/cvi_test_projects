@@ -190,10 +190,10 @@ void DriverInit()
     GPIO_fast_setvalue(IR_LED, OFF);
 #endif
 
-// #ifdef AUDIO_EN
-//     GPIO_fast_config(AUDIO_EN, OUT);
-//     GPIO_fast_setvalue(AUDIO_EN, OFF);
-// #endif
+#ifdef AUDIO_EN
+    GPIO_fast_config(AUDIO_EN, OUT);
+    GPIO_fast_setvalue(AUDIO_EN, OFF);
+#endif
 
 // #ifdef M24C64_WP
 //     GPIO_fast_config(M24C64_WP, OUT);
