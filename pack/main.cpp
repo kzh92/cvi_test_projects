@@ -11,7 +11,15 @@
 
 #define IMG_RESOURCEDIR     "./pack"
 #define RESOURCEDIR         "./pack"
-#define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine"
+
+#if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
+#define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D10/"
+#elif(DEFAULT_CHIP_TYPE == MY_CHIP_D20)
+#define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D20/"
+#else // DEFAULT_CHIP_TYPE
+#error "Invalid chip type"
+#endif // DEFAULT_CHIP_TYPE
+
 #define IMAGEDIR            "./pack/images"
 #if (USE_16M_FLASH == 0)
 #define APP_DIR             "rootfs/test/"
@@ -148,36 +156,36 @@ int main(int /*argc*/, char** /*argv*/)
     printf("--------------\n");
 
 #if (USE_TWIN_ENGINE == 1)
-    system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/Dic/hdic_1.bin " RESOURCEDIR "/hdic_1_encode.bin");
+    system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/hdic_1.bin " RESOURCEDIR "/hdic_1_encode.bin");
 #endif
 
     const char* merge_path1[] = {
-        FACEENGINEDIR "/Dic/wno.bin",
-        FACEENGINEDIR "/Dic/detect.bin",
-        FACEENGINEDIR "/Dic/dlamk.bin",
+        FACEENGINEDIR "/wno.bin",
+        FACEENGINEDIR "/detect.bin",
+        FACEENGINEDIR "/dlamk.bin",
     #if (DESMAN_ENC_MODE == 0)
-        FACEENGINEDIR "/Dic/occ.bin",
-        FACEENGINEDIR "/Dic/esn.bin",
+        FACEENGINEDIR "/occ.bin",
+        FACEENGINEDIR "/esn.bin",
     #endif // DESMAN_ENC_MODE
     #if (ENGINE_USE_TWO_CAM)
-        FACEENGINEDIR "/Dic/a1.bin",
-        FACEENGINEDIR "/Dic/a2.bin",
-        FACEENGINEDIR "/Dic/b.bin",
-        FACEENGINEDIR "/Dic/b2.bin",
-        FACEENGINEDIR "/Dic/c.bin",
+        FACEENGINEDIR "/a1.bin",
+        FACEENGINEDIR "/a2.bin",
+        FACEENGINEDIR "/b.bin",
+        FACEENGINEDIR "/b2.bin",
+        FACEENGINEDIR "/c.bin",
     #else // ENGINE_USE_TWO_CAM
-        FACEENGINEDIR "/Dic/a1_onecam.bin",
-        FACEENGINEDIR "/Dic/a2_onecam.bin",
-        FACEENGINEDIR "/Dic/c_onecam.bin",
+        FACEENGINEDIR "/a1_onecam.bin",
+        FACEENGINEDIR "/a2_onecam.bin",
+        FACEENGINEDIR "/c_onecam.bin",
     #endif // ENGINE_USE_TWO_CAM
     #if (N_MAX_HAND_NUM)
-        FACEENGINEDIR "/Dic/detect_h.bin",
-        FACEENGINEDIR "/Dic/dlamk_h.bin",
-        FACEENGINEDIR "/Dic/ch.bin",
-        FACEENGINEDIR "/Dic/wnh.bin",
+        FACEENGINEDIR "/detect_h.bin",
+        FACEENGINEDIR "/dlamk_h.bin",
+        FACEENGINEDIR "/ch.bin",
+        FACEENGINEDIR "/wnh.bin",
     #endif // N_MAX_HAND_NUM
     #if (USE_TWIN_ENGINE)
-        FACEENGINEDIR "/Dic/hdic_2.bin",
+        FACEENGINEDIR "/hdic_2.bin",
     #endif
         RESOURCEDIR "/rc/face_ir.bin",
     #if (USE_UAC_MODE)
