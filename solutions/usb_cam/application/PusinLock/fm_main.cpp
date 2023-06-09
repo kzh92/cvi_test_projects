@@ -267,6 +267,7 @@ void ReleaseAll()
 void StartVDB()
 {
 #if (USE_VDBTASK)
+    //StartCamSurface(0);
     my_mutex_lock(g_xVDBMutex);
 #ifdef MID_VIDEO_ON
     g_xSS.iVDBCmd = MID_VIDEO_ON;

@@ -118,7 +118,7 @@ enum
 
 void    ConvertYUYV_toYUV420(unsigned char* data, int width, int height, unsigned char* dstData);
 void    rotateYUV420SP_flip(unsigned char* src, int width, int height, unsigned char* dst, int angle, int flip = 0);
-int     CalcClrNextExposure(unsigned char* pbClrBuf);
+int     CalcClrNextExposure(unsigned char* pbClrBuf, int , int);
 int     WaitClrTimeout(int iTimeout);
 int     WaitClrCancel();
 void    StartClrCam();

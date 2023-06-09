@@ -611,12 +611,16 @@ void* ProcessTCMipiCapture(void */*param*/)
     CVI_U32 dev = 0;
     CVI_S32 s_ret = 0;
     int pat_set = 0;
-
-    dbug_printf("[%s]\n", __func__);
-
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
+#if (CHECK_CLR_IR_SWITCH_THR)
+    float rStartTime = Now();
+    float rDarkTime = 0;
+#endif // CHECK_CLR_IR_SWITCH_THR
+
+    dbug_printf("[%s]\n", __func__);
+
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     dev = 0;
 #else
@@ -650,12 +654,23 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121)
         dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 1: 0);
 #endif
+#if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
+        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE)
+        {
+            dev = 0;
+            if (Now () - rOld < 100)
+            {
+                my_usleep(5000);
+                continue;
+            }
+        }
+#endif // USE_3M_MODE
         // my_printf("[%0.1f]mc.0: %do, %dc, %dt, dev=%d\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag, dev);
 
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
         if (s_ret != CVI_SUCCESS)
         {
-            g_xSS.iCamError = CAM_ERROR_MIPI2;
+            g_xSS.iCamError = (dev == 0 ? CAM_ERROR_DVP2 : CAM_ERROR_MIPI2);
             GPIO_fast_setvalue(IR_LED, OFF);
             break;
         }
@@ -676,7 +691,37 @@ void* ProcessTCMipiCapture(void */*param*/)
         if (g_iTwoCamFlag != -1 && rOld != 0)
             dbug_printf("[%0.1f]mc: %do, %dc, %dt\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
-
+#if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
+        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && dev == 0)
+        {
+            lockIRBuffer();
+            size_t test_pos = 0;
+            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
+            {
+                g_irOnData2[test_pos++] = ptr[k];
+                g_irOnData2[test_pos++] = ptr[k+1];
+                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                    break;
+            }
+            unlockIRBuffer();
+            int luma = CalcClrNextExposure(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            my_printf("luma1: %d, %d\n", luma, (int)Now());
+            if (luma < CHECK_CLR_IR_SWITCH_THR)
+            {
+                if (Now() - rStartTime >= 200)
+                {
+                    if (rDarkTime == 0)
+                        rDarkTime = Now();
+                    else if(Now() - rDarkTime >= 1000)
+                        gpio_whiteled_on(1);
+                }
+                else
+                    gpio_whiteled_on(1);
+            }
+            else
+                rDarkTime = 0;
+        }
+#endif // USE_3M_MODE
         if(g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
         {
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
@@ -731,13 +776,13 @@ void* ProcessTCMipiCapture(void */*param*/)
             WaitIRCancel();
 #if (!USE_3M_MODE || 1)
             g_iTwoCamFlag ++;
-#else
+#else // !USE_3M_MODE
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
             WaitIRCancel2();
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-#endif
+#endif // !USE_3M_MODE
         }
 #if (!USE_3M_MODE || 1)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP3 && g_iTwoCamFlag != IR_CAMERA_STEP4)
@@ -762,6 +807,24 @@ void* ProcessTCMipiCapture(void */*param*/)
             unlockIRBuffer();
             WaitIRCancel2();
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
+#if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
+            int luma = CalcClrNextExposure(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+            my_printf("luma2: %d, %d\n", luma, (int)Now());
+            if (luma < CHECK_CLR_IR_SWITCH_THR)
+            {
+                if (Now() - rStartTime >= 200)
+                {
+                    if (rDarkTime == 0)
+                        rDarkTime = Now();
+                    else if(Now() - rDarkTime >= 1000)
+                        gpio_whiteled_on(1);
+                }
+                else
+                    gpio_whiteled_on(1);
+            }
+            else
+                rDarkTime = 0;
+#endif // USE_3M_MODE
         }
 #endif // !USE_3M_MODE
         else if(iNeedNext == 1)
@@ -947,9 +1010,13 @@ int GetYAVGValueOfClr(unsigned char* pbClrBuf)
     return nEntireValue;
 }
 
-int CalcClrNextExposure(unsigned char* pbClrBuf)
+int CalcClrNextExposure(unsigned char* pbClrBuf, int width, int height)
 {
-    return 0;
+    int sum = 0;
+    for (int i = 0; i < width*height; i ++)
+        sum += pbClrBuf[i];
+    sum = sum / (width * height);
+    return sum;
 }
 
 int WaitClrTimeout(int iTimeout)
