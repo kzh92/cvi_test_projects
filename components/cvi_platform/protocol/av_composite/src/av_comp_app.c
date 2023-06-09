@@ -12,6 +12,7 @@
 #include "uac.h"
 #include "uac_descriptor.h"
 #include <core/core_rv64.h>
+#include "appdef.h"
 
 #define VIDEO_IN_EP 0x81
 
@@ -69,17 +70,7 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 #endif
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-#if 1
-    {1, 1280, 720, 30, 0},
-    {2, 640, 480, 30, 0},
-#else
-    {1, 800, 600, 30, 0},
-    {2, 640, 480, 30, 0},
-    {3, 1280, 720, 30, 0},
-    {4, 1920, 1080, 30, 0},
-    {5, 480, 320, 30, 0},
-    {6, 400, 300, 30, 0},
-#endif
+    UVC_RES_DEFINE
 };
 
 #if 0

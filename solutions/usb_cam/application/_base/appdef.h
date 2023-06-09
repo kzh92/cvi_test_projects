@@ -147,7 +147,7 @@ enum E_Baud_Rate
 #define UVC_MIN_HEIGHT              240
 #define UVC_WIDTH                   640
 #define UVC_HEIGHT                  480
-#define CHECK_CLR_IR_SWITCH_THR     40
+#define CHECK_CLR_IR_SWITCH_THR     20
 #define UVC_CLR_LUMINANCE           0x80
 #define UVC_CLR_SAT_Gl              0x50
 #define UVC_CLR_SAT_Cb              0x42
@@ -165,6 +165,7 @@ enum E_Baud_Rate
 #define UVC_RES_240P                16      //320x240
 #define UVC_RES_320x480             32      //320x480
 #define UVC_RES_FLAG                UVC_RES_480P
+#define UVC_RES_DEFINE              {1, 1280, 720, 30, 0},
 #define UVC_RES_COUNT               1
 #define UVC_MAX_FRAME_SIZE          0
 #define UVC_PAUSE_LIMIT_TIME        0
@@ -442,14 +443,11 @@ enum E_Baud_Rate
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              2
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 640, 480, 30, 0},
 #undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     1
-#undef UVC_RES_FLAG
-#define UVC_RES_FLAG                        (UVC_RES_480P | UVC_RES_720P)
-#undef UVC_RES_COUNT
-#define UVC_RES_COUNT                       2
-// #undef USE_VDBTASK
-// #define USE_VDBTASK                         1
+#define DEFAULT_UVC_DIR                     3
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  2
 #undef USE_3M_MODE
@@ -470,6 +468,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
+#undef CHECK_CLR_IR_SWITCH_THR
+#define CHECK_CLR_IR_SWITCH_THR             0
 
 #endif // FRM_PRODUCT_TYPE
 
