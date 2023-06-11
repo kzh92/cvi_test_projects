@@ -871,7 +871,7 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
             if (usbd_class_request_handler(setup, data, len) < 0) {
                 USB_LOG_ERR("class request error\r\n");
                 usbd_print_setup(setup);
-                return false;
+                //return false;
             }
             break;
         case USB_REQUEST_VENDOR:
