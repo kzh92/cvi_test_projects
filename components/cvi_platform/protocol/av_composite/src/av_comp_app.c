@@ -346,6 +346,7 @@ static void *send_to_uvc()
 	VIDEO_FRAME_INFO_S stVideoFrame, *pstVideoFrame=&stVideoFrame;
 	VPSS_CHN_ATTR_S stChnAttr,*pstChnAttr = &stChnAttr;
 	struct uvc_format_info_st uvc_format_info;
+	int print_flag = 0;
 
     while (uvc_session_init_flag) {
         if (tx_flag) {
@@ -379,6 +380,10 @@ static void *send_to_uvc()
 							MEDIA_VIDEO_VencReleaseStream(0,pstStream);
 							continue;
 					}
+				}
+				if (print_flag ++ < 8)
+				{
+					printf("mjpeg len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 				if(ret != CVI_SUCCESS)
