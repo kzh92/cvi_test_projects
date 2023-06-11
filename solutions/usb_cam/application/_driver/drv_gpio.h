@@ -31,13 +31,11 @@ extern	"C"
 #define WHITE_LED               18 /* XGPIOA[18] Group:0 Num:18 */
 #define CAM_MIPI0_PWDN		    213 /* XGPIOC_13 Group:2 Num:13*/
 #define CAM_MIPI1_PWDN          CAM_MIPI0_PWDN
-#define MY_SPK_EN 	            15 /* XGPIOA_15 */
 #elif (DEFAULT_BOARD_TYPE == BD_TY_FMDASS_1V0J)
 #define IR_LED                  19 /* XGPIOA[19] Group:0 Num:19 */
 #define WHITE_LED               18 /* XGPIOA[18] Group:0 Num:18 */
 #define CAM_MIPI0_PWDN          217 /* XGPIOC_17 Group:2 Num:17*/
 #define CAM_MIPI1_PWDN          216 /* XGPIOC_17 Group:2 Num:16*/
-#define MY_SPK_EN               15 /* XGPIOA_15 */
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"
 #endif // DEFAULT_BOARD_TYPE
