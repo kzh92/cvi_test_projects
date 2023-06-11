@@ -104,6 +104,10 @@ void PLATFORM_IoInit(void)
 	PINMUX_CONFIG(JTAG_CPU_TCK, XGPIOA_18);
 	GPIO_fast_setvalue(IR_LED, OFF);
 	GPIO_fast_setvalue(WHITE_LED, OFF);
+
+	//speaker enable
+	PINMUX_CONFIG(SPK_EN, XGPIOA_15);
+	GPIO_fast_setvalue(MY_SPK_EN, ON);
 }
 #endif // chip type
 
