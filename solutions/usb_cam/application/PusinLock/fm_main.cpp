@@ -2859,14 +2859,16 @@ int ProcessSenseFace(int iCmd)
                     s_msg* msg = NULL;
                     if (iSuccessCode == MR_SUCCESS)
                     {
-                        msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID + N_MAX_PERSON_NUM, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+                        int rID = g_xSS.iRegisterID + N_MAX_PERSON_NUM;
+                        int rDir = g_xSS.iRegisterDir;
+
 #if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
                         if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
                         {
-                            free(msg);
-                            msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+                            rDir = FACE_DIRECTION_HAND;
                         }
 #endif // USE_SANJIANG3_MODE
+                        msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, rID, rDir, g_xSS.iRunningCmd);
                     }
                     else
                         msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, iSuccessCode);

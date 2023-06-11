@@ -943,14 +943,6 @@ s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockStat
     msg_reply_verify_data->user_id_heb = HIGH_BYTE(iUserID);
     msg_reply_verify_data->user_id_leb = LOW_BYTE(iUserID);
 
-#if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
-        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1 && iUserID > N_MAX_PERSON_NUM)
-        {
-            msg_reply_verify_data->user_id_heb = HIGH_BYTE(iUserID - N_MAX_PERSON_NUM);
-            msg_reply_verify_data->user_id_leb = LOW_BYTE(iUserID - N_MAX_PERSON_NUM);
-        }
-#endif // USE_SANJIANG3_MODE
-
     int iID = iUserID - 1;
     PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iID);
 #if (N_MAX_HAND_NUM)
