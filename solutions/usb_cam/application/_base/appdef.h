@@ -484,8 +484,7 @@ enum E_Baud_Rate
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              2
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 640, 480, 30, 0},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
 #undef DEFAULT_UVC_DIR
 #define DEFAULT_UVC_DIR                     1
 #undef ENGINE_USE_TWO_CAM
