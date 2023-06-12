@@ -504,9 +504,10 @@ int MEDIA_AV_Init()
 
 	// csi_dcache_clean_invalid();
 	// csi_dcache_disable();
-	MEDIA_UAC_Init();
 
 	usb_av_comp_init();
+
+	MEDIA_UAC_Init();
 
 	packet_buffer_uvc = (uint8_t *)usb_iomalloc(DEFAULT_FRAME_SIZE);
 
