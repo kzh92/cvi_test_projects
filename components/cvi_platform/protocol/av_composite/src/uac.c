@@ -97,8 +97,8 @@ void usbd_audio_close(uint8_t intf)
 
 static volatile uint32_t total_len = 0;
 static volatile uint32_t offset = 0;
-uint8_t pcm_output[0x100000];
-uint32_t pcm_output_size =0;
+// uint8_t pcm_output[0x100000];
+// uint32_t pcm_output_size =0;
 
 static aos_sem_t g_audio_write_sem;
 
