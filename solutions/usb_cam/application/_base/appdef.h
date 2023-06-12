@@ -468,8 +468,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-#undef CHECK_CLR_IR_SWITCH_THR
-#define CHECK_CLR_IR_SWITCH_THR             0
+// #undef CHECK_CLR_IR_SWITCH_THR
+// #define CHECK_CLR_IR_SWITCH_THR             0
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DAS3M_PUXIN_UAC)
