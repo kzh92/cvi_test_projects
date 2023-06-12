@@ -207,35 +207,24 @@ extern "C" csi_wdt_t g_wdt;
 void WatchTask::run()
 {
     int iROKCounter = 0;
-    float rOldTime = Now();
+    // float rOldTime = Now();
     my_printf("=========== WatchTask start\n");
 #ifdef PSENSE_DET
     int iPowerOnFlag = 0;
-    iPowerOnFlag = YAOYANG_MODE ? (!GPIO_fast_getvalue(PSENSE_DET)) : GPIO_fast_getvalue(PSENSE_DET);
+    iPowerOnFlag = GPIO_fast_getvalue(PSENSE_DET);
 #endif // PSENSE_DET
 
     while(m_iRunning)
     {
-        if (Now() - rOldTime > 300)
-        {
-            // csi_wdt_feed(&g_wdt);
-            dbug_printf("[%d]ROK\n", (int)Now());
-            rOldTime = Now();
-            my_usleep(20*1000);
-        }
-        float rNow = Now();
-        my_mutex_lock(m_xTimerMutex);
-        for(int i = 0; i < m_iTimerCount; i ++)
-        {
-            if(rNow - m_arTimerTick[i] > m_aiTimerMsec[i] * 1000)
-            {
-                m_arTimerTick[i] = rNow;
-//                SendGlobalMsg(MSG_WATCH, WATCH_TYPE_TIMER, m_aiTimerIDs[i], m_aiTimerCounter[i]);
-            }
-        }
-        my_mutex_unlock(m_xTimerMutex);
+        // if (Now() - rOldTime > 300)
+        // {
+        //     // csi_wdt_feed(&g_wdt);
+        //     dbug_printf("[%d]ROK\n", (int)Now());
+        //     rOldTime = Now();
+        //     my_usleep(20*1000);
+        // }
 #ifdef PSENSE_DET
-        int bFlag = YAOYANG_MODE ? !GPIO_fast_getvalue(PSENSE_DET): GPIO_fast_getvalue(PSENSE_DET);
+        int bFlag = GPIO_fast_getvalue(PSENSE_DET);
         if (bFlag == 0 && iPowerOnFlag != 0)
         {
             SendGlobalMsg(MSG_SENSE, 0, SENSE_READY_DETECTED, 0);
@@ -247,28 +236,16 @@ void WatchTask::run()
         {
             if (g_xSS.iUsbHostMode == 0)
             {
-#ifdef GPIO_USBSense
-                int iFlagUSB = GPIO_fast_getvalue(GPIO_USBSense);
-#endif
                 if (g_xSS.rLastSenseCmdTime == 0 &&
                          g_xSS.rAppStartTime != 0 &&
                          Now() - g_xSS.rAppStartTime >= USB_UPGRADE_TIMEOUT * 1000)
                 {
-#if defined(PSENSE_DET) && defined(GPIO_USBSense)
-                    if (iFlagUSB == 0 && bFlag == 1)
-#elif defined(PSENSE_DET)
+#ifdef PSENSE_DET
                     if (bFlag == 1)
 #endif
                     {
-#if (ROOTFS_BAK)
-                    if (get_cur_rootfs_part() == RFS_PART0)
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_USB_START, 1);
-                    else
-                        SendGlobalMsg(MSG_SENSE, 0, OTA_USB_START, 0);
-#else // ROOTFS_BAK
                         //SendGlobalMsg(MSG_SENSE, 0, OTA_USB_START, 1);
                         g_xSS.iUsbHostMode = 1;
-#endif
                     }
                 }
             }

@@ -189,58 +189,22 @@ void DriverInit()
     GPIO_fast_config(IR_LED, OUT);
     GPIO_fast_setvalue(IR_LED, OFF);
 #endif
+#if (USE_WHITE_LED)
+    GPIO_fast_config(WHITE_LED, OUT);
+    GPIO_fast_setvalue(WHITE_LED, OFF);
+#endif
 
 #ifdef AUDIO_EN
     GPIO_fast_config(AUDIO_EN, OUT);
     GPIO_fast_setvalue(AUDIO_EN, OFF);
 #endif
 
-// #ifdef M24C64_WP
-//     GPIO_fast_config(M24C64_WP, OUT);
-//     GPIO_fast_setvalue(M24C64_WP, OFF);
-// #endif
-
-// #ifdef PSENSE_DET
-//     GPIO_fast_config(PSENSE_DET, IN);
-// #endif // PSENSE_DET
-
-// #ifdef GPIO_USBSense
-//     GPIO_fast_config(GPIO_USBSense, IN);
-// #endif
-
-// #if (USE_WIFI_MODULE)
-// #ifdef UART_EN
-//     GPIO_fast_config(UART_EN, OUT);
-//     GPIO_fast_setvalue(UART_EN, OFF);
-// #endif
-// #else // USE_WIFI_MODULE
-// #ifdef UART_EN
-//     GPIO_fast_config(UART_EN, OUT);
-//     GPIO_fast_setvalue(UART_EN, ON);
-// #endif
-// #endif // USE_WIFI_MODULE
-
-// #ifdef IOCtl
-//     GPIO_fast_config(IOCtl, OUT);
-//     GPIO_fast_setvalue(IOCtl, OFF);
-// #endif
-
-// #ifdef AUDIO_EN
-//     GPIO_fast_config(AUDIO_EN, OUT);
-//     GPIO_fast_setvalue(AUDIO_EN, OFF);
-// #endif
-
-// #ifdef SPI_CS
-//     GPIO_fast_config(SPI_CS, OUT);
-//     GPIO_fast_setvalue(SPI_CS, 1);
-// #endif
-
-    //CreateSharedMem();
+#ifdef PSENSE_DET
+    GPIO_fast_config(PSENSE_DET, IN);
+#endif // PSENSE_DET
 
     M24C64_Open();
     UART_Init();
-
-    // ST_Base_Init();
 }
 
 void DriverRelease()
@@ -406,7 +370,7 @@ int processGlobalMsg()
                     break;
                 }
             }
-            else if(pSenseMsg->mid == MID_START_OTA && g_xSS.iStartOta)
+            else if(pSenseMsg && pSenseMsg->mid == MID_START_OTA && g_xSS.iStartOta)
             {
                 g_xSS.iMState = MS_OTA;
                 SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
@@ -1124,15 +1088,13 @@ int MsgProcSense(MSG* pMsg)
         {
             ResetFMStates();
 
-            UART_Release();
-            UART_Quit();
-            UART_Init();
-            UART_Create();
+            // UART_Release();
+            // UART_Quit();
+            // UART_Init();
+            // UART_Create();
             my_usleep(100*1000);
-            s_msg* msg = SenseLockTask::Get_Note(NID_READY);
-            g_pSenseTask->SetActive(1);
-            g_pSenseTask->Send_Msg(msg);
-            my_printf("Send Ready, running, %0.3f\n", Now());
+            g_pSenseTask->SendReady();            
+            my_printf("SR, running, %0.3f\n", Now());
             return -1;
         }
         else

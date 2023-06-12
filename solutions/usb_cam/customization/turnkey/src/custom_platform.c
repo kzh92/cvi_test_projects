@@ -102,8 +102,6 @@ void PLATFORM_IoInit(void)
 	PINMUX_CONFIG(JTAG_CPU_TMS, XGPIOA_19);
 	//White LED GPIO
 	PINMUX_CONFIG(JTAG_CPU_TCK, XGPIOA_18);
-	GPIO_fast_setvalue(IR_LED, OFF);
-	GPIO_fast_setvalue(WHITE_LED, OFF);
 }
 #endif // chip type
 

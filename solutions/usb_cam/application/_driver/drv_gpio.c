@@ -16,11 +16,11 @@ static int g_csi_gpio_inited = 0;
 
 int GPIO_fast_init()
 {
-	if (g_csi_gpio_inited)
-		return 0;
-	g_csi_gpio_inited = 1;
-	for (int i = 0 ; i < 5 ; i++)
-		csi_gpio_init(&gpio[i], i);
+    if (g_csi_gpio_inited)
+        return 0;
+    g_csi_gpio_inited = 1;
+    for (int i = 0 ; i < 5 ; i++)
+        csi_gpio_init(&gpio[i], i);
     return 0;
 }
 
@@ -28,32 +28,39 @@ void GPIO_fast_deinit()
 {
 }
 
-int GPIO_fast_config(int gpio, int inout)
+int GPIO_fast_config(int gpio_pin, int inout)
 {
+    csi_error_t ret;
+
+    unsigned int gpio_grp = gpio_pin / 100;
+    unsigned int gpio_num = gpio_pin % 100;
+    dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    
+    // gpio write
+    ret = csi_gpio_dir(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), GPIO_DIRECTION_OUTPUT);
+
+    if(ret != CSI_OK) {
+        printf("csi_gpio_dir failed\r\n");
+        return -1;
+    }
     return 0;
 }
 
 int GPIO_fast_setvalue(int gpio_pin, int value)
 {
-	csi_error_t ret;
-
-	unsigned int gpio_grp = gpio_pin / 100;
-	unsigned int gpio_num = gpio_pin % 100;
-	dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
-	
-	// gpio write
-	ret = csi_gpio_dir(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), GPIO_DIRECTION_OUTPUT);
-
-	if(ret != CSI_OK) {
-		printf("csi_gpio_dir failed\r\n");
-		return -1;
-	}
-	csi_gpio_write(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), value);
-	//printf("test pin end and success.\r\n");
+    unsigned int gpio_grp = gpio_pin / 100;
+    unsigned int gpio_num = gpio_pin % 100;
+    dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    
+    csi_gpio_write(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), value);
     return 0;
 }
 
-int GPIO_fast_getvalue(int gpio)
+int GPIO_fast_getvalue(int gpio_pin)
 {
-    return 0;
+    unsigned int gpio_grp = gpio_pin / 100;
+    unsigned int gpio_num = gpio_pin % 100;
+    dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    
+    return csi_gpio_read(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num));
 }
