@@ -705,7 +705,6 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
             unlockIRBuffer();
             int luma = CalcClrNextExposure(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            my_printf("luma1: %d, %d\n", luma, (int)Now());
             if (luma < CHECK_CLR_IR_SWITCH_THR)
             {
                 if (Now() - rStartTime >= 200)
@@ -713,7 +712,10 @@ void* ProcessTCMipiCapture(void */*param*/)
                     if (rDarkTime == 0)
                         rDarkTime = Now();
                     else if(Now() - rDarkTime >= 1000)
+                    {
+                        my_printf("luma1: %d, %d\n", luma, (int)Now());
                         gpio_whiteled_on(1);
+                    }
                 }
                 else
                     gpio_whiteled_on(1);
@@ -809,7 +811,6 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
 #if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
             int luma = CalcClrNextExposure(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            my_printf("luma2: %d, %d\n", luma, (int)Now());
             if (luma < CHECK_CLR_IR_SWITCH_THR)
             {
                 if (Now() - rStartTime >= 200)
@@ -817,7 +818,10 @@ void* ProcessTCMipiCapture(void */*param*/)
                     if (rDarkTime == 0)
                         rDarkTime = Now();
                     else if(Now() - rDarkTime >= 1000)
+                    {
+                        my_printf("luma2: %d, %d\n", luma, (int)Now());
                         gpio_whiteled_on(1);
+                    }
                 }
                 else
                     gpio_whiteled_on(1);

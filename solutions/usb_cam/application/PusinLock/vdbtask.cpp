@@ -209,6 +209,7 @@ void VDBTask::run()
 #endif
     MEDIA_AV_Init();
     //my_printf("after av init\n");
+    StartCamSurface(0);
 #if 0
     float rOld = Now();
 
