@@ -218,7 +218,7 @@ void WatchTask::run()
     {
         if (Now() - rOldTime > 300)
         {
-            csi_wdt_feed(&g_wdt);
+            // csi_wdt_feed(&g_wdt);
             dbug_printf("[%d]ROK\n", (int)Now());
             rOldTime = Now();
             my_usleep(20*1000);

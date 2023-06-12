@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	#endif
 	//init tpu
 	cvi_tpu_init();
-	watch_dog_test();
+	//watch_dog_test();
 	fmMain();
 	
 	APP_CustomEventStart();
