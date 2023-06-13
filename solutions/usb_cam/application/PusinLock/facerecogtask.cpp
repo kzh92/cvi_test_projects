@@ -2,23 +2,18 @@
 #include "drv_gpio.h"
 #include "appdef.h"
 #include "shared.h"
-// #include "msg.h"
 #include "DBManager.h"
-// #include "msg.h"
 #include "engineparam.h"
 #include "ImageProcessing.h"
 #include "FaceRetrievalSystem.h"
 #include "settings.h"
 #include "camerasurface.h"
 #include "senselockmessage.h"
-// #include "removebackground.h"
-// #include "countbase.h"
 #include "faceengine.h"
-// #include "i2cbase.h"
 #include "jpge.h"
-// #include "shared.h"
 #include "check_camera_pattern.h"
 #include "sn.h"
+#include "senselocktask.h"
 #include <vfs.h>
 
 // #include <unistd.h>
@@ -1003,7 +998,16 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             else if(arEngineResult[0] == ES_ENEXT)
             {
                 my_usleep(20*1000);
+#if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
+                if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+                {
+                    m_iResult = HAND_RESULT_ENROLLED;
+                }
+                else
+                    m_iResult = HAND_RESULT_ENROLLED_NEXT;
+#else // USE_SANJIANG3_MODE
                 m_iResult = HAND_RESULT_ENROLLED_NEXT;
+#endif // USE_SANJIANG3_MODE
                 ret = 1;
             }
         }
