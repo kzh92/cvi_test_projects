@@ -34,7 +34,7 @@ int GPIO_fast_config(int gpio_pin, int inout)
 
     unsigned int gpio_grp = gpio_pin / 100;
     unsigned int gpio_num = gpio_pin % 100;
-    dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    // dbug_printf("[%s] pin=%d, g=%d, n=%d\n", __func__, gpio_pin, gpio_grp, gpio_num);
     
     // gpio write
     ret = csi_gpio_dir(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), GPIO_DIRECTION_OUTPUT);
@@ -50,7 +50,7 @@ int GPIO_fast_setvalue(int gpio_pin, int value)
 {
     unsigned int gpio_grp = gpio_pin / 100;
     unsigned int gpio_num = gpio_pin % 100;
-    dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    // dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
     
     csi_gpio_write(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), value);
     return 0;
@@ -60,7 +60,7 @@ int GPIO_fast_getvalue(int gpio_pin)
 {
     unsigned int gpio_grp = gpio_pin / 100;
     unsigned int gpio_num = gpio_pin % 100;
-    dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    // dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
     
     return csi_gpio_read(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num));
 }
