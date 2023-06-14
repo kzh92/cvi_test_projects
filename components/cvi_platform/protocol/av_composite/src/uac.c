@@ -285,14 +285,14 @@ int MEDIA_UAC_Init(void)
 	uac_session_init_flag = CVI_TRUE;
 
     if(0 != aos_task_new_ext(&read_handle,"audio_read"
-                    ,audio_read,NULL,6*1024,32)) {
+                    ,audio_read,NULL,16*1024,32)) {
         USB_LOG_ERR("create audio_read thread fail\r\n");
         return -1;
     }
 
    aos_sem_new(&g_audio_write_sem, 0);
    if(0 != aos_task_new_ext(&read_handle,"audio_write"
-                    ,audio_write,NULL,6*1024,32)) {
+                    ,audio_write,NULL,16*1024,32)) {
         aos_debug_printf("create audio_read thread fail\r\n");
         return -1;
     }
