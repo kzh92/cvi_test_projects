@@ -108,12 +108,12 @@ void message_queue_write(struct message_queue *queue, void *message) {
 void *message_queue_tryread(struct message_queue *queue) {
 	my_list_node* cur = NULL;
 	my_mutex_lock(g_mtx_queue);
-	cur = queue->m_tail;
+	cur = queue->m_head;
 	if (cur != NULL)
 	{
-		queue->m_tail = cur->prev;
-		if (queue->m_tail != NULL)
-			queue->m_tail->next = NULL;
+		queue->m_head = cur->next;
+		if (queue->m_head != NULL)
+			queue->m_head->prev = NULL;
 		else
 		{
 			queue->m_head = NULL;
@@ -133,12 +133,12 @@ void *message_queue_read(struct message_queue *queue) {
 	my_list_node* cur = NULL;
 	do {
 		my_mutex_lock(g_mtx_queue);
-		cur = queue->m_tail;
+		cur = queue->m_head;
 		if (cur != NULL)
 		{
-			queue->m_tail = cur->prev;
-			if (queue->m_tail != NULL)
-				queue->m_tail->next = NULL;
+			queue->m_head = cur->next;
+			if (queue->m_head != NULL)
+				queue->m_head->prev = NULL;
 			else
 			{
 				queue->m_head = NULL;
