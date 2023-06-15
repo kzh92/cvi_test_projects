@@ -26,6 +26,7 @@
 
 #define TAG "app"
 
+#if (USE_WATCHDOG)
 #include <soc.h>
 #include <drv/wdt.h>
 
@@ -96,6 +97,7 @@ int watch_dog_test()
     // ret = -1;
     return ret;
 }
+#endif // USE_WATCHDOG
 
 int main(int argc, char *argv[])
 {
@@ -129,7 +131,9 @@ int main(int argc, char *argv[])
 	#endif
 	//init tpu
 	cvi_tpu_init();
-	//watch_dog_test();
+#if (USE_WATCHDOG)
+	watch_dog_test();
+#endif
 	fmMain();
 	
 	APP_CustomEventStart();

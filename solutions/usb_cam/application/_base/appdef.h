@@ -133,6 +133,7 @@ enum E_Baud_Rate
 #define USE_3M_MODE                 0
 #define USE_UAC_MODE                0
 #define USE_WHITE_LED               0
+#define USE_WATCHDOG                0
 
 #define CLR_CAM_WIDTH               1280
 #define CLR_CAM_HEIGHT              960

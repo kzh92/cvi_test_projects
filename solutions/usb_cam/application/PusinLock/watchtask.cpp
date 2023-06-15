@@ -4,23 +4,12 @@
 #include "appdef.h"
 #include "shared.h"
 #include "msg.h"
-//#include "playthread.h"
 #include "i2cbase.h"
 #include "mount_fs.h"
-//#include "lcdtask.h"
 #include "DBManager.h"
-//#include "uarttask.h"
-//#include "mainbackproc.h"
 #include "senselocktask.h"
 #include "upgradebase.h"
-
-// #include <unistd.h>
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <time.h>
 #include <string.h>
-// #include <math.h>
-// #include <fcntl.h>
 
 extern SenseLockTask* g_pSenseTask;
 
@@ -201,8 +190,10 @@ void WatchTask::ScanBattery(int iSendFlag)
 {
 }
 
+#if (USE_WATCHDOG)
 #include <drv/wdt.h>
 extern "C" csi_wdt_t g_wdt;
+#endif // USE_WATCHDOG
 
 void WatchTask::run()
 {
@@ -216,13 +207,6 @@ void WatchTask::run()
 
     while(m_iRunning)
     {
-        // if (Now() - rOldTime > 300)
-        // {
-        //     // csi_wdt_feed(&g_wdt);
-        //     dbug_printf("[%d]ROK\n", (int)Now());
-        //     rOldTime = Now();
-        //     my_usleep(20*1000);
-        // }
 #ifdef PSENSE_DET
         int bFlag = GPIO_fast_getvalue(PSENSE_DET);
         if (bFlag == 0 && iPowerOnFlag != 0)
@@ -234,6 +218,7 @@ void WatchTask::run()
 
         if((iROKCounter % 10) == 0)
         {
+            printf("[ROK] %d\n", (int)Now());
             if (g_xSS.iUsbHostMode == 0)
             {
                 if (g_xSS.rLastSenseCmdTime == 0 &&
@@ -279,7 +264,6 @@ void WatchTask::run()
 #endif
                 }
             }
-            // PrintFreeMem();
         }
 
         for(int i = 0; i < 10; i ++)
@@ -291,6 +275,9 @@ void WatchTask::run()
                 break;
             }
         }
+#if (USE_WATCHDOG)
+        csi_wdt_feed(&g_wdt);
+#endif
         iROKCounter ++;
     }
     my_printf("=========== WatchTask end\n");
