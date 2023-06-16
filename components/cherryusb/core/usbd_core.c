@@ -67,7 +67,7 @@ static void usbd_class_event_notify_handler(uint8_t event, void *arg);
 
 static void usbd_print_setup(struct usb_setup_packet *setup)
 {
-    aos_debug_printf("Setup: "
+    USB_LOG_INFO("Setup: "
                  "bmRequestType 0x%02x, bRequest 0x%02x, wValue 0x%04x, wIndex 0x%04x, wLength 0x%04x\r\n",
                  setup->bmRequestType,
                  setup->bRequest,
@@ -445,6 +445,8 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
                 if (cur_iface == iface) {
                     ep_desc = (struct usb_endpoint_descriptor *)p;
 
+                    aos_debug_printf("== %d, %d, %d\n", iface, cur_alt_setting, alt_setting);
+
                     if (cur_alt_setting != alt_setting) {
                         ret = usbd_reset_endpoint(ep_desc);
                     } else {
@@ -743,16 +745,10 @@ static int usbd_class_request_handler(struct usb_setup_packet *setup, uint8_t **
         usb_slist_for_each(i, &usbd_intf_head)
         {
             struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
-            // aos_debug_printf("%s:%d, %p\n", __FILE__, __LINE__, intf->class_endpoint_handler);
-            // if (intf->class_endpoint_handler)
-            //     aos_debug_printf("%s:%d, %02x<>%02x\n", __FILE__, __LINE__, intf->intf_num, ((setup->wIndex >> 8) & 0xFF));
 
             if (intf->class_endpoint_handler && (intf->intf_num == ((setup->wIndex >> 8) & 0xFF))) {
                 return intf->class_endpoint_handler(setup, data, len);
             }
-            // if (intf->class_endpoint_handler && (intf->intf_num == 2 && (((setup->wIndex >> 8) & 0xFF) == 0 /*|| ((setup->wIndex >> 8) & 0xFF) == 4)*/))) {
-            //     return intf->class_endpoint_handler(setup, data, len);
-            // }
         }
     }
     return -1;
@@ -868,14 +864,14 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
     switch (setup->bmRequestType & USB_REQUEST_TYPE_MASK) {
         case USB_REQUEST_STANDARD:
             if (usbd_standard_request_handler(setup, data, len) < 0) {
-                aos_debug_printf("standard request error\r\n");
+                USB_LOG_ERR("standard request error\r\n");
                 usbd_print_setup(setup);
                 return false;
             }
             break;
         case USB_REQUEST_CLASS:
             if (usbd_class_request_handler(setup, data, len) < 0) {
-                aos_debug_printf("class request error, %02x\r\n", setup->bRequest);
+                USB_LOG_ERR("class request error\r\n");
                 usbd_print_setup(setup);
                 *len = 0;
                 //return false;
@@ -883,7 +879,7 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
             break;
         case USB_REQUEST_VENDOR:
             if (usbd_vendor_request_handler(setup, data, len) < 0) {
-                aos_debug_printf("vendor request error\r\n");
+                USB_LOG_ERR("vendor request error\r\n");
                 usbd_print_setup(setup);
                 return false;
             }
@@ -973,7 +969,7 @@ void usbd_event_ep0_setup_complete_handler(uint8_t *psetup)
 
     memcpy(setup, psetup, 8);
 // #ifdef CONFIG_USBDEV_SETUP_LOG_PRINT
-    // usbd_print_setup(setup);
+    usbd_print_setup(setup);
 // #endif
     if (setup->wLength > CONFIG_USBDEV_REQUEST_BUFFER_LEN) {
         if ((setup->bmRequestType & USB_REQUEST_DIR_MASK) == USB_REQUEST_DIR_OUT) {
@@ -1010,9 +1006,6 @@ void usbd_event_ep0_setup_complete_handler(uint8_t *psetup)
     /* Send smallest of requested and offered length */
     usbd_core_cfg.ep0_data_buf_residue = MIN(usbd_core_cfg.ep0_data_buf_len, setup->wLength);
 
-    if (setup->bmRequestType == 0x22 && setup->bRequest == 0x01)
-        aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
-
 #if defined(CHERRYUSB_VERSION) && (CHERRYUSB_VERSION > 0x000700)
 #else
     /* check if the data buf addr matches align size,if not, copy into align buf */
@@ -1028,12 +1021,8 @@ void usbd_event_ep0_setup_complete_handler(uint8_t *psetup)
     }
 #endif
 #endif
-    if (setup->bmRequestType == 0x22 && setup->bRequest == 0x01)
-        aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     /* Send data or status to host */
     usbd_ep_start_write(USB_CONTROL_IN_EP0, usbd_core_cfg.ep0_data_buf, usbd_core_cfg.ep0_data_buf_residue);
-    if (setup->bmRequestType == 0x22 && setup->bRequest == 0x01)
-        aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     /*
     * Set ZLP flag when host asks for a bigger length and the data size is
     * multiplier of USB_CTRL_EP_MPS, to indicate the transfer done after zlp
@@ -1101,9 +1090,6 @@ void usbd_event_ep_out_complete_handler(uint8_t ep, uint32_t nbytes)
                     usbd_ep_set_stall(USB_CONTROL_IN_EP0);
                     return;
                 }
-
-                if (setup->bmRequestType == 0x22 && setup->bRequest == 0x01)
-                    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
 
                 /*Send status to host*/
                 usbd_ep_start_write(USB_CONTROL_IN_EP0, NULL, 0);
