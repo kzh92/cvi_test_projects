@@ -20,6 +20,7 @@
 #include "upgradebase.h"
 #include "facemoduletask.h"
 #include "common_types.h"
+#include "check_firmware.h"
 
 #include <string.h>
 
@@ -394,13 +395,15 @@ void SenseLockTask::run()
             }
 #endif // USE_UVC_PAUSE_MODE
 #ifndef NOTHREAD_MUL
-            if ((g_xSS.iMState != MS_OTA || g_xSS.bCheckFirmware == 1) && iSleepTime > 0)
+            if (g_xSS.iMState != MS_OTA && iSleepTime > 0)
             {
                 if (g_xSS.rFaceEngineTime == 0)
                     my_usleep(iSleepTime);//
                 else
                     my_usleep(1000);
             }
+            if (g_xSS.bCheckFirmware)
+                doCheckFirmware();
 #else // ! NOTHREAD_MUL
             //my_usleep(1);
 #endif // ! NOTHREAD_MUL

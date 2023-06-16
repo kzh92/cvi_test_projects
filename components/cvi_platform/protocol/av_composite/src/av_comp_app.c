@@ -13,6 +13,7 @@
 #include "uac_descriptor.h"
 #include <core/core_rv64.h>
 #include "appdef.h"
+#include "settings.h"
 
 #define VIDEO_IN_EP 0x81
 
@@ -272,6 +273,11 @@ void uvc_streaming_on(int is_on) {
 
 	if(is_on && is_media_info_update())
 		uvc_update = 1;
+
+	if (is_on)
+		g_xSS.bUVCRunning = 1;
+	else
+		g_xSS.bUVCRunning = 0;
 
 	g_uvc_event_flag = false;
 }

@@ -226,7 +226,7 @@ void WatchTask::run()
                          Now() - g_xSS.rAppStartTime >= USB_UPGRADE_TIMEOUT * 1000)
                 {
 #ifdef PSENSE_DET
-                    if (bFlag == 1)
+                    if (bFlag)
 #endif
                     {
                         //SendGlobalMsg(MSG_SENSE, 0, OTA_USB_START, 1);
@@ -238,6 +238,8 @@ void WatchTask::run()
             {
                 if (g_xSS.iStartOta == 0 && g_xSS.rAppStartTime != 0 && Now() - g_xSS.rAppStartTime >= USB_UPGRADE_TIMEOUT * 1000)
                 {
+                    if (!g_xSS.bUVCRunning)
+                        g_xSS.bCheckFirmware = 1;
                     //power off module
                     // SendGlobalMsg(MSG_SENSE, 0, OTA_USB_DETECTED, 1);
                     // my_printf("ota: send OTA_USB_DETECTED\n");

@@ -146,6 +146,31 @@ void doCheckFirmware()
 
     int iUpgradeBaudrate = g_xCS.x.bUpgradeBaudrate;
 
+    if (g_xSS.iUsbHostMode)
+    {
+        int i = 0;
+        int timeIRlimit = 150;//30s
+        while(timeIRlimit--)
+        {
+            //do not finish program
+            if (iErrorFlag == 0)
+            {
+                GPIO_fast_setvalue(IR_LED, 1);
+            }
+            else
+            {
+                i = (i + 1) % 2;
+                GPIO_fast_setvalue(IR_LED, i);
+            }
+            my_usleep(200*1000);
+        }
+        GPIO_fast_setvalue(IR_LED, 0);
+        while(1)
+        {
+            my_usleep(100 * 1000);
+        }
+    }
+    else
     {
         //send otag done success!
         unsigned char abOtaCmd[] = {0xEF, 0xAA, 0x01, 0x00, 0x02, 0x03, 0x00, 0x00};
