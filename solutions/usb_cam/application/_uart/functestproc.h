@@ -82,6 +82,9 @@ public:
     int     Stop();
     void    ThreadProc();
 
+    static unsigned char CaclFuncTestCheckSum(FUNC_TEST_UART_CMD* pxCmd);
+    static int CheckFuncTestCmd(FUNC_TEST_UART_CMD* pxCmd);
+
 protected:
     void    run();
     int     RecvCmd(FUNC_TEST_UART_CMD* pxCmd);

@@ -21,6 +21,7 @@
 #include "facemoduletask.h"
 #include "common_types.h"
 #include "check_firmware.h"
+#include "functestproc.h"
 
 #include <string.h>
 
@@ -330,8 +331,12 @@ void SenseLockTask::run()
     {
         int iRecvHead = 0;
         int iRecvEasenHead = 0;
+        int iRecvFuncTestHead = 0;
         unsigned char abMsgHead[10] = { 0 };
-        FM_CMD xRecvEasenCmd = {0};
+        FM_CMD xRecvEasenCmd;
+        FUNC_TEST_UART_CMD ftCmd;
+        memset(&xRecvEasenCmd, 0, sizeof(xRecvEasenCmd));
+        memset(&ftCmd, 0, sizeof(ftCmd));
 
 #ifdef NOTHREAD_MUL
         if (iMsgSent)
@@ -372,6 +377,21 @@ void SenseLockTask::run()
                         my_printf("[FM] Incomplete Easen Packet\n");
                     else if(xRecvEasenCmd.bChk == FaceModuleTask::GetCheckSum(&xRecvEasenCmd))
                         my_printf("[FM] RecvCmd CheckSum Error: %x, %x\n", xRecvEasenCmd.bChk, FaceModuleTask::GetCheckSum(&xRecvEasenCmd));
+                }
+            }
+            else if(iRet > 0 && abMsgHead[0] == FUNC_TEST_HEADER_PRE)
+            {
+                *((unsigned char*)&ftCmd) = FUNC_TEST_HEADER_PRE;
+                iRet = UART_RecvDataForWait((unsigned char*)&ftCmd + 1, sizeof(ftCmd) - 1, 100, 0);
+                if(iRet > 0 && FuncTestProc::CheckFuncTestCmd(&ftCmd))
+                {
+                    iRecvFuncTestHead = 1;
+                    break;
+                }
+                else
+                {
+                    iSleepTime = 0;
+                    my_printf("[FM] Incomplete FT Packet\n");
                 }
             }
             else if(iRet > 0)
@@ -418,6 +438,19 @@ void SenseLockTask::run()
                 iMsgSent = 1;
 #endif // NOTHREAD_MUL
                 FaceModuleTask::SendAck(xRecvEasenCmd.bType, FaceModuleTask::GenSeq(1, xRecvEasenCmd.bSeqNum), 0, 0, FM_ACK_SUCCESS);
+            }
+
+            continue;
+        }
+
+        if (iRecvFuncTestHead == 1)
+        {
+            //if(ftCmd.cmdID == E_FUNC_MIC_SPEAKER)
+            {
+                SendGlobalMsg(MSG_FM, ftCmd.header, ftCmd.cmdID, 0);
+#ifdef NOTHREAD_MUL
+                iMsgSent = 1;
+#endif // NOTHREAD_MUL
             }
 
             continue;

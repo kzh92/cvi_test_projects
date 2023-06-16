@@ -34,6 +34,7 @@
 #include "upgrade_firmware.h"
 #include "vdbtask.h"
 #include "uvc_func.h"
+#include "audiotask.h"
 
 #include <fcntl.h>
 #include <string.h>
@@ -3063,22 +3064,30 @@ int MsgProcFM(MSG* pMsg)
     else if(pMsg->data1 == FM_CMD_DEV_TEST_START)
     {
         g_xSS.iFuncTestFlag = 1;
-        UART_Release();
-
-        if(g_xSS.iNoActivated == 0)
-            StopCamSurface();
-
-        FuncTestProc pFuncTestProc;
-        FuncTestProc* g_pFuncTestProc = &pFuncTestProc;
-        g_pFuncTestProc->SetActivated(g_xSS.iNoActivated == 1 ? 0 : 1);
-        g_pFuncTestProc->Start();
-        g_pFuncTestProc->Wait();
-//        pFuncTestProc->GetResult();
-
-        // delete pFuncTestProc;
-        return 0;
     }
 #endif
+    else if(pMsg->data1 == FUNC_TEST_HEADER)
+    {
+        if (pMsg->data2 == E_FUNC_MIC_SPEAKER)
+        {
+            my_printf("[FuncTest] E_FUNC_SPEAKER\n");
+            test_Audio();
+        }
+        else
+        {
+            my_printf("[FuncTest] %02x\n", (int)pMsg->data2);
+        }
+        my_usleep(20*1000);
+
+        FUNC_TEST_UART_CMD xSendCmd = { 0 };
+        xSendCmd.header = FUNC_TEST_HEADER;
+        xSendCmd.cmdID = pMsg->data2;
+        xSendCmd.dataLen = 1;
+        xSendCmd.dataBuf[0] = 0;    //success
+        xSendCmd.chksum = FuncTestProc::CaclFuncTestCheckSum(&xSendCmd);
+
+        UART_Send((unsigned char*)&xSendCmd, xSendCmd.dataLen + 7);
+    }
     else
         return -1;
     return -1;

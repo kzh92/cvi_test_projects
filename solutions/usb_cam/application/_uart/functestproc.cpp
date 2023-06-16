@@ -34,7 +34,7 @@ int checkCamPort(unsigned char* pbResult);
 void* funcTest_ThreadProc(void* param);
 mythread_ptr       ft_thread = NULL;
 
-static unsigned char CaclFuncTestCheckSum(FUNC_TEST_UART_CMD* pxCmd)
+unsigned char FuncTestProc::CaclFuncTestCheckSum(FUNC_TEST_UART_CMD* pxCmd)
 {
     int i = 0;
     unsigned char checkSum = 0;
@@ -47,7 +47,7 @@ static unsigned char CaclFuncTestCheckSum(FUNC_TEST_UART_CMD* pxCmd)
     return 0xFF - checkSum;
 }
 
-static int CheckFuncTestCmd(FUNC_TEST_UART_CMD* pxCmd)
+int FuncTestProc::CheckFuncTestCmd(FUNC_TEST_UART_CMD* pxCmd)
 {
     if(pxCmd == NULL)
         return 0;
