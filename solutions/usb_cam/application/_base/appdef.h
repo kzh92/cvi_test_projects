@@ -507,8 +507,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-#undef CHECK_CLR_IR_SWITCH_THR
-#define CHECK_CLR_IR_SWITCH_THR             0
+// #undef CHECK_CLR_IR_SWITCH_THR
+// #define CHECK_CLR_IR_SWITCH_THR             0
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 
