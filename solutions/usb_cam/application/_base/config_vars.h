@@ -116,6 +116,8 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_TEST_WAV_PATH    "sound/test.wav"
 #define FN_TEST_WAV_SIZE    91606
 
+#define MY_32ALIGNED(a) (((a) + 31) / 32 * 32)
+
 typedef struct {
     char* m_filename;
     int m_filesize;
