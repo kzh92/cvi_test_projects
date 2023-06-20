@@ -113,36 +113,7 @@ void SystemReboot(void)
 
 void ResetPersonDB(int flag)
 {
-    SetModifyUser(1);
-
-    int iBackupState = mount_backup_db(0);
-    if (dbfs_get_cur_part() == DB_PART_BACKUP)
-    {
-        end_restore_dbPart();
-        iBackupState = 0;
-    }
-
-    if (flag == SM_DEL_ALL_TYPE_DEFAULT)
-    {
-        dbm_SetEmptyPersonDB(&iBackupState);
-#if (N_MAX_HAND_NUM)
-        dbm_SetEmptyHandDB(&iBackupState);
-#endif // N_MAX_HAND_NUM
-    }
-    else if (flag == SM_DEL_ALL_TYPE_FACE)
-    {
-        dbm_SetEmptyPersonDB(&iBackupState);
-    }
-#if (N_MAX_HAND_NUM)
-    else if (flag == SM_DEL_ALL_TYPE_HAND)
-    {
-        dbm_SetEmptyHandDB(&iBackupState);
-    }
-#endif // N_MAX_HAND_NUM
-
-    umount_backup_db();
-    UpdateUserCount();
-
+    FaceEngine::ResetAll(flag);
     ResetFaceRegisterStates();
 }
 
