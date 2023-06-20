@@ -193,7 +193,7 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
         doCheckFirmware();
         return 0;
     } 
-    if (strstr(u_filepath, "prim"))
+    if (u_header->m_part_infos[idx].m_flags == UF_PF_APP)
     {
         CVI_U8 pu8SN[8] = {0};
         unsigned char abAesKey[AES_BLOCK_SIZE];
@@ -215,15 +215,29 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
     }
     while(u_header->m_part_infos[idx].m_size > 0)
     {
-        dbug_printf("[%s] %d:%s:%08x\n", __func__, idx, 
-            u_header->m_part_infos[idx].m_partname, 
-            u_header->m_part_infos[idx].m_offset);
         if (!strcmp(u_header->m_part_infos[idx].m_partname, u_filepath))
+        {
+            dbug_printf("[%s] %d:%s:%08x\n", __func__, idx, 
+                u_header->m_part_infos[idx].m_partname, 
+                u_header->m_part_infos[idx].m_offset);
             break;
+        }
+        idx ++;
     }
     if (u_header->m_part_infos[idx].m_size > 0)
     {
         my_flash_write(u_header->m_part_infos[idx].m_offset, u_buffer, u_size);
+        if (u_header->m_part_infos[idx].m_flags == UF_PF_WEIGHT_CRYPT)
+        {
+            char wpath[64];
+            snprintf(wpath, 64, "/test/%s", u_header->m_part_infos[idx].m_partname);
+            dbug_printf("write crypt:%s\n", wpath);
+            rootfs_set_activated(0, 0);
+            fr_ReadFileData(wpath, 0, u_buffer, u_size);
+            //write with encrypt
+            rootfs_set_activated(1, 0);
+            fr_WriteFileData(wpath, 0, u_buffer, u_size);
+        }
         dbug_printf("write ok\n");
         return 0;
     }

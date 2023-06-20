@@ -24,6 +24,13 @@ typedef struct {
     unsigned int m_flags;
 } s_uf_part_info;
 
+//upgrade partition flags
+enum {
+    UF_PF_NORMAL = 0x00,
+    UF_PF_APP = 0x01, //prim partition
+    UF_PF_WEIGHT_CRYPT = 0x02, //weight encrypted
+};
+
 typedef struct st_uf_file_header
 {
     char m_magic[8];

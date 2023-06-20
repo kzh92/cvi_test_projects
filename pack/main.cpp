@@ -129,7 +129,21 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
             fseek(fp_in, 0, SEEK_SET);
             fread(file_data, 1, file_size, fp_in);
             req_crypto(file_names[i], (unsigned char*)file_data);
+            int cur_off = (int)ftell(fp_out);
             fwrite(file_data, 1, malloc_len, fp_out);
+
+            char temp_path[1024];
+            sprintf(temp_path, "%s.out", file_names[i]);
+
+            FILE* fp_one = NULL;
+            fp_one = fopen(temp_path, "wb");
+            if (fp_one)
+            {
+                fwrite(file_data, 1, malloc_len, fp_one);
+                fclose(fp_one);
+                printf("\t%s(offset=%d)\n", temp_path, cur_off);
+            }
+
             free(file_data);
             total_size += malloc_len;
         }
@@ -141,6 +155,7 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
 
     fclose(fp_out);
     printf("created file: %s, size=%d, 0x%08x\n", dest_file, total_size, total_size);
+    system("mv -f " FACEENGINEDIR "/Dic/D10/*.out ./pack/");
     return 0;
 }
 
