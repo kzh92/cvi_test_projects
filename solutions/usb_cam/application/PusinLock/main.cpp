@@ -346,49 +346,6 @@ int processGlobalMsg()
         if(pMsg->type == MSG_SENSE)
         {
             s_msg* pSenseMsg = (s_msg*)pMsg->data1;
-            if(g_xSS.iMState == MS_OTA)
-            {
-                if (pMsg->data2 == OTA_RECV_DONE_OK || pMsg->data2 == OTA_RECV_DONE_STOP)
-                {
-                    if (g_xCS.x.bCheckFirmware == 0)
-                    {
-                        s_msg* reply_msg = SenseLockTask::Get_Note_OtaDone(0);
-                        g_pSenseTask->Send_Msg(reply_msg);
-                        my_usleep(10 * 1000);
-                    }
-                    if (g_xSS.iEFIFlag == 0)
-                    {
-                        pMsg = NULL;
-                        iRet = 0;
-                        break;
-                    }
-                    else
-                    {
-                        g_xSS.iMState = MS_STANDBY;
-                    }
-                }
-                else if (pMsg->data2 != OTA_RECV_PCK)
-                {
-                    s_msg* reply_msg = SenseLockTask::Get_Note_OtaDone(1);
-                    g_pSenseTask->Send_Msg(reply_msg);
-                    my_usleep(10 * 1000);
-                    pMsg = NULL;
-                    iRet = 0;
-                    g_xSS.iStartOta = 1;
-                    break;
-                }
-            }
-            else if(pSenseMsg && pSenseMsg->mid == MID_START_OTA && g_xSS.iStartOta)
-            {
-                g_xSS.iMState = MS_OTA;
-                SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
-
-                s_msg* msg = SenseLockTask::Get_Reply(MID_START_OTA, MR_SUCCESS);
-                g_pSenseTask->Send_Msg(msg);
-                pMsg = NULL;
-                iRet = 0;
-                break;
-            }
             if (USE_NEW_RST_PROTO == 0 || pSenseMsg == NULL || g_xSS.rResetFlagTime <= pMsg->time_ms)
             {
                 iRet = MsgProcSense(pMsg);
@@ -1039,7 +996,35 @@ int MsgProcSense(MSG* pMsg)
     int iRet = -1;
     if(pMsg->type != MSG_SENSE)
         return iRet;
-
+    if(g_xSS.iMState == MS_OTA)
+    {
+        if (pMsg->data2 == OTA_RECV_DONE_OK || pMsg->data2 == OTA_RECV_DONE_STOP)
+        {
+            if (g_xCS.x.bCheckFirmware == 0)
+            {
+                s_msg* reply_msg = SenseLockTask::Get_Note_OtaDone(0);
+                g_pSenseTask->Send_Msg(reply_msg);
+                my_usleep(10 * 1000);
+            }
+            if (g_xSS.iEFIFlag == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                g_xSS.iMState = MS_STANDBY;
+                return -1;
+            }
+        }
+        else if (pMsg->data2 != OTA_RECV_PCK)
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Note_OtaDone(1);
+            g_pSenseTask->Send_Msg(reply_msg);
+            my_usleep(10 * 1000);
+            g_xSS.iStartOta = 1;
+            return -1;
+        }
+    }
     if(pMsg->data1 == 0)
     {
         if (pMsg->data2 == OTA_USB_START)
@@ -2381,7 +2366,8 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_START_OTA)
     {
         dbug_printf("MID_START_OTA\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_startota_data))
+        s_msg_startota_data msg_startota_data;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(msg_startota_data))
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_START_OTA, MR_FAILED4_INVALIDPARAM);
             g_pSenseTask->Send_Msg(reply_msg);
@@ -2400,13 +2386,14 @@ int MsgProcSense(MSG* pMsg)
             return -1;
         }
 
+        memcpy(&msg_startota_data, pSenseMsg->data, sizeof(msg_startota_data));
         my_free(pSenseMsg);
 #if (USE_RENT_ENGINE)
         dbug_printf("ota=%02x, %02x, %02x\n",
-                    g_xSS.msg_startota_data.v_primary, g_xSS.msg_startota_data.v_secondary, g_xSS.msg_startota_data.v_revision);
-        if (g_xSS.msg_startota_data.v_primary == OTA_CUS_DATA &&
-                g_xSS.msg_startota_data.v_secondary == OTA_CUS_DATA &&
-                g_xSS.msg_startota_data.v_revision == FACE_DIRECTION_PICTURE)
+                    msg_startota_data.v_primary, msg_startota_data.v_secondary, msg_startota_data.v_revision);
+        if (msg_startota_data.v_primary == OTA_CUS_DATA &&
+                msg_startota_data.v_secondary == OTA_CUS_DATA &&
+                msg_startota_data.v_revision == FACE_DIRECTION_PICTURE)
         {
             //send picture data
             g_xSS.iMState = MS_OTA;
@@ -2418,15 +2405,10 @@ int MsgProcSense(MSG* pMsg)
         }
         else
 #endif // USE_RENT_ENGINE
-        g_xSS.iStartOta = 1;
-        return 0;
-#if 0
-        memcpy(&g_xSS.msg_startota_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-        SenseLockTask::EncMode = 0;
-
-        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_START_OTA, MR_SUCCESS);
-        g_pSenseTask->Send_Msg(reply_msg);
-#endif
+        {
+            g_xSS.iStartOta = 1;
+            return 0;
+        }
     }
 #if 0
     else if(pSenseMsg->mid == MID_OTA_HEADER)

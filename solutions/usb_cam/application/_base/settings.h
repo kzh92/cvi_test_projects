@@ -299,7 +299,6 @@ typedef struct _tagSYSTEM_STATE
     s_msg_snap_image_data   msg_snap_image_data;
     s_msg_get_saved_image_data  msg_get_saved_image_data;
     s_msg_upload_image_data     msg_upload_image_data;
-    s_msg_startota_data         msg_startota_data;
     s_msg_otaheader_data        msg_otaheader_data;
     s_msg_init_encryption_data  msg_init_encryption_data;
     s_msg_demomode_data  msg_demomode_data;

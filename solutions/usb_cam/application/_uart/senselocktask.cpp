@@ -738,7 +738,10 @@ void SenseLockTask::run()
                     int isEnrollFace = (strncmp(header.m_magic, ENROLL_FACE_IMG_MAGIC, sizeof(header.m_magic)) == 0) | (strncmp(header.m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(header.m_magic)) == 0);
                     my_printf("[upgrade] 0x%x receive OK\n", iFSize);
                     if (isEnrollFace)
+                    {
                         g_xSS.iEFIFlag = 1;
+                        g_xSS.iUpgradeLen = iFSize;
+                    }
                     if (!isEnrollFace && upg_do_ota4mem(g_xSS.pbOtaData, iFSize))
                     {
                         SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
