@@ -35,7 +35,7 @@ int req_crypto(const char * filename, unsigned char* file_buf)
     while(g_part_files[idx].m_filename != NULL)
     {
         if (strlen(g_part_files[idx].m_filename) > 6 && 
-            strstr(filename, g_part_files[idx].m_filename + 6))
+            strstr(filename, g_part_files[idx].m_filename + 5))
         {
             if (g_part_files[idx].m_flag & FN_CRYPTO_AES)
             {
@@ -47,8 +47,12 @@ int req_crypto(const char * filename, unsigned char* file_buf)
                     memcpy(file_buf, out_buf, out_len);
                     free(out_buf);
                 }
-                printf("crypt(len=%d): %s\n", g_part_files[idx].m_cryptosize, filename);
+                printf("crypt(len=%d): %s, %d\n", g_part_files[idx].m_cryptosize, filename, g_part_files[idx].m_filesize);
                 return 1;
+            }
+            else
+            {
+                printf("nocrypt(len=%d): %s, %d\n", g_part_files[idx].m_cryptosize, filename, g_part_files[idx].m_filesize);
             }
             break;
         }
