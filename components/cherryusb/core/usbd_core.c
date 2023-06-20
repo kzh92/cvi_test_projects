@@ -445,8 +445,6 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
                 if (cur_iface == iface) {
                     ep_desc = (struct usb_endpoint_descriptor *)p;
 
-                    aos_debug_printf("== %d, %d, %d\n", iface, cur_alt_setting, alt_setting);
-
                     if (cur_alt_setting != alt_setting) {
                         ret = usbd_reset_endpoint(ep_desc);
                     } else {
@@ -1093,8 +1091,7 @@ void usbd_event_ep_out_complete_handler(uint8_t ep, uint32_t nbytes)
 
                 /*Send status to host*/
                 usbd_ep_start_write(USB_CONTROL_IN_EP0, NULL, 0);
-                if (setup->bmRequestType == 0x22 && setup->bRequest == 0x01)
-                    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
+
             } else {
                 /* Start reading the remain data */
                 usbd_ep_start_read(USB_CONTROL_OUT_EP0, usbd_core_cfg.ep0_data_buf, usbd_core_cfg.ep0_data_buf_residue);

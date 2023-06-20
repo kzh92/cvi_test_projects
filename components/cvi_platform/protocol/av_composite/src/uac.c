@@ -111,7 +111,7 @@ void usbd_audio_out_callback(uint8_t ep, uint32_t nbytes)
         aos_sem_signal(&g_audio_write_sem);
     }
 
-    usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, nbytes);
+    usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, 16);
 
 
 }
