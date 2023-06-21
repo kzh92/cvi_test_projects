@@ -445,6 +445,8 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
                 if (cur_iface == iface) {
                     ep_desc = (struct usb_endpoint_descriptor *)p;
 
+                    aos_debug_printf("== %d, %d, %d\n", iface, cur_alt_setting, alt_setting);
+
                     if (cur_alt_setting != alt_setting) {
                         ret = usbd_reset_endpoint(ep_desc);
                     } else {

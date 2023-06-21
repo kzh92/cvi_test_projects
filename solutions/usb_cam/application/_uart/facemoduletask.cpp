@@ -67,7 +67,7 @@ int FaceModuleTask::Start()
         m_iSendType = 0;
         m_iComm = 0;
 
-        if(my_thread_create_ext(&m_thread, NULL, faceModuleTask_ThreadProc1, this, (char*)"factk", 16384, MYTHREAD_PRIORITY_HIGH))
+        if(my_thread_create_ext(&m_thread, NULL, faceModuleTask_ThreadProc1, this, (char*)"factk", 16384, 0))
             my_printf("[FMTask]create thread error.\n");
     }
     return 1;

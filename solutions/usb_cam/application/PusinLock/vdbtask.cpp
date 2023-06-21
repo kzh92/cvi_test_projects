@@ -169,7 +169,7 @@ void VDBTask::Start()
 
     m_iCounter ++;
     m_iRunning = 1;
-    if(my_thread_create_ext(&m_thread, NULL, vdbTask_ThreadProc1, this, (char*)"vdbtask", 8192, MYTHREAD_PRIORITY_MEDIUM))
+    if(my_thread_create_ext(&m_thread, NULL, vdbTask_ThreadProc1, this, (char*)"vdbtask", 8192, MYTHREAD_PRIORITY_VERY_HIGH))
         my_printf("[VDBTask]create thread error.\n");
     // Thread::Start();
 }

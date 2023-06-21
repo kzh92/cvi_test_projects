@@ -55,7 +55,7 @@ void WatchTask::Start(int iBattScan)
     // memset(m_arTimerTick, 0, sizeof(float) * MAX_TIMER_COUNT);
 
 #ifndef NOTHREAD_MUL
-    if (my_thread_create_ext(&m_thread, NULL, watchTask_ThreadProc1, this, (char*)"wdt", 8192, MYTHREAD_PRIORITY_MEDIUM))
+    if (my_thread_create_ext(&m_thread, NULL, watchTask_ThreadProc1, this, (char*)"wdt", 8192, MYTHREAD_PRIORITY_HIGH))
         my_printf("[WatchTask]create thread error.\n");
 #endif // NOTHREAD_MUL
 }

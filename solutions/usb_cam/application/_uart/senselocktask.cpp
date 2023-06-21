@@ -149,7 +149,7 @@ void* senseSendThread_ThreadProc1(void*)
 #ifdef NOTHREAD_MUL
             break;
 #else // NOTHREAD_MUL
-            my_usleep(1000);
+            my_usleep(5000);
             continue;
 #endif // NOTHREAD_MUL
         }
@@ -323,7 +323,7 @@ void SenseLockTask::run()
     dbug_printf("SenseLockTask::run start\n");
     //message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 
-    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, this, (char*)"sstask", 16384, 34/*MYTHREAD_PRIORITY_MEDIUM*/))
+    if(my_thread_create_ext(&g_thread_send, NULL, senseSendThread_ThreadProc1, this, (char*)"sstask", 16384, MYTHREAD_PRIORITY_VERY_HIGH))
         my_printf("[SendThreadTask]create send thread error.\n");
 #endif // NOTHREAD_MUL
 
