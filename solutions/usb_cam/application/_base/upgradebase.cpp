@@ -6,6 +6,8 @@
 #include "aescrypt.h"
 #include "common_types.h"
 #include "check_firmware.h"
+#include "aescrypt.h"
+#include "cvi_sys.h"
 #endif // !_PACK_OTA_
 
 #include <string.h>
@@ -72,6 +74,24 @@ int upg_get_aes_key(unsigned char* buf)
     memcpy(buf, s_buf, key_len);
     for (int i = 0; i < key_len; i++)
         buf[i] = buf[i] ^ 0xAA;
+    return 0;
+}
+
+int upg_aes_set_key(char* chipSN, char* aesKey)
+{
+    int i;
+    char tmpBuf[8];
+    memset(tmpBuf, 0, 8);
+
+    if (memcmp(chipSN, tmpBuf, 8) == 0)
+        return -1;
+
+    memcpy(tmpBuf, chipSN, 8);
+    for (i = 1; i < 8; i++)
+        tmpBuf[i] ^= chipSN[i - 1];
+
+    memcpy(aesKey, tmpBuf, 8);
+    memcpy(aesKey + 8, tmpBuf, 8);
     return 0;
 }
 
@@ -172,6 +192,26 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
         g_xCS.x.bCheckFirmware = 1;
         doCheckFirmware();
         return 0;
+    } 
+    if (strstr(u_filepath, "prim"))
+    {
+        CVI_U8 pu8SN[8] = {0};
+        unsigned char abAesKey[AES_BLOCK_SIZE];
+        int encrypt_size = 4 * 1024;
+        unsigned char* encryptApp = NULL;
+        int encLen = 0;
+
+        CVI_SYS_GetChipSN(pu8SN, 8);
+        upg_aes_set_key((char *)pu8SN, (char *)abAesKey);
+
+        AES_Encrypt((unsigned char*)abAesKey, u_buffer, encrypt_size, &encryptApp, &encLen);
+        if (!encryptApp || encLen != encrypt_size)
+        {
+            printf("@@@ encrypt prim fail\n");
+            return 1;
+        }
+        memcpy(u_buffer, encryptApp, encrypt_size);
+        my_free(encryptApp);
     }
     while(u_header->m_part_infos[idx].m_size > 0)
     {
