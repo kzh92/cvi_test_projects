@@ -658,7 +658,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE)
         {
             dev = 0;
-            if (Now () - rOld < 100)
+            if (Now () - rOld < 100 || g_xSS.rFaceEngineTime == 0)
             {
                 my_usleep(5000);
                 continue;
