@@ -2668,6 +2668,7 @@ int ProcessSenseFace(int iCmd)
                     {
                         msg = SenseLockTask::Get_Reply(MID_VERIFY, iResult == FACE_RESULT_FAILED ? MR_FAILED4_UNKNOWNUSER : MR_FAILED4_UNKNOWN_HANDUSER);
                     }
+                    my_usleep(20*1000);
                     if(g_xSS.iSendLastMsgMode)
                         g_xSS.pLastMsg = msg;
                     else
