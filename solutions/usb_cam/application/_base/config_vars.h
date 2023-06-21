@@ -84,7 +84,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_DICT_ALIGN_SIZE      64
 
 #define IR_TEST_BIN_WIDTH       752
-#define IR_TEST_BIN_HEIGHT      560
+#define IR_TEST_BIN_HEIGHT      568
 #define IR_TEST_BIN_W_START     424
 #define IR_TEST_BIN_H_START     166
 #define CLR_TEST_BIN_WIDTH      174
