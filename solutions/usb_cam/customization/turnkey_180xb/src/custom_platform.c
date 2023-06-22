@@ -41,7 +41,7 @@ static void _MipiTxPinmux(void)
 
 #define GPIO_PIN_MASK(_gpio_num) (1 << _gpio_num)
 
-static void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level)
+void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level)
 {
 	csi_error_t ret;
 	csi_gpio_t gpio = {0};

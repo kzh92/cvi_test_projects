@@ -115,7 +115,7 @@ void* test_camera(void* arg)
     return NULL;
 }
 
-extern void dump_vi_frame(int32_t argc, char **argv);
+extern void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level);
 
 int main(int argc, char *argv[])
 {
@@ -150,9 +150,9 @@ int main(int argc, char *argv[])
 	cvi_tpu_init();
 	printf("init tpu ok.\n");
 
-	aos_msleep(300);
+	aos_msleep(100);
 	camera_switch(g_iCurCam);
-	aos_msleep(300);
+	aos_msleep(100);
 
     g_iCounter = 0;
     g_iLedFlag = 1;
@@ -163,8 +163,10 @@ int main(int argc, char *argv[])
     a.stacksize = 8192;
     
     pthread_create(&thd, &a, test_camera, NULL);
-	
+
 	while (1) {
-		aos_msleep(3000);
+        _GPIOSetValue(4, 21, g_iLedFlag);
+        g_iLedFlag = (g_iLedFlag + 1) % 2;
+		aos_msleep(200);
 	};
 }
