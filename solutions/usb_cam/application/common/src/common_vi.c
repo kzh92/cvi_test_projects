@@ -51,7 +51,7 @@ VI_PIPE_ATTR_S vi_pipe_attr_base = {
 	.u32MaxW = 1280,
 	.u32MaxH = 720,
 	.enPixFmt = PIXEL_FORMAT_RGB_BAYER_12BPP,
-	.enCompressMode = COMPRESS_MODE_TILE,
+	.enCompressMode = COMPRESS_MODE_NONE,
 	.enBitWidth = DATA_BITWIDTH_12,
 	.bNrEn = CVI_FALSE,
 	.bSharpenEn = CVI_FALSE,
@@ -66,7 +66,7 @@ VI_CHN_ATTR_S vi_chn_attr_base = {
 	.enPixelFormat = PIXEL_FORMAT_YUV_PLANAR_420,
 	.enDynamicRange = DYNAMIC_RANGE_SDR8,
 	.enVideoFormat = VIDEO_FORMAT_LINEAR,
-	.enCompressMode = COMPRESS_MODE_TILE,
+	.enCompressMode = COMPRESS_MODE_NONE,
 	.bMirror = CVI_FALSE,
 	.bFlip = CVI_FALSE,
 	.u32Depth = 0,
@@ -103,10 +103,12 @@ ISP_SNS_OBJ_S *getSnsObj(SNS_TYPE_E enSnsType)
 	switch (enSnsType) {
 #if CONFIG_SENSOR_GCORE_GC02M1
 	case GCORE_GC02M1_MIPI_2M_30FPS_10BIT:
+	case GCORE_GC02M1_MIPI_600P_30FPS_10BIT:
 		return &stSnsGc02m1_Obj;
 #endif
 #if CONFIG_SENSOR_GCORE_GC02M1_SLAVE
 	case GCORE_GC02M1_SLAVE_MIPI_2M_30FPS_10BIT:
+	case GCORE_GC02M1_SLAVE_MIPI_600P_30FPS_10BIT:
 		return &stSnsGc02m1_Slave_Obj;
 #endif
 #if CONFIG_SENSOR_GCORE_GC1054
@@ -130,6 +132,10 @@ ISP_SNS_OBJ_S *getSnsObj(SNS_TYPE_E enSnsType)
 	case GCORE_GC4653_MIPI_4M_30FPS_10BIT:
 		return &stSnsGc4653_Obj;
 #endif
+#if CONFIG_SENSOR_OPNOUS_OPN8018
+	case OPNOUS_OPN8018_MIPI_480P_30FPS_12BIT:
+		return &stSnsOpn8018_Obj;
+#endif
 #if CONFIG_SENSOR_SMS_SC200AI
 	case SMS_SC200AI_MIPI_2M_30FPS_10BIT:
 	case SMS_SC200AI_MIPI_2M_30FPS_10BIT_WDR2TO1:
@@ -138,6 +144,18 @@ ISP_SNS_OBJ_S *getSnsObj(SNS_TYPE_E enSnsType)
 #if CONFIG_SENSOR_SMS_SC2336
 	case SMS_SC2336_MIPI_2M_30FPS_10BIT:
 		return &stSnsSC2336_Obj;
+#endif
+#if CONFIG_SENSOR_SMS_SC030IOT
+	case SMS_SC030IOT_MIPI_480P_30FPS_8BIT:
+		return &stSnsSC030IOT_Obj;
+#endif
+#if CONFIG_SENSOR_SMS_SC201CS
+	case SMS_SC201CS_MIPI_2M_30FPS_10BIT:
+		return &stSnsSC201CS_Obj;
+#endif
+#if CONFIG_SENSOR_SMS_SC201CS_SLAVE
+	case SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT:
+		return &stSnsSC201CS_SLAVE_Obj;
 #endif
 #if CONFIG_SENSOR_SONY_IMX307
 	case SONY_IMX307_MIPI_2M_30FPS_12BIT:
@@ -209,8 +227,15 @@ CVI_S32 getPicSize(CVI_S32 dev_id, SNS_SIZE_S *pstSize)
 	switch (sensor_type) {
 	case GCORE_GC02M1_MIPI_2M_30FPS_10BIT:
 	case GCORE_GC02M1_SLAVE_MIPI_2M_30FPS_10BIT:
+	case SMS_SC201CS_MIPI_2M_30FPS_10BIT:
+	case SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT:
 		pstSize->u32Width  = 1600;
 		pstSize->u32Height = 1200;
+		break;
+	case GCORE_GC02M1_MIPI_600P_30FPS_10BIT:
+	case GCORE_GC02M1_SLAVE_MIPI_600P_30FPS_10BIT:
+		pstSize->u32Width  = 800;
+		pstSize->u32Height = 600;
 		break;
 	case GCORE_GC1054_MIPI_1M_30FPS_10BIT:
 	case BYD_BF314A_MIPI_720P_30FPS_10BIT:
@@ -221,6 +246,14 @@ CVI_S32 getPicSize(CVI_S32 dev_id, SNS_SIZE_S *pstSize)
 	case GCORE_GC4653_MIPI_4M_30FPS_10BIT:
 		pstSize->u32Width  = 2560;
 		pstSize->u32Height = 1440;
+		break;
+	case OPNOUS_OPN8018_MIPI_480P_30FPS_12BIT:
+		pstSize->u32Width  = 648;
+		pstSize->u32Height = 1464;
+		break;
+	case SMS_SC030IOT_MIPI_480P_30FPS_8BIT:
+		pstSize->u32Width  = 640;
+		pstSize->u32Height = 480;
 		break;
 
 	default:
@@ -262,6 +295,8 @@ CVI_S32 getDevAttr(VI_DEV ViDev, VI_DEV_ATTR_S *pstViDevAttr)
 	// GalaxyCore
 	case GCORE_GC02M1_MIPI_2M_30FPS_10BIT:
 	case GCORE_GC02M1_SLAVE_MIPI_2M_30FPS_10BIT:
+    case GCORE_GC02M1_MIPI_600P_30FPS_10BIT:
+    case GCORE_GC02M1_SLAVE_MIPI_600P_30FPS_10BIT:
 	case GCORE_GC2053_MIPI_2M_30FPS_10BIT:
 	case GCORE_GC2053_1L_MIPI_2M_30FPS_10BIT:
 	case GCORE_GC1054_MIPI_1M_30FPS_10BIT:
@@ -272,6 +307,11 @@ CVI_S32 getDevAttr(VI_DEV ViDev, VI_DEV_ATTR_S *pstViDevAttr)
 		break;
 	case GCORE_GC4653_MIPI_4M_30FPS_10BIT:
 		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GR;
+		break;
+	case SMS_SC030IOT_MIPI_480P_30FPS_8BIT:
+		pstViDevAttr->enDataSeq = VI_DATA_SEQ_YUYV;
+		pstViDevAttr->enInputDataType = VI_DATA_TYPE_YUV;
+		pstViDevAttr->enIntfMode = VI_MODE_MIPI_YUV422;
 		break;
 	default:
 		pstViDevAttr->enBayerFormat = BAYER_FORMAT_BG;
@@ -287,36 +327,48 @@ CVI_S32 getDevAttr(VI_DEV ViDev, VI_DEV_ATTR_S *pstViDevAttr)
 CVI_S32 getPipeAttr(VI_DEV ViDev, VI_PIPE_ATTR_S *pstViPipeAttr)
 {
 	SNS_SIZE_S sns_size;
+	VI_DEV_ATTR_S stViDevAttr;
 
 	if (ViDev >= MAX_SENSOR_NUM) {
 		return CVI_FAILURE;
 	}
 
 	getPicSize(ViDev, &sns_size);
+	getDevAttr(ViDev, &stViDevAttr);
 
 	memcpy(pstViPipeAttr, &vi_pipe_attr_base, sizeof(VI_PIPE_ATTR_S));
 
 	pstViPipeAttr->u32MaxW = sns_size.u32Width;
 	pstViPipeAttr->u32MaxH = sns_size.u32Height;
 
+	if (stViDevAttr.enInputDataType == VI_DATA_TYPE_YUV) {
+		pstViPipeAttr->bYuvBypassPath = CVI_TRUE;
+	}
+
 	return CVI_SUCCESS;
 }
 
 CVI_S32 getChnAttr(VI_DEV ViDev, VI_CHN_ATTR_S *pstViChnAttr)
 {
-	SNS_SIZE_S sns_size;
+	VI_DEV_ATTR_S stViDevAttr;
+
 
 	if (ViDev >= MAX_SENSOR_NUM) {
 		return CVI_FAILURE;
 	}
 
-	getPicSize(ViDev, &sns_size);
+	getDevAttr(ViDev, &stViDevAttr);
 
 	memcpy(pstViChnAttr, &vi_chn_attr_base, sizeof(VI_CHN_ATTR_S));
 
-	pstViChnAttr->stSize.u32Width = sns_size.u32Width;
-	pstViChnAttr->stSize.u32Height = sns_size.u32Height;
+	pstViChnAttr->stSize.u32Width = stViDevAttr.stSize.u32Width;
+	pstViChnAttr->stSize.u32Height = stViDevAttr.stSize.u32Height;
 	pstViChnAttr->enPixelFormat = PIXEL_FORMAT_NV21;
+
+
+	if (stViDevAttr.enInputDataType == VI_DATA_TYPE_YUV) {
+		pstViChnAttr->enPixelFormat = PIXEL_FORMAT_YUV_PLANAR_422;
+	}
 
 	return CVI_SUCCESS;
 }
