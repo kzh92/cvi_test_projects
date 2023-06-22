@@ -1,0 +1,1 @@
+make -j4 usb_cam PROJECT=turnkey_180xb

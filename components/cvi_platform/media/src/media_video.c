@@ -1429,20 +1429,29 @@ int MEDIA_VIDEO_Init()
         printf("Media_Video_Init please deinit and try again \n");
         return 0;
     }
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     MEDIA_CHECK_RET(_MEDIA_VIDEO_SysVbInit(),"MEDIA_VIDEO_SysVbInit failed");
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     MEDIA_CHECK_RET(_MEDIA_VIDEO_ViInit(),"MEDIA_VIDEO_ViInit failed");
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     MEDIA_CHECK_RET(_MEDIA_VIDEO_VpssInit(),"MEDIA_VIDEO_VpssInit failed");
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     MEDIA_CHECK_RET(_MEDIA_VIDEO_VoInit(),"MEDIA_VIDEO_VoInit failed");
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
 #if (CONFIG_APP_GUI_SUPPORT == 1)
     GUI_Display_Start();
 #endif
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     MEDIA_CHECK_RET(_MEDIA_VIDEO_VencInit(),"MEDIA_VIDEO_VencInit failed");
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
 #if (CONFIG_APP_AI_SUPPORT == 1)
     APP_AiStart();
 #endif
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
 #if (CONFIG_ENABLE_FASTBOOT == 1)
     efuse_fastboot();
 #endif
+    aos_debug_printf("%s:%d\n", __FILE__, __LINE__);
     g_mediaVideoRunStatus = 1;
     return CVI_SUCCESS;
 }

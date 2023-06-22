@@ -43,7 +43,7 @@ ISP_SNS_STATE_S *g_pastSc201cs[VI_MAX_PIPE_NUM] = {CVI_NULL};
 #define SC201CS_SENSOR_RESET_CTX(dev)         (g_pastSc201cs[dev] = CVI_NULL)
 
 ISP_SNS_COMMBUS_U g_aunSc201cs_BusInfo[VI_MAX_PIPE_NUM] = {
-	[0] = { .s8I2cDev = 2},
+	[0] = { .s8I2cDev = 1},
 	[1 ... VI_MAX_PIPE_NUM - 1] = { .s8I2cDev = -1}
 };
 
@@ -74,6 +74,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 #define SC201CS_DGAIN_ADDR2		0x3E07
 #define SC201CS_VMAX_ADDR		0x320E
 
+static unsigned int iSensorPatternMode = 0;
 // #define SC201CS_MIRROR_FLIP_ADDR    0x17
 
 #define SC201CS_RES_IS_1200P(w, h)      ((w) <= 1600 && (h) <= 1200)
@@ -200,6 +201,7 @@ static CVI_S32 cmos_inttime_update(VI_PIPE ViPipe, CVI_U32 *u32IntTime)
 {
 	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
 	ISP_SNS_REGS_INFO_S *pstSnsRegsInfo = CVI_NULL;
+	return CVI_SUCCESS;
 
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
@@ -324,6 +326,11 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 	CVI_U32 u32Dgain;
 	struct gain_tbl_info_s *info;
 	int i, tbl_num;
+
+	return CVI_SUCCESS;
+
+	if (iSensorPatternMode)
+		return CVI_SUCCESS;
 
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
@@ -523,7 +530,7 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 		pstCfg0->snsCfg.unComBus.s8I2cDev = g_aunSc201cs_BusInfo[ViPipe].s8I2cDev;
 		pstCfg0->snsCfg.u8Cfg2ValidDelayMax = 0;
 		pstCfg0->snsCfg.use_snsr_sram = CVI_TRUE;
-		pstCfg0->snsCfg.u32RegNum = LINEAR_REGS_NUM;
+		pstCfg0->snsCfg.u32RegNum = 0;//LINEAR_REGS_NUM;
 
 		for (i = 0; i < pstCfg0->snsCfg.u32RegNum; i++) {
 			pstI2c_data[i].bUpdate = CVI_TRUE;
@@ -860,6 +867,20 @@ static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 	return sc201cs_probe(ViPipe);
 }
 
+static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
+{
+	return sc201cs_switch(ViPipe, switchCam);
+}
+
+static CVI_S32 sensor_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
+{
+	if (enablePattern)
+		iSensorPatternMode = 1;
+	else
+		iSensorPatternMode = 0;
+	return sc201cs_pattern_enable(ViPipe, enablePattern);
+}
+
 ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnRegisterCallback    = sensor_register_callback,
 	.pfnUnRegisterCallback  = sensor_unregister_callback,
@@ -876,5 +897,9 @@ ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnExpSensorCb         = cmos_init_sensor_exp_function,
 	.pfnExpAeCb             = cmos_init_ae_exp_function,
 	.pfnSnsProbe            = sensor_probe,
+	.pfnSnsSwitch			= sensor_switch,
+	.pfnSnsPatternEn		= sensor_pattern_enable,
+	.pfnWriteRegEx          = sc201cs_write_register_ex,
+	.pfnReadRegEx           = sc201cs_read_register_ex,
 };
 
