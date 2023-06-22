@@ -17,6 +17,7 @@
 #include "cvi_tpu_interface.h"
 #include "cvi_vi.h"
 #include "common_vi.h"
+#include "cvi_tempsen.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -119,6 +120,7 @@ extern void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level);
 
 int main(int argc, char *argv[])
 {
+    cvi_tempsen_t tps;
 	YOC_SYSTEM_Init();
 	//board pinmux init
 	PLATFORM_IoInit();
@@ -163,8 +165,11 @@ int main(int argc, char *argv[])
     a.stacksize = 8192;
     
     pthread_create(&thd, &a, test_camera, NULL);
-
+	cvi_tempsen_init(&tps);
+	unsigned int temp;
 	while (1) {
+		temp = cvi_tempsen_read_temp_mC(&tps, 1000);
+		printf("******* temper(%08d): %u\n", (int)aos_now_ms(), temp);
         _GPIOSetValue(4, 21, g_iLedFlag);
         g_iLedFlag = (g_iLedFlag + 1) % 2;
 		aos_msleep(200);
