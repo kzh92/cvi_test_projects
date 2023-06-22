@@ -99,8 +99,8 @@ void PLATFORM_IoInit(void)
     PINMUX_CONFIG(IIC0_SDA, UART1_RX);
 
     //camera power
+    _GPIOSetValue(2, 7, 1);
     _GPIOSetValue(2, 8, 1);
-    _GPIOSetValue(2, 9, 1);
 }
 
 void PLATFORM_PowerOff(void)

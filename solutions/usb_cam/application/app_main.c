@@ -66,7 +66,7 @@ void* test_camera(void* arg)
         stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
-        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
+        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 300);
         if (s_ret != CVI_SUCCESS)
         {
             if (g_iCurCam == 1)
