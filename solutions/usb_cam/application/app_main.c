@@ -28,6 +28,7 @@
 static int g_iCurCam = 1;
 int g_iLedFlag = 0;
 int g_iCounter = 0;
+int g_iErrorFlag = 0;
 
 int camera_switch(int camid)
 {
@@ -74,6 +75,7 @@ void* test_camera(void* arg)
                 printf("camera error 1\n");
             else
                 printf("camera error 2\n");
+            g_iErrorFlag = 1;
             break;
         }
         if (stVideoFrame[1].stVFrame.u64PhyAddr[0] != 0)
@@ -170,7 +172,7 @@ int main(int argc, char *argv[])
 	while (1) {
 		temp = cvi_tempsen_read_temp_mC(&tps, 1000);
 		printf("******* temper(%08d): %u\n", (int)aos_now_ms(), temp);
-        _GPIOSetValue(4, 21, g_iLedFlag);
+        _GPIOSetValue(4, 21, g_iLedFlag | g_iErrorFlag);
         g_iLedFlag = (g_iLedFlag + 1) % 2;
 		aos_msleep(200);
 	};
