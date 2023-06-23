@@ -98,6 +98,7 @@ void ResetMyAllSettings()
     my_memset(&g_xAS, 0, sizeof(g_xAS) - 1);
     ResetCS(&g_xCS);
     ResetPermanenceSettings();
+    ResetEncryptSettings();
     if (memcmp(&xTemp, &g_xAS, sizeof(g_xAS) - 1))
         UpdateMyAllSettings();
 }
@@ -326,7 +327,7 @@ void UpdateEncryptSettings()
 void ResetEncryptSettings()
 {
     // set values that indicates unset.
-    memset(&g_xES, 0xff, sizeof(g_xES));
+    memset(&g_xES.x.bEncKeyPos, 0xff, sizeof(g_xES.x.bEncKeyPos));
     UpdateEncryptSettings();
 }
 

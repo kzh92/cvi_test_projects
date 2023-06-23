@@ -875,7 +875,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
             m_iEyeOpened = arEngineResult[6];
             m_iRecogIndex = iFindIndex;
 
-            if(!m_iEyeOpened)
+            if(!m_iEyeOpened && (m_iResult == FACE_RESULT_SUCCESS))
             {
                 m_iCmd = E_EYE_CHECK;
                 m_rStartTime = Now();
