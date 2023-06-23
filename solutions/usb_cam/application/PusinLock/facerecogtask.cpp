@@ -601,7 +601,11 @@ int FaceRecogTask::ProcessGetImage1Step(int iFrameCount)
                 g_xSS.msg_snap_image_data.start_number + m_iCaptureCount <= N_MAX_SAVE_IMG_NUM)
         {
             lockIRBuffer();
+#if (!USE_3M_MODE)
             gammaCorrection_screen(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
+#else
+            memset(g_irOnData2, 0, IR_BUFFER_SIZE);
+#endif
             ret += SaveImage(g_irOnData2, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, g_xSS.iCameraRotate == 0 ? 90 : 270);
             unlockIRBuffer();
             m_iCaptureCount ++;
