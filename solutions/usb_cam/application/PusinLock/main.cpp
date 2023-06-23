@@ -1274,6 +1274,7 @@ int MsgProcSense(MSG* pMsg)
 
         memcpy(&g_xSS.msg_verify_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
         iRet = ProcessSenseFace(FaceRecogTask::E_VERIFY);
+        ResetFaceRegisterStates();
     }
     else if(pSenseMsg->mid == MID_FACERESET)
     {
@@ -1413,6 +1414,10 @@ int MsgProcSense(MSG* pMsg)
 
         int iUserID = TO_SHORT(g_xSS.msg_getuserinfo_data.user_id_heb, g_xSS.msg_getuserinfo_data.user_id_leb);
         PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iUserID - 1);
+#if (N_MAX_HAND_NUM)
+        if (iUserID > N_MAX_PERSON_NUM)
+            pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - N_MAX_PERSON_NUM - 1);
+#endif // N_MAX_HAND_NUM
         if(pxMetaInfo == NULL)
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETUSERINFO, MR_FAILED4_UNKNOWNUSER);
@@ -1673,6 +1678,8 @@ int MsgProcSense(MSG* pMsg)
             g_xSS.iMState = MS_STANDBY;
             return -1;
         }
+        g_xSS.iCapWidth = CAPTURE_WIDTH;
+        g_xSS.iCapHeight = CAPTURE_HEIGHT;
 
         memcpy(&g_xSS.msg_snap_image_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
 
@@ -1727,7 +1734,7 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_GETSAVEDIMAGE)
     {
         dbug_printf("MID_GETSAVEDIMAGE\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_get_saved_image_data.image_number))
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) > (int)sizeof(g_xSS.msg_get_saved_image_data))
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, MR_FAILED4_INVALIDPARAM);
             g_pSenseTask->Send_Msg(reply_msg);
@@ -1737,11 +1744,19 @@ int MsgProcSense(MSG* pMsg)
             return -1;
         }
 
+        memset(&g_xSS.msg_get_saved_image_data, 0, sizeof(s_msg_get_saved_image_data));
         memcpy(&g_xSS.msg_get_saved_image_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
 
         mount_db1();
 
         int iImgNum = g_xSS.msg_get_saved_image_data.image_number;
+
+        g_xSS.iCapWidth = g_xSS.msg_get_saved_image_data.image_width;
+        g_xSS.iCapHeight = g_xSS.msg_get_saved_image_data.image_height;
+        if (g_xSS.iCapWidth <= 0 || g_xSS.iCapWidth > CAPTURE_WIDTH)
+            g_xSS.iCapWidth = CAPTURE_SCENE_WIDTH;
+        if (g_xSS.iCapHeight <= 0 || g_xSS.iCapHeight > CAPTURE_HEIGHT)
+            g_xSS.iCapHeight = CAPTURE_SCENE_HEIGHT;
 
         if(iImgNum > 0)
         {
@@ -1971,8 +1986,8 @@ int MsgProcSense(MSG* pMsg)
         dbug_printf("MID_POWERDOWN\n");
         iRet = 0;
         ResetFMStates();
-        g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN, MR_SUCCESS));
         my_usleep(50 * 1000);
+        g_pSenseTask->Send_Msg(SenseLockTask::Get_Reply(MID_POWERDOWN, MR_SUCCESS));
     }
     else if(pSenseMsg->mid == MID_POWERDOWN_ED)
     {
@@ -2018,8 +2033,7 @@ int MsgProcSense(MSG* pMsg)
                 s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UVC_DIR, MR_SUCCESS);
                 g_pSenseTask->Send_Msg(reply_msg);
 
-                g_xCS.x.bUVCDir = g_xSS.msg_uvc_dir_data.rotate;
-                UpdateCommonSettings();
+                g_xSS.iUvcDirect = g_xSS.msg_uvc_dir_data.rotate;
             }
         }
     }
@@ -2431,6 +2445,7 @@ int MsgProcSense(MSG* pMsg)
 int ProcessSenseFace(int iCmd)
 {
     ClearSenseResetFlag();
+    g_xSS.rFaceEngineTime = Now();
 
     ///기동하면서 켠 카메라에서 첫 프레임을 받은 상태이라면
     if((g_iFirstCamFlag & LEFT_IR_CAM_RECVED) || (g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
@@ -2502,7 +2517,12 @@ int ProcessSenseFace(int iCmd)
                 }
             }
             g_iFirstCamFlag = 0;
-            g_xSS.iRegisterID = iUserID + 1;
+
+            // 아태천능조종기판규약방식일 때 MID_ENROLL_SINGLE명령으로 단방향등록하면 비정상동작하는 문제를 대책하였음.
+            // 등록한후 자료복귀되면서 사용자수가 0으로 되고 기동하지 못함.
+            if (g_xSS.iRegisterID == 0)
+                g_xSS.iRegisterID = iUserID + 1;
+
             g_xSS.iRegsterAuth = g_xSS.msg_enroll_itg_data.admin;
 
             if(g_iEnrollInit == 0)
@@ -2809,6 +2829,11 @@ int ProcessSenseFace(int iCmd)
                     }
                     else if(iCmd == FaceRecogTask::E_GET_IMAGE)
                     {
+                        s_msg* msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_FAILED4_TIMEOUT);
+                        if(g_xSS.iSendLastMsgMode)
+                            g_xSS.pLastMsg = msg;
+                        else
+                            g_pSenseTask->Send_Msg(msg);
                     }
                     else if(iCmd == FaceRecogTask::E_VERIFY)
                     {
@@ -2910,12 +2935,12 @@ int ProcessSenseFace(int iCmd)
                 }
                 else if(iResult == FACE_RESULT_CAPTURED_FACE)
                 {
-                    s_msg* msg = SenseLockTask::Get_Reply(MID_SNAPIMAGE, MR_SUCCESS);
+                    s_msg* msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_SUCCESS);
                     g_pSenseTask->Send_Msg(msg);
                 }
                 else if(iResult == FACE_RESULT_CAPTURED_FACE_FAILED)
                 {
-                    s_msg* msg = SenseLockTask::Get_Reply(MID_SNAPIMAGE, MR_FAILED4_UNKNOWNREASON);
+                    s_msg* msg = SenseLockTask::Get_Reply(g_xSS.iRunningCmd, MR_FAILED4_UNKNOWNREASON);
                     g_pSenseTask->Send_Msg(msg);
                 }
 #if (N_MAX_HAND_NUM)
@@ -3151,17 +3176,19 @@ int ProcessSenseFace(int iCmd)
         // if(g_xSS.msg_verify_data.pd_rightaway == 1 && g_pVDBTask->IsStreaming() != 1)
         //     return 0;
 #else // USE_VDBTASK
-        if(g_xSS.msg_verify_data.pd_rightaway == 1)
-        {
-            return 0;
-        }
+        //if(g_xSS.msg_verify_data.pd_rightaway == 1)
+        //{
+        //    return 0;
+        //}
 #endif // USE_VDBTASK
     }
 
+    g_xSS.rFaceEngineTime = 0;
     if(g_xSS.pLastMsg)
     {
         return 0;
     }
+
     return -1;
 }
 

@@ -122,6 +122,9 @@ void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
 
 int FaceEngine::ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData, float* prResultArray)
 {
+    if (prResultArray == NULL)
+        return ES_FAILED;
+
     if (pbLedOnData == NULL)
     {
         prResultArray[0] = ES_FAILED;

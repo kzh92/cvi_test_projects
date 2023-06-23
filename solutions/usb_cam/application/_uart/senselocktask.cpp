@@ -559,13 +559,6 @@ void SenseLockTask::run()
         my_mutex_unlock(SenseLockTask::CommMutex);
         if(pMsg == NULL)
         {
-            if (m_rRecvCmdTime == 0 && m_rActive != 0)
-            {
-                if (Now() - m_rActive > 200)
-                {
-                    SendReady();
-                }
-            }
             continue;
         }
 
@@ -1171,6 +1164,8 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
 #endif // N_MAX_HAND_NUM
 
     }
+    if (msg == NULL)
+        msg = SenseLockTask::Get_Reply(MID_GET_ALL_USERID, MR_FAILED4_INVALIDPARAM);
 
     return msg;
 }
@@ -1228,7 +1223,7 @@ s_msg* SenseLockTask::Get_Reply_GetVersion(int iResult)
     strcpy((char*)msg_reply_version_data->version_info, DEVICE_FIRMWARE_VERSION);
 #if (DESMAN_ENC_MODE != 0)
     //for qixin only, version length must be less or equal than 12.
-    strcpy((char*)msg_reply_version_data->version_info + 12, DEVICE_FIRMWARE_VERSION);
+    strcpy((char*)msg_reply_version_data->version_info + 12, DEVICE_FIRMWARE_VERSION_INNER);
 #endif // DESMAN_ENC_MODE
 #endif // DEVICE_TYPE_NUM
     return msg;

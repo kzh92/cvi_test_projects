@@ -25,13 +25,6 @@ enum
     VIEW_GET_IMAGE
 };
 
-enum E_Sound_Type
-{
-    Sound_None,
-    Sound_Left,
-    Sound_Top
-};
-
 enum
 {
     APP_MAIN,
@@ -46,38 +39,6 @@ enum
     ERROR_THREAD = 3,
     ERROR_LOOP = 4,
     ERROR_I2C = 5,
-};
-
-
-enum
-{
-    KEY_ANY = 2000,
-    KEY_BASE = 1000,
-    KEY_MULTI = 1000,
-    KEY_1 = 1001,
-    KEY_2 = 1002,
-    KEY_3 = 1003,
-    KEY_4 = 1004,
-    KEY_5 = 1005,
-    KEY_6 = 1006,
-    KEY_7 = 1007,
-    KEY_8 = 1008,
-    KEY_9 = 1009,
-    KEY_0 = 1010,
-    KEY_BACK = 1011,
-    KEY_CONFIRM = 1012,
-    KEY_FUNC = 1013,
-    KEY_FUNC_CLICK = 1030,
-    KEY_FUNC_DBL_CLICK = 1031,
-    KEY_FUNC_LONG_CLICK = 1032
-};
-
-enum
-{
-    E_TEST_FAILED,
-    E_DEVICE_TEST_START,
-    E_PRESENTATION_TEST_START,
-    E_PRESENTATION_TEST_STOP,
 };
 
 #define N_DEMO_VERIFY_MODE_ON       0x01
@@ -273,6 +234,7 @@ typedef struct _tagSYSTEM_STATE
     int                         iUvcHeight;
     int                         iCurUvcWidth;
     int                         iCurUvcHeight;
+    int                         iUvcDirect;
     int                         iProtoMode; // 0: no encryption, 1:sanjiang mode
     int                         iCapWidth;
     int                         iCapHeight;
