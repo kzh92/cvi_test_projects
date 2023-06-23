@@ -147,10 +147,13 @@ void FaceRecogTask::SendFaceDetectMsg()
     iFaceNearFar = (m_iFaceNearFar[idx] != 0) ? m_iFaceNearFar[idx] : m_iFaceNearFar[(idx + 1) % FMI_END];
     iFacePosition = (m_iFacePosition[idx] != 0) ? m_iFacePosition[idx] : m_iFacePosition[(idx + 1) % FMI_END];
     isFaceDetected = (m_isFaceDetected[idx] != FDS_NONE) ? m_isFaceDetected[idx] : m_isFaceDetected[(idx + 1) % FMI_END];
-    if(m_isFaceOcculution)
+    if(g_xSS.iOcclusionFlag)
     {
-        g_xSS.note_data_face.state = FACE_STATE_FACE_OCCLUSION;
-        SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
+        if (m_isFaceOcculution)
+        {
+            g_xSS.note_data_face.state = FACE_STATE_FACE_OCCLUSION;
+            SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
+        }
     }
     else if(iFaceNearFar)
     {
@@ -218,6 +221,7 @@ void FaceRecogTask::run()
 
 #if (NOTE_INTERVAL_MS)
     g_xSS.note_data_face.state = FACE_STATE_NOFACE;
+    SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
 #endif
     while(m_iRunning)
     {
@@ -231,17 +235,6 @@ void FaceRecogTask::run()
         int iFlag = 0;
         if (GetLeftIrFrame(&iFlag))
             break;
-
-#if (NOTE_INTERVAL_MS)
-        if(g_xSS.note_data_face.state == FACE_STATE_NOFACE)
-            SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
-        else if(g_xSS.note_data_face.state == FACE_STATE_FACE_OCCLUSION)
-            SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
-        else if(g_xSS.note_data_face.state == FACE_STATE_TOOFAR)
-            SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
-        else if(g_xSS.note_data_face.state == FACE_STATE_TOOCLOSE)
-            SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
-#endif // NOTE_INTERVAL_MS
 
         if(!m_iRunning)
             break;
@@ -772,6 +765,13 @@ int FaceRecogTask::GetFaceState()
             g_xSS.note_data_face.right = g_xSS.xFaceRect.x + g_xSS.xFaceRect.width - 1;
             g_xSS.note_data_face.bottom = g_xSS.xFaceRect.y + g_xSS.xFaceRect.height - 1;
         }
+    }
+    if (nProcessMode == 0) //face process
+    {
+        if (m_isFaceOcculution)
+            g_xSS.iOcclusionFlag = 1;
+        else
+            g_xSS.iOcclusionFlag = 0;
     }
     return isFaceDetected;
 }

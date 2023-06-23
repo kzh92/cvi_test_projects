@@ -282,6 +282,7 @@ typedef struct _tagSYSTEM_STATE
     int                         bUVCRunning;
     unsigned char               *bSnapImageData;
     unsigned int                iSnapImageLen[SI_MAX_IMAGE_COUNT];
+    unsigned char               iOcclusionFlag;
 
     s_msg_verify_data   msg_verify_data;
     s_msg_enroll_itg    msg_enroll_itg_data;
