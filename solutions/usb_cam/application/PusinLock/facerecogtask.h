@@ -80,6 +80,8 @@ protected:
     int     ProcessCheckCamera1Step();
     int     ProcessVerify1Step(int iSecondImageReCheck);
     int     ProcessEnroll1Step(int iSecondImageReCheck);
+    int     ProcessEnrollFile1Step();
+    int     ProcessSaveFaceImage1Step();
     int     ProcessCheckEye1Step();
     int     ReadStaticIRImage(void* dst, int flip);
     int     GetLeftIrFrame(int* p_iUseFirstFrame);

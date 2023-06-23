@@ -356,9 +356,16 @@ int processGlobalMsg()
                         g_pSenseTask->Send_Msg(reply_msg);
                         my_usleep(10 * 1000);
                     }
-                    pMsg = NULL;
-                    iRet = 0;
-                    break;
+                    if (g_xSS.iEFIFlag == 0)
+                    {
+                        pMsg = NULL;
+                        iRet = 0;
+                        break;
+                    }
+                    else
+                    {
+                        g_xSS.iMState = MS_STANDBY;
+                    }
                 }
                 else if (pMsg->data2 != OTA_RECV_PCK)
                 {
@@ -1189,13 +1196,30 @@ int MsgProcSense(MSG* pMsg)
             g_xSS.iRegisterHand = 1;
 #endif // N_MAX_HAND_NUM
         //ignores face direction
-        d.face_direction = FACE_DIRECTION_UNDEFINE;
+        if (d.face_direction != FACE_DIRECTION_PICTURE)
+            d.face_direction = FACE_DIRECTION_UNDEFINE;
         if (d.timeout == 0)
             d.timeout = SF_DEF_FACE_ENROLL_TIMEOUT;
 
         SF_ENROLL_NOR2ITG(&d, &g_xSS.msg_enroll_itg_data);
         g_xSS.msg_enroll_itg_data.enroll_type = FACE_ENROLL_TYPE_SINGLE;
         g_xSS.msg_enroll_itg_data.enable_duplicate = FACE_ENROLL_DCM_NFACE_NAME;
+        dbug_printf("direction=%02x\n", d.face_direction);
+        if (d.face_direction == FACE_DIRECTION_PICTURE)
+        {
+            dbug_printf("MID_ENROLL_COLOR_IMAGE\n");
+            if (g_xSS.pbOtaData == NULL)
+            {
+                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_ENROLL_SINGLE, MR_FAILED4_INVALIDPARAM);
+                g_pSenseTask->Send_Msg(reply_msg);
+
+                free(pSenseMsg);
+                g_xSS.iMState = MS_STANDBY;
+                return -1;
+            }
+        }
+        //ignores face direction
+        g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
 
         g_xSS.iEnrollMutiDirMode = 0;
 #if (USE_FUSHI_PROTO)
@@ -1223,6 +1247,7 @@ int MsgProcSense(MSG* pMsg)
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
 //        dbug_printf("Enroll Ret = %d\n", iRet);
+        g_xSS.iEFIFlag = 0;
     }
 #if (USE_ENROLL_ITG)
     else if(pSenseMsg->mid == MID_ENROLL_ITG)
@@ -1715,10 +1740,38 @@ int MsgProcSense(MSG* pMsg)
             ResetFaceRegisterStates();
         }
     }
+#if (USE_RENT_ENGINE)
+    else if(pSenseMsg->mid == MID_SNAPIMAGE2)
+    {
+        dbug_printf("MID_SNAPIMAGE2\n");
+
+        s_msg_snap_image2_data d;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_snap_image2_data))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+
+        memcpy(&d, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+
+        g_xSS.iSnapImageFace = (d.crop_face != 0);
+        memset(&g_xSS.msg_snap_image_data, 0, sizeof(g_xSS.msg_snap_image_data.start_number));
+        g_xSS.msg_snap_image_data.image_counts = 1;
+        g_xSS.msg_snap_image_data.start_number = 1;
+        memset(&g_xSS.msg_verify_data, 0, sizeof(g_xSS.msg_verify_data));
+        g_xSS.msg_verify_data.timeout = d.timeout_sec;
+        iRet = ProcessSenseFace(FaceRecogTask::E_GET_IMAGE);
+        g_xSS.iSnapImageFace = 0;
+    }
+#endif // USE_RENT_ENGINE
     else if(pSenseMsg->mid == MID_GETSAVEDIMAGE)
     {
         dbug_printf("MID_GETSAVEDIMAGE\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_get_saved_image_data))
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_get_saved_image_data.image_number))
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GETSAVEDIMAGE, MR_FAILED4_INVALIDPARAM);
             g_pSenseTask->Send_Msg(reply_msg);
@@ -1778,30 +1831,56 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_GET_LOGFILE)
     {
         dbug_printf("MID_GET_LOGFILE\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_get_saved_image_data))
+        s_msg_get_userdb_data d;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(d))
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GET_LOGFILE, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
-
-            my_free(pSenseMsg);
-            g_xSS.iMState = MS_STANDBY;
-            return -1;
-        }
-
-        int iImgLen = 0;
-        iImgLen = fr_GetAppLogLen();
-
-        memcpy(&g_xSS.msg_get_saved_image_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-
-        if(iImgLen > 0)
-        {
-            s_msg* reply_msg = SenseLockTask::Get_Reply_GetLogFile(MR_SUCCESS, iImgLen);
             g_pSenseTask->Send_Msg(reply_msg);
         }
         else
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GET_LOGFILE, MR_FAILED4_UNKNOWNREASON);
-            g_pSenseTask->Send_Msg(reply_msg);
+            int iImgLen = 0;
+            iImgLen = fr_GetAppLogLen();
+
+            memcpy(&d, pSenseMsg->data, sizeof(d));
+#if (USE_DB_UPDATE_MODE)
+            if (d.image_number == 2)
+            {
+                if (d.user_id_heb == 0 && d.user_id_leb == 0)
+                    g_xSS.iDBgetFlag = 1;
+                else
+                    g_xSS.iDBgetFlag = 2;
+            }
+            else
+                g_xSS.iDBgetFlag = 0;
+            if (g_xSS.iDBgetFlag == 2)
+            {
+                int iUserID = TO_SHORT(d.user_id_heb, d.user_id_leb);
+                g_xSS.iDBgetIndex = iUserID - 1;
+                if (g_xSS.iDBgetIndex < 0 || dbm_GetPersonMetaInfoByID(g_xSS.iDBgetIndex) == NULL)
+                    iImgLen = 0;
+                else
+                    iImgLen = sizeof(DB_UNIT);
+            }
+            else if(g_xSS.iDBgetFlag == 1)
+                iImgLen = sizeof(DB_INFO);
+#endif // USE_DB_UPDATE_MODE
+
+            if(iImgLen > 0)
+            {
+#if (USE_DB_UPDATE_MODE)
+                if (g_xSS.iDBgetFlag)
+                    iImgLen += MAGIC_LEN_UPDATE_DB;
+#endif // USE_DB_UPDATE_MODE
+
+                s_msg* reply_msg = SenseLockTask::Get_Reply_GetLogFile(MR_SUCCESS, iImgLen);
+                g_pSenseTask->Send_Msg(reply_msg);
+            }
+            else
+            {
+                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GET_LOGFILE, MR_FAILED4_UNKNOWNREASON);
+                g_pSenseTask->Send_Msg(reply_msg);
+            }
         }
     }
     else if(pSenseMsg->mid == MID_UPLOADIMAGE)
@@ -1902,14 +1981,33 @@ int MsgProcSense(MSG* pMsg)
         }
         else
         {
+            unsigned char* pbImageData = NULL;
+            s_msg* reply_msg = NULL;
+            if (g_xSS.iDBgetFlag == 0)
+            {
+                pbImageData = (unsigned char*)my_malloc(iImageSize + 4);
 
-            unsigned char* pbImageData = (unsigned char*)my_malloc(iImageSize + 4);
-
-            fr_ReadAppLog("app_log.txt", 0, pbImageData, iImageSize + 4);
-            s_msg* reply_msg = SenseLockTask::Get_Image(pbImageData + 4, iImageSize);// 4B: Header
+                fr_ReadAppLog("app_log.txt", 0, pbImageData, iImageSize + 4);
+                reply_msg = SenseLockTask::Get_Image(pbImageData + 4, iImageSize);// 4B: Header
+            }
+#if (USE_DB_UPDATE_MODE)
+            else if(g_xSS.iDBgetFlag >= 1 && g_xSS.iDBgetFlag <= 2)
+            {
+                pbImageData = (unsigned char*)my_malloc(iImageSize);
+                
+                if (FaceEngine::GetPersonDbBin(pbImageData, iImageSize, g_xSS.iDBgetFlag, g_xSS.iDBgetIndex, iImageOffset) == 0)
+                {
+                    reply_msg = SenseLockTask::Get_Image(pbImageData, iImageSize);
+                }
+            }
+#endif // USE_DB_UPDATE_MODE
+            if (pbImageData)
+                my_free(pbImageData);
+            if (!reply_msg)
+            {
+                reply_msg = SenseLockTask::Get_Reply(MID_UPLOAD_LOGFILE, MR_FAILED4_INVALIDPARAM);
+            }
             g_pSenseTask->Send_Msg(reply_msg);
-
-            my_free(pbImageData);
         }
     }
     else if(pSenseMsg->mid == MID_POWERDOWN)
@@ -2135,6 +2233,122 @@ int MsgProcSense(MSG* pMsg)
             g_pSenseTask->Send_Msg(reply_msg);
         }
     }
+#if (USE_RENT_ENGINE)
+    else if(pSenseMsg->mid == MID_ENROLL_FROM_IMAGE)
+    {
+        dbug_printf("MID_ENROLL_FROM_IMAGE\n");
+        if(g_xSS.pbOtaData == NULL || SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_enroll_from_img_data))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+
+        s_msg_enroll_from_img_data d;
+        memcpy(&d, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+        if (d.img_type >= EIT_END)
+        {
+            //invalid image type
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+        if (d.timeout == 0)
+            d.timeout = SF_DEF_FACE_ENROLL_TIMEOUT;
+
+        SF_ENROLL_NOR2ITG((s_msg_enroll_data*)&d, &g_xSS.msg_enroll_itg_data);
+        g_xSS.msg_enroll_itg_data.enroll_type = FACE_ENROLL_TYPE_SINGLE;
+        g_xSS.msg_enroll_itg_data.enable_duplicate = FACE_ENROLL_DCM_NFACE_NAME;
+        g_xSS.iEFIFlag = 1;
+        g_xSS.iEFIImageType = d.img_type + 1;
+        //ignores face direction
+        g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
+
+        g_xSS.iEnrollMutiDirMode = 0;
+
+        iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+//        dbug_printf("Enroll Ret = %d\n", iRet);
+        g_xSS.iEFIFlag = 0;
+        g_xSS.iEFIImageType = 0;
+    }
+    else if(pSenseMsg->mid == MID_TRANS_FILE_PACKET)
+    {
+//        dbug_printf("MID_TRANS_FILE_PACKET\n");
+        int failed_code = MR_SUCCESS;
+        s_msg* reply_msg = NULL;
+        uint16_t *reg_user_ids = NULL;
+        int reg_user_count = 0;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_trans_file_data))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+
+        s_msg_trans_file_data *d;
+        d = (s_msg_trans_file_data*)pSenseMsg->data;
+        unsigned int d_len = MY_BE2INT2(d->psize);
+        unsigned int file_len = MY_BE2INT4(d->feat_size);
+        unsigned int p_offset = MY_BE2INT4(d->offset);
+
+        dbug_printf("MID_TRANS_FILE_PACKET (total, offset, packet size) = (%d, %d, %d)\n", file_len, p_offset, d_len);
+        if (file_len > TRANS_FILE_MAX_SIZE || p_offset + d_len > file_len || (unsigned int)SenseLockTask::Get_MsgLen(pSenseMsg) < d_len + sizeof(*d) - offsetof(s_msg_trans_file_data, data))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+        unsigned int uid = 0;
+        if (g_xSS.pbOtaData == NULL)
+            g_xSS.pbOtaData = (unsigned char*)malloc(file_len);
+        if (g_xSS.pbOtaData && p_offset == 0 && d_len == 0) //end of data
+        {
+            if (d->store_type == S_TRANS_STORE_TYPE_UID && SenseLockTask::Get_MsgLen(pSenseMsg) > (int)sizeof(s_msg_trans_file_data))
+            {
+                uid = MY_BE2INT2(d->data);
+                printf("uid=%d\n", uid);
+                reg_user_count = uid;
+            }
+            else
+            {
+                printf("no uid\n");
+            }
+            g_xSS.iUpgradeLen = FaceEngine::DecodeRegisterFileData(&g_xSS.pbOtaData, file_len, &reg_user_count, &reg_user_ids);
+            if (g_xSS.iUpgradeLen <= 0)
+            {
+                failed_code = -g_xSS.iUpgradeLen;
+                g_xSS.iUpgradeLen = 0;
+            }
+            else if (g_xSS.iUpgradeLen == 1)
+            {
+                free(g_xSS.pbOtaData);
+                g_xSS.iUpgradeLen = 1;
+                g_xSS.pbOtaData = NULL;
+            }
+        }
+        else
+        {
+            memcpy(g_xSS.pbOtaData + p_offset, d->data, d_len);
+        }
+        if (reg_user_count > 0)
+            reply_msg = SenseLockTask::Get_Reply_TransFilePacket(failed_code, reg_user_count, reg_user_ids);
+        else
+            reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, failed_code);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+#endif // USE_RENT_ENGINE
     else if(pSenseMsg->mid == MID_CAMERA_FLIP)
     {
         dbug_printf("MID_CAMERA_FLIP\n");
@@ -2187,6 +2401,23 @@ int MsgProcSense(MSG* pMsg)
         }
 
         my_free(pSenseMsg);
+#if (USE_RENT_ENGINE)
+        dbug_printf("ota=%02x, %02x, %02x\n",
+                    g_xSS.msg_startota_data.v_primary, g_xSS.msg_startota_data.v_secondary, g_xSS.msg_startota_data.v_revision);
+        if (g_xSS.msg_startota_data.v_primary == OTA_CUS_DATA &&
+                g_xSS.msg_startota_data.v_secondary == OTA_CUS_DATA &&
+                g_xSS.msg_startota_data.v_revision == FACE_DIRECTION_PICTURE)
+        {
+            //send picture data
+            g_xSS.iMState = MS_OTA;
+
+            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_START_OTA, MR_SUCCESS);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            return -1;
+        }
+        else
+#endif // USE_RENT_ENGINE
         g_xSS.iStartOta = 1;
         return 0;
 #if 0
@@ -3193,9 +3424,15 @@ int ProcessActivation(char* pbUID, int iUniqueID)
         int iResult = 1;
         const char* szDictNames[] = {
             FN_WNO_DICT_PATH,
+#if (N_MAX_HAND_NUM)
+            FN_WNOH_DICT_PATH,
+#endif
             NULL};
         const unsigned long szDictLength[] = {
             FN_WNO_DICT_SIZE,
+#if (N_MAX_HAND_NUM)
+            FN_WNOH_DICT_SIZE,
+#endif
             0 };
 
         for(int i = 0; szDictNames[i] != NULL; i ++)

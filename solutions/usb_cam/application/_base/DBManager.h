@@ -84,6 +84,8 @@ LIBFOO_DLL_EXPORTED int         dbm_AddPerson(PSMetaInfo pxUserInfo, PSFeatInfo 
 LIBFOO_DLL_EXPORTED int			dbm_UpdatePerson(int nIndex, PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonMetaInfo(int nIndex, PSMetaInfo pxUserInfo, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonFeatInfo(int nIndex, PSFeatInfo pxFeatInfo, int* piBlkNum, int iUpdateFeatIndex);
+LIBFOO_DLL_EXPORTED  int        dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID);
+LIBFOO_DLL_EXPORTED  unsigned char* dbm_GetPersonBin();
 LIBFOO_DLL_EXPORTED  int		dbm_GetPersonCount();
 LIBFOO_DLL_EXPORTED  int		dbm_GetTotalUserCount();
 LIBFOO_DLL_EXPORTED  int        dbm_GetIDOfIndex(int iIndex);
@@ -100,6 +102,7 @@ LIBFOO_DLL_EXPORTED  PSMetaInfo	dbm_GetPersonMetaInfoByIndex(int nPos);
 LIBFOO_DLL_EXPORTED  PSFeatInfo	dbm_GetPersonFeatInfoByIndex(int nPos);
 LIBFOO_DLL_EXPORTED  int		dbm_RemovePersonByID(int nID, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int		dbm_RemovePersonByIndex(int nIndex, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int        dbm_RemovePersonByPrivilege(int iPrivilege, int* piBlkNum);
 
 //hand userinfo
 #if (N_MAX_HAND_NUM)

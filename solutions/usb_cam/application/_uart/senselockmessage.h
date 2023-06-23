@@ -12,6 +12,7 @@
 #define UID_INFO_BUFFER_SIZE 32
 #define MAX_USER_COUNTS  (N_MAX_PERSON_NUM > N_MAX_HAND_NUM ? N_MAX_PERSON_NUM : N_MAX_HAND_NUM)
 #define MAX_IMAGE_SIZE  (4000)
+#define TRANS_FILE_MAX_SIZE                 (1024*1024)
 
 #if (USE_FUSHI_PROTO)
 #define FUSHI_HEAD1     0x53
@@ -32,6 +33,7 @@ enum
     OTA_USB_START,
     OTA_USB_DETECTED,
     SENSE_READY_DETECTED,
+    OTA_CUS_DATA = 0xff,
 };
 
 //unlock status
@@ -86,6 +88,9 @@ typedef uint8_t s_msg_id;
 #endif
 #define MID_UVC_DIR 0x76   // rotate uvc image
 #define MID_UVC_SET_COMPRESS_PARAM 0x77   // set UVC compression parameters
+#define MID_TRANS_FILE_PACKET 0x90 // receive file data from master
+#define MID_ENROLL_FROM_IMAGE 0x91 // enroll with image data of MID_TRANS_FILE_PACKET
+
 #define MID_GET_UID 0x93    //XiShang require module ID
 #define MID_SEND_LAST_MSG 0xA0  //더스만모듈에서 응답을 받아서 주동적으로 체계를 끄는 방식설정
 #define MID_ENABLE_LOGFILE 0xA1  //더스만모듈에서 응답을 받아서 주동적으로 체계를 끄는 방식설정
@@ -104,7 +109,7 @@ typedef uint8_t s_msg_id;
 #define MID_GET_DEBUG_INFO 0xF1       // get size of debug information
 #define MID_UPLOAD_DEBUG_INFO 0xF2    // upload debug information
 #define MID_DEMOMODE 0xFE   // enter demo mode, verify flow will skip feature comparation step.
-#define MID_MAX 0xFF        // reserved
+#define MID_SNAPIMAGE2 0xFF       // snapimage for renthouse
 /* communication message ID definitions end */
 
 /* message result code */
@@ -366,9 +371,19 @@ typedef struct {
     uint8_t start_number; // start number of stored images
 } s_msg_snap_image_data;
 
+typedef struct {
+    uint8_t reserved1; //
+    uint8_t reserved2; //
+    uint8_t reserved3; //
+    uint8_t crop_face; // 1: crop face area, 0: whole image
+    uint8_t timeout_sec; //timeout in seconds
+} s_msg_snap_image2_data;
+
 // get saved image data
 typedef struct {
     uint8_t image_number; // number of saved image
+    uint16_t image_width;
+    uint16_t image_height;
 } s_msg_get_saved_image_data;
 
 // get usderdb data
@@ -531,11 +546,39 @@ typedef struct {
 enum {
     SM_DEL_ALL_TYPE_DEFAULT, //delete all user data
     SM_DEL_ALL_TYPE_FACE, //delete only face users
-#if (N_MAX_HAND_NUM)
     SM_DEL_ALL_TYPE_HAND, //delete only hand users
-#endif
+    SM_DEL_ALL_TYPE_NORMAL_FACE_USERS, //delete face users that does not have admin flag
     SM_DEL_ALL_TYPE_END,
 };
+
+typedef struct {
+    uint8_t store_type; // must be 0, store in memory
+    uint8_t feat_size[4]; // transfer file size, int -> [s1 s2 s3 s4]
+    uint8_t offset[4]; // transfer file offset
+    uint8_t psize[2]; // packet size
+    uint8_t data[0]; // data 0 start
+} s_msg_trans_file_data;
+
+#define S_TRANS_STORE_TYPE_DEFAULT          0
+#define S_TRANS_STORE_TYPE_UID              0xFE
+
+typedef struct {
+    uint8_t m_usercount; // number of registered users
+    uint16_t m_userids[0]; // registered user IDs, starts at 1
+} s_msg_reply_trans_file_data;
+
+typedef enum {
+    EIT_RGB,
+    EIT_IR,
+    EIT_END
+} E_EnrollImageType;
+
+typedef struct {
+    uint8_t admin; // the user will be set to admin
+    uint8_t user_name[USER_NAME_SIZE];
+    uint8_t img_type; // 0 for rgb, 1 for ir, other is invalid
+    uint8_t timeout; // timeout, unit second default 10s
+} s_msg_enroll_from_img_data;
 
 enum {
     S_VERIFY_LEVEL_VERY_LOW,

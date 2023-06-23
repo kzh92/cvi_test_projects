@@ -7,6 +7,35 @@
 #include <pthread.h>
 #include <stdio.h>
 
+#define MY_LE2INT4(ba) ((((unsigned char*)(ba))[3] << 24) | (((unsigned char*)(ba))[2] << 16) | (((unsigned char*)(ba))[1] << 8) | ((unsigned char*)(ba))[0])
+#define MY_LE2INT2(ba) ((((unsigned char*)(ba))[1] << 8) | ((unsigned char*)(ba))[0])
+#define MY_BE2INT4(ba) ((((unsigned char*)(ba))[0] << 24) | (((unsigned char*)(ba))[1] << 16) | (((unsigned char*)(ba))[2] << 8) | ((unsigned char*)(ba))[3])
+#define MY_BE2INT2(ba) ((((unsigned char*)(ba))[0] << 8) | ((unsigned char*)(ba))[1])
+#define MY_BE2DBYTES4(v, ba) \
+    do { \
+        ((unsigned char*)(ba))[0] = ((v) >> 24) & 0xff; \
+        ((unsigned char*)(ba))[1] = ((v) >> 16) & 0xff; \
+        ((unsigned char*)(ba))[2] = ((v) >> 8) & 0xff; \
+        ((unsigned char*)(ba))[3] = (v) & 0xff; \
+    } while(0)
+#define MY_BE2DBYTES2(v, ba) \
+    do { \
+        ((unsigned char*)(ba))[0] = ((v) >> 8) & 0xff; \
+        ((unsigned char*)(ba))[1] = (v) & 0xff; \
+    } while(0)
+#define MY_LE2DBYTES4(v, ba) \
+    do { \
+        ((unsigned char*)(ba))[3] = ((v) >> 24) & 0xff; \
+        ((unsigned char*)(ba))[2] = ((v) >> 16) & 0xff; \
+        ((unsigned char*)(ba))[1] = ((v) >> 8) & 0xff; \
+        ((unsigned char*)(ba))[0] = (v) & 0xff; \
+    } while(0)
+#define MY_LE2DBYTES2(v, ba) \
+    do { \
+        ((unsigned char*)(ba))[1] = ((v) >> 8) & 0xff; \
+        ((unsigned char*)(ba))[0] = (v) & 0xff; \
+    } while(0)
+
 #define SHMKEY              0x123321
 #define SHMKEY_LCD          0x123322
 
@@ -106,6 +135,7 @@ int             my_fsync(myfdesc_ptr _fd);
 
 int             get_cur_rootfs_part();
 int             get_rootfs_checksum(const char *dev_path, unsigned int* n_checksum_ptr);
+int             xor_encrypt(unsigned char* buf, int length, unsigned char* key, int key_length);
 
 void*           my_malloc_real(unsigned int nSize);
 void*           my_malloc_real_debug(unsigned int nSize, const char*, int);

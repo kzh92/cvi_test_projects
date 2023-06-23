@@ -185,6 +185,9 @@ typedef struct _tagSYSTEM_STATE
     //Face Recog Task
     SRect           xFaceRect;
     float           rFaceEngineTime;
+    int             iEFIFlag;
+    int             iEFIImageType;
+    int             iSnapImageFace;
 
     float           rCardEngineTime;
     float           rFPEngineTime;
@@ -244,6 +247,9 @@ typedef struct _tagSYSTEM_STATE
     int                         iUpgradeImgLen;
 
     unsigned char*              pbOtaData;
+    int                         iDBUpdateFlag;
+    int                         iDBgetFlag;
+    int                         iDBgetIndex;
     int*                        piOtaPckIdx;
     int                         iOtaError;
 
@@ -268,6 +274,8 @@ typedef struct _tagSYSTEM_STATE
     int                         iCurUvcWidth;
     int                         iCurUvcHeight;
     int                         iProtoMode; // 0: no encryption, 1:sanjiang mode
+    int                         iCapWidth;
+    int                         iCapHeight;
 
     int                         iSendLastMsgMode;
     unsigned char               iMidPowerdown;

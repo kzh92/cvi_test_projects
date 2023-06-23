@@ -14,6 +14,8 @@
 #define UPDATE_FIRM_ZIMG_PATH "/home/upfirm~1.zim"
 ///////
 
+#pragma pack(push, 1)
+
 #define UF_MAX_PART_CNT         32
 typedef struct {
     char m_partname[16];
@@ -39,6 +41,30 @@ typedef struct st_uf_file_header
     char m_back_ver[32];
     s_uf_part_info m_part_infos[UF_MAX_PART_CNT];
 } uf_file_header;
+
+#define FEAT_SIZE				(sizeof(float) * 256)
+#define FEAT_HEADER_SIZE		(8)
+
+typedef struct {
+    char m_magic[FEAT_HEADER_SIZE];
+    int m_size; // m_feat_size * m_count + sizeof(s_feat_header_v3)
+    int m_count; // count of feats
+    int m_feat_size; // OUT_FEAT_SIZE
+} s_feat_header_v3;
+
+typedef struct {
+    char m_magic[FEAT_HEADER_SIZE];
+    unsigned char feat_data[FEAT_SIZE];
+} s_feat_data_v2;
+
+typedef struct {
+    s_feat_header_v3 m_header;
+    s_feat_data_v2 m_feat[0];
+} s_feat_data_v3;
+
+#pragma pack(pop)
+
+#define UF_HEADER_MAGIC_SIZE 8 /* sizeof m_magic */
 
 #ifdef __cplusplus
 extern  "C"

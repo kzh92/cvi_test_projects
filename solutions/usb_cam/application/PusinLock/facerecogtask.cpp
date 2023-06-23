@@ -16,12 +16,7 @@
 #include "senselocktask.h"
 #include <vfs.h>
 
-// #include <unistd.h>
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <time.h>
 #include <string.h>
-// #include <math.h>
 #include <fcntl.h>
 #include <errno.h>
 #if (USE_FP16_ENGINE)
@@ -30,6 +25,8 @@
 #endif // N_MAX_HAND_NUM
 #include "ComboRetrievalSystem.h"
 #endif // USE_FP16_ENGINE
+#include "senselocktask.h"
+#include "upgradebase.h"
 
 //#define USE_STATIC_IMAGE
 unsigned char *g_abCapturedFace = NULL;
@@ -38,7 +35,8 @@ int FaceRecogTask::m_iCounter = 0;
 int FaceRecogTask::m_iImageMode = 0;
 
 #define N_MAX_SAVE_IMG_NUM      SI_MAX_IMAGE_COUNT
-int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate);
+static int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
+                     int width = IR_CAM_WIDTH, int height = IR_CAM_HEIGHT);
 void* faceRecogTask_ThreadProc1(void* param);
 
 message_queue g_queue_face;
@@ -199,6 +197,10 @@ void FaceRecogTask::run()
         iTimeout = g_xSS.msg_verify_data.timeout;
     else if(m_iCmd == E_EYE_CHECK)
         iTimeout = 2;
+#if (USE_RENT_ENGINE)
+    else if(m_iCmd == E_GET_IMAGE && g_xSS.iSnapImageFace)
+        iTimeout = g_xSS.msg_verify_data.timeout;
+#endif // USE_RENT_ENGINE
 
     if(iTimeout == 0)
         iTimeout = DETECTION_TIMEOUT;
@@ -228,6 +230,9 @@ void FaceRecogTask::run()
         if(g_xSS.iResetFlag == 1)
             break;
 
+        if (ProcessEnrollFile1Step())
+            break;
+
         iLoopCount ++;
         g_xSS.rFaceEngineTime = Now();
 
@@ -239,7 +244,7 @@ void FaceRecogTask::run()
         if(!m_iRunning)
             break;
 
-        if(m_iCmd == E_GET_IMAGE)
+        if(m_iCmd == E_GET_IMAGE && g_xSS.iSnapImageFace == 0)
         {
             if(iFlag)
             {
@@ -392,6 +397,14 @@ void FaceRecogTask::run()
                 GetLeftIrFrame(&iFlag);
             }
 
+#if (USE_RENT_ENGINE)
+            if (ProcessSaveFaceImage1Step())
+            {
+                nBreaks = 1;
+                break;
+            }
+#endif // USE_RENT_ENGINE
+
             if(g_xSS.iResetFlag == 1)
                 break;
 
@@ -460,21 +473,22 @@ void FaceRecogTask::run()
 }
 
 
-int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
+int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
+              int width, int height)
 {
     int iMaxLen = 128 * 1024;
     unsigned char* pbJpgData = NULL;
     unsigned char* g_abCapturedFace = NULL;
 
-    g_abCapturedFace = (unsigned char*)my_malloc(CAPTURE_WIDTH * CAPTURE_HEIGHT * 3);
+    g_abCapturedFace = (unsigned char*)my_malloc(g_xSS.iCapWidth * g_xSS.iCapHeight * 3);
     if (!g_abCapturedFace)
     {
         my_printf("[%s] malloc fail1.\n", __func__);
         return -1;
     }
 
-    rotateImage_inner(pbImage, IR_CAM_WIDTH, IR_CAM_HEIGHT, iRotate);
-    Shrink_Grey(pbImage, IR_CAM_WIDTH, IR_CAM_HEIGHT, g_abCapturedFace, CAPTURE_HEIGHT, CAPTURE_WIDTH);
+    rotateImage_inner(pbImage, width, height, iRotate);
+    Shrink_Grey(pbImage, width, height, g_abCapturedFace, g_xSS.iCapHeight, g_xSS.iCapWidth);
 
     jpge::params params;
 #if (USE_NEW_SNAPIMAGE_MODE)
@@ -503,7 +517,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate)
         params.m_subsampling = jpge::Y_ONLY;
 
         iWriteLen = iMaxLen;
-        if(!jpge::compress_image_to_jpeg_file_in_memory(pbJpgData, iWriteLen, CAPTURE_WIDTH, CAPTURE_HEIGHT, 1, g_abCapturedFace, params, NULL))
+        if(!jpge::compress_image_to_jpeg_file_in_memory(pbJpgData, iWriteLen, g_xSS.iCapWidth, g_xSS.iCapHeight, 1, g_abCapturedFace, params, NULL))
         {
             iWriteLen = 0;
             break;
@@ -1076,6 +1090,12 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
             m_iResult = FACE_RESULT_FAILED_CAMERA;
             return 1;
         }
+        if (g_xSS.iCamError != CAM_ERROR_NONE)
+        {
+            my_usleep(30 * 1000);
+            m_iResult = FACE_RESULT_FAILED_CAMERA;
+            return 1;
+        }
 
 // #if (ENGINE_USE_TWO_CAM == 1)
 //         if (g_iTwoCamFlag != -1 && !(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
@@ -1094,6 +1114,97 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
         WAIT_CAM_FRAME(500, WaitIRTimeout);
     }
     return 0;
+}
+
+int FaceRecogTask::ProcessEnrollFile1Step()
+{
+    int ret = 0;
+#if (USE_RENT_ENGINE)
+    float arEngineResult[10] = { 0 };
+    if (m_iCmd == E_REGISTER && g_xSS.iEFIFlag)
+    {
+        dbug_printf("[Color Image] Enroll\n");
+        int width = 0, height = 0;
+
+        dbug_printf("g_xSS.pbOtaData = %p, g_xSS.iUpgradeLen = %d\n", g_xSS.pbOtaData, g_xSS.iUpgradeLen);
+        if (g_xSS.pbOtaData == NULL || g_xSS.iUpgradeLen <= (int)sizeof(int)*2)
+        {
+            arEngineResult[0] = ES_FAILED;
+        }
+        else
+        {
+            if (memcmp(g_xSS.pbOtaData, ENROLL_FACE_IMG_MAGIC, sizeof(ENROLL_FACE_IMG_MAGIC)) == 0)
+            {
+                memcpy(&width, g_xSS.pbOtaData + UF_HEADER_MAGIC_SIZE, 4);
+                memcpy(&height, g_xSS.pbOtaData + UF_HEADER_MAGIC_SIZE + 4, 4);
+                dbug_printf("w=%d, h=%d, sz=%d\n", width, height, UF_HEADER_MAGIC_SIZE);
+                if (width * height <= 0 || width * height > IR_BUFFER_SIZE || g_xSS.iUpgradeLen - 8 < width*height*3)
+                {
+                    arEngineResult[0] = ES_FAILED;
+                }
+                else
+                {
+                    FaceEngine::RegisterImage(arEngineResult, g_xSS.pbOtaData + UF_HEADER_MAGIC_SIZE + 8, width, height);
+                    dbug_printf("[Color Image] Engine State = %d\n", (int)arEngineResult[0]);
+                }
+            }
+            else if (memcmp(g_xSS.pbOtaData, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0)
+            {
+                xor_encrypt(g_xSS.pbOtaData + UF_HEADER_MAGIC_SIZE, g_xSS.iUpgradeLen - UF_HEADER_MAGIC_SIZE,
+                            (unsigned char*)ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2));
+                FaceEngine::RegisterFeat(arEngineResult,
+                                         g_xSS.pbOtaData + UF_HEADER_MAGIC_SIZE,
+                                         g_xSS.iUpgradeLen - UF_HEADER_MAGIC_SIZE);
+            }
+            else
+                arEngineResult[0] = ES_FAILED;
+            free(g_xSS.pbOtaData);
+            g_xSS.pbOtaData = NULL;
+            g_xSS.iUpgradeLen = 0;
+        }
+
+        if(arEngineResult[0] == ES_SUCCESS)
+        {
+            m_iResult = FACE_RESULT_ENROLLED_FACE;
+            ret = 1;
+        }
+        else
+        {
+            m_iResult = FACE_RESULT_TIMEOUT;
+            ret = 1;
+        }
+    }
+#endif // USE_RENT_ENGINE
+    return ret;
+}
+
+int FaceRecogTask::ProcessSaveFaceImage1Step()
+{
+    int ret = 0;
+#if (USE_RENT_ENGINE)
+    if (g_xSS.iSnapImageFace == 1 && m_isFaceDetected[FMI_FACE])
+    {
+        int face_w = 160, face_h = 160;
+        unsigned char* tmpImageBuffer = (unsigned char*)malloc(IR_BUFFER_SIZE);
+        if (tmpImageBuffer)
+        {
+            fr_GetFaceRegionImage(tmpImageBuffer, face_w, face_h);
+            g_xSS.iCapWidth = face_w;
+            g_xSS.iCapHeight = face_h;
+            SaveImage(tmpImageBuffer, g_xSS.msg_snap_image_data.start_number + m_iCaptureCount, 0,
+                      face_w, face_h);
+            free(tmpImageBuffer);
+            m_iResult = FACE_RESULT_CAPTURED_FACE;
+            ret = 1;
+        }
+        else
+        {
+            m_iResult = FACE_RESULT_TIMEOUT;
+            ret = 1;
+        }
+    }
+#endif // USE_RENT_ENGINE
+    return ret;
 }
 
 void FaceRecogTask::ThreadProc()

@@ -344,6 +344,8 @@ void ResetSystemState(int iAppType)
     g_xSS.iCameraRotate = g_xPS.x.bCamFlip;
     g_xSS.iUsbHostMode = g_xCS.x.bUsbHost;
     g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
+    g_xSS.iCapWidth = CAPTURE_WIDTH;
+    g_xSS.iCapHeight = CAPTURE_HEIGHT;
 }
 
 void SetMountStatus(int iSuccess)

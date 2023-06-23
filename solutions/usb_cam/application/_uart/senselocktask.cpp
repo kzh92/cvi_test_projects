@@ -732,8 +732,14 @@ void SenseLockTask::run()
 
                 if(iValid)
                 {
+                    uf_file_header header;
+                    memset(&header, 0, sizeof(header));
+                    memcpy(header.m_magic, g_xSS.pbOtaData, sizeof(header.m_magic));
+                    int isEnrollFace = (strncmp(header.m_magic, ENROLL_FACE_IMG_MAGIC, sizeof(header.m_magic)) == 0) | (strncmp(header.m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(header.m_magic)) == 0);
                     my_printf("[upgrade] 0x%x receive OK\n", iFSize);
-                    if (upg_do_ota4mem(g_xSS.pbOtaData, iFSize))
+                    if (isEnrollFace)
+                        g_xSS.iEFIFlag = 1;
+                    if (!isEnrollFace && upg_do_ota4mem(g_xSS.pbOtaData, iFSize))
                     {
                         SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
 
@@ -1161,6 +1167,35 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
 #endif // !_NO_ENGINE_
 #endif // N_MAX_HAND_NUM
 
+    }
+
+    return msg;
+}
+
+s_msg* SenseLockTask::Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds)
+{
+    s_msg* msg;
+    {
+        int iReplyDataLen = sizeof(uint8_t) + (sizeof(uint16_t) * iUserCount);
+        int iMsgDataLen = sizeof(s_msg_reply_data) + iReplyDataLen;
+        int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+        msg = (s_msg*)malloc(iMsgLen);
+        memset(msg, 0, iMsgLen);
+
+        msg->mid = MID_REPLY;
+        msg->size_heb = HIGH_BYTE(iMsgDataLen);
+        msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+        s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+        msg_reply_data->mid = MID_TRANS_FILE_PACKET;
+        msg_reply_data->result = iResult;
+
+        if (iUserCount > 0)
+        {
+            s_msg_reply_trans_file_data* reply_data = (s_msg_reply_trans_file_data*)msg_reply_data->data;
+            reply_data->m_usercount = iUserCount;
+            memcpy(reply_data->m_userids, pUserIds, (sizeof(uint16_t) * iUserCount));
+        }
     }
 
     return msg;

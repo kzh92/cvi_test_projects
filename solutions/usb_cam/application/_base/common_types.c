@@ -1415,3 +1415,10 @@ void dbfs_set_cur_part(int part_no)
     if (part_no >= DB_PART1 && part_no <= DB_PART_END)
         g_pxSharedLCD->iMountPoints = part_no;
 }
+
+int xor_encrypt(unsigned char* buf, int length, unsigned char* key, int key_length)
+{
+    for (int i = 0; i < length; i ++)
+        buf[i] = buf[i] ^ key[i % key_length];
+    return 0;
+}

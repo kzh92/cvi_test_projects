@@ -164,7 +164,7 @@ int main(int /*argc*/, char** /*argv*/)
 #endif
 
     const char* merge_path1[] = {
-        FACEENGINEDIR "/wno.bin",
+        USE_RENT_ENGINE ? (FACEENGINEDIR "/wno_c.bin") : (FACEENGINEDIR "/wno.bin"),
         FACEENGINEDIR "/detect.bin",
         FACEENGINEDIR "/dlamk.bin",
     #if (DESMAN_ENC_MODE == 0)
@@ -182,6 +182,9 @@ int main(int /*argc*/, char** /*argv*/)
         FACEENGINEDIR "/a2_onecam.bin",
         FACEENGINEDIR "/c_onecam.bin",
     #endif // ENGINE_USE_TWO_CAM
+    #if (USE_RENT_ENGINE)
+        FACEENGINEDIR "/Dic/D10/detect_c.bin",
+    #endif
     #if (N_MAX_HAND_NUM)
         FACEENGINEDIR "/detect_h.bin",
         FACEENGINEDIR "/dlamk_h.bin",

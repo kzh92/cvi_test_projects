@@ -322,6 +322,116 @@ int	dbm_UpdatePersonFeatInfo(int nIndex, PSFeatInfo pxFeatInfo, int* piBlkNum, i
     return ES_SUCCESS;
 }
 
+int dbm_LoadPersonDBValid(int fd)
+{
+    int iCheckSumErr = 0;
+    for(int i = 0; i < N_MAX_PERSON_NUM; i ++)
+    {
+        if(g_xDB->aiValid[i] == 0)
+            continue;
+
+        g_aiDBValid[i] = 1;
+        int iCheckSum = GetIntCheckSum((int*)&g_xDB->ax[i].xM, sizeof(SMetaInfo));
+        if(iCheckSum != g_xDB->ax[i].iMetaCheckSum)
+        {
+//            printf("checksum1 error : %d\n", i);
+            iCheckSumErr = 1;
+            g_aiDBValid[i] = 0;
+
+            if (dbfs_get_cur_part() != DB_PART_BACKUP)
+            {
+                g_xDB->aiValid[i] = 0;
+            }
+        }
+
+        iCheckSum = GetIntCheckSum((int*)&g_xDB->ax[i].xF, sizeof(SFeatInfo));
+        if(iCheckSum != g_xDB->ax[i].iFeatCheckSum)
+        {
+//            printf("checksum2 error : %d\n", i);
+
+            iCheckSumErr = 1;
+            g_aiDBValid[i] = 0;
+
+            if (dbfs_get_cur_part() != DB_PART_BACKUP)
+            {
+                g_xDB->aiValid[i] = 0;
+            }
+        }
+    }
+    return iCheckSumErr;
+}
+
+int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
+{
+    if (dbfs_get_cur_part() == DB_PART_BACKUP)
+        return ES_FAILED;
+
+    if (!pData || iLen <=0)
+        return ES_FAILED;
+
+    dbug_printf("[%s] idx=%d, len=%d, %d\n", __func__, iFlag, iLen, (int)sizeof(DB_UNIT));
+
+    if (iLen < (int)sizeof(DB_UNIT) * 2 && iFlag == 2)
+    {
+        //means one data
+
+        int iID = -1;
+        if (iUserID > 0)
+        {
+            if (iUserID > N_MAX_PERSON_NUM)
+            {
+                return ES_INVALID;
+            }
+            if (dbm_GetPersonMetaInfoByID(iUserID - 1))
+            {
+                return ES_INVALID;
+            }
+            iID = iUserID - 1;
+        }
+        if (iID < 0)
+            iID = dbm_GetNewUserID();
+        if (iID < 0)
+            return ES_FULL;
+        if (iLen < (int)sizeof(g_xDB->ax[iID]))
+            return ES_INVALID;
+
+        dbug_printf("new ID = %d\n", iID);
+        memcpy(&g_xDB->ax[iID], pData, sizeof(g_xDB->ax[iID]));
+        g_xDB->aiValid[iID] = 1;
+        g_aiDBValid[iID] = 1;
+
+        g_xDB->ax[iID].xM.iID = iID;
+        int iCheckSum = GetIntCheckSum((int*)&g_xDB->ax[iID].xM, sizeof(SMetaInfo));
+        g_xDB->ax[iID].iMetaCheckSum = iCheckSum;
+
+        iCheckSum = GetIntCheckSum((int*)&g_xDB->ax[iID].xF, sizeof(SFeatInfo));
+        g_xDB->ax[iID].iFeatCheckSum = iCheckSum;
+
+        dbm_FlushUserDB(iID, DB_FLUSH_FLAG_ALL);
+        return ES_SUCCESS;
+    }
+    else if (iLen > (int)sizeof(DB_UNIT) * 2 && iFlag == 1)
+    {
+        //update whole data
+        if (iLen != sizeof(DB_INFO))
+            return ES_INVALID;
+        memcpy(g_xDB, pData, sizeof(*g_xDB));
+        dbm_LoadPersonDBValid(-1);
+
+        dbm_FlushUserDB(-1, DB_FLUSH_FLAG_ALL);
+        return ES_SUCCESS;
+    }
+    else
+    {
+        return ES_FAILED;
+    }
+}
+
+unsigned char* dbm_GetPersonBin()
+{
+    return (unsigned char*)g_xDB;
+}
+
 int	dbm_GetPersonCount()
 {
 #ifdef MMAP_MODE
@@ -530,6 +640,26 @@ int dbm_RemovePersonByIndex(int nIndex, int* piBlkNum)
     return dbm_RemovePersonByID(iID, piBlkNum);
 }
 
+int dbm_RemovePersonByPrivilege(int iPrivilege, int* piBlkNum)
+{
+    if (dbfs_get_cur_part() == DB_PART_BACKUP)
+        return ES_FAILED;
+
+    for (int i = 0; i < N_MAX_PERSON_NUM; i ++)
+    {
+        PSMetaInfo m = dbm_GetPersonMetaInfoByID(i);
+        if (m && m->fPrivilege == iPrivilege)
+        {
+            g_xDB->aiValid[i] = 0;
+            g_aiDBValid[i] = 0;
+        }
+    }
+
+    dbm_FlushUserDB(-1, DB_FLUSH_FLAG_BIT | DB_FLUSH_FLAG_BACKUP_BIT);
+
+    return ES_SUCCESS;
+}
+
 int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
 {
     LOG_PRINT("[%s] start(%d), uid=%d, %0.1f\n", __func__, nIsHand, nUserID, Now());
@@ -538,8 +668,18 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
     {
         if (nUserID == -1)
         {
-            my_userdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
             my_backupdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+            if (nFlushData & DB_FLUSH_FLAG_BACKUP)
+            {
+                my_backupdb_write(sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
+                    ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
+            }
+            my_userdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+            if (nFlushData & DB_FLUSH_FLAG_DATA)
+            {
+                my_userdb_write(sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
+                    ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
+            }
         }
         else
         {

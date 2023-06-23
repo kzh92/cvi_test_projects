@@ -126,6 +126,8 @@ enum E_Baud_Rate
 #define NOTE_INTERVAL_MS            0
 #define USE_NEW_RST_PROTO           1
 #define USE_16M_FLASH               1
+#define USE_RENT_ENGINE             0
+#define USE_DB_UPDATE_MODE          0
 #define ENROLL_ANGLE_MODE           0
 #define ENGINE_USE_TWO_CAM          1
 #define YAOYANG_MODE                0
@@ -245,6 +247,9 @@ enum E_Baud_Rate
 #define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
 #define DEFAULT_SNAPIMG_CTRL_CNT    3
 #define FIRMWARE_MAGIC              "DBS"
+#define ENROLL_FACE_IMG_MAGIC       "EFIv1"
+#define ENROLL_FACE_IMG_MAGIC2      "EFIv2"
+#define ENROLL_FACE_IMG_MAGIC3      "EFIv3"
 
 #define DESMAN_ENC_MODE     2       //0 -> dessmman, 1 -> bom, 2 -> test
 
@@ -521,6 +526,12 @@ enum E_Baud_Rate
 #elif (UVC_MAX_WIDTH < UVC_HEIGHT && UVC_MAX_HEIGHT < UVC_WIDTH)
 #error "uvc width and height must be less or equal than uvc max2."
 #endif // uvc max
+
+#if (USE_DB_UPDATE_MODE)
+#define DB_UPDATE_MAGIC "EasenDB1"
+#define DB_UPDATE_MAGIC_2 "EasenDB2"
+#define MAGIC_LEN_UPDATE_DB 8
+#endif // USE_DB_UPDATE_MODE
 
 //#include "engine_inner_param.h"
 

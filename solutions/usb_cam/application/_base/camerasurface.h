@@ -40,6 +40,7 @@ enum
 
 enum
 {
+    CAM_ERROR_NONE = 0,
     CAM_ERROR_DVP1 = 0x01,
     CAM_ERROR_DVP2 = 0x02,
     CAM_ERROR_MIPI1 = 0x04,

@@ -1,6 +1,7 @@
 #ifndef FACEENGINE_H
 #define FACEENGINE_H
 
+#include <stdint.h>
 #include "EngineStruct.h"
 #if (N_MAX_HAND_NUM)
 #include "hand/HandRetrival_.h"
@@ -27,7 +28,7 @@ class FaceEngine
 {
 public:
     static int Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
-    static int ResetAll();
+    static int ResetAll(int flag);
     static int Release();
 
 	//engine process
@@ -35,8 +36,10 @@ public:
     static void	UnregisterFace(int nUpdateID = -1, int isMultiDirectionMode = 1);
 
     static int	ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData, float* prResultArray);
-	static int	VerifyFace(float* prResultArray);
+    static int	VerifyFace(float* prResultArray);
     static void RegisterFace(float* prResultArray, int iFaceDir);
+    static void RegisterImage(float* prResultArray, unsigned char* pbClrBuffer, int width, int height);
+    static void RegisterFeat(float* prResultArray, unsigned char* pbFeat, int length);
 
     static void InitCalibOffset();
     static int  AutoCameraAdjust(unsigned char* pbClrData, unsigned char* pbRedOnData, float* pnResultArray);
@@ -52,6 +55,9 @@ public:
     static void GetRegisteredFeatInfo_Hand(SHandFeatInfo*  pxFeatInfo);
     static int SaveHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum);
 #endif // N_MAX_HAND_NUM
+    static int  DecodeRegisterFileData(unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
+    static int  UpdateDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int uid);
+    static int  GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int iID, int iOffset);
 };
 
 #endif // FACEENGINE_H
