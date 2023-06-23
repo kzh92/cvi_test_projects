@@ -94,7 +94,7 @@ int SenseLockTask::Start()
         SetActive(0);
         message_queue_init(&g_queue_send, sizeof(MSG), MAX_MSG_NUM);
 #ifndef NOTHREAD_MUL
-        if(my_thread_create_ext(&m_thread, NULL, senseLockTask_ThreadProc1, this, (char*)"stask", 16384, 0 /*MYTHREAD_PRIORITY_MEDIUM*/))
+        if(my_thread_create_ext(&m_thread, NULL, senseLockTask_ThreadProc1, this, (char*)"stask", 16384, MYTHREAD_PRIORITY_VERY_HIGH))
             my_printf("[LockTask]create thread error.\n");
 #else // ! NOTHREAD_MUL
 #endif // !NOTHREAD_MUL
@@ -417,9 +417,9 @@ void SenseLockTask::run()
 #ifndef NOTHREAD_MUL
             if (g_xSS.iMState != MS_OTA && iSleepTime > 0)
             {
-                if (g_xSS.rFaceEngineTime == 0)
-                    my_usleep(iSleepTime);//
-                else
+                // if (g_xSS.rFaceEngineTime == 0)
+                //     my_usleep(iSleepTime);//
+                // else
                     my_usleep(1000);
             }
             if (g_xSS.bCheckFirmware)

@@ -217,7 +217,7 @@ void audio_test_vol_cmd(int32_t argc, char **argv)
 void test_Audio()
 {
     capturing = 1;
-    if(my_thread_create_ext(&recthread, 0, test_record_thread, NULL, (char*)"record_test", 8192, MYTHREAD_PRIORITY_VERY_HIGH))
+    if(my_thread_create_ext(&recthread, 0, test_record_thread, NULL, (char*)"record_test", 8192, MYTHREAD_PRIORITY_HIGH))
         printf("[record_thread]create thread error.\n");
     aos_msleep(300);
     audio_play_test_entry(1);

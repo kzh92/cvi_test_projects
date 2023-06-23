@@ -104,10 +104,10 @@ typedef pthread_mutex_t* mymutex_ptr;
 typedef pthread_t* mythread_ptr;
 typedef void* myi2cdesc_ptr;
 
-#define MYTHREAD_PRIORITY_VERY_LOW      26
-#define MYTHREAD_PRIORITY_LOW           26
-#define MYTHREAD_PRIORITY_MEDIUM        28
-#define MYTHREAD_PRIORITY_HIGH          32
+#define MYTHREAD_PRIORITY_VERY_LOW      0
+#define MYTHREAD_PRIORITY_LOW           0
+#define MYTHREAD_PRIORITY_MEDIUM        0
+#define MYTHREAD_PRIORITY_HIGH          0
 #define MYTHREAD_PRIORITY_VERY_HIGH     36
 
 #ifdef __cplusplus
