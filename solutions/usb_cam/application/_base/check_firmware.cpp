@@ -45,6 +45,15 @@ void doCheckFirmware()
     int iErrorFlag = 0;
     int *file_data = NULL;
 
+    if (g_xSS.iUsbHostMode)
+    {
+        int timeWLedlimit = 50;//5s
+        GPIO_fast_setvalue(WHITE_LED, 1);
+        while(timeWLedlimit--)
+            my_usleep(100*1000);
+        GPIO_fast_setvalue(WHITE_LED, 0);
+    }
+
     int idx = 0;
     while(g_part_files[idx].m_filename != NULL)
     {
