@@ -71,7 +71,6 @@ void audio_capture_test_entry(void)
 
 static void audio_play_test_entry(u8 mode)
 {
-    GPIO_fast_setvalue(AUDIO_EN, 1);//SPK EN
     unsigned char *cap_buf;
     unsigned char *play_buff = NULL;
     aos_pcm_hw_params_t *playback_hw_params;
@@ -125,7 +124,14 @@ static void audio_play_test_entry(u8 mode)
         total_len -= play_len;
         play_cnt++;
         my_usleep(1000);
+
+        if(play_cnt == 5)
+            GPIO_fast_setvalue(AUDIO_EN, ON);
     }
+
+    GPIO_fast_setvalue(AUDIO_EN, OFF);
+    my_usleep(100 * 1000);
+
     aos_pcm_close(playback_handle); //关闭设备
     playback_handle = NULL;
     my_free(cap_buf);
@@ -139,7 +145,7 @@ static void audio_play_test_entry(u8 mode)
         my_free(play_buff);
         play_buff = NULL;
     }
-    GPIO_fast_setvalue(15, 0);//SPK EN
+    //GPIO_fast_setvalue(15, 0);//SPK EN
 }
 
 void* test_record_thread(void*)
@@ -216,10 +222,11 @@ void audio_test_vol_cmd(int32_t argc, char **argv)
 
 void test_Audio()
 {
+    GPIO_fast_setvalue(AUDIO_EN, OFF);
     capturing = 1;
     if(my_thread_create_ext(&recthread, 0, test_record_thread, NULL, (char*)"record_test", 8192, MYTHREAD_PRIORITY_HIGH))
         printf("[record_thread]create thread error.\n");
-    aos_msleep(300);
+    //aos_msleep(300);
     audio_play_test_entry(1);
     capturing = 0;
     aos_msleep(300);
