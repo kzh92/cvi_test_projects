@@ -745,6 +745,7 @@ void SenseLockTask::run()
                     else
                     {
                         SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_OK, 0);
+                        break;
                     }
                 }
             }
