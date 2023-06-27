@@ -2000,11 +2000,8 @@ int saveUvcScene()
         unlockIRBuffer();
         return MR_FAILED4_NOMEMORY;
     }
-    //compress image
-    rotateYUV420SP_flip(g_irOnData1, vpss_width, vpss_height, imgBuf, g_xPS.x.bCamFlip == 0 ? 270: 90, 1);
-    ConvertYUV420_NV21toRGB888(imgBuf, vpss_height, vpss_width, g_irOnData1);
-    Shrink_RGB(g_irOnData1, vpss_width/*height*/, vpss_height/*width*/, 
-        imgBuf, CAPTURE_HEIGHT/*height*/, CAPTURE_WIDTH/*width*/);
+    yuv_to_rgb_shrink(g_irOnData1, vpss_width, vpss_height, imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH);
+    rotate_image_inplace(imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH, 3, g_xPS.x.bCamFlip == 1 ? 270: 90, 0);
     int iWriteLen = 0;
     for(int i = 60; i >= 10; i -= 10)
     {
