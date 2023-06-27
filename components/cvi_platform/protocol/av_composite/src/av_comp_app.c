@@ -275,7 +275,10 @@ void uvc_streaming_on(int is_on) {
 		uvc_update = 1;
 
 	if (is_on)
+	{
 		g_xSS.bUVCRunning = 1;
+		g_xSS.rLastSenseCmdTime = aos_now_ms();
+	}
 	else
 		g_xSS.bUVCRunning = 0;
 
@@ -459,6 +462,7 @@ static void *send_to_uvc()
 				usbd_ep_start_write(VIDEO_IN_EP, packet_buffer_uvc, MAX_PAYLOAD_SIZE);
 				while(tx_flag && g_uvc_event_flag) {
 					aos_task_yield();
+					aos_msleep(1);
 				}
 			}
         }else {
