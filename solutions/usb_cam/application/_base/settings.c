@@ -465,6 +465,7 @@ void MarkSenseResetFlag()
 #ifndef _APP_UPGRADE
     g_xSS.iResetFlag = 1;
     g_xSS.rResetFlagTime = Now();
+    g_xSS.iDemoMode = N_DEMO_VERIFY_MODE_OFF;
 #ifndef _NO_ENGINE_
     fr_SetStopEngineFlag(1);
 #endif
