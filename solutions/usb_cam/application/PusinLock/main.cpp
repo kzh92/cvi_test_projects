@@ -519,6 +519,8 @@ int Upgrade_Firmware(void)
 
     message_queue_init(&g_worker, sizeof(MSG), MAX_MSG_NUM);
 #ifndef UPGRADE_MODE
+    g_xSS.iMState = MS_OTA;
+    
     g_pSenseTask = &g_SenseTask;
     g_pSenseTask->Start();
 
@@ -531,8 +533,6 @@ int Upgrade_Firmware(void)
     {
         my_usleep(100 * 1000);
     }
-
-    g_xSS.iMState = MS_OTA;
     SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
     s_msg* msg = SenseLockTask::Get_Reply(MID_START_OTA, MR_SUCCESS);
     g_pSenseTask->Send_Msg(msg);
