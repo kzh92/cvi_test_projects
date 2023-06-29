@@ -9,6 +9,7 @@
 #include "DBManager.h"
 #include "senselocktask.h"
 #include "upgradebase.h"
+#include "cvi_tempsen.h"
 #include <string.h>
 
 extern SenseLockTask* g_pSenseTask;
@@ -198,12 +199,15 @@ extern "C" csi_wdt_t g_wdt;
 void WatchTask::run()
 {
     int iROKCounter = 0;
+    cvi_tempsen_t tps;
     // float rOldTime = Now();
     my_printf("=========== WatchTask start\n");
 #ifdef PSENSE_DET
     int iPowerOnFlag = 0;
     iPowerOnFlag = GPIO_fast_getvalue(PSENSE_DET);
 #endif // PSENSE_DET
+    cvi_tempsen_init(&tps);
+    unsigned int temp = 0;
 
     while(m_iRunning)
     {
@@ -219,6 +223,9 @@ void WatchTask::run()
         if((iROKCounter % 10) == 0)
         {
             // printf("[ROK] %d\n", (int)Now());
+            temp = cvi_tempsen_read_temp_mC(&tps, 500);
+            if (temp > 0 && temp < 1000000)
+                my_printf("******* temper(%08d): %u\n", (int)Now(), temp);
             if (g_xSS.iUsbHostMode == 0)
             {
                 if (g_xSS.rLastSenseCmdTime == 0 &&
