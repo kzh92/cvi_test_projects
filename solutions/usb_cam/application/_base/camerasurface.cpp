@@ -1897,7 +1897,7 @@ void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height)
             pIrOffData[nDstIdx] = spOrg[iIdx + nXIndex];
             nDstIdx ++;
         }
-        iIdx += (nWidthInSrc * (LEDOFFIMAGE_REDUCE_RATE - 1));
+        iIdx += (nWidthInSrc * (LEDOFFIMAGE_REDUCE_RATE));
     }
 }
 
