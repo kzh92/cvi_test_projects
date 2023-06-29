@@ -292,7 +292,7 @@ enum E_Baud_Rate
 //////////////////Camera Lens Setting////////////////////
 #define ENGINE_LENS_40143       0 //default lens
 #define ENGINE_LENS_M277_2409   1
-#define ENGINE_LENS_TYPE    ENGINE_LENS_40143
+#define ENGINE_LENS_TYPE        ENGINE_LENS_M277_2409
 
 ///////////////////   Enroll Mode      //////////////////////////
 #define ENROLL_FACE_HAND_SEPERATE   0
