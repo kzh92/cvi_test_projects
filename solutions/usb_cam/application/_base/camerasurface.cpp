@@ -617,6 +617,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (CHECK_CLR_IR_SWITCH_THR)
     float rStartTime = Now();
     float rDarkTime = 0;
+    int iCheckDarkFlag = 0;
 #endif // CHECK_CLR_IR_SWITCH_THR
 
     dbug_printf("[%s]\n", __func__);
@@ -655,6 +656,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 1: 0);
 #endif
 #if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
+        iCheckDarkFlag = 0;
         if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE)
         {
             dev = 0;
@@ -663,6 +665,7 @@ void* ProcessTCMipiCapture(void */*param*/)
                 my_usleep(5000);
                 continue;
             }
+            iCheckDarkFlag = 1;
         }
 #endif // USE_3M_MODE
         // my_printf("[%0.1f]mc.0: %do, %dc, %dt, dev=%d\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag, dev);
@@ -692,7 +695,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             dbug_printf("[%0.1f]mc: %do, %dc, %dt\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
 #if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
-        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && dev == 0)
+        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && dev == 0 && iCheckDarkFlag == 1)
         {
             lockIRBuffer();
             size_t test_pos = 0;
@@ -724,7 +727,7 @@ void* ProcessTCMipiCapture(void */*param*/)
                 rDarkTime = 0;
         }
 #endif // USE_3M_MODE
-        if(g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT)
+        if((g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT) || iCheckDarkFlag == 1)
         {
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
