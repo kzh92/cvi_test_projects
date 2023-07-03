@@ -670,7 +670,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #endif // USE_3M_MODE
         // my_printf("[%0.1f]mc.0: %do, %dc, %dt, dev=%d\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag, dev);
 
-        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 100);
+        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 300);
         if (s_ret != CVI_SUCCESS)
         {
             g_xSS.iCamError = (dev == 0 ? CAM_ERROR_DVP2 : CAM_ERROR_MIPI2);
