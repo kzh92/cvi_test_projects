@@ -247,6 +247,7 @@ static void sc201cs_slave_linear_1200p30_init(VI_PIPE ViPipe)
 	sc201cs_slave_write_register(ViPipe, 0x3949, 0xc8);
 	sc201cs_slave_write_register(ViPipe, 0x394b, 0x64);
 	sc201cs_slave_write_register(ViPipe, 0x3952, 0x02);
+	sc201cs_slave_write_register(ViPipe, 0x3650, 0x30); // MIPI LP 0x31 -> 0x30
 	sc201cs_slave_write_register(ViPipe, 0x3e00, 0x00);
 	sc201cs_slave_write_register(ViPipe, 0x3e01, 0x4d);
 	sc201cs_slave_write_register(ViPipe, 0x3e02, 0xe0);
