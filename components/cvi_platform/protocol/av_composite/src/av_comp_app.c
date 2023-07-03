@@ -392,7 +392,8 @@ static void *send_to_uvc()
 				}
 				if (print_flag ++ < 8)
 				{
-					printf("mjpeg len=%d, %d\n", buf_len, (int)aos_now_ms());
+					if (print_flag == 8)
+						printf("mjpeg len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 				if(ret != CVI_SUCCESS)

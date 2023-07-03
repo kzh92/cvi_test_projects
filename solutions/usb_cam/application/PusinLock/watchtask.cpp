@@ -218,7 +218,7 @@ void WatchTask::run()
 
         if((iROKCounter % 10) == 0)
         {
-            printf("[ROK] %d\n", (int)Now());
+            // printf("[ROK] %d\n", (int)Now());
             if (g_xSS.iUsbHostMode == 0)
             {
                 if (g_xSS.rLastSenseCmdTime == 0 &&

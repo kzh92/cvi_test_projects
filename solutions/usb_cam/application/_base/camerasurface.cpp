@@ -1951,11 +1951,11 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
                 (stFrameInfo.stVFrame.enPixelFormat == PIXEL_FORMAT_NV21)))
                 u32DataLen >>= 1;
 
-            printf("plane(%d): paddr(%lx) vaddr(%p) stride(%d)\n",
+            my_printf("plane(%d): paddr(%lx) vaddr(%p) stride(%d)\n",
                    i, stFrameInfo.stVFrame.u64PhyAddr[i],
                    stFrameInfo.stVFrame.pu8VirAddr[i],
                    stFrameInfo.stVFrame.u32Stride[i]);
-            printf(" data_len(%d) plane_len(%d)\n",
+            my_printf(" data_len(%d) plane_len(%d)\n",
                       u32DataLen, stFrameInfo.stVFrame.u32Length[i]);
             // aos_write(fd, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
             memcpy(outBuf + buf_offset, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
@@ -1983,7 +1983,6 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
 int saveUvcScene()
 {
     unsigned char* imgBuf = fr_GetInputImageBuffer1();
-    PrintFreeMem();
     lockIRBuffer();
     int buf_len = test_vpss_dump(0, 0, 1, g_irOnData1);
     if (buf_len <= 0)

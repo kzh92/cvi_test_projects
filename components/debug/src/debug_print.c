@@ -681,6 +681,7 @@ int32_t aos_debug_printf(const char *fmt, ...)
 {
     int ret;
     va_list ap;
+    return 0;
 
 #if DEBUG_LAST_WORD_ENABLE
     if (g_crash_steps > 0) {

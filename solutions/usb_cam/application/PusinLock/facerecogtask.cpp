@@ -533,7 +533,8 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
     {
         memcpy((unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE, pbJpgData, iWriteLen);
         g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
-        my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
+        if (rOld > 0)
+            my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
     }
     else
     {
@@ -571,7 +572,7 @@ int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
                 }
             }
         }
-        my_printf("@@@ read IR static image ok\n");
+        dbug_printf("@@@ read IR static image ok\n");
     }
     // else
     //     my_printf("@@@ read IR static image fail\n");
@@ -885,7 +886,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     {
         if(arEngineResult[0] != ES_FAILED)
         {
-            my_printf("FRS %d, %f\n", iFindIndex, Now());
+            dbug_printf("FRS %d, %f\n", iFindIndex, Now());
             if (arEngineResult[1] == 0) //face
                 m_iResult = FACE_RESULT_SUCCESS;
             else if (arEngineResult[1] == 1) //hand

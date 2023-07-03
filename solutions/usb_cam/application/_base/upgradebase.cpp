@@ -140,7 +140,8 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
 
     dbug_printf("7z extract start %0.3f\n", Now());
     int rc = extract_7z2mem(ota_buf, iFileSize, &extract_buf, &g_xSS.iUpgradeImgLen);
-    my_printf("ex_time(%d), %0.3f, %d:", g_xSS.iUpgradeImgLen, Now(), rc);
+    if (rc == 0)
+        my_printf("ex_time(%d), %0.3f, %d:", g_xSS.iUpgradeImgLen, Now(), rc);
     if (extract_buf)
     {
         for (int i = 0; i < 32 && i < g_xSS.iUpgradeImgLen; i++)
@@ -160,7 +161,8 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
 
     //check version.
     int ver_new = header.m_patch*10000 + header.m_build*1000000 + header.m_minor*100000000 + header.m_major*1000000000;
-    my_printf("vernew: %d\n", ver_new);
+    if (ver_new)
+        my_printf("vernew: %d\n", ver_new);
 
     if(strcmp(header.m_magic, FIRMWARE_MAGIC))
     {
