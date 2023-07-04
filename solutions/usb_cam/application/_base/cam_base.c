@@ -319,64 +319,166 @@ int camera_mipi1_get_regval(unsigned char regaddr)
     return 0;
 }
 
-int camera_dvp_set_regval(unsigned char regaddr, unsigned char regval)
+int camera_clr_set_regval(int regaddr, int regval)
 {
-#if 0
-    unsigned char szBuf[2] = { 0 };
-    if (g_iDvpCam == 0) {
-        my_i2c_open(MIPI0_I2C_PORT, &g_iDvpCam);
-    }
-    if (g_iDvpCam)
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
     {
-        szBuf[0] = regaddr;
-        szBuf[1] = regval;
-        my_i2c_write8(g_iDvpCam, I2C_ADDR_DVP_CAMERA, szBuf, 2);
+        my_mi_use_unlock();
+        return -1;
     }
-#endif
+
+    pSnsObj->pfnWriteReg(vi_pipe, regaddr, regval);
+
+    my_mi_use_unlock();
     return 0;
 }
 
-int camera_dvp_get_regval(unsigned char regaddr)
+int camera_clr_get_regval(int regaddr)
 {
-#if 0
-    unsigned char szBuf[2] = { 0 };
-    if (g_iDvpCam == 0) {
-        my_i2c_open(MIPI0_I2C_PORT, &g_iDvpCam);
-    }
-    if (g_iDvpCam)
-    {
-        szBuf[0] = regaddr;
-        my_i2c_write8(g_iDvpCam, I2C_ADDR_DVP_CAMERA, szBuf, 1);
-        my_i2c_read8(g_iDvpCam, I2C_ADDR_DVP_CAMERA, szBuf, 1);
-    }
-    return szBuf[0];
-#endif
     return 0;
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    int ret = pSnsObj->pfnReadReg(vi_pipe, regaddr);
+
+    my_mi_use_unlock();
+    return ret;
 }
 
 int camera_clr_set_exp(int value)
 {
-    // camera_set_regval(DVP_CAM, 0xfe, 0);
-    // camera_set_regval(DVP_CAM, 0x04, (unsigned char)value);
-    // camera_set_regval(DVP_CAM, 0x03, (unsigned char)((value >> 8) & 0xFF));
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+    unsigned char b0x3e00Value, b0x3e01Value, b0x3e02Value;
+
+    b0x3e00Value = (unsigned char)(value >> 12);
+    b0x3e01Value = (unsigned char)((value & 0xFF0) >> 4);
+    b0x3e02Value = (unsigned char)((value & 0xF) << 4);
+
+    pSnsObj->pfnWriteReg(vi_pipe, 0x3e00, b0x3e00Value);
+    pSnsObj->pfnWriteReg(vi_pipe, 0x3e01, b0x3e01Value);
+    pSnsObj->pfnWriteReg(vi_pipe, 0x3e02, b0x3e02Value);
+
+    my_mi_use_unlock();
+
+    dbug_printf("Set Clr ExP: %d\n", value);
+
     return 0;
 }
 
 int camera_clr_get_exp()
 {
-    // unsigned char b1, b2;
-    // camera_set_regval(DVP_CAM, 0xfe, 0); //page select
+    return 0;
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-    // b1 = camera_get_regval(DVP_CAM, 0x04);
-    // b2 = camera_get_regval(DVP_CAM, 0x04);
-    // return b1 | (b2 << 8);
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+    unsigned char b0x3e00Value, b0x3e01Value, b0x3e02Value;
+
+    b0x3e00Value = pSnsObj->pfnReadReg(vi_pipe, 0x3e00);
+    b0x3e01Value = pSnsObj->pfnReadReg(vi_pipe, 0x3e01);
+    b0x3e02Value = pSnsObj->pfnReadReg(vi_pipe, 0x3e02);
+
+    int value = (b0x3e00Value << 12) | (b0x3e01Value << 4) | (b0x3e02Value & 0xF);
+    
+    my_mi_use_unlock();
+
+    dbug_printf("Get Clr ExP: %d\n", value);
+
+    return value;
+}
+
+int camera_clr_set_gain(int value, int nDigGain, int nFineValue)
+{
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    pSnsObj->pfnWriteReg(vi_pipe, 0x3e09, (unsigned char)value);
+    pSnsObj->pfnWriteReg(vi_pipe, 0x3e06, (unsigned char)nDigGain);
+    pSnsObj->pfnWriteReg(vi_pipe, 0x3e07, (unsigned char)nFineValue);
+
+    my_mi_use_unlock();
+
+    dbug_printf("Set Gain: %d, %d\n", value, nFineValue);
     return 0;
 }
 
-int camera_clr_set_gain(int value)
+int camera_clr_stop_aec()
 {
-    // camera_set_regval(DVP_CAM, 0xfe, 0); //page select
-    // camera_set_regval(DVP_CAM, 0xb0, (unsigned char)value);
+#if (USE_3M_MODE)
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+    dbug_printf("[%s]\n", __func__);
+
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    pSnsObj->pfnAecCtrl(vi_pipe, 0);
+
+    my_mi_use_unlock();
+#endif // USE_3M_MODE
+    return 0;
+}
+
+int camera_clr_start_aec()
+{
+#if (USE_3M_MODE)
+    int vi_pipe = 0;
+    ISP_SNS_OBJ_S *pSnsObj = NULL;
+    dbug_printf("[%s]\n", __func__);
+
+    my_mi_use_lock();
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+    if (!pSnsObj)
+    {
+        my_mi_use_unlock();
+        return -1;
+    }
+
+    pSnsObj->pfnAecCtrl(vi_pipe, 1);
+
+    my_mi_use_unlock();
+#endif // USE_3M_MODE
     return 0;
 }
 

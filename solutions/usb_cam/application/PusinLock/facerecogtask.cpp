@@ -465,6 +465,7 @@ void FaceRecogTask::run()
         UpdateHeadInfos2();
 #endif // DEFAULT_SECURE_MODE
 
+    camera_clr_start_aec();
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
     dbug_printf("[Recog] Verify Face End!\n");
     g_xSS.rFaceEngineTime = 0;

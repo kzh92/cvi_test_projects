@@ -86,12 +86,14 @@ int camera_mipi0_set_regval(unsigned char regaddr, unsigned char regval);
 int camera_mipi0_get_regval(unsigned char regaddr);
 int camera_mipi1_set_regval(unsigned char regaddr, unsigned char regval);
 int camera_mipi1_get_regval(unsigned char regaddr);
-int camera_dvp_set_regval(unsigned char regaddr, unsigned char regval);
-int camera_dvp_get_regval(unsigned char regaddr);
+int camera_clr_set_regval(int regaddr, int regval);
+int camera_clr_get_regval(int regaddr);
 int camera_clr_set_exp(int value);
-int camera_clr_set_gain(int value);
+int camera_clr_set_gain(int value, int nDigGain, int nFineValue);
 int camera_clr_get_exp();
 int camera_clr_get_gain();
+int camera_clr_stop_aec();
+int camera_clr_start_aec();
 void lockClrBuffer();
 void unlockClrBuffer();
 #else // USE_VDBTASK

@@ -80,6 +80,12 @@ static unsigned int iSensorPatternMode = 0;
 
 #define SC201CS_RES_IS_1200P(w, h)      ((w) <= 1600 && (h) <= 1200)
 
+int g_sc201cs_aec_ctrl = (USE_3M_MODE ? 1 : 0); // 1: enable aec, 0: disable aec
+int g_sc201cs_aec_exp = 0;
+int g_sc201cs_aec_gain = 0;
+int g_sc201cs_aec_dig_gain = 0;
+int g_sc201cs_aec_fine_gain = 0;
+
 static CVI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
 	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
@@ -202,9 +208,8 @@ static CVI_S32 cmos_inttime_update(VI_PIPE ViPipe, CVI_U32 *u32IntTime)
 {
 	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
 	ISP_SNS_REGS_INFO_S *pstSnsRegsInfo = CVI_NULL;
-#if (!USE_3M_MODE)
-	return CVI_SUCCESS;
-#endif
+	if (g_sc201cs_aec_ctrl == 0)
+		return CVI_SUCCESS;
 
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
@@ -214,6 +219,8 @@ static CVI_S32 cmos_inttime_update(VI_PIPE ViPipe, CVI_U32 *u32IntTime)
 	pstSnsRegsInfo->astI2cData[LINEAR_SHS1_0_ADDR].u32Data = ((u32IntTime[0] & 0xF000) >> 12);
 	pstSnsRegsInfo->astI2cData[LINEAR_SHS1_1_ADDR].u32Data = ((u32IntTime[0] & 0x0FF0) >> 4);
 	pstSnsRegsInfo->astI2cData[LINEAR_SHS1_2_ADDR].u32Data = ((u32IntTime[0] & 0xF) << 4);
+
+	g_sc201cs_aec_exp = u32IntTime[0];
 
 	return CVI_SUCCESS;
 }
@@ -330,9 +337,8 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 	struct gain_tbl_info_s *info;
 	int i, tbl_num;
 
-#if (!USE_3M_MODE)
-	return CVI_SUCCESS;
-#endif
+	if (g_sc201cs_aec_ctrl == 0)
+		return CVI_SUCCESS;
 
 	if (iSensorPatternMode)
 		return CVI_SUCCESS;
@@ -371,6 +377,9 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 		u32Dgain = info->regGainFineBase + (u32Dgain - info->idxBase) * info->regGainFineStep;
 		pstSnsRegsInfo->astI2cData[LINEAR_DGAIN_1_ADDR].u32Data = (u32Dgain & 0xFF);
 
+		g_sc201cs_aec_gain = pstSnsRegsInfo->astI2cData[LINEAR_AGAIN_ADDR].u32Data;
+		g_sc201cs_aec_dig_gain = pstSnsRegsInfo->astI2cData[LINEAR_DGAIN_0_ADDR].u32Data;
+		g_sc201cs_aec_fine_gain = pstSnsRegsInfo->astI2cData[LINEAR_DGAIN_1_ADDR].u32Data;
 	} else {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "Not support WDR: %d\n", pstSnsState->enWDRMode);
 		return CVI_FAILURE;
@@ -892,6 +901,12 @@ static CVI_S32 sensor_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 	return sc201cs_pattern_enable(ViPipe, enablePattern);
 }
 
+int sensor_aec_ctrl(VI_PIPE ViPipe, int n_ctrl)
+{
+	g_sc201cs_aec_ctrl = n_ctrl;
+	return 0;
+}
+
 ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnRegisterCallback    = sensor_register_callback,
 	.pfnUnRegisterCallback  = sensor_unregister_callback,
@@ -912,5 +927,6 @@ ISP_SNS_OBJ_S stSnsSC201CS_Obj = {
 	.pfnSnsPatternEn		= sensor_pattern_enable,
 	.pfnWriteRegEx          = sc201cs_write_register_ex,
 	.pfnReadRegEx           = sc201cs_read_register_ex,
+	.pfnAecCtrl             = sensor_aec_ctrl,
 };
 
