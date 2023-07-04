@@ -137,6 +137,7 @@ enum E_Baud_Rate
 #define USE_WHITE_LED               0
 #define USE_WATCHDOG                0
 #define USE_SHENAO_HAND             0
+#define USE_PRINT_TEMP              0
 
 #define CLR_CAM_WIDTH               1280
 #define CLR_CAM_HEIGHT              960
