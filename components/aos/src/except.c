@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <aos/kernel.h>
-
+void debug_fatal_error(int err, char *file, int line);
 
 static void except_process_function(int errno, const char *file, int line, const char *func_name, void *caller)
 {
@@ -15,6 +15,7 @@ static void except_process_function(int errno, const char *file, int line, const
     while(1);
 #else
     printf("Except! errno is %s, caller: %p\n", strerror(errno), caller);
+    debug_fatal_error(errno, (char*)file, line);
     aos_reboot();
 #endif
 }
