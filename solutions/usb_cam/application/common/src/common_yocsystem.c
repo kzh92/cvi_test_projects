@@ -83,7 +83,7 @@ extern void cli_reg_cmd_ifconfig(void);
 void YOC_SYSTEM_ToolInit()
 {
     //CLI放后面注册 先起流媒体
-//     aos_cli_init();
+    aos_cli_init();
 //     debug_cli_cmd_init();
 //     cli_reg_cmd_ps();
 //     cli_reg_cmd_ls();

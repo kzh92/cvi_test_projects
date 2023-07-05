@@ -711,6 +711,7 @@ static void cli_down_history(char *inaddr)
  */
 static int32_t cli_get_input(char *inbuf, uint32_t size)
 {
+    return 0;
     char c;
     uint32_t i;
 
