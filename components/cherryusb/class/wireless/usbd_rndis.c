@@ -337,7 +337,7 @@ static int rndis_set_cmd_handler(uint8_t *data, uint32_t len)
 {
     rndis_set_msg_t *cmd = (rndis_set_msg_t *)data;
     rndis_set_cmplt_t *resp;
-    rndis_config_parameter_t *param;
+    // rndis_config_parameter_t *param;
 
     resp = ((rndis_set_cmplt_t *)rndis_encapsulated_resp_buffer);
     resp->RequestId = cmd->RequestId;
@@ -347,10 +347,10 @@ static int rndis_set_cmd_handler(uint8_t *data, uint32_t len)
 
     switch (cmd->Oid) {
         case USB_RNDIS_OID_GEN_RNDIS_CONFIG_PARAMETER:
-            param = (rndis_config_parameter_t *)((uint8_t *)&(cmd->RequestId) + cmd->InformationBufferOffset);
-            USB_LOG_WRN("RNDIS cfg param: NameOfs=%d, NameLen=%d, ValueOfs=%d, ValueLen=%d\r\n",
-                        param->ParameterNameOffset, param->ParameterNameLength,
-                        param->ParameterValueOffset, param->ParameterValueLength);
+            // param = (rndis_config_parameter_t *)((uint8_t *)&(cmd->RequestId) + cmd->InformationBufferOffset);
+            // USB_LOG_WRN("RNDIS cfg param: NameOfs=%d, NameLen=%d, ValueOfs=%d, ValueLen=%d\r\n",
+            //             param->ParameterNameOffset, param->ParameterNameLength,
+            //             param->ParameterValueOffset, param->ParameterValueLength);
             break;
         case USB_RNDIS_OID_GEN_CURRENT_PACKET_FILTER:
             if (cmd->InformationBufferLength < sizeof(usbd_rndis_cfg.net_filter)) {
