@@ -1086,10 +1086,22 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     }
     stAttr.stGopAttr.enGopMode = pstVecncChnCtx->stGopParam.u16gopMode;
     stAttr.stGopAttr.stNormalP.s32IPQpDelta = pstVecncChnCtx->stGopParam.s8IPQpDelta;
-    MEDIA_CHECK_RET(CVI_VENC_CreateChn(VencChn, &stAttr), "CVI_VENC_CreateChn");
 
     MEDIA_CHECK_RET(CVI_VENC_GetModParam(&stModParam), "CVI_VENC_GetModParam");
+
+    stModParam.enVencModType = MODTYPE_JPEGE;
+    stModParam.stJpegeModParam.enJpegeFormat = JPEGE_FORMAT_CUSTOM;
+    stModParam.stJpegeModParam.JpegMarkerOrder[0] = JPEGE_MARKER_SOI;
+    stModParam.stJpegeModParam.JpegMarkerOrder[1] = JPEGE_MARKER_JFIF;
+    stModParam.stJpegeModParam.JpegMarkerOrder[2] = JPEGE_MARKER_DQT_MERGE;
+    stModParam.stJpegeModParam.JpegMarkerOrder[3] = JPEGE_MARKER_SOF0;
+    stModParam.stJpegeModParam.JpegMarkerOrder[4] = JPEGE_MARKER_DHT_MERGE;
+    stModParam.stJpegeModParam.JpegMarkerOrder[5] = JPEGE_MARKER_DRI;
+    stModParam.stJpegeModParam.JpegMarkerOrder[6] = JPEGE_MARKER_BUTT;
+
     MEDIA_CHECK_RET(CVI_VENC_SetModParam(&stModParam), "CVI_VENC_SetModParam");
+
+    MEDIA_CHECK_RET(CVI_VENC_CreateChn(VencChn, &stAttr), "CVI_VENC_CreateChn");
 
     MEDIA_CHECK_RET(CVI_VENC_GetRcParam(VencChn, &stRcParam), "CVI_VENC_GetRcParam");
     stRcParam.s32FirstFrameStartQp = pstVecncChnCtx->stRcParam.u16FirstFrmstartQp;
