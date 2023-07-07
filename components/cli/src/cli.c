@@ -714,6 +714,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t size)
     return 0;
     char c;
     uint32_t i;
+    return 0;
 
     if (inbuf == NULL) {
         cli_printf("input null\r\n");
