@@ -25,7 +25,7 @@ static uint32_t g_devinuse = 0;
 
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t g_video_buf[128];
 
-// static const char *format_type[] = { "uncompressed", "mjpeg" };
+static const char *format_type[] = { "uncompressed", "mjpeg" };
 
 static int __s_r_1370705v[256] = { 0 };
 static int __s_b_1732446u[256] = { 0 };
@@ -227,9 +227,9 @@ int usbh_video_close(struct usbh_video *video_class)
 void usbh_video_list_info(struct usbh_video *video_class)
 {
     // struct usbh_hubport *hport;
-    // struct usb_endpoint_descriptor *ep_desc;
-    // uint8_t mult;
-    // uint16_t mps;
+    struct usb_endpoint_descriptor *ep_desc;
+    uint8_t mult;
+    uint16_t mps;
 
     USB_LOG_INFO("============= Video device information ===================\r\n");
     USB_LOG_INFO("bcdVDC:%04x\r\n", video_class->bcdVDC);
@@ -238,24 +238,24 @@ void usbh_video_list_info(struct usbh_video *video_class)
     // hport = video_class->hport;
 
     for (uint8_t i = 1; i < video_class->num_of_intf_altsettings; i++) {
-        // ep_desc = &video_class->hport->config.intf[video_class->data_intf].altsetting[i].ep[0].ep_desc;
+        ep_desc = &video_class->hport->config.intf[video_class->data_intf].altsetting[i].ep[0].ep_desc;
 
-        // mult = (ep_desc->wMaxPacketSize & USB_MAXPACKETSIZE_ADDITIONAL_TRANSCATION_MASK) >> USB_MAXPACKETSIZE_ADDITIONAL_TRANSCATION_SHIFT;
-        // mps = ep_desc->wMaxPacketSize & USB_MAXPACKETSIZE_MASK;
+        mult = (ep_desc->wMaxPacketSize & USB_MAXPACKETSIZE_ADDITIONAL_TRANSCATION_MASK) >> USB_MAXPACKETSIZE_ADDITIONAL_TRANSCATION_SHIFT;
+        mps = ep_desc->wMaxPacketSize & USB_MAXPACKETSIZE_MASK;
 
-        // USB_LOG_INFO("Altsetting:%u, Ep=%02x Attr=%02u Mps=%d Interval=%02u Mult=%02u\r\n",
-        //              i,
-        //              ep_desc->bEndpointAddress,
-        //              ep_desc->bmAttributes,
-        //              mps,
-        //              ep_desc->bInterval,
-        //              mult);
+        USB_LOG_INFO("Altsetting:%u, Ep=%02x Attr=%02u Mps=%d Interval=%02u Mult=%02u\r\n",
+                     i,
+                     ep_desc->bEndpointAddress,
+                     ep_desc->bmAttributes,
+                     mps,
+                     ep_desc->bInterval,
+                     mult);
     }
 
     USB_LOG_INFO("bNumFormats:%u\r\n", video_class->num_of_formats);
     for (uint8_t i = 0; i < video_class->num_of_formats; i++) {
         USB_LOG_INFO("  FormatIndex:%u\r\n", i + 1);
-        // USB_LOG_INFO("  FormatType:%s\r\n", format_type[video_class->format[i].format_type]);
+        USB_LOG_INFO("  FormatType:%s\r\n", format_type[video_class->format[i].format_type]);
         USB_LOG_INFO("  bNumFrames:%u\r\n", video_class->format[i].num_of_frames);
         USB_LOG_INFO("  Resolution:\r\n");
         for (uint8_t j = 0; j < video_class->format[i].num_of_frames; j++) {

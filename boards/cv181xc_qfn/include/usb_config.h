@@ -15,7 +15,7 @@
 #define usb_free(ptr)    free(ptr)
 
 #ifndef CONFIG_USB_DBG_LEVEL
-#define CONFIG_USB_DBG_LEVEL USB_DBG_ERROR
+#define CONFIG_USB_DBG_LEVEL USB_DBG_LOG
 #endif
 
 /* Enable print with color */
