@@ -189,7 +189,8 @@ typedef uint8_t s_face_dir;
     (a) == FACE_DIRECTION_DOWN || \
     (a) == FACE_DIRECTION_LEFT || \
     (a) == FACE_DIRECTION_RIGHT || \
-    (a) == FACE_DIRECTION_MIDDLE)
+    (a) == FACE_DIRECTION_MIDDLE || \
+    (a) == FACE_DIRECTION_HAND)
 /* msg face direction end */
 
 #define FACE_STATE_NORMAL     0  // normal state, the face is available

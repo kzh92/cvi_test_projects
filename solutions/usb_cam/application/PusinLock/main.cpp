@@ -1244,9 +1244,26 @@ int MsgProcSense(MSG* pMsg)
 
         g_xSS.iEnrollMutiDirMode = (g_xSS.msg_enroll_itg_data.enroll_type == FACE_ENROLL_TYPE_INTERACTIVE);
         if (!g_xSS.iEnrollMutiDirMode)
+        {
+#if (N_MAX_HAND_NUM)
+            if (g_xSS.msg_enroll_itg_data.face_direction == FACE_DIRECTION_HAND)
+                g_xSS.iRegisterHand = 1;
+#endif //N_MAX_HAND_NUM
             g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
+        }
         else if(g_xSS.msg_enroll_itg_data.face_direction == FACE_DIRECTION_UNDEFINE)
-                g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_MIDDLE;
+            g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_MIDDLE;
+#if (N_MAX_HAND_NUM)
+        else if (g_xSS.msg_enroll_itg_data.face_direction == FACE_DIRECTION_HAND)
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_ENROLL_ITG, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+#endif // N_MAX_HAND_NUM
         g_xSS.iEnrollDupCheckMode = g_xSS.msg_enroll_itg_data.enable_duplicate;
         g_xSS.iEnrollFaceDupCheck = (g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_NFACE_NAME);
 
