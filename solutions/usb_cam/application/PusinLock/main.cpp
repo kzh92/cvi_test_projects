@@ -1664,6 +1664,7 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_RESET)
     {
         dbug_printf("MID_RESET\n");
+        ResetFaceRegisterStates();
         s_msg* reply_msg = SenseLockTask::Get_Reply(MID_RESET, MR_SUCCESS);
         g_pSenseTask->Send_Msg(reply_msg);
     }
