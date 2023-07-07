@@ -44,7 +44,7 @@ void doCheckFirmware()
     // }
     int iErrorFlag = 0;
     int *file_data = NULL;
-
+#if (USE_3M_MODE)
     if (g_xSS.iUsbHostMode)
     {
         int timeWLedlimit = 50;//5s
@@ -53,7 +53,9 @@ void doCheckFirmware()
             my_usleep(100*1000);
         GPIO_fast_setvalue(WHITE_LED, 0);
     }
-
+#else
+    my_usleep(100*1000);
+#endif
     int idx = 0;
     while(g_part_files[idx].m_filename != NULL)
     {

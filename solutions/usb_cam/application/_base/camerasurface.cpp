@@ -644,7 +644,13 @@ void* ProcessTCMipiCapture(void */*param*/)
             camera_set_pattern_mode(TC_MIPI_CAM, 1);
         }
 
-        if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA) break;
+        if (!g_xSS.iUvcSensor && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iUVCIRDataReady == 0)
+        {
+            camera_set_irled_on(1);
+            g_iTwoCamFlag = IR_CAMERA_STEP0;
+        }
+
+        if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA || g_xSS.bCheckFirmware) break;
 
         frm_num = 1;
 
@@ -843,6 +849,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 
         iFrameCount ++;
     }
+
+    if (g_irOnData1)
+        my_free(g_irOnData1);
 
     g_xSS.iShowIrCamera = 0;
     my_thread_exit(NULL);
