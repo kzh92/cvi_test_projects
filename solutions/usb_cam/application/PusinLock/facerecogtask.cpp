@@ -563,14 +563,17 @@ int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
         }
         if (flip)
         {
-            for (int x = 0; x < IR_CAM_WIDTH / 2; x++)
+            int n = IR_CAM_WIDTH * IR_CAM_HEIGHT;
+            unsigned char* ptr1 = (unsigned char*)dst;
+            unsigned char* ptr2 = (unsigned char*)dst + n - 1;
+            n /= 2;
+            for (int i = 0; i < n; i++)
             {
-                for (int y = 0; y < IR_CAM_HEIGHT; y++)
-                {
-                    unsigned char tmp = ((char*)dst)[(IR_CAM_WIDTH - x - 1) + IR_CAM_WIDTH * (IR_CAM_HEIGHT - y - 1)];
-                    ((char*)dst)[(IR_CAM_WIDTH - x - 1) + IR_CAM_WIDTH * (IR_CAM_HEIGHT - y - 1)] = ((char*)dst)[x + y*IR_CAM_WIDTH];
-                    ((char*)dst)[x + y*IR_CAM_WIDTH] = tmp;
-                }
+                unsigned char tmp = *ptr1;
+                *ptr1 = *ptr2;
+                *ptr2 = tmp;
+                ptr1++;
+                ptr2--;
             }
         }
         dbug_printf("@@@ read IR static image ok\n");
