@@ -235,6 +235,7 @@ typedef struct _tagSYSTEM_STATE
     int                         iCurUvcWidth;
     int                         iCurUvcHeight;
     int                         iUvcDirect;
+    int                         iCurClrGain;
     int                         iProtoMode; // 0: no encryption, 1:sanjiang mode
     int                         iCapWidth;
     int                         iCapHeight;

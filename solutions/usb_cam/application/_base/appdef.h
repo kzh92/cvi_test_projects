@@ -155,6 +155,7 @@ enum E_Baud_Rate
 #define UVC_WIDTH                   640
 #define UVC_HEIGHT                  480
 #define CHECK_CLR_IR_SWITCH_THR     20
+#define NEW_CLR_IR_SWITCH_THR       0x20 
 #define UVC_CLR_LUMINANCE           0x80
 #define UVC_CLR_SAT_Gl              0x50
 #define UVC_CLR_SAT_Cb              0x42
@@ -598,8 +599,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-// #undef CHECK_CLR_IR_SWITCH_THR
-// #define CHECK_CLR_IR_SWITCH_THR             0
+#undef CHECK_CLR_IR_SWITCH_THR
+#define CHECK_CLR_IR_SWITCH_THR             0
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 

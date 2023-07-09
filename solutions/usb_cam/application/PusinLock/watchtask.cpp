@@ -199,6 +199,7 @@ extern "C" csi_wdt_t g_wdt;
 void WatchTask::run()
 {
     int iROKCounter = 0;
+    int iClrDarkCounter = 0;
     // float rOldTime = Now();
     my_printf("=========== WatchTask start\n");
 #ifdef PSENSE_DET
@@ -212,6 +213,19 @@ void WatchTask::run()
 #endif
     while(m_iRunning)
     {
+        {
+            if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
+                iClrDarkCounter = 0;
+            else
+                iClrDarkCounter++;
+            if(iClrDarkCounter > 10)
+            {
+                iClrDarkCounter = 0;
+#if (USE_3M_MODE)
+                gpio_whiteled_on(ON);
+#endif
+            }
+        }
 #ifdef PSENSE_DET
         int bFlag = GPIO_fast_getvalue(PSENSE_DET);
         if (bFlag == 0 && iPowerOnFlag != 0)

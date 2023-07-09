@@ -14,7 +14,7 @@
 #include "cvi_awb.h"
 #include "cvi_isp.h"
 #include "appdef.h"
-
+#include "settings.h"
 #include "sc201cs_cmos_ex.h"
 #include "sc201cs_cmos_param.h"
 
@@ -23,8 +23,6 @@
 #else
 #include "cif_uapi.h"
 #endif
-
-
 
 #define DIV_0_TO_1(a)   ((0 == (a)) ? 1 : (a))
 #define DIV_0_TO_1_FLOAT(a) ((((a) < 1E-10) && ((a) > -1E-10)) ? 1 : (a))
@@ -357,6 +355,9 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 
 	u32Again = pu32Again[0];
 	u32Dgain = pu32Dgain[0];
+
+	// printf("@@@ Again = %x, Dagain = %x\n", u32Again, u32Dgain);
+	g_xSS.iCurClrGain = (u32Again) << 8 | u32Dgain; //max vlaue : 0xf80
 
 	if (pstSnsState->enWDRMode == WDR_MODE_NONE) {
 		/* linear mode */

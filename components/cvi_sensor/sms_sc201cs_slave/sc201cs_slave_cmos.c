@@ -16,6 +16,8 @@
 
 #include "sc201cs_slave_cmos_ex.h"
 #include "sc201cs_slave_cmos_param.h"
+#include "appdef.h"
+#include "settings.h"
 
 #ifdef ARCH_CV182X
 #include "cvi_vip_cif_uapi.h"
@@ -206,6 +208,8 @@ static CVI_S32 cmos_inttime_update(VI_PIPE ViPipe, CVI_U32 *u32IntTime)
 
 	return CVI_SUCCESS;
 
+	// printf("$$$ exp = %x\n", u32IntTime[0]);
+
 	SC201CS_SLAVE_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
 	CMOS_CHECK_POINTER(u32IntTime);
@@ -344,6 +348,9 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 
 	u32Again = pu32Again[0];
 	u32Dgain = pu32Dgain[0];
+
+	// printf("@@@ Again = %x, Dagain = %x\n", u32Again, u32Dgain);
+	g_xSS.iCurClrGain = (u32Again) << 8 | u32Dgain; //max vlaue : 0xf80
 
 	if (pstSnsState->enWDRMode == WDR_MODE_NONE) {
 		/* linear mode */

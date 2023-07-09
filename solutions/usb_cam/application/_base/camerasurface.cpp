@@ -727,7 +727,7 @@ void* ProcessTCMipiCapture(void */*param*/)
                 rDarkTime = 0;
         }
 #endif // USE_3M_MODE
-        if((g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT) || iCheckDarkFlag == 1)
+        if((g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT) /*|| iCheckDarkFlag == 1*/)
         {
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
