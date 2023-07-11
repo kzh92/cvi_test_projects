@@ -96,6 +96,7 @@ extern int fr_ReadAppLog(const char* filename, unsigned int u32_offset, void* bu
 extern int fr_GetAppLogLen();
 extern "C" void drv_reboot(void);
 extern "C" int MEDIA_VIDEO_Deinit();
+extern "C" void uvc_set_reinit_flag();
 
 extern float g_rAppStartTime;
 
@@ -2016,27 +2017,26 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_UVC_DIR)
     {
         dbug_printf("MID_UVC_DIR\n");
+        int iSuccessCode = MR_SUCCESS;
         if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_uvc_dir_data))
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UVC_DIR, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
+            iSuccessCode = MR_FAILED4_INVALIDPARAM;
         }
         else
         {
             memcpy(&g_xSS.msg_uvc_dir_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-            if(g_xSS.msg_uvc_dir_data.rotate > 1)
+            if(g_xSS.msg_uvc_dir_data.rotate > 2)
             {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UVC_DIR, MR_FAILED4_INVALIDPARAM);
-                g_pSenseTask->Send_Msg(reply_msg);
+                iSuccessCode = MR_FAILED4_INVALIDPARAM;
             }
             else
             {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UVC_DIR, MR_SUCCESS);
-                g_pSenseTask->Send_Msg(reply_msg);
-
                 g_xSS.iUvcDirect = g_xSS.msg_uvc_dir_data.rotate;
+                uvc_set_reinit_flag();
             }
         }
+        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UVC_DIR, iSuccessCode);
+        g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_UVC_SET_COMPRESS_PARAM)
     {

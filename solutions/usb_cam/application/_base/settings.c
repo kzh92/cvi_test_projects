@@ -346,6 +346,7 @@ void ResetSystemState(int iAppType)
     g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
     g_xSS.iCapWidth = CAPTURE_WIDTH;
     g_xSS.iCapHeight = CAPTURE_HEIGHT;
+    g_xSS.iUvcDirect = DEFAULT_UVC_DIR;
 }
 
 void SetMountStatus(int iSuccess)

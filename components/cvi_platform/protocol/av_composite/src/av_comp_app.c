@@ -238,6 +238,16 @@ void uvc_media_update(){
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
+	if (g_xSS.iUvcDirect == UVC_ROTATION_270)
+	{
+		stVpssChnAttr.bFlip = CVI_TRUE;
+		stVpssChnAttr.bMirror = CVI_TRUE;
+	}
+	else
+	{
+		stVpssChnAttr.bFlip = CVI_FALSE;
+		stVpssChnAttr.bMirror = CVI_FALSE;
+	}
 	printf("uvc(%dx%d)\n", uvc_frame_info.width, uvc_frame_info.height);
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
@@ -299,6 +309,12 @@ void uvc_streaming_on(int is_on) {
 		g_xSS.bUVCRunning = 0;
 
 	g_uvc_event_flag = false;
+}
+
+void uvc_set_reinit_flag()
+{
+	if(is_media_info_update())
+		uvc_update = 1;
 }
 
 void usbd_configure_done_callback(void)
