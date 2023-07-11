@@ -179,6 +179,7 @@ enum E_Baud_Rate
 #define UVC_PAUSE_LIMIT_TIME        0
 #define UVC_MAX_FPS_TIME            40      //25fps
 #define UVC_FIX_COMPRATE            0
+#define UVC_MJPEG_BITRATE           20480
 
 #define SETTING_TIMEOUT             30
 #define RESET_TIMEOUT               9
