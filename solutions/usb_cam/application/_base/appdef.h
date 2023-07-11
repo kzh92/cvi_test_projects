@@ -340,7 +340,7 @@ enum E_Baud_Rate
 #define FRM_DAS3M_HUANGLI_UAC                   202
 #define FRM_DAS3M_HUANGLI_NEW_UAC               203
 
-#define FRM_PRODUCT_TYPE                        FRM_DAS3M_HUANGLI_NEW_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DAS3M_D20_UAC
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -531,8 +531,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DAS3M_D20_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.14.3.9_D2"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.3.9_D2"
+#define DEVICE_FIRMWARE_VERSION             "9.14.4_D2"
+#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.4_D2"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
@@ -562,8 +562,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-// #undef CHECK_CLR_IR_SWITCH_THR
-// #define CHECK_CLR_IR_SWITCH_THR             0
+#undef CHECK_CLR_IR_SWITCH_THR
+#define CHECK_CLR_IR_SWITCH_THR             0
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DAS3M_PUXIN_UAC)
