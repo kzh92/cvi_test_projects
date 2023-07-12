@@ -19,6 +19,7 @@
 // #include <linux/i2c-dev.h>
 #include "engineparam.h"
 #include "common_vi.h"
+#include "cvi_isp.h"
 
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t g_i2c1_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -732,4 +733,15 @@ int camera_set_irled(int enable, int count)
     //my_printf("----------  camera_set_irled\n");
 
     return ret;
+}
+
+void camera_set_vi_fps(int pipe, int fps)
+{
+    ISP_PUB_ATTR_S stPubAttr = {0};
+
+    CVI_ISP_GetPubAttr(pipe, &stPubAttr);
+
+    stPubAttr.f32FrameRate = fps;
+
+    CVI_ISP_SetPubAttr(pipe, &stPubAttr);
 }

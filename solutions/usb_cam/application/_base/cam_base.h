@@ -103,6 +103,7 @@ int camera_switch(int id, int camid);
 int camera_get_actIR();
 int camera_sleep(int id);
 int camera_wakeup(int id);
+void camera_set_vi_fps(int pipe, int fps);
 
 #ifdef __cplusplus
 }
