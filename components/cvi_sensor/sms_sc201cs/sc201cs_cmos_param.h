@@ -99,13 +99,17 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
+#if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
+		.lane_id = {3/*clock*/, 4/*data*/, -1, -1, -1},
+#else
 		.lane_id = {0/*clock*/, 1/*data*/, -1, -1, -1},
+#endif
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 	},
 	.mclk = {
 #if (DEFAULT_BOARD_TYPE == BD_TY_CV181xC_DEMO_V1v0)
 		.cam = 1, //mclk
-#elif (DEFAULT_BOARD_TYPE == BD_TY_FMDASS_1V0J)
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FMDASS_1V0J || DEFAULT_BOARD_TYPE == BD_TY_FMDBSS_1V0J)
 		.cam = 0, //mclk
 #endif
 		.freq = CAMPLL_FREQ_24M,

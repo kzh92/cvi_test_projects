@@ -12,7 +12,7 @@ if [ ! -f "./config_app" ]; then
 else
 	./config_app
 	cd ../
-	make -j4 usb_cam PROJECT=turnkey
+	make -j4 usb_cam PROJECT=turnkey_180xb
 	echo "Compressing prim..."
 	rm -f lz4 ./solutions/usb_cam/generated/images/prim.lz4
 	lz4 ./solutions/usb_cam/generated/images/prim

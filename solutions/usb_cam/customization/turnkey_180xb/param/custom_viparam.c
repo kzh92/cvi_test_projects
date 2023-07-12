@@ -6,6 +6,8 @@
  *   ....
  */
 #include "custom_param.h"
+#define BIN_DATA_SIZE       347537
+extern unsigned char rgb_color_mode_param[];
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
@@ -30,8 +32,8 @@ PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
         .bUseSingleBin = 0,
         .stPQBinDes =
         {
-            .pIspBinData = NULL,
-            .u32IspBinDataLen = 0,
+            .pIspBinData = rgb_color_mode_param,
+            .u32IspBinDataLen = BIN_DATA_SIZE,
         },
     },
 };

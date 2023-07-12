@@ -82,6 +82,7 @@ enum E_Baud_Rate
 #define BD_TY_FSDB_1V0              1   //D10 2.0
 #define BD_TY_CV181xC_DEMO_V1v0     2
 #define BD_TY_FMDASS_1V0J           3   //D20 3M
+#define BD_TY_FMDBSS_1V0J           4   //D10 3M
 #define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
 
 //chip types
@@ -357,8 +358,9 @@ enum E_Baud_Rate
 #define FRM_DAS3M_HUANGLI_UAC                   202
 #define FRM_DAS3M_HUANGLI_NEW_UAC               203
 #define FRM_DAS3M_LS35_LH_UAC                   204
+#define FRM_DBS3M_DEFAULT                       300   //D10, 3M default
 
-#define FRM_PRODUCT_TYPE                        FRM_DAS3M_D20_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -649,6 +651,45 @@ enum E_Baud_Rate
 #define CHECK_CLR_IR_SWITCH_THR             0
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+
+//----------------------------------------------------------
+
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "10.0.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "10.0.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              2
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     1
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  2
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+// #undef CAM_ROTATION_MODE
+// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+// #undef CHECK_CLR_IR_SWITCH_THR
+// #define CHECK_CLR_IR_SWITCH_THR             0
 
 //----------------------------------------------------------
 

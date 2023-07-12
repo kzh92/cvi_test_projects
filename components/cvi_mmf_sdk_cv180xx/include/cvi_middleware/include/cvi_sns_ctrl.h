@@ -117,6 +117,7 @@ typedef struct _ISP_SNS_OBJ_S {
 	CVI_S32 (*pfnSnsPatternEn)(VI_PIPE ViPipe, CVI_U8);
 	CVI_S32 (*pfnWriteRegEx)(VI_PIPE ViPipe, CVI_S32 s32Addr, CVI_S32 s32Data, CVI_S32 s32IsLeftCamera);
 	CVI_S32 (*pfnReadRegEx)(VI_PIPE ViPipe, CVI_S32 s32Addr, CVI_S32 s32IsLeftCamera);
+	CVI_S32 (*pfnAecCtrl)(VI_PIPE ViPipe, CVI_S32 s32Ctrl);
 } ISP_SNS_OBJ_S;
 
 typedef enum _SNS_TYPE_E {

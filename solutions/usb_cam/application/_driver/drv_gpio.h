@@ -39,6 +39,13 @@ extern	"C"
 #define CAM_MIPI1_PWDN          216 /* XGPIOC_17 Group:2 Num:16*/
 #define PSENSE_DET              419 /*PWR_GPIO[19] Group:4 Num:19 */
 #define AUDIO_EN                15 /* XGPIOA[15] Group:0 Num:15*/
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FMDBSS_1V0J)
+#define IR_LED                  421 /* PWR_GPIO[21] Group:4 Num:21 */
+#define CAM_MIPI0_PWDN          208 /* XGPIOC[8] Group:2 Num:8*/
+#define CAM_MIPI1_PWDN          207 /* XGPIOC[7] Group:2 Num:7*/
+#define WHITE_LED               422 /* PWR_GPIO[22] Group:4 Num:22 */
+#define PSENSE_DET              423 /* PWR_GPIO[23] Group:4 Num:22 */
+#define AUDIO_EN                15 /* XGPIOA[15] Group:0 Num:15*/
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"
 #endif // DEFAULT_BOARD_TYPE

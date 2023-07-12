@@ -4,9 +4,6 @@
 #include "cvi_type.h"
 #include "drv_gpio.h"
 
-#define GPIO_SPKEN_GRP 0
-#define GPIO_SPKEN_NUM 15
-
 static void _SensorPinmux()
 {
     //Sensor Pinmux
@@ -17,7 +14,7 @@ static void _SensorPinmux()
 
 #if (DEFAULT_BOARD_TYPE == BD_TY_CV180xB_DEMO_V1v0)
     PINMUX_CONFIG(SD1_D1, PWR_GPIO_20); //IR LED pin
-#elif (DEFAULT_BOARD_TYPE == BD_TY_FSDB_1V0)
+#elif (DEFAULT_BOARD_TYPE == BD_TY_FSDB_1V0 || DEFAULT_BOARD_TYPE == BD_TY_FMDBSS_1V0J)
     PINMUX_CONFIG(SD1_D0, PWR_GPIO_21); //IR LED pin
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"
@@ -101,10 +98,9 @@ void PLATFORM_IoInit(void)
     PINMUX_CONFIG(IIC0_SCL, UART1_TX);
     PINMUX_CONFIG(IIC0_SDA, UART1_RX);
 
-    //turn off ir led
-    GPIO_fast_setvalue(IR_LED, 0);
-
     //camera power
+    GPIO_fast_config(CAM_MIPI1_PWDN, OUT);
+    GPIO_fast_config(CAM_MIPI0_PWDN, OUT);
 	GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);    
     GPIO_fast_setvalue(CAM_MIPI0_PWDN, 1);
 }
@@ -127,13 +123,6 @@ void PLATFORM_PanelBacklightCtl(int level)
 void PLATFORM_SpkMute(int value)
 {
 //0静音 ，1非静音
-    printf("set spkMute = %d\r\n",value);
-    PINMUX_CONFIG(SPK_EN, XGPIOA_15);
-    if(value == 0) {
-        _GPIOSetValue(GPIO_SPKEN_GRP, GPIO_SPKEN_NUM, 0);
-    } else {
-        _GPIOSetValue(GPIO_SPKEN_GRP, GPIO_SPKEN_NUM, 1);
-    }
 }
 
 int PLATFORM_IrCutCtl(int duty)

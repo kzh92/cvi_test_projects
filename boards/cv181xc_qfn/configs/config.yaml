@@ -32,12 +32,12 @@ partitions:
   - { name: boot0,  address: 0x000000, size: 0x00C000, index: 0, filename: fip_fsbl.bin}                                 # 48 KB
   - { name: boot,   address: 0x00C000, size: 0x020000, index: 0, filename: boot, load_addr: 0x8000C000 }          # 128KB
   - { name: imtb,   address: 0x02C000, size: 0x002000, index: 0, filename: imtb}                                 # 8 KB
-  - { name: prim,   address: 0x02E000, size: 0x320000, index: 0, filename: prim, load_addr: 0x80040000, update: FULL, car: xz }          # 3 MB
-  - { name: misc,   address: 0x34E000, size: 0x62000, index: 0, filename: misc }                                 # 0.5 MB
-  - { name: pwx,   address: 0x3B0000, size: 0xA00000, index: 0, filename: pwx }                                 # 4 MB
-  - { name: pusr1,   address: 0xDB0000, size: 0xD0000, index: 0, filename: pusr1 }                                 # 
-  - { name: pusr2,   address: 0xE80000, size: 0xD0000, index: 0, filename: pusr2 }                                 # 
-  - { name: pst,   address: 0xF50000, size: 0x10000, index: 0, filename: pst }                                 # 
+  - { name: prim,   address: 0x02E000, size: 0x390000, index: 0, filename: prim, load_addr: 0x80040000, car: xz }          # 3 MB
+  - { name: misc,   address: 0x3BE000, size: 0x12000, index: 0, filename: misc }                                 # 0.5 MB
+  - { name: pwx,   address: 0x3D0000, size: 0xA80000, index: 0, filename: pwx }                                 # 4 MB
+  - { name: pusr1,   address: 0xE50000, size: 0xD0000, index: 0, filename: pusr1 }                                 # 
+  - { name: pusr2,   address: 0xF20000, size: 0xD0000, index: 0, filename: pusr2 }                                 # 
+  - { name: pst,   address: 0xFF0000, size: 0x10000, index: 0, filename: pst }                                   # 
 #  - { name: kv,     address: 0xFAE000, size: 0x010000, index: 0 }                                # 64 KB
   # - { name: spiffs, address: 0xCD0000, size: 0x100000, index: 0, filename: lfs.bin }            # 1 MB
   # - { name: cxrot,  address: 0xFBE000, size: 0x001000, index: 0  }                                # 4 KB
