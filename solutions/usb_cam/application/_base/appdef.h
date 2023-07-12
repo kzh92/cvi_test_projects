@@ -88,6 +88,12 @@ enum E_Baud_Rate
 #define CAM_MIPI_TY_122             1 //two sensors on one mipi
 #define DEFAULT_CAM_MIPI_TYPE       CAM_MIPI_TY_122
 
+//macros for ENGINE_USE_TWO_CAM
+#define EUTC_2D_MODE                0
+#define EUTC_2V0_MODE               1
+#define EUTC_3M_MODE                2
+#define EUTC_3V4_MODE               3
+
 //uvc direction
 #define UVC_ROTATION_0              0
 #define UVC_ROTATION_90             1
@@ -134,7 +140,7 @@ enum E_Baud_Rate
 #define USE_RENT_ENGINE             0
 #define USE_DB_UPDATE_MODE          0
 #define ENROLL_ANGLE_MODE           0
-#define ENGINE_USE_TWO_CAM          1
+#define ENGINE_USE_TWO_CAM          EUTC_2V0_MODE
 #define YAOYANG_MODE                0
 #define SEND_LAST_MSG               0
 #define USE_3M_MODE                 0
@@ -257,6 +263,7 @@ enum E_Baud_Rate
 #define DEFAULT_MI_AI_VOLUME        20      // 0~21
 #define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
 #define DEFAULT_SNAPIMG_CTRL_CNT    3
+#define DEFAULT_SNR4UVC             0    //0: use sensor0 for color, 1: use sensor1 for color, 2: no color
 #define FIRMWARE_MAGIC              "DBS"
 #define ENROLL_FACE_IMG_MAGIC       "EFIv1"
 #define ENROLL_FACE_IMG_MAGIC2      "EFIv2"
@@ -541,7 +548,7 @@ enum E_Baud_Rate
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
 #undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  2
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
 #undef USE_UAC_MODE

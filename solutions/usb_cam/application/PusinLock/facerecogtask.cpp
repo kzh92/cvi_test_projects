@@ -63,6 +63,7 @@ void FaceRecogTask::Start(int iCmd)
     m_iRecogIndex = -1;
     m_iRecogID = 0;
     m_iEyeOpened = 0;
+    g_xSS.iFirstFlag = 0;
     g_xSS.rFaceEngineTime = Now();
     ResetDetectTimeout();
 
@@ -189,6 +190,9 @@ void FaceRecogTask::run()
 {
     int iLoopCount = 0;
     int iTimeout = DETECTION_TIMEOUT;
+#if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
+    int i2ndCheck = 0;
+#endif
     if(m_iCmd == E_REGISTER)
     {
         iTimeout = g_xSS.msg_enroll_itg_data.timeout;
@@ -251,7 +255,7 @@ void FaceRecogTask::run()
                 EndIns();
                 StartCamSurface(1);
             }
-            GetRightIrFrame(NULL, iFlag);
+            GetRightIrFrame(NULL, iLoopCount == 0);
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
@@ -292,7 +296,7 @@ void FaceRecogTask::run()
         }
 
         int nBreaks = 0;
-#if (ENGINE_USE_TWO_CAM == 1)
+#if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
         int nGotRightFrame = 0;
 #endif
         int nGotOffFrame = 0;
@@ -311,14 +315,20 @@ void FaceRecogTask::run()
             if(g_xSS.iResetFlag == 1)
                 break;
 
-#if (ENGINE_USE_TWO_CAM == 1)
-            //g_irOnData2 is required here.
-            if (nGotRightFrame == 0 && fr_GetNeedSecondImageCheck())
+#if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
+            if (i2ndCheck == 0)
             {
-                GetRightIrFrame(pInputImageBuffer1, iFlag);
-                nGotRightFrame = 1;
+                //g_irOnData2 is required here.
+                if (nGotRightFrame == 0 && fr_GetNeedSecondImageCheck())
+                {
+                    GetRightIrFrame(pInputImageBuffer1, 1);
+                    nGotRightFrame = 1;
+                }
+                fr_PreExtractCombo2(pInputImageBuffer1);
+#if (ENGINE_USE_TWO_CAM == 3)
+                i2ndCheck = 1;
+#endif
             }
-            fr_PreExtractCombo2(pInputImageBuffer1);
 #endif // ENGINE_USE_TWO_CAM
 
             int iNeedExp = fr_GetNeedToCalcNextExposure();
@@ -391,11 +401,13 @@ void FaceRecogTask::run()
                 fr_SetNeedDelayForCameraControl(1);
             }
 
+#if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE)
             if(iSecondImageReCheck)
             {
                 iFlag = 0;
                 GetLeftIrFrame(&iFlag);
             }
+#endif // ENGINE_USE_TWO_CAM
 
 #if (USE_RENT_ENGINE)
             if (ProcessSaveFaceImage1Step())
@@ -465,7 +477,9 @@ void FaceRecogTask::run()
         UpdateHeadInfos2();
 #endif // DEFAULT_SECURE_MODE
 
+#if (USE_3M_MODE)
     camera_clr_start_aec();
+#endif
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
     dbug_printf("[Recog] Verify Face End!\n");
     g_xSS.rFaceEngineTime = 0;
@@ -650,14 +664,8 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 #if (!USE_3M_MODE)
         res2 = (ENGINE_USE_TWO_CAM == 1) ? checkCameraPattern(pInputImageBuffer2) : 0;
 #else // !USE_3M_MODE
-        res2 = checkCameraPattern(pInputImageBuffer2);
-        // if (res2 == 0)
-        {
-            g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
-        }
-#endif // !USE_3M_MODE
-        res1 = 0;
         res2 = 0;
+#endif // !USE_3M_MODE
         my_printf("** check camera=%d,%d\n", res1, res2);
         if (res1 != 0 || res2 != 0)
         {
@@ -716,6 +724,13 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 
 int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
 {
+#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE || ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
+    if (!iUseFirstFrame)
+    {
+        camera_set_irled_on(1);
+        g_iTwoCamFlag = IR_CAMERA_STEP4;
+    }
+#endif // ENGINE_USE_TWO_CAM
     //in case of 1st IR frame, wait for...
     if(!iUseFirstFrame || !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
     {
@@ -841,12 +856,18 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
 #if (USE_3M_MODE)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] ==  0) //face mode only
     {
-        lockIRBuffer();
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
+            lockIRBuffer();
             ReadStaticIRImage(g_irOnData2, 1);
+            unlockIRBuffer();
+        }
+        else
+        {
+            GetRightIrFrame(NULL, 0);
         }
 
+        lockIRBuffer();
         int iCheck = fr_PreExtractFaceClr(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
         unlockIRBuffer();
         if(iCheck != ES_SUCCESS)
@@ -859,18 +880,15 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && iSecondImageReCheck)
     {
         //verify time will be greater than 300ms
-        if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        if(fr_GetSecondImageIsRight())
         {
-            if(fr_GetSecondImageIsRight())
-            {
-                GetRightIrFrame(pInputImageBuffer1, 0);
-            }
-            else
-            {
-                lockIRBuffer();
-                memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
-                unlockIRBuffer();
-            }
+            GetRightIrFrame(pInputImageBuffer1, 0);
+        }
+        else
+        {
+            lockIRBuffer();
+            memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+            unlockIRBuffer();
         }
 
         int iCheck = fr_CheckFaceInSecondImage(pInputImageBuffer1);
@@ -934,12 +952,18 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 #if (USE_3M_MODE)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] ==  0) //face mode only
     {
-        lockIRBuffer();
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
+            lockIRBuffer();
             ReadStaticIRImage(g_irOnData2, 1);
+            unlockIRBuffer();
+        }
+        else
+        {
+            GetRightIrFrame(NULL, 0);
         }
 
+        lockIRBuffer();
         int iCheck = fr_PreExtractFaceClr(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
         unlockIRBuffer();
         if(iCheck != ES_SUCCESS)
@@ -952,18 +976,15 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && iSecondImageReCheck)
     {
         //register time will be greater than 300ms
-        if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        if(fr_GetSecondImageIsRight())
         {
-            if(fr_GetSecondImageIsRight())
-            {
-                GetRightIrFrame(pInputImageBuffer1, 0);
-            }
-            else
-            {
-                lockIRBuffer();
-                memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
-                unlockIRBuffer();
-            }
+            GetRightIrFrame(pInputImageBuffer1, 0);
+        }
+        else
+        {
+            lockIRBuffer();
+            memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
+            unlockIRBuffer();
         }
 
         int iCheck = fr_CheckFaceInSecondImage(pInputImageBuffer1);

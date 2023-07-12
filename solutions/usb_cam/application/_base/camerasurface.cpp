@@ -614,19 +614,14 @@ void* ProcessTCMipiCapture(void */*param*/)
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
-#if (CHECK_CLR_IR_SWITCH_THR)
-    float rStartTime = Now();
-    float rDarkTime = 0;
-    int iCheckDarkFlag = 0;
-#endif // CHECK_CLR_IR_SWITCH_THR
+#if (USE_VDBTASK)
+    int iClrCheck = 0;
+#endif
 
     dbug_printf("[%s]\n", __func__);
 
-#if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-    dev = 0;
-#else
-    for (dev = 0; dev < 2; dev ++)
-#endif
+    CVI_U32 devCount = (CONFIG_SNS0_TYPE > 0) + (CONFIG_SNS1_TYPE > 0);
+    for (dev = 0; dev < devCount; dev ++)
     {
         attr[dev].bEnable = 1;
         attr[dev].u32Depth = 0;
@@ -644,13 +639,13 @@ void* ProcessTCMipiCapture(void */*param*/)
             camera_set_pattern_mode(TC_MIPI_CAM, 1);
         }
 
-#if (ENGINE_USE_TWO_CAM == 3)
+#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
         if (!g_xSS.iUvcSensor && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iUVCIRDataReady == 0)
         {
             camera_set_irled_on(1);
             g_iTwoCamFlag = IR_CAMERA_STEP0;
         }
-#endif
+#endif // EUTC_3V4_MODE
 
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA || g_xSS.bCheckFirmware) break;
 
@@ -661,27 +656,49 @@ void* ProcessTCMipiCapture(void */*param*/)
         stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121)
-        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? 1: 0);
+        dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? (DEFAULT_SNR4UVC + 1) % 2: DEFAULT_SNR4UVC);
+#else
+        dev = 0;
 #endif
-#if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
-        iCheckDarkFlag = 0;
-        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE)
+        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
         {
-            dev = 0;
-            if (Now () - rOld < 100 || g_xSS.rFaceEngineTime == 0)
-            {
-                my_usleep(5000);
-                continue;
-            }
-            iCheckDarkFlag = 1;
+            my_usleep(1000);
+            continue;
         }
-#endif // USE_3M_MODE
-        // my_printf("[%0.1f]mc.0: %do, %dc, %dt, dev=%d\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag, dev);
-
+#if (USE_VDBTASK)
+        if (iClrCheck == 0 && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        {
+            dev = USE_3M_MODE ? 0 : 1;
+        }
+#endif
+#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE || ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
+        if(g_iTwoCamFlag == IR_CAMERA_STEP4 && g_iLedOnStatus == 1)
+        {
+#if (!USE_3M_MODE)
+            gpio_irled_on(ON);
+#endif
+            dev = 0;
+            g_iLedOnStatus = 0;
+        }
+#endif // ENGINE_USE_TWO_CAM
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 300);
         if (s_ret != CVI_SUCCESS)
         {
+#if (USE_3M_MODE)
             g_xSS.iCamError = (dev == 0 ? CAM_ERROR_DVP2 : CAM_ERROR_MIPI2);
+#elif (USE_VDBTASK) // USE_3M_MODE
+            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && dev == 1)
+            {
+                g_xSS.iCamError |= CAM_ERROR_DVP2;
+                my_usleep(5000);
+                continue;
+            }
+            else
+#else // USE_3M_MODE
+            {
+                g_xSS.iCamError = (camera_get_actIR() == MIPI_CAM_S2LEFT ? CAM_ERROR_MIPI1 : CAM_ERROR_MIPI2);
+            }
+#endif // USE_3M_MODE
             GPIO_fast_setvalue(IR_LED, OFF);
             break;
         }
@@ -702,8 +719,9 @@ void* ProcessTCMipiCapture(void */*param*/)
         if (g_iTwoCamFlag != -1 && rOld != 0)
             dbug_printf("[%0.1f]mc: %do, %dc, %dt\n", Now(), g_iLedOnStatus, camera_get_actIR(), g_iTwoCamFlag);
         rOld = Now();
-#if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
-        if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && dev == 0 && iCheckDarkFlag == 1)
+
+#if (USE_VDBTASK)
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iClrCheck == 0 && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE /*&& dev == 1*/)
         {
             lockIRBuffer();
             size_t test_pos = 0;
@@ -715,27 +733,17 @@ void* ProcessTCMipiCapture(void */*param*/)
                     break;
             }
             unlockIRBuffer();
-            int luma = CalcClrNextExposure(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            if (luma < CHECK_CLR_IR_SWITCH_THR)
+            int res = checkCameraPattern(g_irOnData2);
+            my_printf("*** check clr cam=%d\n", res);
+            if (res)
             {
-                if (Now() - rStartTime >= 200)
-                {
-                    if (rDarkTime == 0)
-                        rDarkTime = Now();
-                    else if(Now() - rDarkTime >= 1000)
-                    {
-                        my_printf("luma1: %d, %d\n", luma, (int)Now());
-                        gpio_whiteled_on(1);
-                    }
-                }
-                else
-                    gpio_whiteled_on(1);
+                g_xSS.iCamError |= CAM_ERROR_DVP2;
             }
-            else
-                rDarkTime = 0;
+            g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
+            iClrCheck = 1;
         }
-#endif // USE_3M_MODE
-        if((g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT) /*|| iCheckDarkFlag == 1*/)
+#endif // USE_VDBTASK
+        if((g_iTwoCamFlag == IR_CAMERA_STEP0 && camera_get_actIR() == MIPI_CAM_S2RIGHT))
         {
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
@@ -748,7 +756,10 @@ void* ProcessTCMipiCapture(void */*param*/)
         if(g_iTwoCamFlag == IR_CAMERA_STEP0 && iNeedNext == 0/* && reserved == 1 && id == MIPI_CAM_SUB0 && iOldReserved == 0*/)
         {
             if(g_iLedOnStatus == 1)
+            {
+                g_iLedOnStatus = 0;
                 gpio_irled_on(ON);
+            }
 
             lockIROffBuffer();
             genIROffData10bit(ptr + (int)image_size/8, fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
@@ -787,23 +798,46 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
 #endif // USE_VDBTASK
             WaitIRCancel();
-#if (!USE_3M_MODE || 1)
+#if (ENGINE_USE_TWO_CAM != EUTC_3V4_MODE && ENGINE_USE_TWO_CAM != EUTC_3M_MODE)
             g_iTwoCamFlag ++;
-#else // !USE_3M_MODE
-            g_iLedOnStatus = 0;
-            gpio_irled_on(OFF);
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-            WaitIRCancel2();
-            g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
+#else // ENGINE_USE_TWO_CAM
+            WaitIRCancel();
+            if (g_xSS.iFirstFlag == 0 && g_iTwoCamFlag == IR_CAMERA_STEP2)
+            {
+                g_xSS.iFirstFlag = 1;
+                g_iTwoCamFlag ++;
+            }
+            else
+            {
+                gpio_irled_on(OFF);
+                g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
+#if (!USE_3M_MODE)
+                if (!g_xSS.iUVCIRDataReady && !g_xSS.iUvcSensor)
+                {
+                    if (PrepareDataForVenc(g_iUVCIRDataY, g_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, 1) == CVI_SUCCESS)
+                        g_xSS.iUVCIRDataReady = 1;
+                    InsertDataForVenc(g_iUVCIRDataY, g_iUVCIRDataU);
+                }
 #endif // !USE_3M_MODE
+            }
+#endif // ENGINE_USE_TWO_CAM
         }
-#if (!USE_3M_MODE || 1)
+#if (ENGINE_USE_TWO_CAM != 0)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP3 && g_iTwoCamFlag != IR_CAMERA_STEP4)
         {
             g_iTwoCamFlag ++;
         }
         else if(g_iTwoCamFlag == IR_CAMERA_STEP4)
         {
+#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
+            if (g_iLedOnStatus != 0)
+            {
+                //irled is still off
+                //skip frame
+                CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
+                continue;
+            }
+#endif // ENGINE_USE_TWO_CAM == EUTC_3V4_MODE
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
@@ -820,28 +854,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             unlockIRBuffer();
             WaitIRCancel2();
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-#if (USE_3M_MODE && CHECK_CLR_IR_SWITCH_THR)
-            int luma = CalcClrNextExposure(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            if (luma < CHECK_CLR_IR_SWITCH_THR)
-            {
-                if (Now() - rStartTime >= 200)
-                {
-                    if (rDarkTime == 0)
-                        rDarkTime = Now();
-                    else if(Now() - rDarkTime >= 1000)
-                    {
-                        my_printf("luma2: %d, %d\n", luma, (int)Now());
-                        gpio_whiteled_on(1);
-                    }
-                }
-                else
-                    gpio_whiteled_on(1);
-            }
-            else
-                rDarkTime = 0;
-#endif // USE_3M_MODE
         }
-#endif // !USE_3M_MODE
+#endif // ENGINE_USE_TWO_CAM
         else if(iNeedNext == 1)
         {
             iNeedNext = 0;
@@ -1995,7 +2009,7 @@ int saveUvcScene()
 {
     unsigned char* imgBuf = fr_GetInputImageBuffer1();
     lockIRBuffer();
-    int buf_len = test_vpss_dump(0, 0, 1, g_irOnData1);
+    int buf_len = test_vpss_dump(DEFAULT_SNR4UVC, 0, 1, g_irOnData1);
     if (buf_len <= 0)
     {
         my_printf("dump vpss fail\n");
@@ -2014,7 +2028,7 @@ int saveUvcScene()
         return MR_FAILED4_NOMEMORY;
     }
     yuv_to_rgb_shrink(g_irOnData1, vpss_width, vpss_height, imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH);
-    rotate_image_inplace(imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH, 3, g_xPS.x.bCamFlip == 1 ? 270: 90, 0);
+    rotate_image_inplace(imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH, 3, g_xPS.x.bCamFlip == USE_3M_MODE ? 270: 90, 0);
     int iWriteLen = 0;
     for(int i = 60; i >= 10; i -= 10)
     {
