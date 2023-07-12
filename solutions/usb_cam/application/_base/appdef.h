@@ -353,7 +353,7 @@ enum E_Baud_Rate
 #define FRM_DAS3M_HUANGLI_NEW_UAC               203
 #define FRM_DAS3M_LS35_LH_UAC                   204
 
-#define FRM_PRODUCT_TYPE                        FRM_DAS3M_LS35_LH_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DAS3M_D20_UAC
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)

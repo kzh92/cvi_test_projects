@@ -776,8 +776,9 @@ void* ProcessTCMipiCapture(void */*param*/)
         {
 #if (USE_3M_MODE)
             gpio_irled_on(OFF);
-#endif
+#else
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+#endif
 
             lockIRBuffer();
             size_t test_pos = 0;
