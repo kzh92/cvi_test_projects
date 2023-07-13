@@ -1638,7 +1638,11 @@ int SenseLockTask::Set_Key(unsigned char* pbSeed, int iSize, int iMode, char* st
         case PROTO_EM_ENCRYPT_XOR_LANHENG:
             SenseLockTask::m_encMode = (EEncMode)iMode;
             if (strEncKey == NULL)
+            {
+#if (!USE_SANJIANG3_MODE)
                 strcpy(SenseLockTask::EncKey, PROTO_EM_XOR1_KEY_LANHENG);
+#endif
+            }
             else
                 strcpy(SenseLockTask::EncKey, strEncKey);
             break;

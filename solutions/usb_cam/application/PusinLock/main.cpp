@@ -1125,7 +1125,7 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iEnrollMutiDirMode = 1;
         g_xSS.iEnrollFaceDupCheck = ENROLL_DUPLICATION_CHECK;
 #if (USE_SANJIANG3_MODE)
-        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
             g_xSS.iEnrollFaceDupCheck = 0;
 #endif // USE_SANJIANG3_MODE
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
@@ -1191,7 +1191,7 @@ int MsgProcSense(MSG* pMsg)
         if (g_xSS.iRegisterHand)
         {
             g_xSS.iEnrollFaceDupCheck = ENROLL_HAND_DUP_CHECK;
-            if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+            if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
                 g_xSS.iEnrollFaceDupCheck = 0;
         }
 #else // USE_SANJIANG3_MODE
@@ -1543,19 +1543,20 @@ int MsgProcSense(MSG* pMsg)
             unsigned char sj_seed[4] = {0x30, 0x31, 0x32, 0x33};
             unsigned char sj_seed_lanheng[4] = {0x3C, 0x56, 0xB3, 0x85};
             strEncKey = (char*)PROTO_EM_XOR1_KEY_SANJIANG;
-            g_xSS.iProtoMode = 1;
+            g_xSS.iProtoMode = PROTO_MODE_SANJIANG;
             if (memcmp(g_xSS.msg_init_encryption_data.seed, sj_seed, sizeof(sj_seed)))
             {
                 if (memcmp(g_xSS.msg_init_encryption_data.seed, sj_seed_lanheng, sizeof(sj_seed_lanheng)) == 0)
                 {
                     //lanheng mode
                     strEncKey = (char*)PROTO_EM_XOR1_KEY_LANHENG;
-                    g_xSS.iProtoMode = 0;
+                    g_xSS.iProtoMode = PROTO_MODE_LANHENG;
                 }
                 else
                 {
+                    strEncKey = NULL;
                     //qixin mode, force no encryption
-                    iMode = SenseLockTask::EM_NOENCRYPT;
+                    g_xSS.iProtoMode = PROTO_MODE_QIXIN;
                 }
             }
 #elif (USE_AES_NOENC_MODE)
@@ -3037,7 +3038,7 @@ int ProcessSenseFace(int iCmd)
                         int rDir = g_xSS.iRegisterDir;
 
 #if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
-                        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == 1)
+                        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
                         {
                             rDir = FACE_DIRECTION_HAND;
                         }

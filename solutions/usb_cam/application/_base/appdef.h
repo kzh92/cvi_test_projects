@@ -71,6 +71,12 @@ enum E_Baud_Rate
 #define PROTO_EM_XOR1_KEY_LANHENG       "ee71535357ad9bb4" //XOR key for 심전람항
 #define PROTO_EM_XOR1_KEY_SANJIANG      "eb62f6b9306db575" //XOR key for 범해삼강
 
+//protocol mode
+#define PROTO_MODE_NONE                 0
+#define PROTO_MODE_SANJIANG             1
+#define PROTO_MODE_QIXIN                2
+#define PROTO_MODE_LANHENG              3
+
 //board types
 #define BD_TY_CV180xB_DEMO_V1v0     0
 #define BD_TY_FSDB_1V0              1   //D10 2.0
@@ -134,7 +140,6 @@ enum E_Baud_Rate
 #define USE_XISHANG_PROTO           0       //0x93 command
 #define USE_AUTO_50_REPLY           0
 #define USE_FP16_ENGINE             1
-#define NOTE_INTERVAL_MS            0
 #define USE_NEW_RST_PROTO           1
 #define USE_16M_FLASH               1
 #define USE_RENT_ENGINE             0
