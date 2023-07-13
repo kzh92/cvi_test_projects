@@ -91,7 +91,7 @@ static int output_db2idx(int dB)
         }
     }
 
-    printf(">>> output_db2idx [%d] = %.2f\r\n", dB_idx, db_array[dB_idx]);
+    // printf(">>> output_db2idx [%d] = %.2f\r\n", dB_idx, db_array[dB_idx]);
     return dB_idx;
 }
 
@@ -106,7 +106,7 @@ static uint8_t *get_buffer_alig_64(uint32_t len, uint64_t *first_addr)
 	}
 	first_addr = (uint64_t *)tmp;
 	addr = (uint8_t *)((tmp+ (1 << 6) - 1) & ~((1 << 6) - 1));
-	printf("get_buffer_alig_64 tmp = 0x%lx, addr = %p\n", tmp, addr);
+	// printf("get_buffer_alig_64 tmp = 0x%lx, addr = %p\n", tmp, addr);
 	return addr;
 }
 
@@ -252,7 +252,7 @@ static int pcmp_param_set(aos_pcm_t *pcm, aos_pcm_hw_params_t *params)
     memcpy(&playback->params, params, sizeof(aos_pcm_hw_params_t));
 
     csi_codec_output_start(codec);
-    printf("-------------------------code init ok\r\n");
+    // printf("-------------------------code init ok\r\n");
     return 0;
 pcmp_err1:
     free((void*)codec->priv);
@@ -434,7 +434,7 @@ static int pcmc_param_set(aos_pcm_t *pcm, struct aos_pcm_hw_params *params)
     capture->dma_hdl = dma_hdl;
     memcpy(&capture->params, params, sizeof(aos_pcm_hw_params_t));
 
-    printf("csi codec open success\r\n");
+    // printf("csi codec open success\r\n");
     return 0;
 
 pcmc_err1:
@@ -532,7 +532,7 @@ static int pcmd_param_set(aos_pcm_t *pcm, struct aos_pcm_hw_params *params)
     capture->dma_hdl = dma_hdl;
     memcpy(&capture->params, params, sizeof(aos_pcm_hw_params_t));
 
-    printf("csi codec open success\r\n");
+    // printf("csi codec open success\r\n");
     return 0;
 
 pcmc_err1:

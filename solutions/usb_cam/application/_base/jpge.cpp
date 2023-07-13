@@ -38,10 +38,10 @@ namespace jpge
 
     static inline void *jpge_malloc(size_t nSize)
     {
-        my_printf("jpge: going to malloc %ld.\n", nSize);
+        dbug_printf("jpge: going to malloc %ld.\n", nSize);
         if (j_global_buffer)
         {
-            my_printf("[%s] jg=%p, %d\n", __func__, j_global_buffer, j_global_buffer_used);
+            dbug_printf("[%s] jg=%p, %d\n", __func__, j_global_buffer, j_global_buffer_used);
             void* ret_ptr = j_global_buffer + j_global_buffer_used;
             j_global_buffer_used += nSize;
             return ret_ptr;

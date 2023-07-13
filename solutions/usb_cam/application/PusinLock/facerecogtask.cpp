@@ -540,7 +540,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
 
         if(iWriteLen < SI_MAX_IMAGE_SIZE)
         {
-            my_printf("Jpeg Quality: %d\n", i);
+            dbug_printf("Jpeg Quality: %d\n", i);
             break;
         }
     }
@@ -549,7 +549,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
         memcpy((unsigned char*)g_xSS.bSnapImageData + (iSaveIdx - 1) * SI_MAX_IMAGE_SIZE, pbJpgData, iWriteLen);
         g_xSS.iSnapImageLen[iSaveIdx - 1] = iWriteLen;
         if (rOld > 0)
-            my_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
+            dbug_printf("[%s]: %d, %d, time=%0.3f\n", __func__, iSaveIdx, iWriteLen, Now() - rOld);
     }
     else
     {

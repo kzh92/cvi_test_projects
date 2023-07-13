@@ -142,7 +142,7 @@ int uac_ringfifo_init(void)
             return -1;
         }
     }
-    USB_LOG_INFO("uac_ringfifo_init init success\r\n");
+    // USB_LOG_INFO("uac_ringfifo_init init success\r\n");
     return 0;
 }
 

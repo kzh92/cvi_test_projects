@@ -149,7 +149,7 @@ int I2C_Write8_Sub(int iFile, int iAddr, unsigned char* pbData, int iLen)
     float rOld = Now();
     int ret = my_settings_write(iAddr, pbData, iLen);
     if (rOld > 0)
-        my_printf("[%s]wtime: %0.3f, off=%08x, len=%d\n", __func__, Now() - rOld, iAddr, iLen);
+        dbug_printf("[%s]wtime: %0.3f, off=%08x, len=%d\n", __func__, Now() - rOld, iAddr, iLen);
     return ret > 0 ? 0: -1;
 }
 

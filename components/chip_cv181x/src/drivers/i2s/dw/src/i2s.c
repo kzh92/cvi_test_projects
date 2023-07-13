@@ -1000,7 +1000,7 @@ csi_error_t csi_i2s_tx_set_period(csi_i2s_t *i2s, uint32_t period)
 {
     CSI_PARAM_CHK(i2s, CSI_ERROR);
     csi_error_t ret = CSI_OK;
-    printf("%s ch->period = %d \n", __func__, period);
+    // printf("%s ch->period = %d \n", __func__, period);
 
     if (period == 0U) {
         ret = CSI_ERROR;
@@ -1009,7 +1009,7 @@ csi_error_t csi_i2s_tx_set_period(csi_i2s_t *i2s, uint32_t period)
             printf("%s failed error ch->period = %d i2s->tx_buf->size = %d\n", __func__, period, i2s->tx_buf->size);
             ret = CSI_ERROR;
         } else {
-			printf("%s ch->period = %d \n", __func__, period);
+			// printf("%s ch->period = %d \n", __func__, period);
             i2s->tx_period = period;
         }
     }

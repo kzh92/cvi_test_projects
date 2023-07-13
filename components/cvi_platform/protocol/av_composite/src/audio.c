@@ -143,7 +143,7 @@ int media_audio_init(void)
     audio_play_init();
     PLATFORM_SpkMute(1);
 	audio_set_vol();
-    printf("alios media audio init success\r\n");
+    // printf("alios media audio init success\r\n");
     return 0;
 }
 

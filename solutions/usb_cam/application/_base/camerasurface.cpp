@@ -1961,7 +1961,7 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
             //     CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo);
             //     return;
             // }
-            my_printf("dump frame %dx%d, fmt=%d\n", stFrameInfo.stVFrame.u32Width, stFrameInfo.stVFrame.u32Height, stFrameInfo.stVFrame.enPixelFormat);
+            dbug_printf("dump frame %dx%d, fmt=%d\n", stFrameInfo.stVFrame.u32Width, stFrameInfo.stVFrame.u32Height, stFrameInfo.stVFrame.enPixelFormat);
             vpss_width = stFrameInfo.stVFrame.u32Width;
             vpss_height = stFrameInfo.stVFrame.u32Height;
 
@@ -1977,11 +1977,11 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
                 (stFrameInfo.stVFrame.enPixelFormat == PIXEL_FORMAT_NV21)))
                 u32DataLen >>= 1;
 
-            my_printf("plane(%d): paddr(%lx) vaddr(%p) stride(%d)\n",
+            dbug_printf("plane(%d): paddr(%lx) vaddr(%p) stride(%d)\n",
                    i, stFrameInfo.stVFrame.u64PhyAddr[i],
                    stFrameInfo.stVFrame.pu8VirAddr[i],
                    stFrameInfo.stVFrame.u32Stride[i]);
-            my_printf(" data_len(%d) plane_len(%d)\n",
+            dbug_printf(" data_len(%d) plane_len(%d)\n",
                       u32DataLen, stFrameInfo.stVFrame.u32Length[i]);
             // aos_write(fd, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
             memcpy(outBuf + buf_offset, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
@@ -2017,7 +2017,7 @@ int saveUvcScene()
         unlockIRBuffer();
         return MR_FAILED4_CAMERA;
     }
-    my_printf("dump vpss ok\n");
+    dbug_printf("dump vpss ok\n");
     if(!g_abJpgData)
     {
         g_abJpgData = (unsigned char*)my_malloc(128 * 1024);
@@ -2046,7 +2046,7 @@ int saveUvcScene()
 
         if(iWriteLen < SI_MAX_IMAGE_SIZE)
         {
-            my_printf("[%s] size=%d\n", __func__, iWriteLen);
+            dbug_printf("[%s] size=%d\n", __func__, iWriteLen);
             break;
         }
     }
