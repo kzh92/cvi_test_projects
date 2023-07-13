@@ -217,6 +217,7 @@ int             my_settings_read(unsigned int offset, void* buf, unsigned int le
 int             my_settings_write(unsigned int offset, void* buf, unsigned int length);
 int             dbfs_get_cur_part();
 void            dbfs_set_cur_part(int part_no);
+int32_t         cli_handle_input(char *inbuf);
 
 int my_msync(void*, int);
 int my_munmap(void*, int);
