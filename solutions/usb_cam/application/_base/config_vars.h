@@ -8,8 +8,12 @@
 #define DICT_PART_SIZE                  (8*1024*1024) //8MB
 #define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE                     0x00100000
-#if 1
+#if (DEFAULT_CHIP_TYPE == MY_CHIP_D20)
+#if (USE_RENT_ENGINE == 1)
+#define FN_WNO_DICT_SIZE                2563072
+#else
 #define FN_WNO_DICT_SIZE                2565736
+#endif
 #define FN_WNOH_DICT_SIZE               1929144
 #define FN_A1_DICT_SIZE                 (434304)
 #define FN_A2_DICT_SIZE                 (434304)
@@ -21,25 +25,32 @@
 #define FN_DETECT_H_DICT_SIZE           (121224)
 #define FN_DLAMK_DICT_SIZE              (603448)
 #define FN_DLAMK_H_DICT_SIZE            (477480)
-#else
-#define FN_WNO_DICT_SIZE                1884446 //3562136
-#define FN_WNOH_DICT_SIZE               1418292 //2732440
-#define FN_A1_DICT_SIZE                 357060 //(442504)
-#define FN_A2_DICT_SIZE                 354590 //(442504)
-#define FN_B_DICT_SIZE                  351129 //(442504)
-#define FN_B2_DICT_SIZE                 118005 //(152920)
-#define FN_C_DICT_SIZE                  377862 //(442504)
-#define FN_CH_DICT_SIZE                 305807 //(442504)
-#define FN_DETECT_DICT_SIZE             81430 //(129320)
-#define FN_DETECT_H_DICT_SIZE           79016 //(121464)
-#define FN_DLAMK_DICT_SIZE              401066 //(624696)
-#define FN_DLAMK_H_DICT_SIZE            80833 //(496008)
-#endif
-#define FN_ESN_DICT_SIZE                123860
-#define FN_OCC_DICT_SIZE                363416
+#define FN_ESN_DICT_SIZE                230360
+#define FN_OCC_DICT_SIZE                729040
 #define FN_H1_DICT_SIZE                 290964
 #define FN_H2_DICT_SIZE                 4263260
-
+#elif (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
+#if (USE_RENT_ENGINE == 1)
+#define FN_WNO_DICT_SIZE                3557760
+#else
+#define FN_WNO_DICT_SIZE                3562136
+#endif
+#define FN_WNOH_DICT_SIZE               2732440
+#define FN_A1_DICT_SIZE                 (442504)
+#define FN_A2_DICT_SIZE                 (442504)
+#define FN_B_DICT_SIZE                  (442504)
+#define FN_B2_DICT_SIZE                 (152920)
+#define FN_C_DICT_SIZE                  (442504)
+#define FN_CH_DICT_SIZE                 (442504)
+#define FN_DETECT_DICT_SIZE             (129320)
+#define FN_DETECT_H_DICT_SIZE           (121464)
+#define FN_DLAMK_DICT_SIZE              (624696)
+#define FN_DLAMK_H_DICT_SIZE            (496008)
+#define FN_ESN_DICT_SIZE                241336
+#define FN_OCC_DICT_SIZE                738800
+#define FN_H1_DICT_SIZE                 290964
+#define FN_H2_DICT_SIZE                 4263260
+#endif
 /*--fast=4
 wno.bin : 52.90%   (3562136 => 1884446 bytes, wno.bin.zst) 
 detect.bin : 62.97%   (129320 =>  81430 bytes, detect.bin.zst) 
