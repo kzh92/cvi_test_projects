@@ -170,7 +170,7 @@ enum E_Baud_Rate
 #define UVC_MIN_HEIGHT              240
 #define UVC_WIDTH                   640
 #define UVC_HEIGHT                  480
-#define CHECK_CLR_IR_SWITCH_THR     20
+#define CHECK_CLR_IR_SWITCH_THR     0
 #define NEW_CLR_IR_SWITCH_THR       0x20 
 #define UVC_CLR_LUMINANCE           0x80
 #define UVC_CLR_SAT_Gl              0x50
@@ -543,13 +543,13 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DAS3M_D20_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.14.4.1_D2"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.4.1_D2"
+#define DEVICE_FIRMWARE_VERSION             "9.14.5_D2"
+#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.5_D2"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
 #undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              2
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
 #undef ENGINE_USE_TWO_CAM
@@ -572,8 +572,6 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-#undef CHECK_CLR_IR_SWITCH_THR
-#define CHECK_CLR_IR_SWITCH_THR             0
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
