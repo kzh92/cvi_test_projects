@@ -1344,62 +1344,17 @@ int MsgProcSense(MSG* pMsg)
         }
 
         int iUserID = TO_SHORT(g_xSS.msg_deluser_data.user_id_heb, g_xSS.msg_deluser_data.user_id_leb);
-        PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iUserID - 1);
-#if (N_MAX_HAND_NUM)
-        if (iUserID > N_MAX_PERSON_NUM)
-            pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - N_MAX_PERSON_NUM - 1);
-        else if (g_xSS.msg_deluser_data.user_type == SM_DEL_USER_TYPE_HAND)
-            pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - 1);
-#endif // N_MAX_HAND_NUM
-        if(pxMetaInfo == NULL)
-        {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_FAILED4_UNKNOWNUSER);
-            if(g_xSS.iSendLastMsgMode)
-            {
-                g_xSS.pLastMsg = reply_msg;
-                my_free(pSenseMsg);
-                g_xSS.iMState = MS_STANDBY;
-                return 0;
-            }
-            else
-                g_pSenseTask->Send_Msg(reply_msg);
-        }
-        else
-        {
-            SetModifyUser(1);
-
-            int iBackupState = mount_backup_db(0);
-#if (N_MAX_HAND_NUM)
-            if (iUserID > N_MAX_PERSON_NUM)
-                dbm_RemoveHandByID(iUserID - N_MAX_PERSON_NUM - 1, &iBackupState);
-            else if (g_xSS.msg_deluser_data.user_type == SM_DEL_USER_TYPE_HAND)
-                dbm_RemoveHandByID(iUserID - 1, &iBackupState);
-            else
-#endif // N_MAX_HAND_NUM
-            {
-                dbm_RemovePersonByID(iUserID - 1, &iBackupState);
-            }
-            umount_backup_db();
-
-            UpdateUserCount();
-            ResetFaceRegisterStates();
-
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, MR_SUCCESS);
-            if(g_xSS.iSendLastMsgMode)
-            {
-                g_xSS.pLastMsg = reply_msg;
-                free(pSenseMsg);
-                g_xSS.iMState = MS_STANDBY;
-                return 0;
-            }
-            else
-                g_pSenseTask->Send_Msg(reply_msg);
-        }
+        int ret = FaceEngine::RemoveUser(iUserID, g_xSS.msg_deluser_data.user_type);
+        ResetFaceRegisterStates();
+        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELUSER, ret);
+        g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_DELALL)
     {
         dbug_printf("MID_DELALL\n");
-
+        int iCode = MR_SUCCESS;
+        int iUserBeginID = 0;
+        int iUserEndID = 0;
         s_msg_del_all_data d;
         memset(&d, 0, sizeof(d));
         if(SenseLockTask::Get_MsgLen(pSenseMsg) > 0)
@@ -1408,25 +1363,32 @@ int MsgProcSense(MSG* pMsg)
             memcpy(&d, pSenseMsg->data, len);
             if (d.type >= SM_DEL_ALL_TYPE_END)
             {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
-                g_pSenseTask->Send_Msg(reply_msg);
-
-                free(pSenseMsg);
-                g_xSS.iMState = MS_STANDBY;
-                return -1;
+                iCode = MR_FAILED4_INVALIDPARAM;
+            }
+            else if (d.type == SM_DEL_ALL_TYPE_RANGE_USERS)
+            {
+                memcpy(&d, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+                iUserBeginID = TO_SHORT(d.begin_user_id_heb, d.begin_user_id_leb);
+                iUserEndID = TO_SHORT(d.end_user_id_heb, d.end_user_id_leb);
             }
         }
-#if (DESMAN_ENC_MODE == 0)
-        //disable hijack function
-        g_xPS.x.bHijackEnable = 0;
-        UpdatePermanenceSettings();
-#endif
+        if (iCode == MR_SUCCESS)
         {
-            ResetPersonDB(d.type);
-
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELALL, MR_SUCCESS);
-            g_pSenseTask->Send_Msg(reply_msg);
+#if (DESMAN_ENC_MODE == 0)
+            //disable hijack function
+            g_xPS.x.bHijackEnable = 0;
+            UpdatePermanenceSettings();
+#endif
+            if (iUserBeginID == 0 && iUserEndID == 0)
+                ResetPersonDB(d.type);
+            else
+            {
+                iCode = FaceEngine::RemoveUserRange(iUserBeginID, iUserEndID);
+            }
         }
+        ResetFaceRegisterStates();
+        s_msg* reply_msg = SenseLockTask::Get_Reply(MID_DELALL, iCode);
+        g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_GETUSERINFO)
     {

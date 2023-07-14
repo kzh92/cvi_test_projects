@@ -248,6 +248,8 @@ typedef struct {
     int16_t bottom;
 
     // pose
+    uint8_t user_id_heb; // high eight bits of user_id to be deleted
+    uint8_t user_id_leb; // low eight bits pf user_id to be deleted
     int16_t yaw;   // up and down in vertical orientation
     int16_t pitch; // right or left turned in horizontal orientation
     int16_t roll;  // slope
@@ -570,6 +572,10 @@ typedef s_msg_livenessmode_data s_msg_encryption_mode_data;
 // delall data
 typedef struct {
     uint8_t type;
+    uint8_t begin_user_id_heb; // high eight bits of user_id to be deleted
+    uint8_t begin_user_id_leb; // low eight bits pf user_id to be deleted
+    uint8_t end_user_id_heb; // high eight bits of user_id to be deleted
+    uint8_t end_user_id_leb; // low eight bits pf user_id to be deleted
 } s_msg_del_all_data;
 
 // type of s_msg_del_all_data
@@ -578,6 +584,7 @@ enum {
     SM_DEL_ALL_TYPE_FACE, //delete only face users
     SM_DEL_ALL_TYPE_HAND, //delete only hand users
     SM_DEL_ALL_TYPE_NORMAL_FACE_USERS, //delete face users that does not have admin flag
+    SM_DEL_ALL_TYPE_RANGE_USERS, //delete users in the given range
     SM_DEL_ALL_TYPE_END,
 };
 

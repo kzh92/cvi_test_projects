@@ -29,6 +29,8 @@ class FaceEngine
 public:
     static int Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
     static int ResetAll(int flag);
+    static int RemoveUser(int iUserID, int iType, int iSkipUpdateCount = 0);
+    static int RemoveUserRange(int iUserBeginID, int iUserEndID);
     static int Release();
 
 	//engine process

@@ -82,6 +82,61 @@ int FaceEngine::ResetAll(int flag)
     return ret;
 }
 
+//returns 0 on success, otherwise returns error code
+int FaceEngine::RemoveUser(int iUserID, int iType, int iSkipUpdateCount)
+{
+    PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iUserID - 1);
+#if (N_MAX_HAND_NUM)
+    if (iUserID > N_MAX_PERSON_NUM)
+        pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - N_MAX_PERSON_NUM - 1);
+    else if (iType == SM_DEL_USER_TYPE_HAND)
+        pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - 1);
+#endif // N_MAX_HAND_NUM
+    if(pxMetaInfo == NULL)
+    {
+        return MR_FAILED4_UNKNOWNUSER;
+    }
+    else
+    {
+        SetModifyUser(1);
+
+        int iBackupState = mount_backup_db(0);
+#if (N_MAX_HAND_NUM)
+        if (iUserID > N_MAX_PERSON_NUM)
+            dbm_RemoveHandByID(iUserID - N_MAX_PERSON_NUM - 1, &iBackupState);
+        else if (iType == SM_DEL_USER_TYPE_HAND)
+            dbm_RemoveHandByID(iUserID - 1, &iBackupState);
+        else
+#endif // N_MAX_HAND_NUM
+        {
+            dbm_RemovePersonByID(iUserID - 1, &iBackupState);
+        }
+        umount_backup_db();
+
+        if (!iSkipUpdateCount)
+            UpdateUserCount();
+
+        return MR_SUCCESS;
+    }
+}
+
+int FaceEngine::RemoveUserRange(int iUserBeginID, int iUserEndID)
+{
+    if (iUserBeginID > iUserEndID || iUserBeginID < 1 || iUserEndID > (N_MAX_PERSON_NUM + N_MAX_HAND_NUM))
+        return MR_FAILED4_INVALIDPARAM;
+    for (int i = iUserBeginID; i <= iUserEndID; i ++)
+    {
+        int ret = RemoveUser(i, 0, 1);
+        if (ret != MR_SUCCESS && ret != MR_FAILED4_UNKNOWNUSER)
+        {
+            UpdateUserCount();
+            return ret;
+        }
+    }
+    UpdateUserCount();
+    return MR_SUCCESS;
+}
+
 void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
 {
     fr_SetCameraFlip(g_xSS.iCameraRotate);
