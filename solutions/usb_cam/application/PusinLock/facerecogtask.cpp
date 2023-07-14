@@ -235,6 +235,9 @@ void FaceRecogTask::run()
 #endif
     while(m_iRunning)
     {
+        if (g_xSS.bUVCRunning)
+            break;
+        
         if(g_xSS.iResetFlag == 1)
             break;
 

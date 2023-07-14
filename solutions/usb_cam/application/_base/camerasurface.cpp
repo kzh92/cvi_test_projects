@@ -633,6 +633,8 @@ void* ProcessTCMipiCapture(void */*param*/)
 
     while (g_xSS.iRunningCamSurface)
     {
+        if (g_xSS.bUVCRunning && camera_get_actIR() == MIPI_CAM_S2LEFT)
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && pat_set == 0)
         {
             pat_set = 1;
