@@ -616,13 +616,14 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
             {
                 int image_len = w * h * 3 + UF_HEADER_MAGIC_SIZE + 4 + 4;
                 free(*pBuffer);
-                *pBuffer = (unsigned char*)malloc(image_len);
+                *pBuffer = (unsigned char*)my_malloc(image_len);
                 if (*pBuffer)
                 {
                     memcpy(*pBuffer, ENROLL_FACE_IMG_MAGIC, sizeof(ENROLL_FACE_IMG_MAGIC));
                     memcpy(*pBuffer + UF_HEADER_MAGIC_SIZE, &w, 4);
                     memcpy(*pBuffer + UF_HEADER_MAGIC_SIZE + 4, &h, 4);
                     memcpy(*pBuffer + UF_HEADER_MAGIC_SIZE + 4 + 4, pbImgData, w * h * 3);
+                    njDone();
                     return image_len;
                 }
                 else
