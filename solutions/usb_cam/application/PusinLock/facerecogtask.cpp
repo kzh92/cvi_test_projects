@@ -42,6 +42,10 @@ void* faceRecogTask_ThreadProc1(void* param);
 message_queue g_queue_face;
 
 extern void EndIns();
+extern "C" int g_sc201cs_aec_exp;
+extern "C" int g_sc201cs_aec_gain;
+extern "C" int g_sc201cs_aec_dig_gain;
+extern "C" int g_sc201cs_aec_fine_gain;
 
 FaceRecogTask::FaceRecogTask()
 {
@@ -478,6 +482,8 @@ void FaceRecogTask::run()
 #endif // DEFAULT_SECURE_MODE
 
 #if (USE_3M_MODE)
+    camera_clr_set_exp(g_sc201cs_aec_exp);
+    camera_clr_set_gain(g_sc201cs_aec_gain, g_sc201cs_aec_dig_gain, g_sc201cs_aec_fine_gain);
     camera_clr_start_aec();
 #endif
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
