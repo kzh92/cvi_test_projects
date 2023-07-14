@@ -101,6 +101,12 @@ enum E_Baud_Rate
 #define EUTC_3M_MODE                2
 #define EUTC_3V4_MODE               3
 
+//isp bin file version
+#define ISP_BIN_VER_103v3           0   //v1.0.3.3
+#define ISP_BIN_VER_103v8           1   //v1.0.3.8
+#define ISP_BIN_VER_104v1           2   //v1.0.4.1
+#define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_103v3
+
 //uvc direction
 #define UVC_ROTATION_0              0
 #define UVC_ROTATION_90             1
