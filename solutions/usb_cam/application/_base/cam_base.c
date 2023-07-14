@@ -565,7 +565,7 @@ void unlockIRBuffer()
 
 int camera_switch(int id, int camid)
 {
-#if (!USE_3M_MODE)
+#if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     my_mi_use_lock();
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
@@ -665,10 +665,16 @@ int camera_set_exp_byreg(int id, int value)
 #if (USE_3M_MODE)
     if (id == MIPI_1_CAM)
         return 0;
+#if (DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)
     vi_pipe = 1;
 #endif
+#endif
     my_mi_use_lock();
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+#else
     pSnsObj = getSnsObj(!USE_3M_MODE ? SMS_SC201CS_MIPI_2M_30FPS_10BIT : SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT);
+#endif
     if (!pSnsObj)
     {
         my_mi_use_unlock();
@@ -707,10 +713,16 @@ int camera_set_gain_byreg(int id, int value, int nFineValue)
 #if (USE_3M_MODE)
     if (id == MIPI_1_CAM)
         return 0;
+#if (DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)
     vi_pipe = 1;
 #endif
+#endif
     my_mi_use_lock();
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    pSnsObj = getSnsObj(SMS_SC201CS_MIPI_2M_30FPS_10BIT);
+#else
     pSnsObj = getSnsObj(!USE_3M_MODE ? SMS_SC201CS_MIPI_2M_30FPS_10BIT : SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT);
+#endif
     if (!pSnsObj)
     {
         my_mi_use_unlock();

@@ -18,12 +18,21 @@
 
 #define I2C_ADDR_LEFT			0x30
 #define I2C_ADDR_RIGHT			0x32
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+#define DEFAULT_LEFT_FLAG		0 // ir cam
+#else
 #define DEFAULT_LEFT_FLAG		(DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121 ? 0 : 1)
+#endif
 CVI_U8 g_is_left_cam = DEFAULT_LEFT_FLAG;
 
 static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe);
 
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+CVI_U8 sc201cs_i2c_addr = 0x32;
+#else
 CVI_U8 sc201cs_i2c_addr = 0x30;
+#endif
+
 const CVI_U32 sc201cs_addr_byte = 2;
 const CVI_U32 sc201cs_data_byte = 1;
 
