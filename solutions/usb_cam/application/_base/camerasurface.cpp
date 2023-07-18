@@ -1929,7 +1929,7 @@ int vpss_width = 0, vpss_height = 0;
 int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned char* outBuf)
 {
 #if 1
-    CVI_S32 s32MilliSec = 100;
+    CVI_S32 s32MilliSec = 1000;
     CVI_U32 u32Cnt = u32FrameCnt;
     // CVI_CHAR szFrameName[128], szPixFrm[10];
     CVI_BOOL bFlag = CVI_TRUE;
@@ -1946,6 +1946,13 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
             usleep(1000);
             continue;
         }
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+        if (u32Cnt)
+        {
+            CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo);
+            continue;
+        }
+#endif
         buf_offset = 0;
         if (bFlag) {
             /* make file name */
@@ -2010,7 +2017,13 @@ int saveUvcScene()
 {
     unsigned char* imgBuf = fr_GetInputImageBuffer1();
     lockIRBuffer();
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+    int buf_len = test_vpss_dump(0, 0, 10, g_irOnData1);
+    camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+#else
     int buf_len = test_vpss_dump(DEFAULT_SNR4UVC, 0, 1, g_irOnData1);
+#endif  
     if (buf_len <= 0)
     {
         my_printf("dump vpss fail\n");
