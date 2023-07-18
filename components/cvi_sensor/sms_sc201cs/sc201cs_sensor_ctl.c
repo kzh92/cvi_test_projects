@@ -19,7 +19,7 @@
 #define I2C_ADDR_LEFT			0x30
 #define I2C_ADDR_RIGHT			0x32
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-#define DEFAULT_LEFT_FLAG		0 // ir cam
+#define DEFAULT_LEFT_FLAG		0 // color cam
 #else
 #define DEFAULT_LEFT_FLAG		(DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_121 ? 0 : 1)
 #endif

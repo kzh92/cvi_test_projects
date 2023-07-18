@@ -148,9 +148,11 @@ void StartFirstCam()
     // if (g_clrYuvData == NULL)
     //     my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
 #endif // USE_VDBTASK
-
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2RIGHT);
+#else
     g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
-
+#endif
     if(g_iMipiCamInited == 0)
     {
         fr_InitIRCamera_ExpGain();
@@ -191,7 +193,11 @@ void StartCamSurface(int iMode)
     if(g_iMipiCamInited == -1)
     {
         float r = Now();
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+        g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2RIGHT);
+#else
         g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
+#endif
         if(Now() - r > 500)
             my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
 
@@ -633,8 +639,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 
     while (g_xSS.iRunningCamSurface)
     {
-        if (g_xSS.bUVCRunning && camera_get_actIR() == MIPI_CAM_S2LEFT)
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && pat_set == 0)
         {
             pat_set = 1;
@@ -751,6 +755,23 @@ void* ProcessTCMipiCapture(void */*param*/)
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
             //swtich to id->1
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+            if (g_xSS.iFirstFlag == 0)
+            {
+                g_xSS.iFirstFlag = 1;
+                lockIRBuffer();
+                size_t test_pos = 0;
+                for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
+                {
+                    g_irOnData2[test_pos++] = ptr[k];
+                    g_irOnData2[test_pos++] = ptr[k+1];
+                    if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                        break;
+                }
+                unlockIRBuffer();
+                WaitIRCancel2();
+            }
+#endif
             iNeedNext = 1;
         }
 
@@ -778,6 +799,9 @@ void* ProcessTCMipiCapture(void */*param*/)
         {
 #if (USE_3M_MODE)
             gpio_irled_on(OFF);
+#if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+#endif
 #else
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
 #endif
