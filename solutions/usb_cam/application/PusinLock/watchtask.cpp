@@ -9,7 +9,9 @@
 #include "DBManager.h"
 #include "senselocktask.h"
 #include "upgradebase.h"
+#if (USE_PRINT_TEMP)
 #include "cvi_tempsen.h"
+#endif
 #include <string.h>
 
 extern SenseLockTask* g_pSenseTask;
