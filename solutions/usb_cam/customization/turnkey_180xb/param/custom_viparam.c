@@ -6,6 +6,7 @@
  *   ....
  */
 #include "custom_param.h"
+#include "appdef.h"
 #define BIN_DATA_SIZE       347537
 extern unsigned char rgb_color_mode_param[];
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
@@ -29,7 +30,7 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
 PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
     {
         .bMonoSet = {0},
-        .bUseSingleBin = 0,
+        .bUseSingleBin = 1,
         .stPQBinDes =
         {
             .pIspBinData = rgb_color_mode_param,
