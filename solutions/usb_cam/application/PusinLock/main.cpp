@@ -306,6 +306,8 @@ int processGlobalMsg()
     while(1)
     {
         pMsg = (MSG*)message_queue_tryread(&g_worker);
+        if (g_xSS.bCheckFirmware)
+            break;
         if (pMsg == NULL)
         {
 #ifdef NOTHREAD_MUL
@@ -954,6 +956,8 @@ int fmMain()
             if (ret)
                 SystemReboot();
         }
+        else if (g_xSS.bCheckFirmware)
+            doCheckFirmware();
         else if (ret == RET_REBOOT)
         {
             SystemReboot();

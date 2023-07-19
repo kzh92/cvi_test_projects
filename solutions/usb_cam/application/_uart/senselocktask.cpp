@@ -427,8 +427,6 @@ void SenseLockTask::run()
                 // else
                     my_usleep(1000);
             }
-            if (g_xSS.bCheckFirmware)
-                doCheckFirmware();
 #else // ! NOTHREAD_MUL
             //my_usleep(1);
 #endif // ! NOTHREAD_MUL
