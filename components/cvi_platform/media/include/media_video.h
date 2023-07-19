@@ -25,6 +25,7 @@ int MEDIA_VIDEO_VencDeInit(PARAM_VENC_CFG_S *pstVencCfg);
 int MEDIA_VIDEO_VoDeinit(PARAM_VO_CFG_S * pstVoCtx);
 int MEDIA_VIDEO_SysInit();
 int MEDIA_VIDEO_Init();
+int MEDIA_VIDEO_Deinit();
 int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned int blocktimeMs);
 int MEDIA_VIDEO_VencReleaseStream(int VencChn,VENC_STREAM_S *pstStreamFrame);
 int MEDIA_VIDEO_VencRequstIDR(int VencChn);

@@ -12,6 +12,7 @@
 #include "i2cbase.h"
 #include <string.h>
 #include <fcntl.h>
+#include "media_video.h"
 
 #pragma pack(push, 1)
 struct _tagCheckFlag {
@@ -54,6 +55,7 @@ void doCheckFirmware()
         GPIO_fast_setvalue(WHITE_LED, 0);
     }
 #else
+    MEDIA_VIDEO_Deinit();
     my_usleep(100*1000);
 #endif
     int idx = 0;
