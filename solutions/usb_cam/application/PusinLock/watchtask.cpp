@@ -9,6 +9,7 @@
 #include "DBManager.h"
 #include "senselocktask.h"
 #include "upgradebase.h"
+#include "cam_base.h"
 #if (USE_PRINT_TEMP)
 #include "cvi_tempsen.h"
 #endif
@@ -219,7 +220,12 @@ void WatchTask::run()
             if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
                 iClrDarkCounter = 0;
             else
+            {
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+                if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
+#endif
                 iClrDarkCounter++;
+            }
             if(iClrDarkCounter > 10)
             {
                 iClrDarkCounter = 0;
