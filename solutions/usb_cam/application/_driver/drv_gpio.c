@@ -37,7 +37,7 @@ int GPIO_fast_config(int gpio_pin, int inout)
     // dbug_printf("[%s] pin=%d, g=%d, n=%d\n", __func__, gpio_pin, gpio_grp, gpio_num);
     
     // gpio write
-    ret = csi_gpio_dir(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), GPIO_DIRECTION_OUTPUT);
+    ret = csi_gpio_dir(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), inout);
 
     if(ret != CSI_OK) {
         printf("csi_gpio_dir failed\r\n");
