@@ -2046,7 +2046,6 @@ int saveUvcScene()
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
     int buf_len = test_vpss_dump(0, 0, 10, g_irOnData1);
-    camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 #else
     int buf_len = test_vpss_dump(DEFAULT_SNR4UVC, 0, 1, g_irOnData1);
 #endif  
