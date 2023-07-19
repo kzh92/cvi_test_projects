@@ -758,7 +758,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.iFirstFlag == 0)
             {
-                g_xSS.iFirstFlag = 1;
+                g_xSS.iFirstFlag = 2; // get first color frame
                 lockIRBuffer();
                 size_t test_pos = 0;
                 for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
@@ -771,7 +771,9 @@ void* ProcessTCMipiCapture(void */*param*/)
                 unlockIRBuffer();
                 WaitIRCancel2();
             }
-#endif
+            else
+                g_xSS.iFirstFlag = 1;
+#endif // USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122
             iNeedNext = 1;
         }
 

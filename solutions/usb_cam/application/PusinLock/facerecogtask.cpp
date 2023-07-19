@@ -876,6 +876,14 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         }
         else
         {
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+            if (g_xSS.iFirstFlag == 2) // use first clr frame
+            {
+                g_xSS.iFirstFlag = 1;
+                GetRightIrFrame(NULL, 1);
+            }
+            else
+#endif // USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122
             GetRightIrFrame(NULL, 0);
         }
 
