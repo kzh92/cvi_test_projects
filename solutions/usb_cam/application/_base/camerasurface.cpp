@@ -754,11 +754,15 @@ void* ProcessTCMipiCapture(void */*param*/)
                     break;
             }
             unlockIRBuffer();
+            float rTime = Now();
             int res = checkCameraPattern(g_irOnData2);
-            my_printf("*** check clr cam=%d\n", res);
+            my_printf("*** check clr cam=%d, %0.3f\n", res, Now() - rTime);
             if (res)
             {
-                g_xSS.iCamError |= CAM_ERROR_DVP2;
+                if (res == CAMERA_ERROR)
+                    g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN;
+                else
+                    g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN_2;
             }
             g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
             iClrCheck = 1;
