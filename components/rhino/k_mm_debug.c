@@ -322,14 +322,20 @@ uint32_t dumpsys_mm_info_func(uint32_t mm_status)
     print("------------------------------- all memory blocks --------------------------------- \r\n");
     print("g_kmm_head = %8x\r\n", (unsigned long)g_kmm_head);
     dump_kmm_map(g_kmm_head);
+    print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
+    dump_kmm_map(g_kmm_head_resv);
 
     print("\r\n");
     print("----------------------------- all free memory blocks ------------------------------ \r\n");
     dump_kmm_free_map(g_kmm_head);
+    print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
+    dump_kmm_free_map(g_kmm_head_resv);
 
     print("\r\n");
     print("--------------------------- memory allocation statistic --------------------------- \r\n");
     dump_kmm_statistic_info(g_kmm_head);
+    print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
+    dump_kmm_statistic_info(g_kmm_head_resv);
 
     print("\r\n");
     print("-------------------------------[kernel] heap size overview -------------------------------- \r\n");
@@ -339,11 +345,15 @@ uint32_t dumpsys_mm_info_func(uint32_t mm_status)
     print("\r\n");
     print("--------------------------- mmblk allocation statistic ---------------------------- \r\n");
     dump_kmm_mblk_info(g_kmm_head);
+    print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
+    dump_kmm_mblk_info(g_kmm_head_resv);
 #endif
 
     print("\r\n");
     print("--------------------------- task allocation statistic ----------------------------- \r\n");
     dump_kmm_task_info(g_kmm_head);
+    print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
+    dump_kmm_mblk_info(g_kmm_head_resv);
 
     print("\r\n");
     print("----------------------------------------------------------------------------------- \r\n");

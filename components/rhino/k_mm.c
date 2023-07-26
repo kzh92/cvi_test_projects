@@ -24,6 +24,9 @@ extern void debug_cpu_stop(void);
 extern k_mm_region_t g_mm_region[];
 extern int           g_region_num;
 
+extern k_mm_region_t g_mm_region_resv[];
+extern int           g_region_num_resv;
+
 #if RHINO_CONFIG_MM_DEBUG
 #if (RHINO_CONFIG_MM_TRACE_LVL > 0)
 
@@ -61,6 +64,7 @@ void k_mm_init(void)
     for (e = 1 ; e < g_region_num ; e++) {
         krhino_add_mm_region(g_kmm_head, g_mm_region[e].start, g_mm_region[e].len);
     }
+    (void)krhino_init_mm_head(&g_kmm_head_resv, g_mm_region_resv[0].start, g_mm_region_resv[0].len);
 }
 
 /* init a region, contain 3 mmblk
@@ -888,6 +892,40 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
     }
     return tmp;
 }
+
+#if 1
+void *krhino_mm_alloc_resv(size_t size)
+{
+    void *tmp;
+
+    if (size == 0) {
+        printf("WARNING, malloc size = 0\r\n");
+        return NULL;
+    }
+
+    tmp = k_mm_alloc(g_kmm_head_resv, size);
+    if (tmp == NULL) {
+    }
+
+    return tmp;
+}
+
+void krhino_mm_free_resv(void *ptr)
+{
+    k_mm_free(g_kmm_head_resv, ptr);
+}
+
+void *krhino_mm_realloc_resv(void *oldmem, size_t newsize)
+{
+    void *tmp;
+
+    tmp = k_mm_realloc(g_kmm_head_resv, oldmem, newsize);
+
+    if (tmp == NULL && newsize != 0) {
+    }
+    return tmp;
+}
+#endif
 
 size_t krhino_mm_max_free_size_get(void)
 {
