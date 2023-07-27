@@ -3,6 +3,7 @@
 
 #include "check_camera_pattern.h"
 #include "appdef.h"
+#include "common_types.h"
 #include <memory.h>
 
 #define JX_H62_TESTPATTERN_WIDTH	12
@@ -228,6 +229,8 @@ int checkCameraPattern_SC2355(unsigned char *pbCameraPatternBuffer)
 				}
 			}
 		}
+		if (nY % 40 == 0)
+			my_usleep(1000);
 
 		if (nIsBadLine)
 		{
