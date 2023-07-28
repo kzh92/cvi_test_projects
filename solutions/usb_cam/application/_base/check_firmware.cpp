@@ -61,7 +61,7 @@ void doCheckFirmware()
     int idx = 0;
     while(g_part_files[idx].m_filename != NULL)
     {
-        file_data = (int*)my_malloc(g_part_files[idx].m_filesize);
+        file_data = (int*)my_tpu_malloc(g_part_files[idx].m_filesize);
         if (!file_data)
         {
             my_printf("check firmware, malloc failed.\n");
@@ -73,7 +73,7 @@ void doCheckFirmware()
         {
             sum = sum ^ file_data[k];
         }
-        my_free(file_data);
+        my_tpu_free(file_data);
         if (sum != g_part_files[idx].m_checksum)
         {
             iErrorFlag = idx + 1;
