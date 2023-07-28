@@ -702,7 +702,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iLedOnStatus = 0;
         }
 #endif // ENGINE_USE_TWO_CAM
-        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 300);
+        s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 1000);
         if (s_ret != CVI_SUCCESS)
         {
 #if (USE_3M_MODE)
