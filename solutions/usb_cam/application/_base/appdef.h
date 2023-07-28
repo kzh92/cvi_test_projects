@@ -269,6 +269,7 @@ enum E_Baud_Rate
 #define DEFAULT_MI_AI_VOLUME        20      // 0~21
 #define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
 #define DEFAULT_SNAPIMG_CTRL_CNT    3
+#define DEFAULT_CLR_IR_FRAME_RATIO  2
 #define DEFAULT_SNR4UVC             0    //0: use sensor0 for color, 1: use sensor1 for color, 2: no color
 #define FIRMWARE_MAGIC              "DBS"
 #define ENROLL_FACE_IMG_MAGIC       "EFIv1"

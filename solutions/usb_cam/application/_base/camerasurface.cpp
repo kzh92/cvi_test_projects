@@ -623,6 +623,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_VDBTASK)
     int iClrCheck = 0;
 #endif
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    unsigned int iClrFrameCount = 0;
+#endif
 
     dbug_printf("[%s]\n", __func__);
 
@@ -665,6 +668,18 @@ void* ProcessTCMipiCapture(void */*param*/)
         dev = (camera_get_actIR() == MIPI_CAM_S2LEFT ? (DEFAULT_SNR4UVC + 1) % 2: DEFAULT_SNR4UVC);
 #else
         dev = 0;
+#endif
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+        if (g_xSS.rFaceEngineTime == 0 && camera_get_actIR() == MIPI_CAM_S2LEFT)
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+        if (iClrFrameCount)
+        {
+            iClrFrameCount--;
+            CVI_ISP_GetVDTimeOut(0, ISP_VD_FE_END, 1000);
+            if (iClrFrameCount == 0)
+                camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+            continue;
+        }
 #endif
         if (g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
         {
@@ -792,6 +807,13 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iLedOffFrameFlag = LEFT_IROFF_CAM_RECVED;
             WaitIROffCancel();
             g_iTwoCamFlag ++;
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+            if (g_xSS.bUVCRunning)
+            {
+                camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+                iClrFrameCount = DEFAULT_CLR_IR_FRAME_RATIO;
+            }
+#endif
         }
         else if(g_iTwoCamFlag == IR_CAMERA_STEP1 && g_iTwoCamFlag != IR_CAMERA_STEP2)
         {
@@ -869,8 +891,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 #endif // ENGINE_USE_TWO_CAM == EUTC_3V4_MODE
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
+#if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)            
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-
+#endif
             lockIRBuffer();
             size_t test_pos = 0;
             for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)

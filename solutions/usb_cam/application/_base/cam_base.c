@@ -20,6 +20,8 @@
 #include "engineparam.h"
 #include "common_vi.h"
 #include "cvi_isp.h"
+#include "cvi_vi.h"
+#include <inttypes.h>
 
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t g_i2c1_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -575,6 +577,12 @@ int camera_switch(int id, int camid)
         my_mi_use_unlock();
         return -1;
     }
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    if(camid == MIPI_CAM_S2LEFT)
+        CVI_VI_StopPipe(0);
+    else
+        CVI_VI_StartPipe(0);
+#endif
     pSnsObj->pfnSnsSwitch(0, camid == MIPI_CAM_S2LEFT);
     my_mi_use_unlock();
 #else // !USE_3M_MODE
