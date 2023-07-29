@@ -154,14 +154,8 @@ build_config:
 
   internal_include:
 
-  cflag: >
-        -Wno-error=unused-variable -Wno-error=class-memaccess -Wno-error=sign-compare
-        -Wno-error=unused-but-set-variable -Wno-error=misleading-indentation -Wno-error=narrowing
-        -Wno-error=unused-function
-  cxxflag: >
-        -Wno-error=unused-variable -Wno-error=class-memaccess -Wno-error=sign-compare
-        -Wno-error=unused-but-set-variable -Wno-error=misleading-indentation -Wno-error=narrowing
-        -Wno-error=unused-function
+  cflag: ""
+  cxxflag: ""
   asmflag: ""
   define:
   libs:
