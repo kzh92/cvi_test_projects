@@ -146,6 +146,7 @@ void ResetFaceRegisterStates()
 #if (N_MAX_HAND_NUM)
     g_xSS.iRegisterHand = 0;
 #endif
+    g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MODE;
 
     g_xSS.iRegsterAuth = 0;
     g_xSS.iAutoUserAdd = 0;
@@ -1226,7 +1227,7 @@ int MsgProcSense(MSG* pMsg)
             return -1;
         }
 
-        memcpy(&g_xSS.msg_enroll_itg_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+        memcpy(&g_xSS.msg_enroll_itg_data, pSenseMsg->data, sizeof(g_xSS.msg_enroll_itg_data));
         if (!IS_FACE_ENROLL_TYPE_VALID(g_xSS.msg_enroll_itg_data.enroll_type) ||
                 !IS_FACE_ENROLL_DCM_VALID(g_xSS.msg_enroll_itg_data.enable_duplicate) ||
                 !IS_FACE_DIR_VALID(g_xSS.msg_enroll_itg_data.face_direction))
@@ -1249,6 +1250,10 @@ int MsgProcSense(MSG* pMsg)
             g_xSS.msg_enroll_itg_data.timeout = SF_DEF_FACE_ENROLL_TIMEOUT;
 
         g_xSS.iEnrollMutiDirMode = (g_xSS.msg_enroll_itg_data.enroll_type == FACE_ENROLL_TYPE_INTERACTIVE);
+#if (USE_TONGXIN_PROTO)
+        if (g_xSS.msg_enroll_itg_data.enroll_type == FACE_ENROLL_TYPE_FACE_HAND)
+            g_xSS.iEnrollMutiDirMode = 1;
+#endif // USE_TONGXIN_PROTO
         if (!g_xSS.iEnrollMutiDirMode)
         {
 #if (N_MAX_HAND_NUM)
@@ -1268,6 +1273,17 @@ int MsgProcSense(MSG* pMsg)
             free(pSenseMsg);
             g_xSS.iMState = MS_STANDBY;
             return -1;
+        }
+        if (g_xSS.msg_enroll_itg_data.enroll_type == FACE_ENROLL_TYPE_FACE_HAND)
+        {
+            g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
+            g_xSS.iEnrollMutiDirMode = 1;
+        }
+        else if (g_xSS.msg_enroll_itg_data.enroll_type == FACE_ENROLL_TYPE_HAND)
+        {
+            g_xSS.iRegisterHand = 1;
+            g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_SEPERATE;
+            g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
         }
 #endif // N_MAX_HAND_NUM
         g_xSS.iEnrollDupCheckMode = g_xSS.msg_enroll_itg_data.enable_duplicate;

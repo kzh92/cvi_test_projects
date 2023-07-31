@@ -154,6 +154,7 @@ enum E_Baud_Rate
 #define USE_16M_FLASH               1
 #define USE_RENT_ENGINE             0
 #define USE_DB_UPDATE_MODE          0
+#define USE_TONGXIN_PROTO           0
 #define ENROLL_ANGLE_MODE           0
 #define ENGINE_USE_TWO_CAM          EUTC_2V0_MODE
 #define YAOYANG_MODE                0

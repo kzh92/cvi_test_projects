@@ -1056,8 +1056,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             else if(arEngineResult[0] == ES_ENEXT)
             {
                 my_usleep(20*1000);
-#if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
-                if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
+#if (N_MAX_HAND_NUM)
+                if ((SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG) || g_xSS.iRegisterMixMode == ENROLL_FACE_HAND_MIX)
                 {
                     m_iResult = HAND_RESULT_ENROLLED;
                 }

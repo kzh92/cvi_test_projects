@@ -175,6 +175,7 @@ typedef struct _tagSYSTEM_STATE
     int             iRegsterAuth;
     int             iRegisterDir;
     int             iRegisterHand;
+    int             iRegisterMixMode;
 
     int             iVerifyRole;
 

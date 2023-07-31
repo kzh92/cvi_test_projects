@@ -15,7 +15,7 @@ s_uf_part_info g_upg_list[] = {
     // {"detect_h.bin", 0x00390000 + 6239424, 121472, UF_PF_NORMAL},
     // {"dlamk_h.bin", 0x00390000 + 6360896, 496064, UF_PF_NORMAL},
     // {"wnh.bin", 0x00390000 + 7299520, 2732480, UF_PF_WEIGHT_CRYPT},
-    {NULL, 0, 0, 0} //terminator
+    {"", 0, 0, 0} //terminator
 };
 
 int get_versions(const char* str_ver, int *m, int *n, int *b, int *p, char* sub_type)

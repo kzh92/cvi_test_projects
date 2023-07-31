@@ -946,6 +946,12 @@ s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirect
     msg_reply_enroll_data->user_id_heb = HIGH_BYTE(iUserID);
     msg_reply_enroll_data->user_id_leb = LOW_BYTE(iUserID);
     msg_reply_enroll_data->face_direction = iFaceDirection;
+#if (USE_TONGXIN_PROTO)
+    if (iUserID <= N_MAX_PERSON_NUM)
+        msg_reply_enroll_data->recog_type = ERT_FACE;
+    else
+        msg_reply_enroll_data->recog_type = ERT_HAND;
+#endif // USE_TONGXIN_PROTO
 #if (USE_UVC_PAUSE_MODE)
     if (iUserID < 0)
     {
@@ -987,13 +993,19 @@ s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockStat
     int iID = iUserID - 1;
     PSMetaInfo pxMetaInfo = dbm_GetPersonMetaInfoByID(iID);
 #if (N_MAX_HAND_NUM)
-        if (iUserID > N_MAX_PERSON_NUM)
-            pxMetaInfo = dbm_GetHandMetaInfoByID(iID - N_MAX_PERSON_NUM);
+    if (iUserID > N_MAX_PERSON_NUM)
+        pxMetaInfo = dbm_GetHandMetaInfoByID(iID - N_MAX_PERSON_NUM);
 #endif // N_MAX_HAND_NUM
     if(pxMetaInfo)
     {
         strcpy((char*)msg_reply_verify_data->user_name, pxMetaInfo->szName);
         msg_reply_verify_data->admin = pxMetaInfo->fPrivilege;
+#if (N_MAX_HAND_NUM && USE_TONGXIN_PROTO)
+        if (iUserID > N_MAX_PERSON_NUM)
+            msg_reply_verify_data->module_type = NMT_HAND;
+        else
+            msg_reply_verify_data->module_type = NMT_FACE;
+#endif // N_MAX_HAND_NUM
     }
     msg_reply_verify_data->unlockStatus = iUnlockState;
 
@@ -1407,7 +1419,7 @@ s_msg* SenseLockTask::Get_Note(int iNID)
 {
     s_msg* msg = NULL;
     int iMsgDataLen = sizeof(s_msg_note_data);
-#if (USE_READY0_PROTO == 0)
+#if (USE_READY0_PROTO == 0 || USE_TONGXIN_PROTO)
     if (iNID == NID_READY)
         iMsgDataLen += 1;
 #endif // USE_READY0_PROTO
@@ -1425,7 +1437,7 @@ s_msg* SenseLockTask::Get_Note(int iNID)
         msg_note_data->nid = DEVICE_NID_READY_VER;
     else
         msg_note_data->nid = iNID;
-#if (USE_READY0_PROTO == 0)
+#if (USE_READY0_PROTO == 0 || USE_TONGXIN_PROTO)
     if (iNID == NID_READY)
     {
 #if (DEFAULT_UART0_BAUDRATE + 1 > 0xf)
@@ -1435,6 +1447,9 @@ s_msg* SenseLockTask::Get_Note(int iNID)
             msg_note_data->data[0] = 1;
         else
             msg_note_data->data[0] = DEFAULT_UART0_BAUDRATE + 1;
+#if (USE_TONGXIN_PROTO)
+        msg_note_data->data[0] = N_MAX_HAND_NUM ? NMT_FACE_HAND : NMT_FACE;
+#endif
     }
 #if (DEFAULT_PROTO_ENC_MODE > 0xf)
 #error "DEFAULT_PROTO_ENC_MODE must be less than 0xf"

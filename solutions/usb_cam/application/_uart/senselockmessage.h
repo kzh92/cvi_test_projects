@@ -39,7 +39,7 @@ enum
 //unlock status
 #define ST_FACE_MODULE_STATUS_UNLOCK_OK                     200
 #define ST_FACE_MODULE_STATUS_UNLOCK_WITH_EYES_CLOSE        204
-#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX)
+#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 0)
 #define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                (USE_SHENAO_HAND ? (ST_FACE_MODULE_STATUS_UNLOCK_OK) : 250)
 #else // ENROLL_FACE_HAND_MODE
 #define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                ST_FACE_MODULE_STATUS_UNLOCK_OK
@@ -135,7 +135,7 @@ typedef uint8_t s_msg_result;
 #define MR_FAILED4_WRITE_FILE 20    // write file failed
 #define MR_FAILED4_NO_ENCRYPT 21    // encrypt must be set
 #define MR_FAILED4_NOCAMERA 240     // MID_GETSAVEDIMAGE, failed to get scene picture, no color camera.
-#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX)
+#if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 0)
 #define MR_FAILED4_UNKNOWN_HANDUSER 239   // no hand user enrolled
 #define MR_FAILED4_HANDENROLLED 241 // this hand has been enrolled
 #else // ENROLL_FACE_HAND_MODE
@@ -171,6 +171,13 @@ typedef uint8_t s_note_id;
 #define NID_OTA_DONE 3      // OTA upgrading processing done
 #define NID_EYE_STATE 4      // OTA upgrading processing done
 /* msg note id end */
+
+//module type in note command
+#define NMT_NONE            0
+#define NMT_FACE            1
+#define NMT_HAND            2
+#define NMT_IRIS            3
+#define NMT_FACE_HAND       4
 
 /* msg face direction */
 typedef uint8_t s_face_dir;
@@ -271,10 +278,15 @@ typedef struct {
 #define SF_DEF_FACE_ENROLL_TIMEOUT          10 //10 secs
 #define IS_SF_FACE_ENROLL_TIMEOUT_VALID(a)  (((unsigned int)(a)) <= 255)
 
-#define FACE_ENROLL_TYPE_INTERACTIVE        0
-#define FACE_ENROLL_TYPE_SINGLE             1
+enum {
+    FACE_ENROLL_TYPE_INTERACTIVE, //0
+    FACE_ENROLL_TYPE_SINGLE, //1
+    FACE_ENROLL_TYPE_FACE_HAND, //2
+    FACE_ENROLL_TYPE_HAND, //3
+    FACE_ENROLL_TYPE_END,
+};
 
-#define IS_FACE_ENROLL_TYPE_VALID(a) ((a) == FACE_ENROLL_TYPE_INTERACTIVE || (a) == FACE_ENROLL_TYPE_SINGLE)
+#define IS_FACE_ENROLL_TYPE_VALID(a) ((a) >= FACE_ENROLL_TYPE_INTERACTIVE && (a) < FACE_ENROLL_TYPE_END)
 
 //duplication checking mode
 #define FACE_ENROLL_DCM_NFACE_NAME          0   //not allow same face, allow same name
@@ -417,13 +429,24 @@ typedef struct {
     uint8_t user_name[USER_NAME_SIZE];
     uint8_t admin;
     uint8_t unlockStatus;
+#if (USE_TONGXIN_PROTO)
+    uint8_t module_type; // module type
+#endif
 } s_msg_reply_verify_data;
 
 typedef struct {
     uint8_t user_id_heb;
     uint8_t user_id_leb;
     uint8_t face_direction;
+#if (USE_TONGXIN_PROTO)
+    uint8_t recog_type; // enroll recog type
+#endif
 } s_msg_reply_enroll_data;
+
+//enroll recog type
+#define ERT_FACE            0
+#define ERT_HAND            1
+#define ERT_IRIS            2
 
 typedef struct {
     uint8_t status;

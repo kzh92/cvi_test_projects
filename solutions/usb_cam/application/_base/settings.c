@@ -347,6 +347,7 @@ void ResetSystemState(int iAppType)
     g_xSS.iCapWidth = CAPTURE_WIDTH;
     g_xSS.iCapHeight = CAPTURE_HEIGHT;
     g_xSS.iUvcDirect = DEFAULT_UVC_DIR;
+    g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MODE;
 }
 
 void SetMountStatus(int iSuccess)
