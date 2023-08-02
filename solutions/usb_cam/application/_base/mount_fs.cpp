@@ -796,12 +796,14 @@ void* dbPartRestore(void*)
     if (real_file_len != FILESIZE)
     {
         printf("@@@ read backupdb fail\n");
+        my_free(buf);
         return NULL;
     }
     write_file_len = my_flash_part_write(dbfs_part_names[DB_PART1], 0, buf, FILESIZE);
     if (write_file_len != FILESIZE)
     {
         printf("@@@ write userdb fail\n");
+        my_free(buf);
         return NULL;
     }
 #else
@@ -863,6 +865,7 @@ void* dbPartRestore(void*)
         my_usleep(1);
     }
 #endif
+    my_free(buf);
     my_printf("@@@ Copy End %f\n", Now());
     my_thread_exit(NULL);
     return NULL;
