@@ -147,8 +147,10 @@ void FaceRecogTask::SendFaceDetectMsg()
     int iFacePosition = 0;
     int idx = m_rDetectTime[FMI_FACE] >= m_rDetectTime[FMI_HAND] ? FMI_FACE : FMI_HAND;
     int isFaceDetected = 0;
-    iFaceNearFar = (m_iFaceNearFar[idx] != 0) ? m_iFaceNearFar[idx] : m_iFaceNearFar[(idx + 1) % FMI_END];
-    iFacePosition = (m_iFacePosition[idx] != 0) ? m_iFacePosition[idx] : m_iFacePosition[(idx + 1) % FMI_END];
+    int iFaceNearFarIdx = (m_iFaceNearFar[idx] != 0) ? idx : ((idx + 1) % FMI_END);
+    int iFacePositionIdx = (m_iFacePosition[idx] != 0) ? idx : ((idx + 1) % FMI_END);
+    iFaceNearFar = m_iFaceNearFar[iFaceNearFarIdx];
+    iFacePosition = m_iFacePosition[iFacePositionIdx];
     isFaceDetected = (m_isFaceDetected[idx] != FDS_NONE) ? m_isFaceDetected[idx] : m_isFaceDetected[(idx + 1) % FMI_END];
     if(g_xSS.iOcclusionFlag)
     {
@@ -161,21 +163,21 @@ void FaceRecogTask::SendFaceDetectMsg()
     else if(iFaceNearFar)
     {
         if(iFaceNearFar == 1)
-            g_xSS.note_data_face.state = FACE_STATE_TOOCLOSE;
+            g_xSS.note_data_face.state = (iFaceNearFarIdx == FMI_FACE) ? FACE_STATE_TOOCLOSE : FACE_STATE_HAND_CLOSE;
         else if(iFaceNearFar == 2)
-            g_xSS.note_data_face.state = FACE_STATE_TOOFAR;
+            g_xSS.note_data_face.state = (iFaceNearFarIdx == FMI_FACE) ? FACE_STATE_TOOFAR : FACE_STATE_HAND_FAR;
         SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
     else if(iFacePosition)
     {
         if(iFacePosition == 1)
-            g_xSS.note_data_face.state = FACE_STATE_TOOLEFT;
+            g_xSS.note_data_face.state = (iFacePositionIdx == FMI_FACE) ? FACE_STATE_TOOLEFT : FACE_STATE_HAND_TOOLEFT;
         else if(iFacePosition == 2)
-            g_xSS.note_data_face.state = FACE_STATE_TOORIGHT;
+            g_xSS.note_data_face.state = (iFacePositionIdx == FMI_FACE) ? FACE_STATE_TOORIGHT : FACE_STATE_HAND_TOORIGHT;
         else if(iFacePosition == 3)
-            g_xSS.note_data_face.state = FACE_STATE_TOOUP;
+            g_xSS.note_data_face.state = (iFacePositionIdx == FMI_FACE) ? FACE_STATE_TOOUP : FACE_STATE_HAND_TOOUP;
         else if(iFacePosition == 4)
-            g_xSS.note_data_face.state = FACE_STATE_TOODOWN;
+            g_xSS.note_data_face.state = (iFacePositionIdx == FMI_FACE) ? FACE_STATE_TOODOWN : FACE_STATE_HAND_TOODOWN;
         SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);
     }
     else if(isFaceDetected != FDS_NONE)

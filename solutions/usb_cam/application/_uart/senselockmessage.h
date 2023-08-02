@@ -219,10 +219,18 @@ typedef uint8_t s_face_dir;
 #define FACE_STATE_HAND_NORMAL  128 // hand detected
 #define FACE_STATE_HAND_FAR    129 // hand is far
 #define FACE_STATE_HAND_CLOSE    130 // hand is close
+#define FACE_STATE_HAND_TOOUP      131 // hand is too up side
+#define FACE_STATE_HAND_TOODOWN    132 // hand is too down side
+#define FACE_STATE_HAND_TOOLEFT    133 // hand is too left side
+#define FACE_STATE_HAND_TOORIGHT   134 // hand is too right side
 #else // ENROLL_FACE_HAND_MODE
 #define FACE_STATE_HAND_NORMAL  FACE_STATE_NORMAL // hand detected
 #define FACE_STATE_HAND_FAR    FACE_STATE_TOOFAR // hand is far
 #define FACE_STATE_HAND_CLOSE    FACE_STATE_TOOCLOSE // hand is close
+#define FACE_STATE_HAND_TOOUP      FACE_STATE_TOOUP // face is too up side
+#define FACE_STATE_HAND_TOODOWN    FACE_STATE_TOODOWN // face is too down side
+#define FACE_STATE_HAND_TOOLEFT    FACE_STATE_TOOLEFT // face is too left side
+#define FACE_STATE_HAND_TOORIGHT   FACE_STATE_TOORIGHT // face is too right side
 #endif // ENROLL_FACE_HAND_MODE
 
 /* logfile type */
