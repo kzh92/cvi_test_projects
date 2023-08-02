@@ -1998,7 +1998,7 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
     while (u32Cnt--) {
         if (CVI_VPSS_GetChnFrame(Grp, Chn, &stFrameInfo, s32MilliSec) != CVI_SUCCESS) {
             printf("Get frame fail \n");
-            usleep(1000);
+            usleep(30*1000);
             continue;
         }
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
