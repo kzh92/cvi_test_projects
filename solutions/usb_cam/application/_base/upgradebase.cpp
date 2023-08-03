@@ -195,6 +195,19 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
         doCheckFirmware();
         return 0;
     } 
+
+    while(u_header->m_part_infos[idx].m_size > 0)
+    {
+        if (!strcmp(u_header->m_part_infos[idx].m_partname, u_filepath))
+        {
+            dbug_printf("[%s] %d:%s:%08x\n", __func__, idx, 
+                u_header->m_part_infos[idx].m_partname, 
+                u_header->m_part_infos[idx].m_offset);
+            break;
+        }
+        idx ++;
+    }
+
     if (u_header->m_part_infos[idx].m_flags == UF_PF_APP)
     {
         CVI_U8 pu8SN[8] = {0};
@@ -215,17 +228,7 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
         memcpy(u_buffer, encryptApp, encrypt_size);
         my_free(encryptApp);
     }
-    while(u_header->m_part_infos[idx].m_size > 0)
-    {
-        if (!strcmp(u_header->m_part_infos[idx].m_partname, u_filepath))
-        {
-            dbug_printf("[%s] %d:%s:%08x\n", __func__, idx, 
-                u_header->m_part_infos[idx].m_partname, 
-                u_header->m_part_infos[idx].m_offset);
-            break;
-        }
-        idx ++;
-    }
+    
     if (u_header->m_part_infos[idx].m_size > 0)
     {
         my_flash_write(u_header->m_part_infos[idx].m_offset, u_buffer, u_size);
