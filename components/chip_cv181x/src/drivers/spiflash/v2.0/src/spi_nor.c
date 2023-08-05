@@ -57,6 +57,8 @@ const struct flash_info spi_flash_ids[] = {
 			RD_FULL | WR_FULL | SECT_4K) },
 	{ "XM25QH256C", INFO(0x204019, 0x0, 64 * 1024, 512,
 			RD_FULL | WR_FULL | SECT_4K | NOR_4B_OPCODES) },
+	{ "XM25QH256B", INFO(0x206019, 0x0, 64 * 1024, 512,
+			RD_FULL | WR_FULL | SECT_4K | NOR_4B_OPCODES) },
 	{ "IS25LP128F", INFO(0x9d4018, 0x0, 64 * 1024, 256,
 			RD_FULL | WR_FULL | SECT_4K) },
 	{ "IS25LP256E", INFO(0x9d6019, 0x0, 64 * 1024, 512,
@@ -541,6 +543,9 @@ static int set_quad_mode(struct spi_nor *nor)
 		case SNOR_MFR_JUYANG:
 		case SNOR_MFR_ZBIT:
 		case SNOR_MFR_XMC:
+			if (info->id[1] == 0x60) {
+				return quad_enable_SR_bit6(nor);
+			}
 		case SNOR_MFR_XTX:
 		case SNOR_MFR_FM:
 		case SNOR_MFR_SPANSION:
