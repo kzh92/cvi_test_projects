@@ -225,6 +225,8 @@ void StartCamSurface(int iMode)
 
 void StopCamSurface()
 {
+    if (g_xSS.bCheckFirmware && g_irOnData1)
+        my_free(g_irOnData1);
     return; //kkk test
     g_xSS.iRunningCamSurface = 0;
 #if (USE_VDBTASK)
