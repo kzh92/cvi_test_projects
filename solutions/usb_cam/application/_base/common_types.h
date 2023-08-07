@@ -244,6 +244,8 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
 #define my_malloc(sz) my_malloc_real(sz)
 #define my_calloc(n, sz) my_calloc_real(n, sz)
 #define my_free(ptr) my_free_real(ptr)
+#define my_tpu_malloc(sz) my_malloc_real(sz)
+#define my_tpu_free(ptr) my_free_real(ptr)
 #endif
 #define my_mutex_lock(a) my_mutex_lock_real(a)
 #define my_mutex_unlock(a) my_mutex_unlock_real(a)
