@@ -226,7 +226,11 @@ void WatchTask::run()
 #endif
                 iClrDarkCounter++;
             }
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+            if(iClrDarkCounter)
+#else
             if(iClrDarkCounter > 10)
+#endif
             {
                 iClrDarkCounter = 0;
 #if (USE_3M_MODE)
