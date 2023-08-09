@@ -266,7 +266,6 @@ typedef struct {
     uint8_t enable_duplicate; // enable user enroll duplicatly, 1:enable, 0:disable
                               // when enroll_type is equal to FACE_ENROLL_TYPE_RGB， the enable_duplicate can be set to 2, it means that cant duplicate enroll with username
     uint8_t timeout; // timeout unit second, default 10s
-    uint8_t reserved[3]; // reserved feild
 } s_msg_enroll_itg;
 
 #define SF_DEF_FACE_ENROLL_TIMEOUT          10 //10 secs
