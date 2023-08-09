@@ -695,6 +695,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_103v9
 
 //----------------------------------------------------------
 
