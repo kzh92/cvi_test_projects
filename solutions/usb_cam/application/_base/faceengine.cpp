@@ -105,7 +105,8 @@ void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
         else
 #endif // N_MAX_HAND_NUM
         {
-            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_ONLY_FRONT_DIRECTION_MODE, 1);
+            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_ONLY_FRONT_DIRECTION_MODE, 1,
+                              ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX ? EEK_UNKNOWNED : EEK_Face);
         }
     }
     else
@@ -115,8 +116,10 @@ void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)
             fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_MULTI_DIRECTION_MODE, 4);
         else
 #endif // USE FUSHI_PROTO
-            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_MULTI_DIRECTION_MODE, 5);
-
+        {
+            fr_SetEngineState(ENS_REGISTER, nUpdateID, g_xSS.iDemoMode, ENROLL_MULTI_DIRECTION_MODE, 5,
+                              ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX ? EEK_UNKNOWNED : EEK_Face);
+        }
     }
 }
 
