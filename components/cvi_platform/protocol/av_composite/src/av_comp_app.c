@@ -378,7 +378,7 @@ static void *send_to_uvc()
 {
     uint32_t out_len, i = 0, ret = 0;
 	uint32_t buf_len = 0,buf_len_stride = 0, packets = 0;
-	uint8_t *packet_buffer_media = (uint8_t *)usb_iomalloc(DEFAULT_FRAME_SIZE);
+	uint8_t *packet_buffer_media = (uint8_t *)aos_ion_malloc(DEFAULT_FRAME_SIZE);
     memset(packet_buffer_media, 0, DEFAULT_FRAME_SIZE);
     memset(packet_buffer_uvc, 0, DEFAULT_FRAME_SIZE);
 	extern volatile bool tx_flag;

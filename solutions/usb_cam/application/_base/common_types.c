@@ -506,6 +506,11 @@ void* my_malloc_real(unsigned int nSize)
     return malloc(nSize);
 }
 
+void* my_tpu_malloc_real(unsigned int nSize)
+{
+    return aos_ion_malloc(nSize);
+}
+
 void* my_malloc_real_debug(unsigned int nSize, const char* strFile, int nLine)
 {
     void* ptrRet = malloc(nSize);
@@ -533,6 +538,11 @@ void* my_realloc(void* pPtr, unsigned int nSize)
 void my_free_real(void* pPtr)
 {
     free(pPtr);
+}
+
+void my_tpu_free_real(void* pPtr)
+{
+    aos_ion_free(pPtr);
 }
 
 void my_free_real_debug(void* pPtr, const char* strFile, int nLine)

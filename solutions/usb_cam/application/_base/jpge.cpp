@@ -47,12 +47,12 @@ namespace jpge
             return ret_ptr;
         }
         else
-            return my_malloc(nSize);
+            return my_tpu_malloc(nSize);
     }
     static inline void jpge_free(void *p)
     {
         if (!j_global_buffer)
-            my_free(p);
+            my_tpu_free(p);
     }
 
     // Various JPEG enums and tables.

@@ -139,10 +139,12 @@ int             xor_encrypt(unsigned char* buf, int length, unsigned char* key, 
 
 void*           my_malloc_real(unsigned int nSize);
 void*           my_malloc_real_debug(unsigned int nSize, const char*, int);
+void*           my_tpu_malloc_real(unsigned int nSize);
 void*           my_realloc(void* pPtr, unsigned int nSize);
 void*           my_calloc_real(unsigned int nmemb, unsigned int n_size);
 void*           my_calloc_real_debug(unsigned int nmemb, unsigned int n_size, const char*, int);
 void            my_free_real(void* pPtr);
+void            my_tpu_free_real(void* pPtr);
 void            my_free_real_debug(void* pPtr, const char*, int);
 void            my_usleep(int nUsec);
 // void            my_printf(const char * format, ...);
@@ -242,10 +244,10 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
 // #define my_mutex_unlock(a) my_mutex_unlock_real_debug(a, __FILE__, __LINE__)
 #else
 #define my_malloc(sz) my_malloc_real(sz)
+#define my_tpu_malloc(sz) my_tpu_malloc_real(sz)
 #define my_calloc(n, sz) my_calloc_real(n, sz)
 #define my_free(ptr) my_free_real(ptr)
-#define my_tpu_malloc(sz) my_malloc_real(sz)
-#define my_tpu_free(ptr) my_free_real(ptr)
+#define my_tpu_free(ptr) my_tpu_free_real(ptr)
 #endif
 #define my_mutex_lock(a) my_mutex_lock_real(a)
 #define my_mutex_unlock(a) my_mutex_unlock_real(a)

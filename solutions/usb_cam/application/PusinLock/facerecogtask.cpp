@@ -501,7 +501,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
     unsigned char* pbJpgData = NULL;
     unsigned char* g_abCapturedFace = NULL;
 
-    g_abCapturedFace = (unsigned char*)my_malloc(g_xSS.iCapWidth * g_xSS.iCapHeight * 3);
+    g_abCapturedFace = (unsigned char*)my_tpu_malloc(g_xSS.iCapWidth * g_xSS.iCapHeight * 3);
     if (!g_abCapturedFace)
     {
         my_printf("[%s] malloc fail1.\n", __func__);
@@ -514,7 +514,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
     jpge::params params;
 #if (USE_NEW_SNAPIMAGE_MODE)
     if (g_xSS.bSnapImageData == NULL)
-        g_xSS.bSnapImageData = (unsigned char*)my_malloc(SI_MAX_IMAGE_SIZE * SI_MAX_IMAGE_COUNT);
+        g_xSS.bSnapImageData = (unsigned char*)my_tpu_malloc(SI_MAX_IMAGE_SIZE * SI_MAX_IMAGE_COUNT);
     if (g_xSS.bSnapImageData == NULL)
     {
         my_printf("[%s] malloc fail2.\n", __func__);
@@ -525,7 +525,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
     if (!pbJpgData)
     {
         my_printf("[%s] malloc fail3.\n", __func__);
-        my_free(g_abCapturedFace);
+        my_tpu_free(g_abCapturedFace);
         return -1;
     }
 
@@ -565,7 +565,7 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
     if (pbJpgData)
         my_free(pbJpgData);
     if (g_abCapturedFace)
-        my_free(g_abCapturedFace);
+        my_tpu_free(g_abCapturedFace);
 
     return iWriteLen;
 }
