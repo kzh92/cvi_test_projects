@@ -2,6 +2,75 @@
 #include <drv/pin.h>
 #include <pinctrl-mars.h>
 #include "cvi_type.h"
+#include <drv/gpio.h>
+#include <stdio.h>
+#include <drv/irq.h>
+
+#define IN  0
+#define OUT 1
+
+#define IR_LED                  421 /* PWR_GPIO[21] Group:4 Num:21 */
+#define CAM_MIPI0_PWDN          208 /* XGPIOC[8] Group:2 Num:8*/
+#define CAM_MIPI1_PWDN          207 /* XGPIOC[7] Group:2 Num:7*/
+#define WHITE_LED               422 /* PWR_GPIO[22] Group:4 Num:22 */
+#define PSENSE_DET              423 /* PWR_GPIO[23] Group:4 Num:22 */
+#define AUDIO_EN                15 /* XGPIOA[15] Group:0 Num:15*/
+
+static csi_gpio_t gpio[5] = {0};
+static int g_csi_gpio_inited = 0;
+
+#define GPIO_PIN_MASK(_gpio_num) (1 << _gpio_num)
+
+int GPIO_fast_init()
+{
+    if (g_csi_gpio_inited)
+        return 0;
+    g_csi_gpio_inited = 1;
+    for (int i = 0 ; i < 5 ; i++)
+        csi_gpio_init(&gpio[i], i);
+    return 0;
+}
+
+void GPIO_fast_deinit()
+{
+}
+
+int GPIO_fast_config(int gpio_pin, int inout)
+{
+    csi_error_t ret;
+
+    unsigned int gpio_grp = gpio_pin / 100;
+    unsigned int gpio_num = gpio_pin % 100;
+    // dbug_printf("[%s] pin=%d, g=%d, n=%d\n", __func__, gpio_pin, gpio_grp, gpio_num);
+    
+    // gpio write
+    ret = csi_gpio_dir(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), inout);
+
+    if(ret != CSI_OK) {
+        printf("csi_gpio_dir failed\r\n");
+        return -1;
+    }
+    return 0;
+}
+
+int GPIO_fast_setvalue(int gpio_pin, int value)
+{
+    unsigned int gpio_grp = gpio_pin / 100;
+    unsigned int gpio_num = gpio_pin % 100;
+    // dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    
+    csi_gpio_write(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num), value);
+    return 0;
+}
+
+int GPIO_fast_getvalue(int gpio_pin)
+{
+    unsigned int gpio_grp = gpio_pin / 100;
+    unsigned int gpio_num = gpio_pin % 100;
+    // dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
+    
+    return csi_gpio_read(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num));
+}
 
 #define GPIO_SPKEN_GRP 0
 #define GPIO_SPKEN_NUM 15
@@ -13,12 +82,6 @@ static void _SensorPinmux()
 	PINMUX_CONFIG(PAD_MIPIRX1P, IIC1_SDA);
 	PINMUX_CONFIG(PAD_MIPIRX0N, IIC1_SCL);
     PINMUX_CONFIG(PAD_MIPIRX1N, XGPIOC_8);
-
-#if 0//demo
-    PINMUX_CONFIG(SD1_D1, PWR_GPIO_20); //IR LED pin
-#elif 1
-    PINMUX_CONFIG(SD1_D0, PWR_GPIO_21); //IR LED pin
-#endif
 }
 
 static void _MipiRxPinmux(void)
@@ -41,7 +104,7 @@ static void _MipiTxPinmux(void)
 
 #define GPIO_PIN_MASK(_gpio_num) (1 << _gpio_num)
 
-void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level)
+static void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level)
 {
 	csi_error_t ret;
 	csi_gpio_t gpio = {0};
@@ -97,10 +160,12 @@ void PLATFORM_IoInit(void)
     //config UART1(IIC0 pins)
     PINMUX_CONFIG(IIC0_SCL, UART1_TX);
     PINMUX_CONFIG(IIC0_SDA, UART1_RX);
-
+    GPIO_fast_init();
     //camera power
-    _GPIOSetValue(2, 7, 1);
-    _GPIOSetValue(2, 8, 1);
+    GPIO_fast_config(CAM_MIPI1_PWDN, OUT);
+    GPIO_fast_config(CAM_MIPI0_PWDN, OUT);
+    GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);    
+    GPIO_fast_setvalue(CAM_MIPI0_PWDN, 1);
 }
 
 void PLATFORM_PowerOff(void)

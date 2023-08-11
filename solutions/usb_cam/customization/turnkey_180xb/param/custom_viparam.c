@@ -6,14 +6,16 @@
  *   ....
  */
 #include "custom_param.h"
+#define BIN_DATA_SIZE       347537
+extern unsigned char rgb_color_mode_param[];
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
         .s32I2cAddr = -1,
         .s8I2cDev = 1,
-        .u32Rst_port_idx = 2,
-        .u32Rst_pin = 8,
-        .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+        // .u32Rst_port_idx = 2,
+        // .u32Rst_pin = 8,
+        // .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
         // .bSetDevAttrMipi = CVI_TRUE,
         // .as16LaneId = {3, 4, 2, -1, -1},
         // .as8PNSwap = {1, 1, 1, 0, 0},
@@ -27,11 +29,11 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
 PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
     {
         .bMonoSet = {0},
-        .bUseSingleBin = 0,
+        .bUseSingleBin = 1,
         .stPQBinDes =
         {
-            .pIspBinData = NULL,
-            .u32IspBinDataLen = 0,
+            .pIspBinData = rgb_color_mode_param,
+            .u32IspBinDataLen = BIN_DATA_SIZE,
         },
     },
 };
@@ -45,7 +47,6 @@ PARAM_VI_CFG_S g_stViCtx = {
 PARAM_VI_CFG_S * PARAM_GET_VI_CFG(void) {
     return &g_stViCtx;
 }
-
 
 
 

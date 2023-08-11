@@ -15,8 +15,8 @@
 
 #define VIDEO_IN_EP 0x81
 
-#define WIDTH  (unsigned int)(1600)
-#define HEIGHT (unsigned int)(1200)
+#define WIDTH  (unsigned int)(1280)
+#define HEIGHT (unsigned int)(720)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -54,7 +54,7 @@ static struct usbd_endpoint audio_out_ep = {
     .ep_addr = AUDIO_OUT_EP
 };
 
-
+#if 0
 static struct uvc_frame_info_st yuy2_frame_info[] = {
     {1, 800, 600, 30, 0},
     {2, 640, 360, 30, 0},
@@ -66,16 +66,13 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
     // {9, 960, 640, 15, 0},
     // {10, 320, 240, 15, 0},
 };
+#endif
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 800, 600, 30, 0},
-    {2, 640, 480, 30, 0},
-    {3, 1280, 720, 30, 0},
-    {4, 1920, 1080, 30, 0},
-    {5, 480, 320, 30, 0},
-    {6, 400, 300, 30, 0},
+    {1, 1280, 720, 30, 0},
 };
 
+#if 0
 static struct uvc_frame_info_st h264_frame_info[] = {
     {1, 800, 600, 30, 0},
     {2, 1280, 720, 30, 0},
@@ -89,12 +86,15 @@ static struct uvc_frame_info_st nv21_frame_info[] = {
     {2, 1280, 720, 30, 0},
     {3, 640, 480, 30, 0},
 };
+#endif
 
 static struct uvc_format_info_st uvc_format_info[] = {
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
+#if 0
     {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
     {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
     {NV21_FORMAT_INDEX, UVC_FORMAT_NV21, 1, ARRAY_SIZE(nv21_frame_info), nv21_frame_info},
+#endif
 };
 
 CVI_S32 is_media_info_update(){
