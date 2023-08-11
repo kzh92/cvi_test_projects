@@ -580,7 +580,7 @@ void SenseLockTask::run()
 
         iCurCmd = msg->mid;
         
-        if(g_xSS.iMState == MS_OTA)
+        if(g_xSS.iMState == MS_OTA || msg->mid == MID_CONFIG_BAUDRATE)
         {
             if(msg->mid == MID_STOP_OTA)
             {
