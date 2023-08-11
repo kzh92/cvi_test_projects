@@ -36,27 +36,27 @@ depends:
   - sec_crypto: develop
   - posix: develop
   - drv_sdmmc: v2.0
-#  - lwip: develop
-#  - netmgr: develop
+  - lwip: develop
+  - netmgr: develop
   - devices: develop
   - drivers: develop
-#  - drv_wifi_hi3861l_fnlink: develop
+  - drv_wifi_hi3861l_fnlink: develop
   - cjson: develop
   - fatfs: cv_dev
   - vfs: develop
-#  - lwext4: develop
+  - lwext4: develop
   - cv180xb_evb: v0.0.1
   - chip_cv180x: v0.0.1
   - minialsa: v7.5.1
   - drv_snd_cv181x: v7.5.1
 #  - lvgl: develop
   - cvi_sensor: develop
-#  - rtsp: develop
+  - rtsp: develop
 #  - cvi_mw_tpu: v0.0.1
   - cherryusb: develop
   - cvi_platform: develop
-#  - g711: v0.0.1
-#  - cvi_test: develop
+  - g711: v0.0.1
+  - cvi_test: develop
 #  - mbedtls: develop
 
   - cvi_mmf_sdk_cv180xx: develop
@@ -213,7 +213,7 @@ def_config:
   CONFIG_PANEL_GC9503CV: 0
 
   CONFIG_VENC_TEST_CHN: 2
-  CONFIG_PQTOOL_SUPPORT: 0
+  CONFIG_PQTOOL_SUPPORT: 1
   CONFIG_PQBIN_USE_JSON: 0
   CONFIG_ISP_SUPPORT_PROC: 0
   CONFIG_ENABLE_FASTBOOT: 1
