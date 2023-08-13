@@ -361,6 +361,7 @@ int dbm_LoadPersonDBValid(int fd)
     return iCheckSumErr;
 }
 
+#if (N_MAX_HAND_NUM)
 int dbm_LoadHandDBValid(int fd)
 {
     int iCheckSumErr = 0;
@@ -396,6 +397,7 @@ int dbm_LoadHandDBValid(int fd)
     }
     return iCheckSumErr;
 }
+#endif // N_MAX_HAND_NUM
 
 int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
 {
@@ -444,6 +446,7 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
         dbm_FlushUserDB(iID, DB_FLUSH_FLAG_ALL);
         return ES_SUCCESS;
     }
+#if (N_MAX_HAND_NUM)
     else if (iFlag == 3) //hand only one
     {
         int iID = -1;
@@ -481,6 +484,7 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
         dbm_FlushUserDB(iID, DB_FLUSH_FLAG_ALL, 1);
         return ES_SUCCESS;
     }
+#endif // N_MAX_HAND_NUM
     else if (iFlag == 1)
     {
         //update whole data
@@ -515,10 +519,12 @@ unsigned char* dbm_GetPersonBin()
     return (unsigned char*)g_xDB;
 }
 
+#if (N_MAX_HAND_NUM)
 unsigned char* dbm_GetHandBin()
 {
     return (unsigned char*)&g_xHandDB;
 }
+#endif // N_MAX_HAND_NUM
 
 int	dbm_GetPersonCount()
 {
