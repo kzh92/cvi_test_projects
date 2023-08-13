@@ -416,10 +416,10 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
             {
                 return ES_INVALID;
             }
-            if (dbm_GetPersonMetaInfoByID(iUserID - 1))
-            {
-                return ES_INVALID;
-            }
+            // if (dbm_GetPersonMetaInfoByID(iUserID - 1))
+            // {
+            //     return ES_INVALID;
+            // }
             iID = iUserID - 1;
         }
         if (iID < 0)
@@ -454,10 +454,10 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
                 return ES_INVALID;
             }
             iUserID -= N_MAX_PERSON_NUM;
-            if (dbm_GetHandMetaInfoByID(iUserID - 1))
-            {
-                return ES_INVALID;
-            }
+            // if (dbm_GetHandMetaInfoByID(iUserID - 1))
+            // {
+            //     return ES_INVALID;
+            // }
             iID = iUserID - 1;
         }
         if (iID < 0)
