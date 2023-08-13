@@ -2810,7 +2810,8 @@ int ProcessSenseFace(int iCmd)
                     if (pxFeatInfo != NULL)
                         my_free(pxFeatInfo);
 
-                    g_xSS.iRegisterDir |= g_xSS.msg_enroll_itg_data.face_direction;
+                    if (g_xSS.iEnrollMutiDirMode)
+                        g_xSS.iRegisterDir |= g_xSS.msg_enroll_itg_data.face_direction;
                     s_msg* msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
                     if(g_xSS.iSendLastMsgMode)
                         g_xSS.pLastMsg = msg;
@@ -2837,11 +2838,12 @@ int ProcessSenseFace(int iCmd)
                 {
                     dbug_printf("Face Duplicated!\n");
                     int iFaceDir = g_xSS.msg_enroll_itg_data.face_direction;
-                    if(iFaceDir == 0)
-                        iFaceDir = 1;
+                    if(iFaceDir == FACE_DIRECTION_UNDEFINE)
+                        iFaceDir = FACE_DIRECTION_MIDDLE;
 
 #if (ENROLL_DUPLICATION_CHECK != EDC_ENABLE_NO_SKIP)
-                    g_xSS.iRegisterDir |= iFaceDir;
+                    if (g_xSS.iEnrollMutiDirMode)
+                        g_xSS.iRegisterDir |= iFaceDir;
 #endif // ENROLL_DUPLICATION_CHECK
 
                     s_msg* msg = SenseLockTask::Get_Reply_Enroll(MR_FAILED4_FACEENROLLED, -1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
