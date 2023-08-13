@@ -756,8 +756,16 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
     {
         if (nUserID == -1)
         {
-            my_userdb_write(0, g_xDB, sizeof(DB_INFO));
-            my_backupdb_write(0, g_xDB, sizeof(DB_INFO));
+            if (nFlushData & DB_FLUSH_FLAG_DATA)
+            {
+                my_userdb_write(0, g_xDB, sizeof(DB_INFO));
+                my_backupdb_write(0, g_xDB, sizeof(DB_INFO));
+            }
+            else
+            {
+                my_backupdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+                my_userdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+            }
         }
         else
         {
@@ -789,8 +797,16 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
         int FILESIZE = sizeof(DB_INFO);
         if (nUserID == -1)
         {
-            my_userdb_write(FILESIZE, g_xHandDBPtr, sizeof(DB_HAND_INFO));
-            my_backupdb_write(FILESIZE, g_xHandDBPtr, sizeof(DB_HAND_INFO));
+            if (nFlushData & DB_FLUSH_FLAG_DATA)
+            {
+                my_userdb_write(FILESIZE, g_xHandDBPtr, sizeof(DB_HAND_INFO));
+                my_backupdb_write(FILESIZE, g_xHandDBPtr, sizeof(DB_HAND_INFO));
+            }
+            else
+            {
+                my_userdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
+                my_backupdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
+            }
         }
         else
         {
