@@ -173,11 +173,10 @@ typedef uint8_t s_note_id;
 /* msg note id end */
 
 //module type in note command
-#define NMT_NONE            0
-#define NMT_FACE            1
-#define NMT_HAND            2
-#define NMT_IRIS            3
-#define NMT_FACE_HAND       4
+#define NMT_FACE            0
+#define NMT_HAND            1
+#define NMT_IRIS            2
+#define NMT_FACE_HAND       3
 
 /* msg face direction */
 typedef uint8_t s_face_dir;
