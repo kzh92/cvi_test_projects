@@ -640,6 +640,8 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
                 else
                     ret = -(MR_FAILED4_NOMEMORY);
             }
+            if (pbImgData)
+                my_free(pbImgData);
         }
         else
         {
