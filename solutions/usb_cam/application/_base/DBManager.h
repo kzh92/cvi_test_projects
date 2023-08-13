@@ -86,6 +86,7 @@ LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonMetaInfo(int nIndex, PSMetaInfo pxUser
 LIBFOO_DLL_EXPORTED  int		dbm_UpdatePersonFeatInfo(int nIndex, PSFeatInfo pxFeatInfo, int* piBlkNum, int iUpdateFeatIndex);
 LIBFOO_DLL_EXPORTED  int        dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID);
 LIBFOO_DLL_EXPORTED  unsigned char* dbm_GetPersonBin();
+LIBFOO_DLL_EXPORTED  unsigned char* dbm_GetHandBin();
 LIBFOO_DLL_EXPORTED  int		dbm_GetPersonCount();
 LIBFOO_DLL_EXPORTED  int		dbm_GetTotalUserCount();
 LIBFOO_DLL_EXPORTED  int        dbm_GetIDOfIndex(int iIndex);

@@ -1870,13 +1870,28 @@ int MsgProcSense(MSG* pMsg)
             {
                 int iUserID = TO_SHORT(d.user_id_heb, d.user_id_leb);
                 g_xSS.iDBgetIndex = iUserID - 1;
+#if (N_MAX_HAND_NUM)
+                if (g_xSS.iDBgetIndex < 0 || (dbm_GetPersonMetaInfoByID(g_xSS.iDBgetIndex) == NULL && dbm_GetHandMetaInfoByID(g_xSS.iDBgetIndex - N_MAX_PERSON_NUM) == NULL))
+#else
                 if (g_xSS.iDBgetIndex < 0 || dbm_GetPersonMetaInfoByID(g_xSS.iDBgetIndex) == NULL)
+#endif
                     iImgLen = 0;
                 else
-                    iImgLen = sizeof(DB_UNIT);
+                    if (g_xSS.iDBgetIndex < N_MAX_PERSON_NUM)
+                        iImgLen = sizeof(DB_UNIT);
+#if (N_MAX_HAND_NUM)
+                    else
+                        iImgLen = sizeof(DB_HAND_UNIT);
+#endif
             }
             else if(g_xSS.iDBgetFlag == 1)
+            {
+#if (N_MAX_HAND_NUM)
+                iImgLen = sizeof(DB_INFO) + sizeof(DB_HAND_INFO);
+#else
                 iImgLen = sizeof(DB_INFO);
+#endif
+            }
 #endif // USE_DB_UPDATE_MODE
 
             if(iImgLen > 0)

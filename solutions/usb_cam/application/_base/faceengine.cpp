@@ -600,6 +600,17 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         }
         umount_backup_db();
     }
+    else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_3, strlen(DB_UPDATE_MAGIC_3)) == 0)
+    {
+        mount_backup_db(0);
+        if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 3, reg_user_id))
+        {
+            SetModifyUser(1);
+            UpdateUserCount();
+            ret = MR_SUCCESS;
+        }
+        umount_backup_db();
+    }
 #endif // USE_DB_UPDATE_MODE
 #if (USE_RENT_ENGINE)
     else
@@ -646,25 +657,15 @@ int FaceEngine::UpdateDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, i
 {
 #if (USE_DB_UPDATE_MODE)
     unsigned char check_buf[MAGIC_LEN_UPDATE_DB] = {0};
-    g_xSS.iDBUpdateFlag = iUpdateFlag;
-    if (g_xSS.iDBUpdateFlag)
-    {
-        //decoding data
-        if (g_xSS.iDBUpdateFlag == 1)
-        {
-            memcpy(check_buf, DB_UPDATE_MAGIC, MAGIC_LEN_UPDATE_DB);
-        }
-        else if (g_xSS.iDBUpdateFlag == 2)
-        {
-            memcpy(check_buf, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
-        }
-        for (int i = 0 ; i < iLen - MAGIC_LEN_UPDATE_DB; i++)
-            pBuffer[i + MAGIC_LEN_UPDATE_DB] = pBuffer[i + MAGIC_LEN_UPDATE_DB] ^ ((i + check_buf[i % MAGIC_LEN_UPDATE_DB]) & 0xff);
+    //decoding data
+    memcpy(check_buf, pBuffer, MAGIC_LEN_UPDATE_DB);
 
-        if (dbm_UpdatePersonBin(iUpdateFlag, pBuffer + MAGIC_LEN_UPDATE_DB, iLen - MAGIC_LEN_UPDATE_DB, uid) == ES_SUCCESS)
-        {
-            return 1;
-        }
+    for (int i = 0 ; i < iLen - MAGIC_LEN_UPDATE_DB; i++)
+        pBuffer[i + MAGIC_LEN_UPDATE_DB] = pBuffer[i + MAGIC_LEN_UPDATE_DB] ^ ((i + check_buf[i % MAGIC_LEN_UPDATE_DB]) & 0xff);
+
+    if (dbm_UpdatePersonBin(iUpdateFlag, pBuffer + MAGIC_LEN_UPDATE_DB, iLen - MAGIC_LEN_UPDATE_DB, uid) == ES_SUCCESS)
+    {
+        return 1;
     }
 #endif // USE_DB_UPDATE_MODE
     return 0;
@@ -681,22 +682,78 @@ int FaceEngine::GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag
         if (iUpdateFlag == 1)
             real_offset = iOffset;
         else if (iUpdateFlag == 2)
-            real_offset = iOffset + sizeof(DB_INFO::aiValid) + iID * sizeof(DB_UNIT);
+        {
+            if (iID < N_MAX_PERSON_NUM)
+                real_offset = iOffset + sizeof(DB_INFO::aiValid) + iID * sizeof(DB_UNIT);
+#if (N_MAX_HAND_NUM)
+            else
+                real_offset = iOffset + sizeof(DB_HAND_INFO::aiHandValid) + (iID - N_MAX_PERSON_NUM) * sizeof(DB_HAND_UNIT);
+#endif
+        }
         if (iOffset == 0)
         {
             if (iUpdateFlag == 1)
                 memcpy(pBuffer, DB_UPDATE_MAGIC, MAGIC_LEN_UPDATE_DB);
             else if (iUpdateFlag == 2)
-                memcpy(pBuffer, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
-            memcpy(pBuffer + MAGIC_LEN_UPDATE_DB,
-                dbm_GetPersonBin() + real_offset, 
-                iLen - MAGIC_LEN_UPDATE_DB);
+            {
+                if (iID < N_MAX_PERSON_NUM)
+                    memcpy(pBuffer, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
+#if (N_MAX_HAND_NUM)
+                else
+                    memcpy(pBuffer, DB_UPDATE_MAGIC_3, MAGIC_LEN_UPDATE_DB);
+#endif
+            }
+            if (iID < N_MAX_PERSON_NUM)
+                memcpy(pBuffer + MAGIC_LEN_UPDATE_DB,
+                    dbm_GetPersonBin() + real_offset, 
+                    iLen - MAGIC_LEN_UPDATE_DB);
+#if (N_MAX_HAND_NUM)
+            else
+                memcpy(pBuffer + MAGIC_LEN_UPDATE_DB,
+                    dbm_GetHandBin() + real_offset, 
+                    iLen - MAGIC_LEN_UPDATE_DB);
+#endif
         }
         else
         {
-            memcpy(pBuffer,
-                dbm_GetPersonBin() + real_offset, 
-                iLen);
+            if (iUpdateFlag == 1)
+            {
+                if (real_offset < (int)sizeof(DB_INFO))
+                    memcpy(pBuffer,
+                            dbm_GetPersonBin() + real_offset, 
+                            iLen);
+#if (N_MAX_HAND_NUM)
+                if (real_offset + iLen > (int)sizeof(DB_INFO))
+                {
+                    if (real_offset < (int)sizeof(DB_INFO))
+                    {
+                        int lenHandData = iLen - (sizeof(DB_INFO) - real_offset);
+                        memcpy(pBuffer + sizeof(DB_INFO) - real_offset,
+                            dbm_GetHandBin(), 
+                            lenHandData);
+                    }
+                    else
+                    {
+                        memcpy(pBuffer,
+                            dbm_GetHandBin() + real_offset - sizeof(DB_INFO), 
+                            iLen);
+                    }
+                }
+#endif
+            }
+            else
+            {
+                if (iID < N_MAX_PERSON_NUM)
+                    memcpy(pBuffer,
+                        dbm_GetPersonBin() + real_offset, 
+                        iLen);
+#if (N_MAX_HAND_NUM)
+                else
+                    memcpy(pBuffer,
+                        dbm_GetHandBin() + real_offset, 
+                        iLen);
+#endif
+            }
         }
 
         //encoding data
@@ -704,7 +761,14 @@ int FaceEngine::GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag
         if (iUpdateFlag == 1)
             memcpy(check_buf, DB_UPDATE_MAGIC, MAGIC_LEN_UPDATE_DB);
         else if (iUpdateFlag == 2)
-            memcpy(check_buf, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
+        {
+            if (iID < N_MAX_PERSON_NUM)
+                memcpy(check_buf, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
+#if (N_MAX_HAND_NUM)
+            else
+                memcpy(check_buf, DB_UPDATE_MAGIC_3, MAGIC_LEN_UPDATE_DB);
+#endif
+        }
         for (int i = 0 ; i < iLen; i++)
         {
             int real_pos = i + iOffset;

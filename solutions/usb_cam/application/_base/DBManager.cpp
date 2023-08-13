@@ -361,6 +361,42 @@ int dbm_LoadPersonDBValid(int fd)
     return iCheckSumErr;
 }
 
+int dbm_LoadHandDBValid(int fd)
+{
+    int iCheckSumErr = 0;
+    for(int i = 0; i < N_MAX_HAND_NUM; i ++)
+    {
+        if(g_xHandDB.aiHandValid[i] == 0)
+            continue;
+
+        int iCheckSum = GetIntCheckSum((int*)&g_xHandDB.ax[i].xHM, sizeof(SMetaInfo));
+        if(iCheckSum != g_xHandDB.ax[i].iHMetaCheckSum)
+        {
+//            printf("checksum1 error : %d\n", i);
+            iCheckSumErr = 1;
+
+            if (dbfs_get_cur_part() != DB_PART_BACKUP)
+            {
+                g_xHandDB.aiHandValid[i] = 0;
+            }
+        }
+
+        iCheckSum = GetIntCheckSum((int*)&g_xHandDB.ax[i].xHF, sizeof(SHandFeatInfo));
+        if(iCheckSum != g_xHandDB.ax[i].iHFCheckSum)
+        {
+//            printf("checksum2 error : %d\n", i);
+
+            iCheckSumErr = 1;
+
+            if (dbfs_get_cur_part() != DB_PART_BACKUP)
+            {
+                g_xHandDB.aiHandValid[i] = 0;
+            }
+        }
+    }
+    return iCheckSumErr;
+}
+
 int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
 {
     if (dbfs_get_cur_part() == DB_PART_BACKUP)
@@ -371,10 +407,8 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
 
     dbug_printf("[%s] idx=%d, len=%d, %d\n", __func__, iFlag, iLen, (int)sizeof(DB_UNIT));
 
-    if (iLen < (int)sizeof(DB_UNIT) * 2 && iFlag == 2)
+    if (iFlag == 2) // face only one
     {
-        //means one data
-
         int iID = -1;
         if (iUserID > 0)
         {
@@ -392,7 +426,7 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
             iID = dbm_GetNewUserID();
         if (iID < 0)
             return ES_FULL;
-        if (iLen < (int)sizeof(g_xDB->ax[iID]))
+        if (iLen !=(int)sizeof(DB_UNIT))
             return ES_INVALID;
 
         dbug_printf("new ID = %d\n", iID);
@@ -410,15 +444,64 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
         dbm_FlushUserDB(iID, DB_FLUSH_FLAG_ALL);
         return ES_SUCCESS;
     }
-    else if (iLen > (int)sizeof(DB_UNIT) * 2 && iFlag == 1)
+    else if (iFlag == 3) //hand only one
+    {
+        int iID = -1;
+        if (iUserID > 0)
+        {
+            if (iUserID <= N_MAX_PERSON_NUM || iUserID > N_MAX_PERSON_NUM + N_MAX_HAND_NUM)
+            {
+                return ES_INVALID;
+            }
+            iUserID -= N_MAX_PERSON_NUM;
+            if (dbm_GetHandMetaInfoByID(iUserID - 1))
+            {
+                return ES_INVALID;
+            }
+            iID = iUserID - 1;
+        }
+        if (iID < 0)
+            iID = dbm_GetNewHandUserID();
+        if (iID < 0)
+            return ES_FULL;
+        if (iLen != (int)sizeof(DB_HAND_UNIT))
+            return ES_INVALID;
+
+        dbug_printf("new ID = %d\n", iID);
+        memcpy(&g_xHandDB.ax[iID], pData, sizeof(g_xHandDB.ax[iID]));
+        g_xHandDB.aiHandValid[iID] = 1;
+
+        g_xHandDB.ax[iID].xHM.iID = iID;
+        int iCheckSum = GetIntCheckSum((int*)&g_xHandDB.ax[iID].xHM, sizeof(SMetaInfo));
+        g_xHandDB.ax[iID].iHMetaCheckSum = iCheckSum;
+
+        iCheckSum = GetIntCheckSum((int*)&g_xHandDB.ax[iID].xHF, sizeof(SHandFeatInfo));
+        g_xHandDB.ax[iID].iHFCheckSum = iCheckSum;
+
+        dbm_FlushUserDB(iID, DB_FLUSH_FLAG_ALL, 1);
+        return ES_SUCCESS;
+    }
+    else if (iFlag == 1)
     {
         //update whole data
+#if (N_MAX_HAND_NUM)
+        if (iLen != sizeof(DB_INFO) + sizeof(DB_HAND_INFO))
+            return ES_INVALID;
+#else
         if (iLen != sizeof(DB_INFO))
             return ES_INVALID;
+#endif
         memcpy(g_xDB, pData, sizeof(*g_xDB));
         dbm_LoadPersonDBValid(-1);
 
         dbm_FlushUserDB(-1, DB_FLUSH_FLAG_ALL);
+
+#if (N_MAX_HAND_NUM)
+        memcpy(g_xHandDBPtr, pData + sizeof(DB_INFO), sizeof(DB_HAND_INFO));
+        dbm_LoadHandDBValid(-1);
+
+        dbm_FlushUserDB(-1, DB_FLUSH_FLAG_ALL, 1);
+#endif
         return ES_SUCCESS;
     }
     else
@@ -430,6 +513,11 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
 unsigned char* dbm_GetPersonBin()
 {
     return (unsigned char*)g_xDB;
+}
+
+unsigned char* dbm_GetHandBin()
+{
+    return (unsigned char*)&g_xHandDB;
 }
 
 int	dbm_GetPersonCount()
@@ -668,18 +756,8 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
     {
         if (nUserID == -1)
         {
-            my_backupdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
-            if (nFlushData & DB_FLUSH_FLAG_BACKUP)
-            {
-                my_backupdb_write(sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
-                    ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
-            }
-            my_userdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
-            if (nFlushData & DB_FLUSH_FLAG_DATA)
-            {
-                my_userdb_write(sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), 
-                    ((char*)g_xDB) + sizeof(DB_INFO::aiValid) + nUserID * sizeof(DB_UNIT), sizeof(DB_UNIT));
-            }
+            my_userdb_write(0, g_xDB, sizeof(DB_INFO));
+            my_backupdb_write(0, g_xDB, sizeof(DB_INFO));
         }
         else
         {
@@ -711,8 +789,8 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
         int FILESIZE = sizeof(DB_INFO);
         if (nUserID == -1)
         {
-            my_userdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
-            my_backupdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
+            my_userdb_write(FILESIZE, g_xHandDBPtr, sizeof(DB_HAND_INFO));
+            my_backupdb_write(FILESIZE, g_xHandDBPtr, sizeof(DB_HAND_INFO));
         }
         else
         {
