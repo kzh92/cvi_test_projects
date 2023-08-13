@@ -3025,7 +3025,7 @@ int ProcessSenseFace(int iCmd)
                         iID = -2 - N_MAX_PERSON_NUM;
 
                     s_msg* msg = NULL;
-                    msg = SenseLockTask::Get_Reply_Verify(MR_SUCCESS, iID + N_MAX_PERSON_NUM + 1, ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK);
+                    msg = SenseLockTask::Get_Reply_Verify(MR_SUCCESS, iID + N_MAX_PERSON_NUM + 1, ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK, 1);
 
 #if (DEFAULT_SECURE_MODE == 1)
                     unsigned char _tmp_buf_cs[sizeof(g_xCS)];

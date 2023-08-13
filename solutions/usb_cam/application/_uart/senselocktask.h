@@ -63,7 +63,7 @@ public:
     static s_msg*       Get_Reply_Init_Encryption_Data(int iResult);
     static s_msg*       Get_Reply_PowerDown();
     static s_msg*       Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd = -1);
-    static s_msg*       Get_Reply_Verify(int iResult, int iUserID, int iUnlockState);
+    static s_msg*       Get_Reply_Verify(int iResult, int iUserID, int iUnlockState, int iAuthType = 0);
     static s_msg*       Get_Reply_GetUserInfo(int iResult, int iUserID);
     static s_msg*       Get_Reply_GetAllUserID(int iResult, int iFmt);
     static s_msg*       Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds);

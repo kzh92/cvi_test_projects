@@ -969,7 +969,7 @@ s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirect
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockState)
+s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockState, int iAuthType)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_verify_data);
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
@@ -1000,13 +1000,13 @@ s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockStat
     {
         strcpy((char*)msg_reply_verify_data->user_name, pxMetaInfo->szName);
         msg_reply_verify_data->admin = pxMetaInfo->fPrivilege;
-#if (N_MAX_HAND_NUM && USE_TONGXIN_PROTO)
-        if (iUserID > N_MAX_PERSON_NUM)
-            msg_reply_verify_data->module_type = NMT_HAND;
-        else
-            msg_reply_verify_data->module_type = NMT_FACE;
-#endif // N_MAX_HAND_NUM
     }
+#if (N_MAX_HAND_NUM && USE_TONGXIN_PROTO)
+    if (iUserID > N_MAX_PERSON_NUM || iAuthType == 1)
+        msg_reply_verify_data->module_type = NMT_HAND;
+    else
+        msg_reply_verify_data->module_type = NMT_FACE;
+#endif // N_MAX_HAND_NUM
     msg_reply_verify_data->unlockStatus = iUnlockState;
 
     return msg;
