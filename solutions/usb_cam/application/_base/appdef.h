@@ -106,6 +106,8 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_103v8           1   //v1.0.3.8
 #define ISP_BIN_VER_104v1           2   //v1.0.4.1
 #define ISP_BIN_VER_103v9           3   //v1.0.3.9
+#define ISP_BIN_VER_21v0            4
+#define ISP_BIN_VER_21v1            5
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_103v3
 
 //uvc direction
