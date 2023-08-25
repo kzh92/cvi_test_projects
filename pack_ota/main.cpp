@@ -8,7 +8,7 @@
 
 //list of upgrade files
 s_uf_part_info g_upg_list[] = {
-    {"prim", 0x2E000, 0x00390000, UF_PF_APP},
+    {"prim", 0x2E000, 0x300000, UF_PF_APP},
     // {"b.bin", 0x00390000 + 5201344, 442560, UF_PF_NORMAL},
     // {"b2.bin", 0x00390000 + 5643904, 152960, UF_PF_NORMAL},
     // {"ch.bin", 0x00390000 + 6856960, 442560, UF_PF_NORMAL},
