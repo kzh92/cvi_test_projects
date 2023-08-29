@@ -257,11 +257,12 @@ void uvc_media_update(){
     }
     else
     {
-    	int real_height = CLR_CAM_WIDTH * uvc_frame_info.height / uvc_frame_info.width;
+    	int real_width = CLR_CAM_WIDTH * UVC_CROP_RESIZE;
+    	int real_height = CLR_CAM_WIDTH * uvc_frame_info.height / uvc_frame_info.width * UVC_CROP_RESIZE;
 		pstCropInfo.bEnable = CVI_TRUE;
-		pstCropInfo.stCropRect.s32X = 0;
-		pstCropInfo.stCropRect.s32Y = CLR_CAM_HEIGHT > real_height ? ((CLR_CAM_HEIGHT - real_height) / 2) : CLR_CAM_HEIGHT;
-		pstCropInfo.stCropRect.u32Width = CLR_CAM_WIDTH;
+		pstCropInfo.stCropRect.s32X = CLR_CAM_WIDTH > real_width ? ((CLR_CAM_WIDTH - real_width) / 2) : 0;
+		pstCropInfo.stCropRect.s32Y = CLR_CAM_HEIGHT > real_height ? ((CLR_CAM_HEIGHT - real_height) / 2) : 0;
+		pstCropInfo.stCropRect.u32Width = real_width;
 		pstCropInfo.stCropRect.u32Height = real_height;
     }
 	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
