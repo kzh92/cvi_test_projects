@@ -27,6 +27,10 @@
 #include <errno.h>
 #include <string.h>
 
+#if __riscv_vector
+#include <riscv_vector.h>
+#endif
+
 #define VALID_V_VALUE               40
 #define GOOD_RATE                   0.1
 #define CERTAIN_INVALID_V_VALUE     20
@@ -2121,4 +2125,1208 @@ int saveUvcScene()
     g_iJpgDataLen = iWriteLen;
     unlockIRBuffer();
     return MR_SUCCESS;
+}
+
+void remove_white_point_riscv(unsigned char* raw, int nWidth, int nHeight)
+{
+    int th = 30;
+
+    // int nCount = (nWidth - 4) >> 3;
+
+    for (int y = 0; y < 2; y++)
+    {
+        unsigned char* p0 = raw + y * nWidth + 2;
+        unsigned char* p4 = p0 - 2;
+        unsigned char* p5 = p0 + 2;
+        unsigned char* p7 = p0 + (nWidth << 1);
+        unsigned char* p6 = p7 - 2;
+        unsigned char* p8 = p7 + 2;
+
+        for (int x = 0; x < 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v5 = *p5;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v5 + v7 + v8) / 3;
+            }
+
+            p0++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+
+        for (int x = 2; x < nWidth - 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v4 = *p4;
+            int v5 = *p5;
+            int v6 = *p6;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v4 + v5 + v6 + v7 + v8) / 5;
+            }
+
+            p0++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+
+        }
+
+        for (int x = nWidth - 2; x < nWidth; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v4 = *p4;
+            int v6 = *p6;
+            int v7 = *p7;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v4 + v6 + v7) / 3;
+            }
+
+            p0++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+    }
+
+    for (int y = 2; y < nHeight - 2; y++)
+    {
+        unsigned char* p0 = raw + y * nWidth + 2;
+        unsigned char* p2 = p0 - (nWidth << 1);
+        unsigned char* p1 = p2 - 2;
+        unsigned char* p3 = p2 + 2;
+        unsigned char* p4 = p0 - 2;
+        unsigned char* p5 = p0 + 2;
+        unsigned char* p7 = p0 + (nWidth << 1);
+        unsigned char* p6 = p7 - 2;
+        unsigned char* p8 = p7 + 2;
+
+        for (int x = 0; x < 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v5 = *p5;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v2 + v3 + v5 + v7 + v8) / 5;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+
+#if __riscv_vector
+        int n = nWidth - 4;
+        while (n > 0)
+        {
+            int l = vsetvl_e8m4(n);
+
+            vuint8m4_t vu8;
+            vuint16m8_t vu16, sum;
+            vint16m8_t vs16_0, vs16_1, diff;
+            vbool2_t vb_p0, vb_m0, vb_p1, vb_m1;
+
+            vu8 = vle8_v_u8m4((uint8_t*)p0, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_0 = vreinterpret_v_u16m8_i16m8(vu16);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p1, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vu16;
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p0 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m0 = vmslt_vx_i16m8_b2(diff, -th, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p2, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p3, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p4, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p5, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p6, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p7, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vu8 = vle8_v_u8m4((uint8_t*)p8, l);
+            vu16 = vwcvtu_x_x_v_u16m8(vu8, l);
+            vs16_1 = vreinterpret_v_u16m8_i16m8(vu16);
+            sum = vadd_vv_u16m8(sum, vu16, l);
+            diff = vsub_vv_i16m8(vs16_0, vs16_1, l);
+            vb_p1 = vmsgt_vx_i16m8_b2(diff, th, l);
+            vb_m1 = vmslt_vx_i16m8_b2(diff, -th, l);
+            vb_p0 = vmand_mm_b2(vb_p0, vb_p1, l);
+            vb_m0 = vmand_mm_b2(vb_m0, vb_m1, l);
+
+            vb_p0 = vmor_mm_b2(vb_p0, vb_m0, l);
+            vu8 = vnsrl_wx_u8m4(sum, 3, l);
+
+            vse8_v_u8m4_m(vb_p0, (uint8_t*)p0, vu8, l);
+
+            p0 += l;
+            p1 += l;
+            p2 += l;
+            p3 += l;
+            p4 += l;
+            p5 += l;
+            p6 += l;
+            p7 += l;
+            p8 += l;
+            n -= l;
+        }
+        int m = nWidth - 2;
+
+#elif __ARM_NEON
+        int n = nCount;
+        int m = 2 + nCount << 3;
+
+        asm volatile(
+
+            "vdup.s16   q11, %10        \n"
+            "veor       q12, q12, q12   \n"
+            "vsub.s16   q12, q12, q11   \n"
+
+
+            "movw       r10, #65528     \n"
+            "vdup.s16   q13, r10        \n"
+
+            "0:                         \n"
+
+            "vld1.u8    {d0}, [%0]      \n"
+            "vld1.u8    {d2}, [%1]      \n"
+            "vld1.u8    {d4}, [%2]      \n"
+            "vld1.u8    {d6}, [%3]      \n"
+            "vld1.u8    {d8}, [%4]      \n"
+            "vld1.u8    {d10}, [%5]     \n"
+            "vld1.u8    {d12}, [%6]     \n"
+            "vld1.u8    {d14}, [%7]     \n"
+            "vld1.u8    {d16}, [%8]     \n"
+
+            "vmovl.u8   q0, d0          \n"
+            "vmovl.u8   q1, d2          \n"
+            "vmovl.u8   q2, d4          \n"
+            "vmovl.u8   q3, d6          \n"
+            "vmovl.u8   q4, d8          \n"
+            "vmovl.u8   q5, d10         \n"
+            "vmovl.u8   q6, d12         \n"
+            "vmovl.u8   q7, d14         \n"
+            "vmovl.u8   q8, d16         \n"
+
+            "veor       q14, q14, q14   \n"
+
+            "vsub.s16   q9, q1, q0      \n"
+            "vsub.s16   q10, q2, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vsub.s16   q9, q3, q0      \n"
+            "vsub.s16   q10, q4, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vsub.s16   q9, q5, q0      \n"
+            "vsub.s16   q10, q6, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vsub.s16   q9, q7, q0      \n"
+            "vsub.s16   q10, q8, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vceq.s16   q14, q14, q13   \n"
+
+
+            "veor       q15, q15, q15   \n"
+
+            "vsub.s16   q9, q1, q0      \n"
+            "vsub.s16   q10, q2, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vsub.s16   q9, q3, q0      \n"
+            "vsub.s16   q10, q4, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vsub.s16   q9, q5, q0      \n"
+            "vsub.s16   q10, q6, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vsub.s16   q9, q7, q0      \n"
+            "vsub.s16   q10, q8, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vceq.s16   q15, q15, q13   \n"
+            "vadd.s16   q14, q14, q15   \n"
+
+            "vadd.s16   d30, d28, d29   \n"
+            "vpadd.s16  d30, d30, d30   \n"
+            "vpadd.s16  d30, d30, d30   \n"
+
+            "vmov.s16   r10, d30[0]     \n"
+            "cmp        r10, #0         \n"
+            "beq        1f              \n"
+
+            "vadd.s16   q9, q1, q2      \n"
+            "vadd.s16   q10, q3, q4     \n"
+            "vadd.s16   q9, q9, q5      \n"
+            "vadd.s16   q10, q10, q6    \n"
+            "vadd.s16   q9, q9, q7      \n"
+            "vadd.s16   q10, q10, q8    \n"
+            "vadd.s16   q9, q9, q10     \n"
+            "vshr.s16   q9, q9, #3      \n"
+            "vbsl.s16   q14, q9, q0     \n"
+
+            "vmovn.s16  d0, q14         \n"
+            "vst1.u8    {d0}, [%0]      \n"
+
+            "1:                         \n"
+            "subs       %9, %9, #1      \n"
+
+            "add        %0, #8          \n"
+            "add        %1, #8          \n"
+            "add        %2, #8          \n"
+            "add        %3, #8          \n"
+            "add        %4, #8          \n"
+            "add        %5, #8          \n"
+            "add        %6, #8          \n"
+            "add        %7, #8          \n"
+            "add        %8, #8          \n"
+
+            "bne        0b              \n"
+
+            :
+        "+r"(p0),
+            "+r"(p1),
+            "+r"(p2),
+            "+r"(p3),
+            "+r"(p4),
+            "+r"(p5),
+            "+r"(p6),
+            "+r"(p7),
+            "+r"(p8),
+            "+r"(n)
+            :
+            "r"(th)
+            : "cc", "memory", "r10", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"
+            );
+#else
+        int m = 2;
+#endif
+
+        for (int x = m; x < nWidth - 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v4 = *p4;
+            int v5 = *p5;
+            int v6 = *p6;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 8 || nN == 8)
+            {
+                *p0 = (v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8) / 8;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+
+        for (int x = nWidth - 2; x < nWidth; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v4 = *p4;
+            int v6 = *p6;
+            int v7 = *p7;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v1 + v2 + v4 + v6 + v7) / 5;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+    }
+
+    for (int y = nHeight - 2; y < nHeight; y++)
+    {
+        unsigned char* p0 = raw + y * nWidth + 2;
+        unsigned char* p2 = p0 - (nWidth << 1);
+        unsigned char* p1 = p2 - 2;
+        unsigned char* p3 = p2 + 2;
+        unsigned char* p4 = p0 - 2;
+        unsigned char* p5 = p0 + 2;
+
+        for (int x = 0; x < 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v5 = *p5;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v2 + v3 + v5) / 3;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+        }
+
+        for (int x = 2; x < nWidth - 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v4 = *p4;
+            int v5 = *p5;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v1 + v2 + v3 + v4 + v5) / 5;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+        }
+
+        for (int x = nWidth - 2; x < nWidth; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v4 = *p4;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v1 + v2 + v4) / 3;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+        }
+    }
+}
+
+void remove_white_point(unsigned char* raw, int nWidth, int nHeight)
+{
+    int th = 30;
+    //int nCount = (nWidth - 4) >> 3;
+
+    for (int y = 0; y < 2; y++)
+    {
+        unsigned char* p0 = raw + y * nWidth + 2;
+        unsigned char* p4 = p0 - 2;
+        unsigned char* p5 = p0 + 2;
+        unsigned char* p7 = p0 + (nWidth << 1);
+        unsigned char* p6 = p7 - 2;
+        unsigned char* p8 = p7 + 2;
+
+        for (int x = 0; x < 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v5 = *p5;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v5 + v7 + v8) / 3;
+            }
+
+            p0++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+
+        for (int x = 2; x < nWidth - 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v4 = *p4;
+            int v5 = *p5;
+            int v6 = *p6;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v4 + v5 + v6 + v7 + v8) / 5;
+            }
+
+            p0++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+
+        }
+
+        for (int x = nWidth - 2; x < nWidth; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v4 = *p4;
+            int v6 = *p6;
+            int v7 = *p7;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v4 + v6 + v7) / 3;
+            }
+
+            p0++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+    }
+
+    for (int y = 2; y < nHeight - 2; y++)
+    {
+        unsigned char* p0 = raw + y * nWidth + 2;
+        unsigned char* p2 = p0 - (nWidth << 1);
+        unsigned char* p1 = p2 - 2;
+        unsigned char* p3 = p2 + 2;
+        unsigned char* p4 = p0 - 2;
+        unsigned char* p5 = p0 + 2;
+        unsigned char* p7 = p0 + (nWidth << 1);
+        unsigned char* p6 = p7 - 2;
+        unsigned char* p8 = p7 + 2;
+
+        for (int x = 0; x < 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v5 = *p5;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v2 + v3 + v5 + v7 + v8) / 5;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+
+#if __ARM_NEON
+        int n = nCount;
+        int m = 2 + nCount << 3;
+
+        asm volatile(
+
+            "vdup.s16   q11, %10        \n"
+            "veor       q12, q12, q12   \n"
+            "vsub.s16   q12, q12, q11   \n"
+
+
+            "movw       r10, #65528     \n"
+            "vdup.s16   q13, r10        \n"
+
+            "0:                         \n"
+
+            "vld1.u8    {d0}, [%0]      \n"
+            "vld1.u8    {d2}, [%1]      \n"
+            "vld1.u8    {d4}, [%2]      \n"
+            "vld1.u8    {d6}, [%3]      \n"
+            "vld1.u8    {d8}, [%4]      \n"
+            "vld1.u8    {d10}, [%5]     \n"
+            "vld1.u8    {d12}, [%6]     \n"
+            "vld1.u8    {d14}, [%7]     \n"
+            "vld1.u8    {d16}, [%8]     \n"
+
+            "vmovl.u8   q0, d0          \n"
+            "vmovl.u8   q1, d2          \n"
+            "vmovl.u8   q2, d4          \n"
+            "vmovl.u8   q3, d6          \n"
+            "vmovl.u8   q4, d8          \n"
+            "vmovl.u8   q5, d10         \n"
+            "vmovl.u8   q6, d12         \n"
+            "vmovl.u8   q7, d14         \n"
+            "vmovl.u8   q8, d16         \n"
+
+            "veor       q14, q14, q14   \n"
+
+            "vsub.s16   q9, q1, q0      \n"
+            "vsub.s16   q10, q2, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vsub.s16   q9, q3, q0      \n"
+            "vsub.s16   q10, q4, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vsub.s16   q9, q5, q0      \n"
+            "vsub.s16   q10, q6, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vsub.s16   q9, q7, q0      \n"
+            "vsub.s16   q10, q8, q0     \n"
+            "vcgt.s16   q9, q9, q11     \n"
+            "vcgt.s16   q10, q10, q11   \n"
+            "vadd.s16   q14, q14, q9    \n"
+            "vadd.s16   q14, q14, q10   \n"
+
+            "vceq.s16   q14, q14, q13   \n"
+
+
+            "veor       q15, q15, q15   \n"
+
+            "vsub.s16   q9, q1, q0      \n"
+            "vsub.s16   q10, q2, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vsub.s16   q9, q3, q0      \n"
+            "vsub.s16   q10, q4, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vsub.s16   q9, q5, q0      \n"
+            "vsub.s16   q10, q6, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vsub.s16   q9, q7, q0      \n"
+            "vsub.s16   q10, q8, q0     \n"
+            "vclt.s16   q9, q9, q12     \n"
+            "vclt.s16   q10, q10, q12   \n"
+            "vadd.s16   q15, q15, q9    \n"
+            "vadd.s16   q15, q15, q10   \n"
+
+            "vceq.s16   q15, q15, q13   \n"
+            "vadd.s16   q14, q14, q15   \n"
+
+            "vadd.s16   d30, d28, d29   \n"
+            "vpadd.s16  d30, d30, d30   \n"
+            "vpadd.s16  d30, d30, d30   \n"
+
+            "vmov.s16   r10, d30[0]     \n"
+            "cmp        r10, #0         \n"
+            "beq        1f              \n"
+
+            "vadd.s16   q9, q1, q2      \n"
+            "vadd.s16   q10, q3, q4     \n"
+            "vadd.s16   q9, q9, q5      \n"
+            "vadd.s16   q10, q10, q6    \n"
+            "vadd.s16   q9, q9, q7      \n"
+            "vadd.s16   q10, q10, q8    \n"
+            "vadd.s16   q9, q9, q10     \n"
+            "vshr.s16   q9, q9, #3      \n"
+            "vbsl.s16   q14, q9, q0     \n"
+
+            "vmovn.s16  d0, q14         \n"
+            "vst1.u8    {d0}, [%0]      \n"
+
+            "1:                         \n"
+            "subs       %9, %9, #1      \n"
+
+            "add        %0, #8          \n"
+            "add        %1, #8          \n"
+            "add        %2, #8          \n"
+            "add        %3, #8          \n"
+            "add        %4, #8          \n"
+            "add        %5, #8          \n"
+            "add        %6, #8          \n"
+            "add        %7, #8          \n"
+            "add        %8, #8          \n"
+
+            "bne        0b              \n"
+
+            :
+        "+r"(p0),
+            "+r"(p1),
+            "+r"(p2),
+            "+r"(p3),
+            "+r"(p4),
+            "+r"(p5),
+            "+r"(p6),
+            "+r"(p7),
+            "+r"(p8),
+            "+r"(n)
+            :
+            "r"(th)
+            : "cc", "memory", "r10", "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"
+            );
+#else
+        int m = 2;
+#endif
+
+        for (int x = m; x < nWidth - 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v4 = *p4;
+            int v5 = *p5;
+            int v6 = *p6;
+            int v7 = *p7;
+            int v8 = *p8;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (v0 - v8 > th) nP++;
+            if (v0 - v8 < -th) nN++;
+
+            if (nP == 8 || nN == 8)
+            {
+                *p0 = (v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8) / 8;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+
+        for (int x = nWidth - 2; x < nWidth; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v4 = *p4;
+            int v6 = *p6;
+            int v7 = *p7;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v6 > th) nP++;
+            if (v0 - v6 < -th) nN++;
+
+            if (v0 - v7 > th) nP++;
+            if (v0 - v7 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v1 + v2 + v4 + v6 + v7) / 5;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+            p6++;
+            p7++;
+            p8++;
+        }
+    }
+
+    for (int y = nHeight - 2; y < nHeight; y++)
+    {
+        unsigned char* p0 = raw + y * nWidth + 2;
+        unsigned char* p2 = p0 - (nWidth << 1);
+        unsigned char* p1 = p2 - 2;
+        unsigned char* p3 = p2 + 2;
+        unsigned char* p4 = p0 - 2;
+        unsigned char* p5 = p0 + 2;
+
+        for (int x = 0; x < 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v5 = *p5;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v2 + v3 + v5) / 3;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+        }
+
+        for (int x = 2; x < nWidth - 2; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v3 = *p3;
+            int v4 = *p4;
+            int v5 = *p5;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v3 > th) nP++;
+            if (v0 - v3 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (v0 - v5 > th) nP++;
+            if (v0 - v5 < -th) nN++;
+
+            if (nP == 5 || nN == 5)
+            {
+                *p0 = (v1 + v2 + v3 + v4 + v5) / 5;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+        }
+
+        for (int x = nWidth - 2; x < nWidth; x++)
+        {
+            int nP = 0;
+            int nN = 0;
+
+            int v0 = *p0;
+            int v1 = *p1;
+            int v2 = *p2;
+            int v4 = *p4;
+
+            if (v0 - v1 > th) nP++;
+            if (v0 - v1 < -th) nN++;
+
+            if (v0 - v2 > th) nP++;
+            if (v0 - v2 < -th) nN++;
+
+            if (v0 - v4 > th) nP++;
+            if (v0 - v4 < -th) nN++;
+
+            if (nP == 3 || nN == 3)
+            {
+                *p0 = (v1 + v2 + v4) / 3;
+            }
+
+            p0++;
+            p1++;
+            p2++;
+            p3++;
+            p4++;
+            p5++;
+        }
+    }
 }

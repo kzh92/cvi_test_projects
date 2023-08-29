@@ -92,6 +92,7 @@ void    lockIROffBuffer();
 void    unlockIROffBuffer();
 void    reset_ir_exp_gain();
 int     saveUvcScene();
+void    remove_white_point_riscv(unsigned char* raw, int nWidth, int nHeight);
 
 extern int g_iDvpCamInited;
 extern int g_iMipiCamInited;
