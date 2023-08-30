@@ -166,8 +166,8 @@ enum E_Baud_Rate
 #define USE_SHENAO_HAND             0
 #define USE_PRINT_TEMP              0
 
-#define CLR_CAM_WIDTH               1280
-#define CLR_CAM_HEIGHT              960
+#define CLR_CAM_WIDTH               1600
+#define CLR_CAM_HEIGHT              1200
 #define IR_CAM_WIDTH                1600
 #define IR_CAM_HEIGHT               900
 #define CAPTURE_WIDTH               (180)
@@ -376,7 +376,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_HUANGLI_NEW_UAC               303
 #define FRM_DBS3M_HUANGLI_UAC                   304
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HUANGLI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
