@@ -847,6 +847,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     }
 #endif // USE_DEMOMODE2
 
+#if (USE_DEMOMODE4HAND == 0)
     if (g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON &&
             (m_isFaceDetected[FMI_HAND] == FDS_HAND_DETECTED))
     {
@@ -856,6 +857,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         usleep(20*1000);
         return 1;
     }
+#endif // USE_DEMOMODE4HAND
 
     memset(arEngineResult, 0, sizeof(arEngineResult));
     int iFindIndex = FaceEngine::VerifyFace(arEngineResult);

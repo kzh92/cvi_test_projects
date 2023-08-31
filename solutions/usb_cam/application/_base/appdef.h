@@ -134,6 +134,7 @@ enum E_Baud_Rate
 #define USE_ENROLL_ITG              1
 #define AUTO_CTRL_CLR_CAM           1
 #define USE_DEMOMODE2               1
+#define USE_DEMOMODE4HAND           1
 #define USE_WAEL_VDB                0       //10fps, jpg size must be less than 50KB
 #define USE_SHENAO_VDB              0
 #define USE_SHENAO_NEW_VDB          0
