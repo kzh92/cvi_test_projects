@@ -375,8 +375,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_HONGLI_MODE                   302
 #define FRM_DBS3M_HUANGLI_NEW_UAC               303
 #define FRM_DBS3M_HUANGLI_UAC                   304
+#define FRM_DBS3M_TONGXIN_PROTO                 305
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TONGXIN_PROTO
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -780,6 +781,43 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef DEFAULT_UART0_BAUDRATE
 #define DEFAULT_UART0_BAUDRATE              Baud_Rate_9600
+
+//----------------------------------------------------------
+                                            
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TONGXIN_PROTO)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.27.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.27.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+// #undef CAM_ROTATION_MODE
+// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef USE_TONGXIN_PROTO
+#define USE_TONGXIN_PROTO                   1
 
 //----------------------------------------------------------
 
