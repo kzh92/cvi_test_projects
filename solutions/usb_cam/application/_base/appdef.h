@@ -378,7 +378,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_HUANGLI_UAC                   304
 #define FRM_DBS3M_TONGXIN_PROTO                 305
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TONGXIN_PROTO
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -825,8 +825,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.43.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.43.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.43.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.43.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
