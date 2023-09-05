@@ -379,7 +379,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_TONGXIN_PROTO                 305
 #define FRM_DBS3M_LS35_LH_UAC                   306
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
