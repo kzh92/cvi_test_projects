@@ -426,7 +426,9 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
     int ret = -(MR_FAILED4_INVALIDPARAM);
 #if (USE_RENT_ENGINE || USE_DB_UPDATE_MODE)
     s_feat_data_v3* fd = (s_feat_data_v3*)*pBuffer;
+#if (USE_RENT_ENGINE)
     s_feat_data_v2* fd_v2 = (s_feat_data_v2*)*pBuffer;
+#endif
     int reg_user_id = 0;
     if (*puser_count > 0)
     {

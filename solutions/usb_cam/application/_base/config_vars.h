@@ -35,7 +35,7 @@
 #else
 #define FN_WNO_DICT_SIZE                3562136
 #endif
-#define FN_WNOH_DICT_SIZE               2732440
+#define FN_WNOH_DICT_SIZE               2410080
 #define FN_A1_DICT_SIZE                 (442504)
 #define FN_A2_DICT_SIZE                 (442504)
 #define FN_B_DICT_SIZE                  (442504)
@@ -45,7 +45,8 @@
 #define FN_DETECT_DICT_SIZE             (129320)
 #define FN_DETECT_H_DICT_SIZE           (121464)
 #define FN_DLAMK_DICT_SIZE              (624696)
-#define FN_DLAMK_H_DICT_SIZE            (496008)
+#define FN_DLAMK_H_DICT_SIZE            (495328)
+#define FN_H_LIVE_DICT_SIZE             442504
 #define FN_ESN_DICT_SIZE                241336
 #define FN_OCC_DICT_SIZE                738800
 #define FN_H1_DICT_SIZE                 290964
@@ -89,6 +90,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_DLAMK_H_DICT_PATH    "/test/dlamk_h.bin"
 #define FN_ESN_DICT_PATH        "/test/esn.bin"
 #define FN_OCC_DICT_PATH        "/test/occ.bin"
+#define FN_H_LIVE_DICT_PATH     "/test/lh.bin"
 #define FN_H1_DICT_PATH         "/test/hdic_1.bin"
 #define FN_H2_DICT_PATH         "/test/hdic_2.bin"
 

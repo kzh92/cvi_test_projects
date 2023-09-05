@@ -205,6 +205,7 @@ int main(int /*argc*/, char** /*argv*/)
         FACEENGINEDIR "/dlamk_h.bin",
         FACEENGINEDIR "/ch.bin",
         FACEENGINEDIR "/wnh.bin",
+        FACEENGINEDIR "/lh.bin",
     #endif // N_MAX_HAND_NUM
     #if (USE_TWIN_ENGINE)
         FACEENGINEDIR "/hdic_2.bin",
