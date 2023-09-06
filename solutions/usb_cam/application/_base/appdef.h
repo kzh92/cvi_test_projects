@@ -162,6 +162,7 @@ enum E_Baud_Rate
 #define SEND_LAST_MSG               0
 #define USE_3M_MODE                 0
 #define USE_UAC_MODE                0
+#define USE_USB_EP_ERR_FIX_MODE     0
 #define USE_WHITE_LED               0
 #define USE_WATCHDOG                0
 #define USE_SHENAO_HAND             0

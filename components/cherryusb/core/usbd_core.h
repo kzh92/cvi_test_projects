@@ -23,6 +23,7 @@ extern "C" {
 #include "usb_mem.h"
 #include "usb_log.h"
 #include "usb_dc.h"
+#include "appdef.h"
 
 enum usbd_event_type {
     /* USB DCD IRQ */
@@ -90,7 +91,9 @@ bool usb_device_is_configured(void);
 void usbd_configure_done_callback(void);
 int usbd_initialize(void);
 int usbd_deinitialize(void);
-
+#if (USE_USB_EP_ERR_FIX_MODE)
+uint8_t* usbd_get_descriptors(void);
+#endif
 #ifdef __cplusplus
 }
 #endif

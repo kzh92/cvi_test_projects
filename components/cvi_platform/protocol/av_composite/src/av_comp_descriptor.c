@@ -4,6 +4,7 @@
 #include "av_comp_descriptor.h"
 #include "uac_descriptor.h"
 #include "io.h"
+#include "appdef.h"
 
 /* --------------------------------------------------------------------------
  * Device descriptor
@@ -589,6 +590,11 @@ uvc_alloc_frame_descriptor(uint32_t format_type,
                                                         = cpu_to_le16(width);
             ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->wHeight
                                                         = cpu_to_le16(height);
+#if (USE_USB_EP_ERR_FIX_MODE)
+            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwMinBitRate = width * height * 2 * 8 * 10;
+            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwMaxBitRate = width * height * 2 * 8 * 30;
+            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwMaxVideoFrameBufferSize = width * height * 2;
+#endif
             ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwDefaultFrameInterval
                                                         = cpu_to_le32(FRAME_INTERVAL_FPS(fps));
             ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwFrameInterval[0]
