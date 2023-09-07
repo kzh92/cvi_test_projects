@@ -2120,6 +2120,10 @@ int MsgProcSense(MSG* pMsg)
             {
                 g_xSS.iFtIRLed = 1;
                 GPIO_fast_setvalue(IR_LED, ON);
+#if (USE_WHITE_LED)
+                gpio_whiteled_on(1);
+                g_xSS.iFtWhiteLed = 0;
+#endif
                 iCode = MR_SUCCESS;
                 iSendFlag = 1;
             }
@@ -2127,6 +2131,9 @@ int MsgProcSense(MSG* pMsg)
             {
                 g_xSS.iFtIRLed = 0;
                 GPIO_fast_setvalue(IR_LED, OFF);
+#if (USE_WHITE_LED)
+                gpio_whiteled_on(0);
+#endif
                 iCode = MR_SUCCESS;
                 iSendFlag = 1;
             }

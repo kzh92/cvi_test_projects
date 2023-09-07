@@ -302,6 +302,14 @@ void WatchTask::run()
 #endif
                 }
             }
+#if (USE_WHITE_LED)
+            if (g_xSS.iFtIRLed && g_xSS.iFtWhiteLed < WLED_TEST_TIMEOUT)
+            {
+                g_xSS.iFtWhiteLed++;
+                if (g_xSS.iFtWhiteLed == WLED_TEST_TIMEOUT)
+                    gpio_whiteled_on(0);
+            }
+#endif
         }
 
         for(int i = 0; i < 10; i ++)

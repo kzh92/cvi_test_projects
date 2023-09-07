@@ -220,6 +220,7 @@ typedef struct _tagSYSTEM_STATE
     int                         iMState;
     int                         iDemoMode;
     int                         iFtIRLed; //irled test
+    int                         iFtWhiteLed;
 
     int                         iFuncTestFlag;
     s_msg*                      pLastMsg;
