@@ -374,6 +374,13 @@ typedef struct {
     uint8_t enable; // enable demo or not
 } s_msg_demomode_data;
 
+enum {
+    E_FACTORY_TEST_OFF = 0,
+    E_FACTORY_TEST_NORMAL = 1,
+    E_FACTORY_TEST_IRLED_OFF = 0xFD,
+    E_FACTORY_TEST_IRLED_ON = 0xFE,
+};
+
 typedef s_msg_demomode_data s_msg_factorytest_data;
 typedef s_msg_demomode_data s_msg_set_twins_mode_data;
 typedef s_msg_demomode_data s_msg_hijack_data;

@@ -219,6 +219,7 @@ typedef struct _tagSYSTEM_STATE
     float                       rResetFlagTime;
     int                         iMState;
     int                         iDemoMode;
+    int                         iFtIRLed; //irled test
 
     int                         iFuncTestFlag;
     s_msg*                      pLastMsg;

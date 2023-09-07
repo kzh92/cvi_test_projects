@@ -2096,23 +2096,39 @@ int MsgProcSense(MSG* pMsg)
     else if(pSenseMsg->mid == MID_FACTORY_TEST)
     {
         dbug_printf("MID_FACTORY_TEST\n");
+        int iCode = MR_FAILED4_INVALIDPARAM;
+        int iSendFlag = 0;
+
         if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_factorytest_data))
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_FACTORY_TEST, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
+            iSendFlag = 1;
         }
         else
         {
             s_msg_factorytest_data fdata;
 
             memcpy(&fdata, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-            if (fdata.enable == 1)
+            if (fdata.enable == E_FACTORY_TEST_NORMAL)
             {
                 g_xSS.iDemoMode = N_DEMO_FACTORY_MODE;
                 g_xSS.iSendLastMsgMode = 0;
 #if (USE_WHITE_LED)
                 gpio_whiteled_on(1);
 #endif
+            }
+            else if (fdata.enable == E_FACTORY_TEST_IRLED_ON)
+            {
+                g_xSS.iFtIRLed = 1;
+                GPIO_fast_setvalue(IR_LED, ON);
+                iCode = MR_SUCCESS;
+                iSendFlag = 1;
+            }
+            else if (fdata.enable == E_FACTORY_TEST_IRLED_OFF)
+            {
+                g_xSS.iFtIRLed = 0;
+                GPIO_fast_setvalue(IR_LED, OFF);
+                iCode = MR_SUCCESS;
+                iSendFlag = 1;
             }
             if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
@@ -2131,11 +2147,16 @@ int MsgProcSense(MSG* pMsg)
                 }
                 else
                 {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_FACTORY_TEST, MR_SUCCESS);
-                    g_pSenseTask->Send_Msg(reply_msg);
+                    iCode = MR_SUCCESS;
+                    iSendFlag = 1;
                 }
 #endif
             }
+        }
+        if (iSendFlag)
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_FACTORY_TEST, iCode);
+            g_pSenseTask->Send_Msg(reply_msg);
         }
     }
 #if (DESMAN_ENC_MODE == 0)
