@@ -274,8 +274,10 @@ void WatchTask::run()
             {
                 if (g_xSS.iStartOta == 0 && g_xSS.rAppStartTime != 0 && Now() - g_xSS.rAppStartTime >= USB_UPGRADE_TIMEOUT * 1000)
                 {
+#if (USE_USB_CHECKFIRM_MODE)
                     if (!g_xSS.bUVCRunning)
                         g_xSS.bCheckFirmware = 1;
+#endif
                     //power off module
                     // SendGlobalMsg(MSG_SENSE, 0, OTA_USB_DETECTED, 1);
                     // my_printf("ota: send OTA_USB_DETECTED\n");
