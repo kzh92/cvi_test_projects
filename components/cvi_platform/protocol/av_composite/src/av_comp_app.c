@@ -191,6 +191,8 @@ void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 
 	uvc_set_video_format_info(format_info);
 	uvc_set_video_frame_info(&format_info->frames[bFrameIndex - 1]);
+	setUvcWindow(format_info->frames[bFrameIndex - 1].width, format_info->frames[bFrameIndex - 1].height);
+	g_xSS.iUvcBitrate = format_info->frames[bFrameIndex - 1].bitrate;
 }
 
 void uvc_media_update(){
@@ -248,7 +250,6 @@ void uvc_media_update(){
 		stVpssChnAttr.bFlip = CVI_FALSE;
 		stVpssChnAttr.bMirror = CVI_FALSE;
 	}
-	printf("uvc(%dx%d)\n", uvc_frame_info.width, uvc_frame_info.height);
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
     if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)
@@ -273,7 +274,10 @@ void uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:2048;
+	if (g_xSS.iUvcBitrate > 0)
+		pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
+	printf("uvc(%dx%d),%dbr\n", uvc_frame_info.width, uvc_frame_info.height, pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate);
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index)
 		MEDIA_VIDEO_VencInit(pstVencCfg);
