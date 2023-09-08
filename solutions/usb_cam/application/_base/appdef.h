@@ -384,7 +384,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AIPAI_TOYA_UAC                307
 #define FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE      308
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HUANGLI_NEW_UAC
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -989,8 +989,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HUANGLI_NEW_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.45.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.45.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.45.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.45.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1020,6 +1020,8 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       1
 #undef USE_SHENAO_HAND
 #define USE_SHENAO_HAND                     1
+#undef USE_USB_CHECKFIRM_MODE
+#define USE_USB_CHECKFIRM_MODE              0
 
 //----------------------------------------------------------
 
