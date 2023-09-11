@@ -65,8 +65,14 @@ void GPIO_fast_deinit();
 int GPIO_fast_config(int, int);
 int GPIO_fast_setvalue(int gpio_pin, int value);
 int GPIO_fast_getvalue(int);
+void WLED_pwm_init();
+void WLED_pwm_on(unsigned char on);
 #define gpio_irled_on(on) GPIO_fast_setvalue(IR_LED, on)
+#if (WLED_PWM_DUTY < 100)
+#define gpio_whiteled_on(on) WLED_pwm_on(on)
+#else
 #define gpio_whiteled_on(on) GPIO_fast_setvalue(WHITE_LED, on)
+#endif
 
 #ifdef __cplusplus
 }

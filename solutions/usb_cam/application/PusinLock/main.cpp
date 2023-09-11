@@ -164,8 +164,13 @@ void DriverInit()
     GPIO_fast_setvalue(IR_LED, OFF);
 #endif
 #if (USE_WHITE_LED)
+#if (WLED_PWM_DUTY < 100) // use pwm
+    WLED_pwm_init();
+    WLED_pwm_on(OFF);
+#else // WLED_PWM_DUTY
     GPIO_fast_config(WHITE_LED, OUT);
     GPIO_fast_setvalue(WHITE_LED, OFF);
+#endif // WLED_PWM_DUTY
 #endif
 
 #ifdef AUDIO_EN

@@ -5,12 +5,16 @@
 #include <stdio.h>
 #include <drv/irq.h>
 #include <drv/pin.h>
+#include <drv/pwm.h>
 #include "drv_gpio.h"
 #include "appdef.h"
 #include "common_types.h"
 
 static csi_gpio_t gpio[5] = {0};
 static int g_csi_gpio_inited = 0;
+
+csi_pwm_t pwm;
+uint32_t wled_pwm_channel = 4; // PWM_8
 
 #define GPIO_PIN_MASK(_gpio_num) (1 << _gpio_num)
 
@@ -63,4 +67,21 @@ int GPIO_fast_getvalue(int gpio_pin)
     // dbug_printf("[%s] pin=%d, g=%d, n=%d, v=%d\n", __func__, gpio_pin, gpio_grp, gpio_num, value);
     
     return csi_gpio_read(&gpio[gpio_grp], GPIO_PIN_MASK(gpio_num));
+}
+
+void WLED_pwm_init()
+{
+    uint32_t period_us = 200, duty_us;
+    duty_us = period_us * WLED_PWM_DUTY / 100;
+
+    csi_pwm_init(&pwm, 2); // SD1_CMD -> PWM_8
+    csi_pwm_out_config(&pwm, wled_pwm_channel, period_us, duty_us, PWM_POLARITY_HIGH);
+}
+
+void WLED_pwm_on(unsigned char on)
+{
+    if (on)
+        csi_pwm_out_start(&pwm, wled_pwm_channel);
+    else
+        csi_pwm_out_stop(&pwm, wled_pwm_channel);
 }

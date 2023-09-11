@@ -18,7 +18,11 @@ static void _SensorPinmux()
     PINMUX_CONFIG(SD1_D0, PWR_GPIO_21); //IR LED pin
 #elif (DEFAULT_BOARD_TYPE == BD_TY_FMDBSS_1V0J)
     PINMUX_CONFIG(SD1_D0, PWR_GPIO_21); //IR LED pin
+#if (WLED_PWM_DUTY < 100) // use pwm
+    PINMUX_CONFIG(SD1_CMD, PWM_8);
+#else // WLED_PWM_DUTY
     PINMUX_CONFIG(SD1_CMD, PWR_GPIO_22); //WHITE LED pin
+#endif // WLED_PWM_DUTY
     PINMUX_CONFIG(SD1_CLK, PWR_GPIO_23); //PSense pin
 #else // DEFAULT_BOARD_TYPE
 	#error "Board Type Error!"

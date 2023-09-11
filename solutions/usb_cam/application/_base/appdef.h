@@ -211,6 +211,7 @@ enum E_Baud_Rate
 #define UVC_FIX_COMPRATE            0
 #define UVC_MJPEG_BITRATE           20480
 #define UVC_CROP_RESIZE             1
+#define WLED_PWM_DUTY               100     // %
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30
