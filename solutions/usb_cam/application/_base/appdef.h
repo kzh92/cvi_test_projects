@@ -386,7 +386,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE      308
 #define FRM_DBS3M_KELINGPU_MODE                 309   //WLED->PWM
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TONGXIN_PROTO
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -948,16 +948,16 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS35_LH_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.32.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.32.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.32.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.32.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 640, 480, 30, 0},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 8192}, \
+                                            {2, 640, 480, 30, 0, 4096},
 #undef DEFAULT_UVC_DIR
 #define DEFAULT_UVC_DIR                     UVC_ROTATION_270
 #undef ENGINE_USE_TWO_CAM
@@ -970,8 +970,6 @@ enum E_Baud_Rate
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
