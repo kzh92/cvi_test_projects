@@ -388,7 +388,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE      308
 #define FRM_DBS3M_KELINGPU_MODE                 309   //WLED->PWM
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KELINGPU_MODE
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)

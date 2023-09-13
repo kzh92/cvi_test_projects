@@ -49,10 +49,10 @@ void doCheckFirmware()
     if (g_xSS.iUsbHostMode)
     {
         int timeWLedlimit = 50;//5s
-        GPIO_fast_setvalue(WHITE_LED, 1);
+        gpio_whiteled_on(1);
         while(timeWLedlimit--)
             my_usleep(100*1000);
-        GPIO_fast_setvalue(WHITE_LED, 0);
+        gpio_whiteled_on(0);
     }
 #else
     MEDIA_VIDEO_Deinit();
