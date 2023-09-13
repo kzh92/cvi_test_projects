@@ -108,6 +108,8 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_103v9           3   //v1.0.3.9
 #define ISP_BIN_VER_21v0            4
 #define ISP_BIN_VER_21v1            5
+#define ISP_BIN_VER_21v2            6
+#define ISP_BIN_VER_21v4            7
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
 //uvc direction
@@ -386,7 +388,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE      308
 #define FRM_DBS3M_KELINGPU_MODE                 309   //WLED->PWM
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -797,8 +799,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.5.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.5.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -816,8 +818,6 @@ enum E_Baud_Rate
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
@@ -826,6 +826,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v2
 
 //----------------------------------------------------------
 
