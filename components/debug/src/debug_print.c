@@ -7,6 +7,7 @@
 #include "debug/dbg.h"
 #include "debug_api.h"
 #include <aos/types.h>
+#include "appdef.h"
 
 #define LONGFLAG       0x00000001
 #define LONGLONGFLAG   0x00000002
@@ -681,7 +682,9 @@ int32_t aos_debug_printf(const char *fmt, ...)
 {
     int ret;
     va_list ap;
+#if (FRM_PRODUCT_TYPE != FRM_DBS3M_FANHAI_MODE)
     return 0;
+#endif
 
 #if DEBUG_LAST_WORD_ENABLE
     if (g_crash_steps > 0) {
