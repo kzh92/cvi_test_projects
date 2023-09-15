@@ -213,6 +213,7 @@ enum E_Baud_Rate
 #define UVC_FIX_COMPRATE            0
 #define UVC_MJPEG_BITRATE           20480
 #define UVC_CROP_RESIZE             1
+#define ISP_FPS_FOR_UVC             0
 #define WLED_PWM_DUTY               100     // %
 
 #define WLED_TEST_TIMEOUT           5 // s
@@ -388,8 +389,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE      308
 #define FRM_DBS3M_KELINGPU_MODE                 309   //WLED->PWM
 #define FRM_DBS3M_FANHAI_MODE                   310
+#define FRM_DBS3M_AJISHI_CHANGSI_MODE           311
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AJISHI_CHANGSI_MODE
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -680,6 +682,50 @@ enum E_Baud_Rate
 #define CHECK_CLR_IR_SWITCH_THR             0
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.7.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0},  \
+                                            {3, 800, 480, 30, 0},  \
+                                            {4, 480, 320, 30, 0},  \
+                                            {5, 320, 240, 30, 0},
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#undef UVC_MJPEG_BITRATE
+#define UVC_MJPEG_BITRATE                   9000
+#undef ISP_FPS_FOR_UVC
+#define ISP_FPS_FOR_UVC                     12
 
 //----------------------------------------------------------
 

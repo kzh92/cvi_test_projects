@@ -19,6 +19,8 @@
 #include "cvi_tpu_interface.h"
 #include "drv_gpio.h"
 #include "common_types.h"
+#include "cam_base.h"
+#include "appdef.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
@@ -129,6 +131,10 @@ int main(int argc, char *argv[])
 	usleep(12 * 1000);
 	isp_daemon2_init(5566);
 	#endif
+
+  #if (ISP_FPS_FOR_UVC != 0)
+  camera_set_vi_fps(0, ISP_FPS_FOR_UVC);
+  #endif
 	//init tpu
 	cvi_tpu_init();
 #if (USE_WATCHDOG)
