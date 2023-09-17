@@ -488,6 +488,9 @@ static void *send_to_uvc()
 					aos_msleep(1);
 				}
 			}
+#if (UVC_MAX_FPS_TIME != 40)
+			aos_msleep(UVC_MAX_FPS_TIME);
+#endif
         }else {
 			aos_msleep(1);
 		}
