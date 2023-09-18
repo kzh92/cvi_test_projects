@@ -124,7 +124,7 @@ int audio_get_pcm_len(int type)
 void audio_set_vol(void)
 {
 	// u32 mic_volume = 24;//default:12 max:24
-    u32 speaker_volume = 32;//default:16 max:32
+    u32 speaker_volume = UAC_SPEAKER_VOL;//default:16 max:32
 
 	// cv182xadc_ioctl(ACODEC_SET_ADCL_VOL, (u64)&mic_volume);
 	// cv182xadc_ioctl(ACODEC_SET_ADCR_VOL, (u64)&mic_volume);

@@ -215,7 +215,8 @@ enum E_Baud_Rate
 #define UVC_CROP_RESIZE             1
 #define ISP_FPS_FOR_UVC             0
 #define WLED_PWM_DUTY               100     // %
-#define UAC_AUDALGO_USE               0
+#define UAC_AUDALGO_USE             0
+#define UAC_SPEAKER_VOL             32 // 0 ~ 32
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30
@@ -688,8 +689,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.7.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.7.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.0.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -709,6 +710,8 @@ enum E_Baud_Rate
 #define USE_3M_MODE                         1
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     16 // 0 ~ 32
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
