@@ -12,6 +12,8 @@
 #include "cvi_comm_aio.h"
 #include "cviaudio_algo_interface.h"
 #include "drv/timer.h"
+#include "appdef.h"
+#include "drv_gpio.h"
 
 #define USBD_VID           0xffff
 #define USBD_PID           0xffff
@@ -183,13 +185,33 @@ static void uac_timer_send_data_cb(void *timer, void *arg)
 
 #define AUDIO_AEC_LENGTH 160
 
+static uint8_t g_fAudioEnabled = 0;
+
 static void audio_write(void *arg)
 {
     int play_len = audio_get_pcm_len(UAC_SPEAKER_INDEX);
+    int ret = 0;
 
     while (1) {
-        aos_sem_wait(&g_audio_write_sem, AOS_WAIT_FOREVER);
-
+        ret = aos_sem_wait(&g_audio_write_sem, 1000);
+        if (ret == 0) {
+        #ifdef AUDIO_EN
+            if (g_fAudioEnabled == 0)
+            {
+                GPIO_fast_setvalue(AUDIO_EN, ON);
+                g_fAudioEnabled = 1;
+            }
+        #endif
+        } else {
+        #ifdef AUDIO_EN
+            if (g_fAudioEnabled == 1)
+            {
+                GPIO_fast_setvalue(AUDIO_EN, OFF);
+                g_fAudioEnabled = 0;
+            }
+        #endif
+            continue;            
+        }
         if (ring_buffer_len(g_ring_buf[UAC_SPEAKER_INDEX]) >= play_len) {
             int ret = ring_buffer_get(g_ring_buf[UAC_SPEAKER_INDEX], (void *)write_pcm_buf, play_len);
             if (ret > 0) {
@@ -210,7 +232,7 @@ static void audio_read(void *arg)
         USB_LOG_ERR("aos_malloc buf fail\n");
         return ;
     }
-#if(ENABLE_AUDALGO)
+#if (UAC_AUDALGO_USE == 1)
 	unsigned char *dataout = aos_malloc(CAPTURE_SIZE);
     if (dataout == NULL) {
         USB_LOG_ERR("aos_malloc buf fail\n");
@@ -225,7 +247,7 @@ static void audio_read(void *arg)
 			ret = audio_pcm_read(buf);
 		   if (ret > 0) {
                 data_len = ret/2;
-#if(ENABLE_AUDALGO)
+#if (UAC_AUDALGO_USE == 1)
 					for(int i=0; i<(ret/AUDIO_AEC_LENGTH/4);i++)
                      ret = CviAud_Algo_Process(pssp_handle, (short *)buf + i*AUDIO_AEC_LENGTH,
                          (short *)buf + ret/4 + i*AUDIO_AEC_LENGTH, (short *)dataout + i*AUDIO_AEC_LENGTH, AUDIO_AEC_LENGTH);
@@ -242,7 +264,7 @@ static void audio_read(void *arg)
         aos_msleep(1);
     }
     aos_free(buf);
-#if(ENABLE_AUDALGO)
+#if (UAC_AUDALGO_USE == 1)
 	aos_free(dataout);
 #endif
 

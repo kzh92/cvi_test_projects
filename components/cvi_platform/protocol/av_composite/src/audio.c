@@ -7,6 +7,7 @@
 #include "cvi_comm_aio.h"
 #include "cviaudio_algo_interface.h"
 #include "cv181x_adc_dac.h"
+#include "appdef.h"
 
 static aos_pcm_t *capture_handle,*playback_handle;
 static unsigned int rate = 8000;       //ai ao default 16K
@@ -31,7 +32,7 @@ static void audio_capture_init(void)
 //	byte_len = aos_pcm_frames_to_bytes(capture_handle, PERIOD_FRAMES_SIZE);
 }
 
-#if(ENABLE_AUDALGO)
+#if (UAC_AUDALGO_USE == 1)
 static void audio_algo_init(void)
 {
 	char pstrVersion[52];
@@ -40,17 +41,17 @@ static void audio_algo_init(void)
     AI_TALKVQE_CONFIG_S *pstVqeConfig = &stVqeConfig;
 
     pstVqeConfig->para_client_config = 0;
-    pstVqeConfig->u32OpenMask = AI_TALKVQE_MASK_AEC | AI_TALKVQE_MASK_AGC | AI_TALKVQE_MASK_ANR;
+    pstVqeConfig->u32OpenMask = AI_TALKVQE_MASK_AEC | AI_TALKVQE_MASK_ANR;
     pstVqeConfig->s32WorkSampleRate = rate;
     pstVqeConfig->s32RevMask = 0;
     pstVqeConfig->para_notch_freq = 0;
     /* AEC */
-    pstVqeConfig->stAecCfg.para_aec_filter_len = 13;
-    pstVqeConfig->stAecCfg.para_aes_std_thrd = 37;
+    pstVqeConfig->stAecCfg.para_aec_filter_len = 7;
+    pstVqeConfig->stAecCfg.para_aes_std_thrd = 10;
     pstVqeConfig->stAecCfg.para_aes_supp_coeff = 60;
     /* ANR */
     pstVqeConfig->stAnrCfg.para_nr_snr_coeff = 15;
-    pstVqeConfig->stAnrCfg.para_nr_init_sile_time = 0;
+    pstVqeConfig->stAnrCfg.para_nr_init_sile_time = 50;
 
     /* AGC */
     pstVqeConfig->stAgcCfg.para_agc_max_gain = 0;
@@ -137,7 +138,7 @@ void audio_set_vol(void)
 int media_audio_init(void)
 {
     audio_capture_init();
-#if(ENABLE_AUDALGO)
+#if (UAC_AUDALGO_USE == 1)
 	audio_algo_init();
 #endif
     audio_play_init();
@@ -150,7 +151,7 @@ int media_audio_init(void)
 int media_audio_deinit(void)
 {
     aos_pcm_close(playback_handle); //关闭设备
-#if(ENABLE_AUDALGO)
+#if (UAC_AUDALGO_USE == 1)
 	CviAud_Algo_DeInit(pssp_handle);
 #endif
 	aos_pcm_close(capture_handle); //关闭设备

@@ -205,9 +205,6 @@ void VDBTask::run()
     //my_printf("before av init\n");
     // MEDIA_UVC_Init();
     MEDIA_AV_Init();
-#ifdef AUDIO_EN
-    GPIO_fast_setvalue(AUDIO_EN, ON);
-#endif
     //my_printf("after av init\n");
     StartCamSurface(0);
 #if 0
