@@ -1051,6 +1051,17 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             {
                 my_usleep(20*1000);
                 m_iResult = HAND_RESULT_ENROLLED;
+                if (g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE && g_xSS.iEnrollMutiDirMode)
+                {
+                    for (int t = 0; t < 100; t ++)
+                    {
+                        my_usleep(20*1000);
+                        if (t % 5 == 0)
+                            SendFaceDetectMsg();
+                        if (g_xSS.iResetFlag)
+                            break;
+                    }
+                }
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_DUPLICATED)
@@ -1062,13 +1073,26 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             else if(arEngineResult[0] == ES_ENEXT)
             {
                 my_usleep(20*1000);
-#if (N_MAX_HAND_NUM)
-                if ((SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG) || g_xSS.iRegisterMixMode == ENROLL_FACE_HAND_MIX)
+#if (USE_SANJIANG3_MODE)
+                if ((SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG) || (g_xSS.iRegisterMixMode == ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 1))
                 {
                     m_iResult = HAND_RESULT_ENROLLED;
                 }
                 else
+                {
                     m_iResult = HAND_RESULT_ENROLLED_NEXT;
+                    if (g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE && g_xSS.iEnrollMutiDirMode)
+                    {
+                        for (int t = 0; t < 100; t ++)
+                        {
+                            my_usleep(20*1000);
+                            if (t % 5 == 0)
+                                SendFaceDetectMsg();
+                            if (g_xSS.iResetFlag)
+                                break;
+                        }
+                    }
+                }
 #else // USE_SANJIANG3_MODE
                 m_iResult = HAND_RESULT_ENROLLED_NEXT;
 #endif // USE_SANJIANG3_MODE

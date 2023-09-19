@@ -3045,6 +3045,10 @@ int ProcessSenseFace(int iCmd)
                     int iSuccessCode = MR_SUCCESS;
                     CLEAR(xMetaInfo);
                     CLEAR(xFeatInfo);
+
+                    if (g_xSS.iEnrollMutiDirMode)
+                        g_xSS.iRegisterDir |= g_xSS.msg_enroll_itg_data.face_direction;
+
                     //get new user id because of mixed enroll mode
                     int iUserID = dbm_GetNewHandUserID();
                     if (iUserID >= 0)
