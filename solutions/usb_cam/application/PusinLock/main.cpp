@@ -3046,8 +3046,10 @@ int ProcessSenseFace(int iCmd)
                     CLEAR(xMetaInfo);
                     CLEAR(xFeatInfo);
 
+#if (USE_TONGXIN_PROTO == 0)
                     if (g_xSS.iEnrollMutiDirMode)
                         g_xSS.iRegisterDir |= g_xSS.msg_enroll_itg_data.face_direction;
+#endif // USE_TONGXIN_PROTO
 
                     //get new user id because of mixed enroll mode
                     int iUserID = dbm_GetNewHandUserID();
