@@ -393,7 +393,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_FANHAI_MODE                   310
 #define FRM_DBS3M_AJISHI_CHANGSI_MODE           311
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AJISHI_CHANGSI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -1077,8 +1077,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.43.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.43.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.43.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.43.4_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1096,8 +1096,6 @@ enum E_Baud_Rate
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
