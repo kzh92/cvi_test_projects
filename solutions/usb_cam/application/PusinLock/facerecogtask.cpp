@@ -483,7 +483,7 @@ void FaceRecogTask::run()
         UpdateHeadInfos2();
 #endif // DEFAULT_SECURE_MODE
 
-#if (USE_3M_MODE)
+#if (USE_3M_MODE == 1)
     camera_clr_set_exp(g_sc201cs_aec_exp);
     camera_clr_set_gain(g_sc201cs_aec_gain, g_sc201cs_aec_dig_gain, g_sc201cs_aec_fine_gain);
     camera_clr_start_aec();
@@ -865,7 +865,8 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
     if(g_xSS.iResetFlag == 1)
         return 1;
 
-#if (USE_3M_MODE)
+#if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
+#if (USE_3M_MODE == 1)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] ==  0) //face mode only
     {
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
@@ -895,7 +896,8 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
             arEngineResult[0] = ES_PROCESS;
         }
     }
-#else // USE_3M_MODE
+#endif // USE_3M_MODE
+#elif (ENGINE_USE_TWO_CAM != EUTC_2D_MODE) // ENGINE_USE_TWO_CAM
     unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && iSecondImageReCheck)
     {
@@ -917,7 +919,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
             arEngineResult[0] = ES_PROCESS;
         }
     }
-#endif // USE_3M_MODE
+#endif // ENGINE_USE_TWO_CAM
     if(arEngineResult[0] == ES_PROCESS && m_rFaceFailTime != 0)
     {
         if(Now() - m_rFaceFailTime >= N_MAX_FAILED_TIME * 1000)
@@ -969,7 +971,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 
     if(g_xSS.iResetFlag == 1)
         return 1;
-#if (USE_3M_MODE)
+#if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
+#if (USE_3M_MODE == 1)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] ==  0) //face mode only
     {
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
@@ -991,7 +994,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             arEngineResult[0] = ES_PROCESS;
         }
     }
-#else // USE_3M_MODE
+#endif // USE_3M_MODE
+#elif (ENGINE_USE_TWO_CAM != EUTC_2D_MODE) // ENGINE_USE_TWO_CAM
     unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && iSecondImageReCheck)
     {
@@ -1013,7 +1017,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             arEngineResult[0] = ES_PROCESS;
         }
     }
-#endif // USE_3M_MODE
+#endif // ENGINE_USE_TWO_CAM
     if(arEngineResult[0] != ES_PROCESS)
     {
         if(arEngineResult[1] ==  0) //face mode only

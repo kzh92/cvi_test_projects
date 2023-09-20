@@ -654,14 +654,6 @@ void* ProcessTCMipiCapture(void */*param*/)
             camera_set_pattern_mode(TC_MIPI_CAM, 1);
         }
 
-#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
-        if (!g_xSS.iUvcSensor && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iUVCIRDataReady == 0)
-        {
-            camera_set_irled_on(1);
-            g_iTwoCamFlag = IR_CAMERA_STEP0;
-        }
-#endif // EUTC_3V4_MODE
-
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA || g_xSS.bCheckFirmware) break;
 
         frm_num = 1;
@@ -748,7 +740,8 @@ void* ProcessTCMipiCapture(void */*param*/)
         rOld = Now();
 
 #if (USE_VDBTASK)
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iClrCheck == 0 && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE /*&& dev == 1*/)
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iClrCheck == 0 && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && 
+            (g_xSS.iAutoUserAdd == 0 || g_xSS.iAutoUserAdd >= 6))
         {
             lockIRBuffer();
             size_t test_pos = 0;
@@ -780,7 +773,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
             //swtich to id->1
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+#if (USE_3M_MODE == 1 && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.iFirstFlag == 0)
             {
                 g_xSS.iFirstFlag = 2; // get first color frame
@@ -863,12 +856,14 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iTwoCamFlag ++;
 #else // ENGINE_USE_TWO_CAM
             WaitIRCancel();
+#if (USE_3M_MODE == 1)
             if (g_xSS.iFirstFlag == 0 && g_iTwoCamFlag == IR_CAMERA_STEP2)
             {
                 g_xSS.iFirstFlag = 1;
                 g_iTwoCamFlag ++;
             }
             else
+#endif // USE_3M_MODE
             {
                 gpio_irled_on(OFF);
                 g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;

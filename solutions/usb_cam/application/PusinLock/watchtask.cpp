@@ -234,7 +234,8 @@ void WatchTask::run()
             {
                 iClrDarkCounter = 0;
 #if (USE_3M_MODE)
-                gpio_whiteled_on(ON);
+                if (USE_3M_MODE == 1 || g_xSS.bUVCRunning)
+                    gpio_whiteled_on(ON);
 #endif
             }
         }
