@@ -18,6 +18,7 @@
 extern SenseLockTask* g_pSenseTask;
 
 void* watchTask_ThreadProc1(void* param);
+extern "C" void uvc_set_reinit_flag();
 
 WatchTask::WatchTask()
 {
@@ -234,8 +235,12 @@ void WatchTask::run()
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)
-                g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
-                uvc_set_reinit_flag();
+                if (g_xSS.iUvcSensor != (DEFAULT_SNR4UVC + 1) % 2)
+                {
+                    g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
+                    camera_set_mono_chrome(1);
+                    uvc_set_reinit_flag();
+                }
 #else // USE_WHITE_LED
 #if (USE_3M_MODE)
                 if (USE_3M_MODE == 1 || g_xSS.bUVCRunning)

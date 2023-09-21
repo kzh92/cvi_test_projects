@@ -104,6 +104,7 @@ int camera_get_actIR();
 int camera_sleep(int id);
 int camera_wakeup(int id);
 void camera_set_vi_fps(int pipe, int fps);
+void camera_set_mono_chrome(int enable);
 
 #ifdef __cplusplus
 }

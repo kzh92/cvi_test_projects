@@ -765,3 +765,11 @@ void camera_set_vi_fps(int pipe, int fps)
 
     CVI_ISP_SetPubAttr(pipe, &stPubAttr);
 }
+
+void camera_set_mono_chrome(int enable)
+{
+    ISP_MONO_ATTR_S monoAttr;
+    CVI_ISP_GetMonoAttr(0, &monoAttr);
+    monoAttr.Enable = enable;
+    CVI_ISP_SetMonoAttr(0, &monoAttr);
+}

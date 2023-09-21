@@ -14,6 +14,7 @@
 #include <core/core_rv64.h>
 #include "appdef.h"
 #include "settings.h"
+#include "cam_base.h"
 
 #define VIDEO_IN_EP 0x81
 
@@ -106,12 +107,7 @@ CVI_S32 is_media_info_update(){
 	VPSS_CHN_ATTR_S stVpssChnAttr, *pstVpssChnAttr = &stVpssChnAttr;
 	PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
 	CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
-	int iUvcSensor = g_xSS.iUvcSensor;
-#if (USE_WHITE_LED == 0)
-	if (!media_snr_is_inited(iUvcSensor))
-		iUvcSensor = (iUvcSensor + 1) % 2;
-	g_xSS.iUvcSensor = iUvcSensor;
-#endif
+	int iUvcSensor = DEFAULT_SNR4UVC;
 
 	struct uvc_format_info_st uvc_format_info;
 	struct uvc_frame_info_st uvc_frame_info;
@@ -206,12 +202,7 @@ int uvc_media_update(){
 	PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
 	VPSS_CHN_ATTR_S stVpssChnAttr;
 	CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
-	int iSensor = g_xSS.iUvcSensor;
-#if (USE_WHITE_LED == 0)
-	if (!media_snr_is_inited(iSensor))
-		iSensor = (iSensor + 1) % 2;
-	g_xSS.iUvcSensor = iSensor;
-#endif
+	int iSensor = DEFAULT_SNR4UVC;
 
 	struct uvc_format_info_st uvc_format_info;
 	struct uvc_frame_info_st uvc_frame_info;
@@ -250,7 +241,7 @@ int uvc_media_update(){
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
-	if (g_xSS.iUvcDirect == UVC_ROTATION_270)
+	if (g_xSS.iUvcDirect == UVC_ROTATION_270 || g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
 	{
 		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
 		stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
@@ -309,7 +300,8 @@ void uvc_streaming_on(int is_on) {
 #if (USE_WHITE_LED == 0)
 		if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
 	    {
-	        g_xSS.iUvcSensor = 0;
+	        g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
+	        camera_set_mono_chrome(1);
 	        uvc_update = 2;
 	    }
 #endif
@@ -405,7 +397,7 @@ static void *send_to_uvc()
 			if(uvc_update){
 				uvc_media_update();
 				uvc_get_video_format_info(&uvc_format_info);
-				if (!g_xSS.iUvcSensor && uvc_update == 2)
+				if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && uvc_update == 2)
 					skip_count = 1;
 				uvc_update = 0;
 			}
@@ -442,8 +434,8 @@ static void *send_to_uvc()
 							continue;
 					}
 				}
-#if (USE_WHITE_LED == 0)
-				if (!g_xSS.iUvcSensor && g_xSS.iUVCIRDataReady == 0)
+#if (USE_WHITE_LED == 0 && 0)
+				if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.iUVCIRDataReady == 0)
 				{
 					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 					continue;

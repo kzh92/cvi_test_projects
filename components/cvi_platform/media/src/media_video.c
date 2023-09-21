@@ -1256,7 +1256,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
         MEDIA_CHECK_RET(CVI_VENC_GetJpegParam(VencChn, &stJpegParam), "CVI_VENC_GetJpegParam");
         MEDIA_CHECK_RET(CVI_VENC_SetJpegParam(VencChn, &stJpegParam), "CVI_VENC_SetJpegParam");
     }
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED == 0 && 0)
     if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && (pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI )){
 #else
 	if (pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI ){
@@ -1383,7 +1383,7 @@ int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned
     }
     pstVecncChnCtx = &pstVencCfg->pstVencChnCfg[VencChn];
     pstVecncChnCtx->stChnParam.u8RunStatus = 1;
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED == 0 && 0)
     if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
     {
         if (g_xSS.iUVCIRDataReady == 0)
@@ -1445,7 +1445,7 @@ EXIT:
     if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
         MEDIA_CHECK_RET(CVI_VPSS_ReleaseChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame), "CVI_VPSS_ReleaseChnFrame");
     }
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED == 0 && 0)
     if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
         MEDIA_CHECK_RET(CVI_VPSS_ReleaseChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame), "CVI_VPSS_ReleaseChnFrame");
 #endif

@@ -14,6 +14,12 @@
 			printf("[%d]:%s() \n" fmt, __LINE__, __func__, ## arg); \
 		}																		 \
 	} while (0)
+
+#ifdef __cplusplus
+extern  "C"
+{
+#endif
+
 int MEDIA_VIDEO_SysVbInit(PARAM_SYS_CFG_S * pstSysCtx);
 int MEDIA_VIDEO_ViInit(PARAM_VI_CFG_S * pstViCfg);
 int MEDIA_VIDEO_VpssInit(PARAM_VPSS_CFG_S * pstVpssCtx);
@@ -32,5 +38,12 @@ int MEDIA_VIDEO_VencRequstIDR(int VencChn);
 int MEDIA_VIDEO_ViSetImageMono(VI_PIPE ViPipe);
 int MEDIA_VIDEO_VoInit(PARAM_VO_CFG_S * pstVoCtx);
 int MEDIA_VIDEO_VoDeinit(PARAM_VO_CFG_S * pstVoCtx);
+
+int media_snr_is_inited(int snr);
+void InsertDataForVenc(uint8_t* iYBuf, uint8_t* iUBuf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

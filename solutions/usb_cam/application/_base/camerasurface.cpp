@@ -22,6 +22,7 @@
 #include "cvi_buffer.h"
 #include "vfs.h"
 #include "cvi_vpss.h"
+#include "media_video.h"
 #include <fcntl.h>
 
 #include <errno.h>
@@ -736,8 +737,10 @@ void* ProcessTCMipiCapture(void */*param*/)
         dev = 0;
 #endif
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-        if (g_xSS.rFaceEngineTime == 0 && camera_get_actIR() == MIPI_CAM_S2LEFT)
+        if (g_xSS.rFaceEngineTime == 0 && camera_get_actIR() == MIPI_CAM_S2LEFT && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
+        {
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+        }
         if (iClrFrameCount)
         {
             iClrFrameCount--;
@@ -870,6 +873,12 @@ void* ProcessTCMipiCapture(void */*param*/)
             {
                 g_iLedOnStatus = 0;
                 gpio_irled_on(ON);
+#if (USE_WHITE_LED == 0)
+                if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+                {
+                    CVI_VI_StartPipe(0);
+                }
+#endif // USE_WHITE_LED
             }
 
             lockIROffBuffer();
@@ -879,7 +888,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             WaitIROffCancel();
             g_iTwoCamFlag ++;
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-            if (g_xSS.bUVCRunning)
+            if (g_xSS.bUVCRunning && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
             {
                 camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
                 iClrFrameCount = DEFAULT_CLR_IR_FRAME_RATIO;
@@ -893,9 +902,13 @@ void* ProcessTCMipiCapture(void */*param*/)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP2)
         {
 #if (USE_3M_MODE)
+#if (USE_WHITE_LED == 0)
+            if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+                CVI_VI_StopPipe(0);
+#endif // USE_WHITE_LED
             gpio_irled_on(OFF);
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-            if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.bUVCRunning && g_xSS.rFaceEngineTime == 0)
+            if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
             {
             }
             else
@@ -904,7 +917,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 #else
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
 #endif
-
             lockIRBuffer();
             size_t test_pos = 0;
             for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
@@ -942,9 +954,14 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_3M_MODE != 1 && USE_WHITE_LED == 0)
                 if (g_xSS.bUVCRunning && !g_xSS.iUVCIRDataReady && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
+#if 0
                     if (PrepareDataForVenc(g_iUVCIRDataY, g_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, 1) == CVI_SUCCESS)
                         g_xSS.iUVCIRDataReady = 1;
                     InsertDataForVenc(g_iUVCIRDataY, g_iUVCIRDataU);
+#else
+                    g_xSS.iUVCIRDataReady = 0;
+                    my_usleep(100*1000);
+#endif
                 }
 #endif // !USE_3M_MODE
             }
@@ -968,7 +985,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #endif // ENGINE_USE_TWO_CAM == EUTC_3V4_MODE
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
-#if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)            
+#if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 #endif
 #if (USE_WHITE_LED == 0)
