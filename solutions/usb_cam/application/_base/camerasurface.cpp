@@ -939,7 +939,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             {
                 gpio_irled_on(OFF);
                 g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-#if (USE_3M_MODE != 1)
+#if (USE_3M_MODE != 1 && USE_WHITE_LED == 0)
                 if (g_xSS.bUVCRunning && !g_xSS.iUVCIRDataReady && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
                     if (PrepareDataForVenc(g_iUVCIRDataY, g_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, 1) == CVI_SUCCESS)

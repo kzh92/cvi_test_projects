@@ -431,7 +431,9 @@ int setUvcWindow(int width, int height)
     ret = (g_xSS.iUvcWidth != width) || (g_xSS.iUvcHeight != height);
     g_xSS.iUvcWidth = width;
     g_xSS.iUvcHeight = height;
+#if (USE_WHITE_LED == 0)
     g_xSS.iUvcResChanged = 1;
+#endif
     unlockUvcWindow();
 #endif // _APP_UPGRADE
     return ret;

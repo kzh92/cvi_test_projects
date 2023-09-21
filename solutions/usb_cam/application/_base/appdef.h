@@ -841,8 +841,8 @@ enum E_Baud_Rate
 #define USE_SANJIANG3_MODE                  1
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
-#undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+// #undef USE_WHITE_LED
+// #define USE_WHITE_LED                       1
 // #undef WLED_PWM_DUTY
 // #define WLED_PWM_DUTY                       15
 

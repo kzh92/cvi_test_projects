@@ -397,6 +397,7 @@ static void *send_to_uvc()
 	VPSS_CHN_ATTR_S stChnAttr,*pstChnAttr = &stChnAttr;
 	struct uvc_format_info_st uvc_format_info;
 	int print_flag = 0;
+	int skip_count = 0;
 
     while (uvc_session_init_flag) {
         if (tx_flag) {
