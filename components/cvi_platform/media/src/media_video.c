@@ -49,8 +49,17 @@
 #include "cvi_sys.h"
 #include "gui_display.h"
 
+#if (USE_WHITE_LED == 0)
+#include "appdef.h"
+#include "settings.h"
+#endif
 static PARAM_VENC_CFG_S *g_pstVencCfg = NULL;
 static int g_mediaVideoRunStatus = 0;
+static unsigned char g_snsInited[2] = {0};
+#if (USE_WHITE_LED == 0)
+uint8_t* stYData = NULL;
+uint8_t* stUData = NULL;
+#endif
 #if 0
 CVI_S32 _getFileSize(FILE *fp, CVI_U32 *size)
 {
@@ -114,6 +123,19 @@ ERROR_HANDLER:
 	return 0;
 }
 #endif
+int media_snr_is_inited(int snr)
+{
+	if (snr > -1 && snr < 2)
+		return g_snsInited[snr];
+	return 0;
+}
+
+void media_snr_set_inited(int snr, int val)
+{
+	if (snr > -1 && snr < 2)
+		g_snsInited[snr] = val;
+}
+
 static int start_isp(ISP_PUB_ATTR_S stPubAttr, VI_PIPE ViPipe)
 {
 	//Param init
@@ -370,8 +392,10 @@ static int _meida_sensor_init(PARAM_VI_CFG_S * pstViCtx,CVI_U8 *devNum)
         if (pSnsObj[i]->pfnSnsProbe) {
             s32Ret = pSnsObj[i]->pfnSnsProbe(i);
             if (s32Ret) {
-                MEDIABUG_PRINTF("sensor probe failed!\n");
-                return CVI_FAILURE;
+                printf("sensor probe failed: %d\n", i);
+                // return CVI_FAILURE;
+            } else {
+            	media_snr_set_inited(i, 1);
             }
         }
     }
@@ -1232,7 +1256,11 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
         MEDIA_CHECK_RET(CVI_VENC_GetJpegParam(VencChn, &stJpegParam), "CVI_VENC_GetJpegParam");
         MEDIA_CHECK_RET(CVI_VENC_SetJpegParam(VencChn, &stJpegParam), "CVI_VENC_SetJpegParam");
     }
-    if(pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI ) {
+#if (USE_WHITE_LED == 0)
+    if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && (pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI )){
+#else
+	if (pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI ){
+#endif
         stDestChn.enModId = CVI_ID_VENC;
         stDestChn.s32DevId = 0;
         stDestChn.s32ChnId = pstVecncChnCtx->stChnParam.u8VencChn;
@@ -1328,6 +1356,14 @@ static int _MEDIA_VIDEO_VencDeInit()
     return MEDIA_VIDEO_VencDeInit(pstVencCfg);
 }
 
+void InsertDataForVenc(uint8_t* iYBuf, uint8_t* iUBuf)
+{
+#if (USE_WHITE_LED == 0)
+    stYData = iYBuf;
+    stUData = iUBuf;
+#endif
+}
+
 int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned int blocktimeMs)
 {
     CVI_S32 s32ret = CVI_SUCCESS;
@@ -1347,7 +1383,37 @@ int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned
     }
     pstVecncChnCtx = &pstVencCfg->pstVencChnCfg[VencChn];
     pstVecncChnCtx->stChnParam.u8RunStatus = 1;
+#if (USE_WHITE_LED == 0)
+    if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+    {
+        if (g_xSS.iUVCIRDataReady == 0)
+        {
+            pstVecncChnCtx->stChnParam.u8RunStatus = 0;
+            return CVI_FAILURE;
+        }
+        CVI_U32 nAlignVal = DEFAULT_ALIGN;
+
+        MEDIA_CHECK_RET(CVI_VPSS_GetChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame, 2000), "CVI_VPSS_GetChnFrame");
+        VIDEO_FRAME_S *vFrame = &stSrcFrame.stVFrame;
+        memset(stUData, 0x80, vFrame->u32Width * vFrame->u32Height / 2);
+        nAlignVal = (vFrame->u32Width % DEFAULT_ALIGN) ? 16 : DEFAULT_ALIGN;
+        vFrame->u32Stride[0] = ALIGN(vFrame->u32Width, nAlignVal);
+        vFrame->u32Stride[1] = ALIGN(vFrame->u32Width >> 1, nAlignVal);
+        vFrame->u32Stride[2] = 0;
+        vFrame->u64PhyAddr[0] = (u64)stYData;
+        vFrame->u64PhyAddr[1] = (u64)stUData;
+        vFrame->u64PhyAddr[2] = 0;
+
+        s32ret = CVI_VENC_SendFrame(VencChn, &stSrcFrame, 2000);
+        if(s32ret != CVI_SUCCESS) {
+            MEDIABUG_PRINTF("%d CVI_VENC_SendFrame err \n",VencChn);
+            goto EXIT;
+        }
+    }
+    else if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
+#else
     if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
+#endif
         MEDIA_CHECK_RET(CVI_VPSS_GetChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame, 2000), "CVI_VPSS_GetChnFrame");
         s32ret = CVI_VENC_SendFrame(VencChn, &stSrcFrame, 2000);
         if(s32ret != CVI_SUCCESS) {
@@ -1379,6 +1445,10 @@ EXIT:
     if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
         MEDIA_CHECK_RET(CVI_VPSS_ReleaseChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame), "CVI_VPSS_ReleaseChnFrame");
     }
+#if (USE_WHITE_LED == 0)
+    if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+        MEDIA_CHECK_RET(CVI_VPSS_ReleaseChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame), "CVI_VPSS_ReleaseChnFrame");
+#endif
     pstVecncChnCtx->stChnParam.u8RunStatus = 0;
     return s32ret;
 }

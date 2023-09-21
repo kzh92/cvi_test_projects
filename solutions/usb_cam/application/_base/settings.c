@@ -346,6 +346,7 @@ void ResetSystemState(int iAppType)
     g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
     g_xSS.iCapWidth = CAPTURE_WIDTH;
     g_xSS.iCapHeight = CAPTURE_HEIGHT;
+    g_xSS.iUvcSensor = DEFAULT_SNR4UVC;
     g_xSS.iUvcDirect = DEFAULT_UVC_DIR;
     g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MODE;
 }
@@ -430,6 +431,7 @@ int setUvcWindow(int width, int height)
     ret = (g_xSS.iUvcWidth != width) || (g_xSS.iUvcHeight != height);
     g_xSS.iUvcWidth = width;
     g_xSS.iUvcHeight = height;
+    g_xSS.iUvcResChanged = 1;
     unlockUvcWindow();
 #endif // _APP_UPGRADE
     return ret;

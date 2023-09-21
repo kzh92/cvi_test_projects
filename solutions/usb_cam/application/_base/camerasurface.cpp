@@ -61,7 +61,10 @@ mymutex_ptr g_captureLock = 0;
 
 unsigned char*  g_irOnData1 = NULL;
 unsigned char*  g_irOnData2 = NULL;
-
+#if (USE_WHITE_LED == 0)
+unsigned char*  g_iUVCIRDataY = NULL;
+unsigned char*  g_iUVCIRDataU = NULL;
+#endif
 int             g_iCamCounter = 0;
 int             g_nGainClr = 0;
 int             g_nExposureClr = 0;
@@ -142,7 +145,9 @@ void StartFirstCam()
     if (g_irOnData1 == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
     g_irOnData2 = g_irOnData1 + IR_BUFFER_SIZE;
-
+#if (USE_WHITE_LED == 0)
+    g_iUVCIRDataY = g_irOnData2;
+#endif
 #if (USE_VDBTASK)
     // g_clrWriteLock = my_mutex_init();
     // g_clrYuvData_tmp = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
@@ -615,6 +620,63 @@ void* ProcessDVPCapture(void */*param*/)
     return NULL;
 }
 
+#if (USE_WHITE_LED == 0)
+int PrepareDataForVenc(uint8_t* idstBuf, uint8_t* isrcBuf, int iWidth, int iHeight, int rotate)
+{
+    // memcpy(idstBuf, isrcBuf, iWidth * iHeight);
+    // if (rotate)
+    // 	rotateImage_inner(idstBuf, iWidth, iHeight, 180);
+    memset(idstBuf, 0, iWidth * iHeight);
+    int crop_width, crop_height;
+
+    if(iWidth * g_xSS.iUvcHeight / g_xSS.iUvcWidth > iHeight)
+    {
+        crop_height = iHeight;
+        crop_width = iHeight * g_xSS.iUvcWidth / g_xSS.iUvcHeight;
+    }
+    else
+    {
+        crop_width = iWidth;
+        crop_height =  iWidth * g_xSS.iUvcHeight / g_xSS.iUvcWidth;
+    }
+
+    CVI_U32 xStart = 0, yStart = 0;
+
+    xStart = (iWidth - crop_width) / 2;
+    yStart = (iHeight - crop_height) / 2;
+
+    for(int i = 0; i < crop_height; i++)
+    {
+        for(int j = 0; j < crop_width; j++)
+        {
+            if (rotate == 0)
+                idstBuf[i * crop_width + j] = isrcBuf[(yStart + i) * iWidth + (xStart + j)];
+            else
+                idstBuf[i * crop_width + j] = isrcBuf[((iHeight - yStart) - i) * iWidth + ((iWidth - xStart) - j)];
+        }
+    }
+    remove_white_point_riscv(idstBuf, crop_width, crop_height);
+    convert_bayer2y_rotate_cm(idstBuf, crop_width, crop_height);
+    Shrink_Grey(idstBuf, crop_height, crop_width, idstBuf, g_xSS.iUvcHeight, g_xSS.iUvcWidth);
+
+    if (g_xSS.iUvcResChanged)
+    {
+        free(g_iUVCIRDataU);
+        g_iUVCIRDataU = NULL;
+        g_xSS.iUvcResChanged = 0;
+    }
+
+    if(g_iUVCIRDataU == NULL)
+    {
+        g_iUVCIRDataU = (unsigned char*)malloc(g_xSS.iUvcWidth * g_xSS.iUvcHeight / 2);
+        if (g_iUVCIRDataU == NULL)
+            return CVI_FALSE;
+    }
+
+    return CVI_SUCCESS;
+}
+#endif
+
 void* ProcessTCMipiCapture(void */*param*/)
 {
     VIDEO_FRAME_INFO_S stVideoFrame[2];
@@ -653,7 +715,13 @@ void* ProcessTCMipiCapture(void */*param*/)
             pat_set = 1;
             camera_set_pattern_mode(TC_MIPI_CAM, 1);
         }
-
+#if (USE_WHITE_LED == 0)
+        if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.bUVCRunning && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iUVCIRDataReady == 0)
+        {
+            camera_set_irled_on(1);
+            g_iTwoCamFlag = IR_CAMERA_STEP0;
+        }
+#endif
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA || g_xSS.bCheckFirmware) break;
 
         frm_num = 1;
@@ -827,7 +895,11 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_3M_MODE)
             gpio_irled_on(OFF);
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+            if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.bUVCRunning && g_xSS.rFaceEngineTime == 0)
+            {
+            }
+            else
+                camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
 #endif
 #else
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
@@ -867,8 +939,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             {
                 gpio_irled_on(OFF);
                 g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-#if (!USE_3M_MODE)
-                if (!g_xSS.iUVCIRDataReady && !g_xSS.iUvcSensor)
+#if (USE_3M_MODE != 1)
+                if (g_xSS.bUVCRunning && !g_xSS.iUVCIRDataReady && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
                     if (PrepareDataForVenc(g_iUVCIRDataY, g_irOnData1, IR_CAM_WIDTH, IR_CAM_HEIGHT, 1) == CVI_SUCCESS)
                         g_xSS.iUVCIRDataReady = 1;
@@ -898,6 +970,9 @@ void* ProcessTCMipiCapture(void */*param*/)
             gpio_irled_on(OFF);
 #if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)            
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+#endif
+#if (USE_WHITE_LED == 0)
+            g_xSS.iUVCIRDataReady = 0;
 #endif
             lockIRBuffer();
             size_t test_pos = 0;
@@ -1123,6 +1198,7 @@ int WaitClrTimeout(int iTimeout)
         my_mutex_lock(g_clrWriteLock);
         if (g_clrWriteCond == 1)
         {
+            g_clrWriteCond = 0;
             my_mutex_unlock(g_clrWriteLock);
             // dbug_printf("[%s] return 0\n", __func__);
             return 0;

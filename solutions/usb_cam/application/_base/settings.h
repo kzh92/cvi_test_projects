@@ -238,7 +238,12 @@ typedef struct _tagSYSTEM_STATE
     int                         iCurUvcWidth;
     int                         iCurUvcHeight;
     int                         iUvcDirect;
+    int                         iUvcSensor;
     int                         iUvcBitrate;
+#if (USE_WHITE_LED == 0)
+    int                         iUvcResChanged;
+    int                         iUVCIRDataReady;
+#endif
     int                         iCurClrGain;
     int                         iProtoMode; // 0: no encryption, 1:sanjiang mode
     int                         iCapWidth;

@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
 	isp_daemon2_init(5566);
 	#endif
 
-  #if (ISP_FPS_FOR_UVC != 0)
-  camera_set_vi_fps(0, ISP_FPS_FOR_UVC);
-  #endif
+ #if (ISP_FPS_FOR_UVC != 0)
+	camera_set_vi_fps(DEFAULT_SNR4UVC, ISP_FPS_FOR_UVC);
+#endif
 	//init tpu
 	cvi_tpu_init();
 #if (USE_WATCHDOG)

@@ -35,7 +35,7 @@
 #define NV21_FORMAT_INDEX   (4)
 
 volatile bool tx_flag = CVI_FALSE;
-volatile bool uvc_update = CVI_FALSE;
+volatile unsigned int uvc_update = 0;
 static int uvc_session_init_flag = CVI_FALSE;
 static aos_event_t _gslUvcEvent;
 static volatile bool g_uvc_event_flag;
@@ -44,7 +44,7 @@ static uint8_t *packet_buffer_uvc;
 
 CVI_S32 is_media_info_update();
 void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex);
-void uvc_media_update();
+int uvc_media_update();
 
 static struct usbd_endpoint audio_in_ep = {
     .ep_cb = usbd_audio_in_callback,
@@ -106,7 +106,12 @@ CVI_S32 is_media_info_update(){
 	VPSS_CHN_ATTR_S stVpssChnAttr, *pstVpssChnAttr = &stVpssChnAttr;
 	PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
 	CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
-
+	int iUvcSensor = g_xSS.iUvcSensor;
+#if (USE_WHITE_LED == 0)
+	if (!media_snr_is_inited(iUvcSensor))
+		iUvcSensor = (iUvcSensor + 1) % 2;
+	g_xSS.iUvcSensor = iUvcSensor;
+#endif
 
 	struct uvc_format_info_st uvc_format_info;
 	struct uvc_frame_info_st uvc_frame_info;
@@ -114,7 +119,7 @@ CVI_S32 is_media_info_update(){
 	uvc_get_video_format_info(&uvc_format_info);
 	uvc_get_video_frame_info(&uvc_frame_info);
 
-	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP, UVC_VPSS_CHN, pstVpssChnAttr);
+	CVI_VPSS_GetChnAttr(iUvcSensor, UVC_VPSS_CHN, pstVpssChnAttr);
 
 	switch(uvc_format_info.format_index){
 	case YUYV_FORMAT_INDEX:
@@ -195,13 +200,18 @@ void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 	g_xSS.iUvcBitrate = format_info->frames[bFrameIndex - 1].bitrate;
 }
 
-void uvc_media_update(){
+int uvc_media_update(){
 	PAYLOAD_TYPE_E enType;
 	PIXEL_FORMAT_E enPixelFormat;
 	PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
 	VPSS_CHN_ATTR_S stVpssChnAttr;
 	CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
-
+	int iSensor = g_xSS.iUvcSensor;
+#if (USE_WHITE_LED == 0)
+	if (!media_snr_is_inited(iSensor))
+		iSensor = (iSensor + 1) % 2;
+	g_xSS.iUvcSensor = iSensor;
+#endif
 
 	struct uvc_format_info_st uvc_format_info;
 	struct uvc_frame_info_st uvc_frame_info;
@@ -236,22 +246,22 @@ void uvc_media_update(){
 	if(u8VencInitStatus == 1)
 		MEDIA_VIDEO_VencDeInit(pstVencCfg);
 
-	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
+	CVI_VPSS_GetChnAttr(iSensor, UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
 	if (g_xSS.iUvcDirect == UVC_ROTATION_270)
 	{
-		stVpssChnAttr.bFlip = CVI_TRUE;
-		stVpssChnAttr.bMirror = CVI_TRUE;
+		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
+		stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
 	}
 	else
 	{
-		stVpssChnAttr.bFlip = CVI_FALSE;
-		stVpssChnAttr.bMirror = CVI_FALSE;
+		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_FALSE : CVI_TRUE);
+		stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_FALSE : CVI_TRUE);
 	}
 	VPSS_CROP_INFO_S pstCropInfo;
-    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
+    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
     if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)
     {
     	pstCropInfo.bEnable = CVI_FALSE;
@@ -266,10 +276,11 @@ void uvc_media_update(){
 		pstCropInfo.stCropRect.u32Width = real_width;
 		pstCropInfo.stCropRect.u32Height = real_height;
     }
-	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
+	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
 
-	CVI_VPSS_SetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
+	CVI_VPSS_SetChnAttr(iSensor,UVC_VPSS_CHN, &stVpssChnAttr);
 
+	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8DevId = iSensor;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
@@ -281,6 +292,7 @@ void uvc_media_update(){
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index)
 		MEDIA_VIDEO_VencInit(pstVencCfg);
+	return 0;
 }
 
 void uvc_streaming_on(int is_on) {
@@ -294,6 +306,13 @@ void uvc_streaming_on(int is_on) {
 	{
 		g_xSS.bUVCRunning = 1;
 		g_xSS.rLastSenseCmdTime = aos_now_ms();
+#if (USE_WHITE_LED == 0)
+		if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
+	    {
+	        g_xSS.iUvcSensor = 0;
+	        uvc_update = 2;
+	    }
+#endif
 	}
 	else
 		g_xSS.bUVCRunning = 0;
@@ -304,7 +323,7 @@ void uvc_streaming_on(int is_on) {
 void uvc_set_reinit_flag()
 {
 	if(is_media_info_update())
-		uvc_update = 1;
+		uvc_update = 2;
 }
 
 void usbd_configure_done_callback(void)
@@ -385,6 +404,8 @@ static void *send_to_uvc()
 			if(uvc_update){
 				uvc_media_update();
 				uvc_get_video_format_info(&uvc_format_info);
+				if (!g_xSS.iUvcSensor && uvc_update == 2)
+					skip_count = 1;
 				uvc_update = 0;
 			}
 
@@ -398,7 +419,15 @@ static void *send_to_uvc()
 					aos_msleep(1);
 					continue;
 				}
-
+				if (skip_count)
+				{
+					skip_count--;
+					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
+#if (USE_WHITE_LED == 0)
+					g_xSS.iUVCIRDataReady = 0;
+#endif
+					continue;
+				}
 				for (i = 0; i < pstStream->u32PackCount; ++i)
 				{
 					if(buf_len < DEFAULT_FRAME_SIZE){
@@ -412,6 +441,14 @@ static void *send_to_uvc()
 							continue;
 					}
 				}
+#if (USE_WHITE_LED == 0)
+				if (!g_xSS.iUvcSensor && g_xSS.iUVCIRDataReady == 0)
+				{
+					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
+					continue;
+				}
+				g_xSS.iUVCIRDataReady = 0;
+#endif
 				if (print_flag ++ < 8)
 				{
 					if (print_flag == 8)

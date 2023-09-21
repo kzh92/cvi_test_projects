@@ -233,10 +233,15 @@ void WatchTask::run()
 #endif
             {
                 iClrDarkCounter = 0;
+#if (USE_WHITE_LED == 0)
+                g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
+                uvc_set_reinit_flag();
+#else // USE_WHITE_LED
 #if (USE_3M_MODE)
                 if (USE_3M_MODE == 1 || g_xSS.bUVCRunning)
                     gpio_whiteled_on(ON);
 #endif
+#endif // USE_WHITE_LED
             }
         }
 #ifdef PSENSE_DET
