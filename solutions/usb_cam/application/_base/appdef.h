@@ -110,6 +110,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v1            5
 #define ISP_BIN_VER_21v2            6
 #define ISP_BIN_VER_21v4            7
+#define ISP_BIN_VER_22v0            8
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
 //uvc direction
@@ -1112,8 +1113,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HUANGLI_NEW_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.45.3.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.45.3.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.45.3.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.45.3.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1144,7 +1145,7 @@ enum E_Baud_Rate
 #undef USE_USB_CHECKFIRM_MODE
 #define USE_USB_CHECKFIRM_MODE              0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_22v0
 
 //----------------------------------------------------------
 
