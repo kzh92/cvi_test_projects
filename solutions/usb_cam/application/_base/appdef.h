@@ -218,6 +218,7 @@ enum E_Baud_Rate
 #define WLED_PWM_DUTY               100     // %
 #define UAC_AUDALGO_USE             0
 #define UAC_SPEAKER_VOL             32 // 0 ~ 32
+#define UAC_SAMPLE_RATE             8000
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30

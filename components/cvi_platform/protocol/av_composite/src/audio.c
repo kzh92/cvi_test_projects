@@ -10,7 +10,7 @@
 #include "appdef.h"
 
 static aos_pcm_t *capture_handle,*playback_handle;
-static unsigned int rate = 8000;       //ai ao default 16K
+static unsigned int rate = UAC_SAMPLE_RATE;       //ai ao default 16K
 void *pssp_handle = NULL;
 
 static void audio_capture_init(void)
