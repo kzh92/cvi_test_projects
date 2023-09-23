@@ -8,10 +8,11 @@
 #include "custom_param.h"
 #include "board_config.h"
 #include "cvi_buffer.h"
+#include "appdef.h"
 
 PARAM_CLASSDEFINE(PARAM_VPSS_CHN_CFG_S,CHNCFG,GRP0,CHN)[] = {
     {
-        .u8Rotation = ROTATION_0,
+        .u8Rotation = DEFAULT_VPSS_DIR,
         .stVpssChnAttr = {
             .u32Width = 1280,
             .u32Height = 720,

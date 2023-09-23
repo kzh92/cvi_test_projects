@@ -118,6 +118,11 @@ enum E_Baud_Rate
 #define UVC_ROTATION_90             1
 #define UVC_ROTATION_270            2       //180degree of UVC_ROTATION_90
 
+#define VPSS_ROTATE_0               0
+#define VPSS_ROTATE_90              1
+#define VPSS_ROTATE_180             2
+#define VPSS_ROTATE_270             3
+
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE               0
@@ -219,6 +224,7 @@ enum E_Baud_Rate
 #define UAC_AUDALGO_USE             0
 #define UAC_SPEAKER_VOL             32 // 0 ~ 32
 #define UAC_SAMPLE_RATE             8000
+#define DEFAULT_VPSS_DIR            VPSS_ROTATE_0
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30

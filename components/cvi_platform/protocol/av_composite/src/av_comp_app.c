@@ -239,8 +239,13 @@ int uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(iSensor, UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
-	stVpssChnAttr.u32Width = uvc_frame_info.width;
-	stVpssChnAttr.u32Height = uvc_frame_info.height;
+#if (DEFAULT_VPSS_DIR == VPSS_ROTATE_90 || DEFAULT_VPSS_DIR == VPSS_ROTATE_270)
+		stVpssChnAttr.u32Width = uvc_frame_info.height;
+		stVpssChnAttr.u32Height = uvc_frame_info.width;
+#else
+		stVpssChnAttr.u32Width = uvc_frame_info.width;
+		stVpssChnAttr.u32Height = uvc_frame_info.height;
+#endif
 	if (g_xSS.iUvcDirect == UVC_ROTATION_270 || g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
 	{
 		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
@@ -253,14 +258,14 @@ int uvc_media_update(){
 	}
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
-    if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)
+    if (stVpssChnAttr.u32Width * 3 / 4 == stVpssChnAttr.u32Height)
     {
     	pstCropInfo.bEnable = CVI_FALSE;
     }
     else
     {
     	int real_width = CLR_CAM_WIDTH * UVC_CROP_RESIZE;
-    	int real_height = CLR_CAM_WIDTH * uvc_frame_info.height / uvc_frame_info.width * UVC_CROP_RESIZE;
+    	int real_height = CLR_CAM_WIDTH * stVpssChnAttr.u32Height / stVpssChnAttr.u32Width * UVC_CROP_RESIZE;
 		pstCropInfo.bEnable = CVI_TRUE;
 		pstCropInfo.stCropRect.s32X = CLR_CAM_WIDTH > real_width ? ((CLR_CAM_WIDTH - real_width) / 2) : 0;
 		pstCropInfo.stCropRect.s32Y = CLR_CAM_HEIGHT > real_height ? ((CLR_CAM_HEIGHT - real_height) / 2) : 0;
@@ -409,7 +414,7 @@ static void *send_to_uvc()
 		        ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN,pstStream,2000);
 				if(ret != CVI_SUCCESS){
 	//				printf("MEDIA_VIDEO_VencGetStream failed\n");
-					aos_msleep(1);
+					aos_msleep(10);
 					continue;
 				}
 				if (skip_count)
