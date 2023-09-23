@@ -400,8 +400,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KELINGPU_MODE                 309   //WLED->PWM
 #define FRM_DBS3M_FANHAI_MODE                   310
 #define FRM_DBS3M_AJISHI_CHANGSI_MODE           311
+#define FRM_DBS3M_FANGKUAI_MODE                 312
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HUANGLI_NEW_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
 
 //---------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
@@ -964,6 +965,58 @@ enum E_Baud_Rate
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.21.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef DEFAULT_VPSS_DIR
+#define DEFAULT_VPSS_DIR            		VPSS_ROTATE_90
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 480, 854, 10, DEFAULT_VPSS_DIR}, \
+											{2, 480, 800, 10, DEFAULT_VPSS_DIR}, \
+											{3, 480, 320, 10, DEFAULT_VPSS_DIR},
+#undef UVC_MAX_FPS_TIME
+#define UVC_MAX_FPS_TIME 					60
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     16 // 0 ~ 32
+#undef UAC_SAMPLE_RATE
+#define UAC_SAMPLE_RATE             		16000
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef ISP_FPS_FOR_UVC
+#define ISP_FPS_FOR_UVC             		10
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef ENROLL_FACE_HAND_MODE
+#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#undef UVC_MJPEG_BITRATE
+#define UVC_MJPEG_BITRATE                   4096
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER         		ISP_BIN_VER_22v0
 
 //----------------------------------------------------------
 

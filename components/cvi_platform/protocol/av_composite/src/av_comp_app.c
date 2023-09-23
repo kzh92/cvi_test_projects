@@ -430,8 +430,8 @@ static void *send_to_uvc()
 				{
 					if(buf_len < DEFAULT_FRAME_SIZE){
 						ppack = &pstStream->pstPack[i];
-						memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
-						buf_len += (ppack->u32Len - ppack->u32Offset);
+						memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
+						buf_len = (ppack->u32Len - ppack->u32Offset);
 					}
 					else{
 							printf("venc buf_len oversize\n");
