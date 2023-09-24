@@ -1143,6 +1143,9 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+#if (N_MAX_HAND_NUM)
+        g_xSS.iRegisterHand = 0;
+#endif
 //        dbug_printf("Enroll Ret = %d\n", iRet);
     }
     else if(pSenseMsg->mid == MID_ENROLL_SINGLE)
@@ -1217,6 +1220,9 @@ int MsgProcSense(MSG* pMsg)
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
 //        dbug_printf("Enroll Ret = %d\n", iRet);
         g_xSS.iEFIFlag = 0;
+#if (N_MAX_HAND_NUM)
+        g_xSS.iRegisterHand = 0;
+#endif
     }
 #if (USE_ENROLL_ITG)
     else if(pSenseMsg->mid == MID_ENROLL_ITG)
@@ -1295,6 +1301,9 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iEnrollFaceDupCheck = (g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_NFACE_NAME);
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+#if (N_MAX_HAND_NUM)
+        g_xSS.iRegisterHand = 0;
+#endif
 //        dbug_printf("Enroll Ret = %d\n", iRet);
     }
 #endif // ENROLL_ITG
