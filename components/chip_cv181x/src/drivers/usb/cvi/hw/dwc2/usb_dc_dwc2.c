@@ -689,6 +689,7 @@ int usb_dc_init(void)
 #endif
     USB_OTG_GLB->GAHBCFG |= USB_OTG_GAHBCFG_GINT;
     USB_OTG_DEV->DCTL &= ~USB_OTG_DCTL_SDIS;
+    USB_OTG_DEV->DCTL |= (0x1 << 15);
 
     return ret;
 }
