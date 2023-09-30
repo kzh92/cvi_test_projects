@@ -682,7 +682,7 @@ int32_t aos_debug_printf(const char *fmt, ...)
 {
     int ret;
     va_list ap;
-#if (FRM_PRODUCT_TYPE != FRM_DBS3M_FANHAI_MODE)
+#if ((FRM_PRODUCT_TYPE != FRM_DBS3M_FANHAI_MODE) && (FRM_PRODUCT_TYPE != FRM_DBS3M_DUAL_CAM_AIPAI))
     return 0;
 #endif
 
