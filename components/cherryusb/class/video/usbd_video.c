@@ -387,6 +387,18 @@ static int usbd_video_control_unit_terminal_request_handler(struct usb_setup_pac
                                     return -1;
                             }
                             break;
+                        case VIDEO_PU_POWER_LINE_FREQUENCY_CONTROL:
+                            switch (setup->bRequest) {
+                                case VIDEO_REQUEST_GET_CUR: {
+                                    uint16_t wPowerLineFreq = 0x0500;
+                                    memcpy(*data, (uint8_t *)&wPowerLineFreq, 2);
+                                    *len = 2;
+                                } break;
+                                default:
+                                    USB_LOG_WRN("Unhandled Video Class bRequest 0x%02x\r\n", setup->bRequest);
+                                    return -1;
+                            }
+                            break;
                         case VIDEO_PU_HUE_CONTROL:
                             switch (setup->bRequest) {
                                 case VIDEO_REQUEST_GET_CUR: {
