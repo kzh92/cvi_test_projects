@@ -240,6 +240,7 @@ typedef struct _tagSYSTEM_STATE
     int                         iUvcDirect;
     int                         iUvcSensor;
     int                         iUvcBitrate;
+    int                         iUvcFps;
 #if (USE_WHITE_LED == 0)
     int                         iUvcResChanged;
     int                         iUVCIRDataReady;

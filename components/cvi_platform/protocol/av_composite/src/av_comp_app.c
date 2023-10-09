@@ -16,6 +16,10 @@
 #include "settings.h"
 #include "cam_base.h"
 
+#define USB_OTG_HS                     0U
+#define USB_OTG_HS_IN_FULL             1U
+#define USB_OTG_FS                     3U
+
 #define VIDEO_IN_EP 0x81
 
 #define WIDTH  (unsigned int)(1280)
@@ -194,6 +198,7 @@ void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 	uvc_set_video_frame_info(&format_info->frames[bFrameIndex - 1]);
 	setUvcWindow(format_info->frames[bFrameIndex - 1].width, format_info->frames[bFrameIndex - 1].height);
 	g_xSS.iUvcBitrate = format_info->frames[bFrameIndex - 1].bitrate;
+	g_xSS.iUvcFps = format_info->frames[bFrameIndex - 1].fps;
 }
 
 int uvc_media_update(){
@@ -283,6 +288,8 @@ int uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:2048;
 	if (g_xSS.iUvcBitrate > 0)
 		pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
+	if (g_xSS.iUvcFps > 0 && g_xSS.iUvcFps <= 20)
+		camera_set_vi_fps(DEFAULT_SNR4UVC, g_xSS.iUvcFps);
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
 	printf("uvc(%dx%d),%dbr\n", uvc_frame_info.width, uvc_frame_info.height, pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate);
 
@@ -404,6 +411,9 @@ static void *send_to_uvc()
 				uvc_get_video_format_info(&uvc_format_info);
 				if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && uvc_update == 2)
 					skip_count = 1;
+#if (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
+				skip_count = 4;
+#endif
 				uvc_update = 0;
 			}
 
