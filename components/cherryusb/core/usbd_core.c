@@ -426,7 +426,11 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
 #else
     p = (uint8_t *)usbd_core_cfg.descriptors;
 #endif
+#if (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
+	aos_debug_printf("[H] iface %u alt_setting %u\r\n", iface, alt_setting);
+#else
     USB_LOG_DBG("iface %u alt_setting %u\r\n", iface, alt_setting);
+#endif
 
     while (p[DESC_bLength] != 0U) {
         switch (p[DESC_bDescriptorType]) {
@@ -447,9 +451,9 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
             case USB_DESCRIPTOR_TYPE_ENDPOINT:
                 if (cur_iface == iface) {
                     ep_desc = (struct usb_endpoint_descriptor *)p;
-#if (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
-                    aos_debug_printf("== %d, %d, %d\n", iface, cur_alt_setting, alt_setting);
-#endif
+
+                    //aos_debug_printf("== %d, %d, %d\n", iface, cur_alt_setting, alt_setting);
+
                     if (cur_alt_setting != alt_setting) {
                         ret = usbd_reset_endpoint(ep_desc);
                     } else {
