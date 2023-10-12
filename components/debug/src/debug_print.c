@@ -682,6 +682,10 @@ int32_t aos_debug_printf(const char *fmt, ...)
 {
     int ret;
     va_list ap;
+#if (FRM_PRODUCT_TYPE != FRM_DBS3M_FANHAI_MODE)
+    if (!(fmt[0] == '[' && fmt[1] == 'H' && fmt[2] == ']'))
+        return 0;
+#endif
 
 #if DEBUG_LAST_WORD_ENABLE
     if (g_crash_steps > 0) {
