@@ -942,8 +942,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.6.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.6.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.6.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.6.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -976,6 +976,8 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef UVC_MJPEG_BITRATE
 #define UVC_MJPEG_BITRATE                   8192
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
 
 //----------------------------------------------------------
 
