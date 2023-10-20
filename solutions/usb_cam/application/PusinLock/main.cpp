@@ -664,7 +664,6 @@ int main0(int argc, char** argv)
         {
             if(iUpgradeFlag == 0)
             {
-                my_printf("%s:%d\n", __FILE__, __LINE__);
                 fr_InitAppLog();
             }
 
