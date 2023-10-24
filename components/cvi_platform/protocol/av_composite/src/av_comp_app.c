@@ -237,23 +237,25 @@ void uvc_media_update(){
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
 
-VPSS_CROP_INFO_S pstCropInfo;
-    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
+#define CLR_CAM_WIDTH 1600
+#define CLR_CAM_HEIGHT 1200
+	VPSS_CROP_INFO_S pstCropInfo;
+    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
     if (stVpssChnAttr.u32Width * 3 / 4 == stVpssChnAttr.u32Height)
     {
     	pstCropInfo.bEnable = CVI_FALSE;
     }
     else
     {
-    	int real_width = CLR_CAM_WIDTH * UVC_CROP_RESIZE;
-    	int real_height = CLR_CAM_WIDTH * stVpssChnAttr.u32Height / stVpssChnAttr.u32Width * UVC_CROP_RESIZE;
+    	int real_width = CLR_CAM_WIDTH;
+    	int real_height = CLR_CAM_WIDTH * stVpssChnAttr.u32Height / stVpssChnAttr.u32Width;
 		pstCropInfo.bEnable = CVI_TRUE;
 		pstCropInfo.stCropRect.s32X = CLR_CAM_WIDTH > real_width ? ((CLR_CAM_WIDTH - real_width) / 2) : 0;
 		pstCropInfo.stCropRect.s32Y = CLR_CAM_HEIGHT > real_height ? ((CLR_CAM_HEIGHT - real_height) / 2) : 0;
 		pstCropInfo.stCropRect.u32Width = real_width;
 		pstCropInfo.stCropRect.u32Height = real_height;
     }
-	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
+	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
 
 	CVI_VPSS_SetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 
