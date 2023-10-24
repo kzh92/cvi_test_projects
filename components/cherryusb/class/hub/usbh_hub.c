@@ -371,6 +371,7 @@ static void usbh_hub_events(struct usbh_hub *hub)
     uint16_t feat;
     uint8_t speed;
     int ret;
+    (void)speed_table;
 
     if (!hub->connected) {
         return;

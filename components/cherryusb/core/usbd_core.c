@@ -20,6 +20,8 @@
 #define INTF_DESC_bInterfaceNumber  2 /** Interface number offset */
 #define INTF_DESC_bAlternateSetting 3 /** Alternate setting offset */
 
+#define EP_DESC_bEndpointNumber     2
+
 #define USB_EP_OUT_NUM 8
 #define USB_EP_IN_NUM  8
 
@@ -871,7 +873,8 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
             if (usbd_class_request_handler(setup, data, len) < 0) {
                 USB_LOG_ERR("class request error\r\n");
                 usbd_print_setup(setup);
-                return false;
+                *len = 0;
+                //return false;
             }
             break;
         case USB_REQUEST_VENDOR:

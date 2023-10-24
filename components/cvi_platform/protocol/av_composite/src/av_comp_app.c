@@ -20,8 +20,8 @@
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
-#define MAX_FRAME_SIZE (unsigned long)(WIDTH * HEIGHT * 2)
-#define DEFAULT_FRAME_SIZE (unsigned long)(WIDTH * HEIGHT * 3 / 2)
+#define MAX_FRAME_SIZE (unsigned long)(WIDTH * HEIGHT * 2 / 3)
+#define DEFAULT_FRAME_SIZE (unsigned long)(WIDTH * HEIGHT * 2 / 3)
 
 #define UVC_VENC_CHN   (0)
 #define UVC_VPSS_CHN   (0)
@@ -243,6 +243,7 @@ void uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?20480:2048;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
+	printf("uvc(%dx%d),%dbr\n", uvc_frame_info.width, uvc_frame_info.height, pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate);
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index)
 		MEDIA_VIDEO_VencInit(pstVencCfg);
@@ -353,8 +354,8 @@ static void *send_to_uvc()
 				{
 					if(buf_len < DEFAULT_FRAME_SIZE){
 						ppack = &pstStream->pstPack[i];
-						memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
-						buf_len += (ppack->u32Len - ppack->u32Offset);
+						memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
+						buf_len = (ppack->u32Len - ppack->u32Offset);
 					}
 					else{
 							printf("venc buf_len oversize\n");
@@ -430,6 +431,7 @@ static void *send_to_uvc()
 				usbd_ep_start_write(VIDEO_IN_EP, packet_buffer_uvc, MAX_PAYLOAD_SIZE);
 				while(tx_flag && g_uvc_event_flag) {
 					aos_task_yield();
+					aos_msleep(1);
 				}
 			}
         }else {
@@ -481,9 +483,10 @@ int MEDIA_AV_Init()
 
 	// csi_dcache_clean_invalid();
 	// csi_dcache_disable();
-	MEDIA_UAC_Init();
 
 	usb_av_comp_init();
+
+	MEDIA_UAC_Init();
 
 	packet_buffer_uvc = (uint8_t *)usb_iomalloc(DEFAULT_FRAME_SIZE);
 

@@ -314,6 +314,7 @@ static int usbd_video_control_unit_terminal_request_handler(struct usb_setup_pac
                             switch (setup->bRequest) {
                                 case VIDEO_REQUEST_SET_CUR: {
                                     uint16_t wBrightness = (uint16_t)(*data)[1] << 8 | (uint16_t)(*data)[0];
+                                    (void)wBrightness;
                                     USB_LOG_INFO("Video set brightness:%d\r\n", wBrightness);
                                 } break;
                                 case VIDEO_REQUEST_GET_CUR: {
@@ -379,6 +380,18 @@ static int usbd_video_control_unit_terminal_request_handler(struct usb_setup_pac
                                 case VIDEO_REQUEST_GET_DEF: {
                                     uint16_t wContrast = 0x0080;
                                     memcpy(*data, (uint8_t *)&wContrast, 2);
+                                    *len = 2;
+                                } break;
+                                default:
+                                    USB_LOG_WRN("Unhandled Video Class bRequest 0x%02x\r\n", setup->bRequest);
+                                    return -1;
+                            }
+                            break;
+                        case VIDEO_PU_POWER_LINE_FREQUENCY_CONTROL:
+                            switch (setup->bRequest) {
+                                case VIDEO_REQUEST_GET_CUR: {
+                                    uint16_t wPowerLineFreq = 0x0500;
+                                    memcpy(*data, (uint8_t *)&wPowerLineFreq, 2);
                                     *len = 2;
                                 } break;
                                 default:
@@ -819,7 +832,7 @@ uint32_t usbd_video_payload_fill(uint8_t *input, uint32_t input_len, uint8_t *ou
     uint32_t packets;
     uint32_t last_packet_size;
     uint32_t picture_pos = 0;
-    static uint8_t uvc_header[2] = { 0x02, 0x80 };
+    static uint8_t uvc_header[12] = { 0x0c, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     uint32_t size_uvc_header = sizeof(uvc_header);
     uint32_t size_per_packet = usbd_video_cfg.probe.dwMaxPayloadTransferSize;
     uint32_t size_payload = size_per_packet - size_uvc_header;
@@ -833,8 +846,10 @@ uint32_t usbd_video_payload_fill(uint8_t *input, uint32_t input_len, uint8_t *ou
     last_packet_size = input_len - ((packets - 1) * size_payload) + size_uvc_header;
 
     for (size_t i = 0; i < packets; i++) {
-        output[size_per_packet* i] = uvc_header[0];
-        output[size_per_packet * i + 1] = uvc_header[1];
+        // output[size_per_packet* i] = uvc_header[0];
+        // output[size_per_packet * i + 1] = uvc_header[1];
+        memcpy(&output[size_per_packet * i],
+                uvc_header, size_uvc_header);
         if (i == (packets - 1)) {
             memcpy(&output[size_uvc_header + size_per_packet * i],
                 &input[picture_pos], last_packet_size - size_uvc_header);
