@@ -425,8 +425,8 @@ int setUvcWindow(int width, int height)
     int ret = 0;
     dbug_printf("[%s] start %d, %d\n", __func__, width, height);
 #ifndef _APP_UPGRADE
-    if (width < UVC_MIN_WIDTH || height < UVC_MIN_HEIGHT || width > UVC_MAX_WIDTH || height > UVC_MAX_HEIGHT)
-        return 0;
+    // if (width < UVC_MIN_WIDTH || height < UVC_MIN_HEIGHT || width > UVC_MAX_WIDTH || height > UVC_MAX_HEIGHT)
+    //     return 0;
     lockUvcWindow();
     ret = (g_xSS.iUvcWidth != width) || (g_xSS.iUvcHeight != height);
     g_xSS.iUvcWidth = width;

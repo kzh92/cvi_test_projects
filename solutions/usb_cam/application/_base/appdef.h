@@ -118,11 +118,6 @@ enum E_Baud_Rate
 #define UVC_ROTATION_90             1
 #define UVC_ROTATION_270            2       //180degree of UVC_ROTATION_90
 
-#define VPSS_ROTATE_0               0
-#define VPSS_ROTATE_90              1
-#define VPSS_ROTATE_180             2
-#define VPSS_ROTATE_270             3
-
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE               0
@@ -190,8 +185,8 @@ enum E_Baud_Rate
 #define UVC_MAX_HEIGHT              720
 #define UVC_MIN_WIDTH               320
 #define UVC_MIN_HEIGHT              240
-#define UVC_WIDTH                   640
-#define UVC_HEIGHT                  480
+#define UVC_WIDTH                   1280
+#define UVC_HEIGHT                  720
 #define CHECK_CLR_IR_SWITCH_THR     0
 #define NEW_CLR_IR_SWITCH_THR       0x20 
 #define UVC_CLR_LUMINANCE           0x80
@@ -224,10 +219,10 @@ enum E_Baud_Rate
 #define UAC_AUDALGO_USE             0
 #define UAC_SPEAKER_VOL             32 // 0 ~ 32
 #define UAC_SAMPLE_RATE             8000
-#define DEFAULT_VPSS_DIR            VPSS_ROTATE_0
 #define SPECIFIC_LOG_PRINT          0
 #define UAC_SPK_EP                  0x82
 #define UAC_MIC_EP                  2
+#define UVC_VBPOOL1CNT              3
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30
@@ -412,224 +407,12 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LIWEN_UAC                     318
 #define FRM_DBS3M_TOYO_UAC                      319
 #define FRM_DBS3M_OKEDA_UAC                     320
+#define FRM_DBS3M_XIJIN_UAC                     321
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_OKEDA_UAC
-
-//---------------------------------------------------------
-#if (FRM_PRODUCT_TYPE == FRM_DBS20_DEFAULT)
-
-#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "1.21.0.1_D2"
-#define DEVICE_FIRMWARE_VERSION_INNER       "1.21.0.1_D2"
-
-#define DEVICE_NID_READY_VER                0 //'C'=0x43, for desman, else 0=NID_READY
-#undef SEND_LAST_MSG
-#define SEND_LAST_MSG                       0       //0 -> normal, 1 -> for dessman
-#undef NO_ENCRYPT_FRM3_4
-#define NO_ENCRYPT_FRM3_4                   1
-#undef ENROLL_DUPLICATION_CHECK
-#define ENROLL_DUPLICATION_CHECK            1
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              2
-#undef USE_DEMOMODE2
-#define USE_DEMOMODE2                       1
-#undef DEFAULT_LIVENESS_MODE
-#define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
-#undef N_MAX_PERSON_NUM
-#define N_MAX_PERSON_NUM                    100
-#undef USE_IRSNR_SC2355
-#define USE_IRSNR_SC2355                    1
-#undef IR_CAM_WIDTH
-#define IR_CAM_WIDTH                        1600
-#undef IR_CAM_HEIGHT
-#define IR_CAM_HEIGHT                       900
-#undef ENGINE_LENS_TYPE
-#define ENGINE_LENS_TYPE                    ENGINE_LENS_M277_2409
-#undef FIRMWARE_MAGIC
-#define FIRMWARE_MAGIC                      "DBS2.0"
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_CV180xB_DEMO_V1v0
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIJIN_UAC
 
 //----------------------------------------------------------
-#elif (FRM_PRODUCT_TYPE == FRM_PT_DEFAULT_3_4)
-
-#define DEVICE_MODEL_NUM                    "BIOAT-FM-173"
-#define DEVICE_FIRMWARE_VERSION             "5.2.0_RS"
-#define DEVICE_FIRMWARE_VERSION_INNER       "5.2.0_RS"
-
-#define DEVICE_NID_READY_VER                0 //'C'=0x43, for desman, else 0=NID_READY
-#undef SEND_LAST_MSG
-#define SEND_LAST_MSG                       0       //0 -> normal, 1 -> for dessman
-#undef NO_ENCRYPT_FRM3_4
-#define NO_ENCRYPT_FRM3_4                   1
-#undef ENROLL_DUPLICATION_CHECK
-#define ENROLL_DUPLICATION_CHECK            1
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              0
-#undef USE_DEMOMODE2
-#define USE_DEMOMODE2                       1
-#undef USE_WAEL_VDB
-#define USE_WAEL_VDB                        0
-#undef UVC_MAX_FRAME_SIZE
-#define UVC_MAX_FRAME_SIZE                  30
-#define UVC_MAX_FPS_TIME                    40      //25fps
-#define UVC_FIX_COMPRATE                    80
-#undef UVC_UNIQ_COMPRESS
-#define UVC_UNIQ_COMPRESS                   0
-#undef UVC_WIDTH
-#define UVC_WIDTH                           640
-#undef UVC_HEIGHT
-#define UVC_HEIGHT                          480
-#undef UVC_RES_FLAG
-#define UVC_RES_FLAG                        (UVC_RES_480P | UVC_RES_720P)
-#undef UVC_RES_COUNT
-#define UVC_RES_COUNT                       2
-#undef UVC_PAUSE_LIMIT_TIME
-#define UVC_PAUSE_LIMIT_TIME                2200
-
-#undef CHECK_CLR_IR_SWITCH_THR
-#define CHECK_CLR_IR_SWITCH_THR             40
-#undef USE_SHENAO_NEW_VDB
-#define USE_SHENAO_NEW_VDB                  1
-#undef UVC_CLR_LUMINANCE
-#define UVC_CLR_LUMINANCE                   0x88
-#undef UVC_CLR_SAT_Gl
-#define UVC_CLR_SAT_Gl                      0x50
-#undef UVC_CLR_R_GAIN
-#define UVC_CLR_R_GAIN                      0x54
-#undef UVC_CLR_G_GAIN
-#define UVC_CLR_G_GAIN                      0x40
-#undef UVC_CLR_B_GAIN
-#define UVC_CLR_B_GAIN                      0x58
-#undef UVC_CLR_SAT_Cb
-#define UVC_CLR_SAT_Cb                      0x30
-#undef UVC_CLR_SAT_Cr
-#define UVC_CLR_SAT_Cr                      0x30
-#undef UVC_CLR_SHARP
-#define UVC_CLR_SHARP                       0xCC
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_UVC_PAUSE_MODE
-#define USE_UVC_PAUSE_MODE                  1
-#undef DEFAULT_LIVENESS_MODE
-#define DEFAULT_LIVENESS_MODE               0   //engine state for liveness, for special use only
-
-//----------------------------------------------------------
-#elif (FRM_PRODUCT_TYPE == FRM_DAS3M_HUANGLI_UAC)
-
-#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.8.0.1_D2"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.8.0.1_D2"
-
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              2
-#undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  2
-#undef USE_3M_MODE
-#define USE_3M_MODE                         1
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
-#undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
-// #undef CHECK_CLR_IR_SWITCH_THR
-// #define CHECK_CLR_IR_SWITCH_THR             0
-#undef USE_SHENAO_HAND
-#define USE_SHENAO_HAND                     1
-
-//----------------------------------------------------------
-#elif (FRM_PRODUCT_TYPE == FRM_DAS3M_HUANGLI_NEW_UAC)
-
-#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.45.0.1_D2"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.45.0.1_D2"
-
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              2
-#undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 480, 320, 30, 0},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  2
-#undef USE_3M_MODE
-#define USE_3M_MODE                         1
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
-#undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
-// #undef CHECK_CLR_IR_SWITCH_THR
-// #define CHECK_CLR_IR_SWITCH_THR             0
-#undef USE_SHENAO_HAND
-#define USE_SHENAO_HAND                     1
-
-//----------------------------------------------------------
-#elif (FRM_PRODUCT_TYPE == FRM_DAS3M_D20_UAC)
-
-#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "9.14.5_D2"
-#define DEVICE_FIRMWARE_VERSION_INNER       "9.14.5_D2"
-
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D20
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
-#undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
-#undef USE_3M_MODE
-#define USE_3M_MODE                         1
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDASS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_121
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
-#undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
-
-//----------------------------------------------------------
-#elif (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
+#if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
 #define DEVICE_FIRMWARE_VERSION             "9.32.0_D2"
@@ -1068,12 +851,12 @@ enum E_Baud_Rate
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
-#undef DEFAULT_VPSS_DIR
-#define DEFAULT_VPSS_DIR            		VPSS_ROTATE_90
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_0       // 0: not rotate 90, 1: rotate 90
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 480, 854, 10, DEFAULT_VPSS_DIR}, \
-											{2, 480, 800, 10, DEFAULT_VPSS_DIR}, \
-											{3, 480, 320, 10, DEFAULT_VPSS_DIR},
+#define UVC_RES_DEFINE                      {1, 480, 854, 10, 0}, \
+											{2, 480, 800, 10, 0}, \
+											{3, 480, 320, 10, 0},
 #undef UVC_MAX_FPS_TIME
 #define UVC_MAX_FPS_TIME 					60
 #undef ENGINE_USE_TWO_CAM
@@ -1110,7 +893,52 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER         		ISP_BIN_VER_22v0
 
 //----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIJIN_UAC)
 
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.22.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.22.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 480, 640, 15, 0, 4096},
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_0       // 0: not rotate 90, 1: rotate 90
+// #undef UVC_MAX_WIDTH
+// #define UVC_MAX_WIDTH                       640
+// #undef UVC_MAX_HEIGHT
+// #define UVC_MAX_HEIGHT                      480
+// #undef UVC_WIDTH
+// #define UVC_WIDTH                           640
+// #undef UVC_HEIGHT
+// #define UVC_HEIGHT                          480
+#undef UVC_VBPOOL1CNT
+#define UVC_VBPOOL1CNT                      3
+
+//----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HONGLI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"

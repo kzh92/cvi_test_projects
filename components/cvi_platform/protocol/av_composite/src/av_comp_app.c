@@ -244,13 +244,18 @@ int uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(iSensor, UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
-#if (DEFAULT_VPSS_DIR == VPSS_ROTATE_90 || DEFAULT_VPSS_DIR == VPSS_ROTATE_270)
+	if (g_xSS.iUvcDirect == UVC_ROTATION_0)
+	{
 		stVpssChnAttr.u32Width = uvc_frame_info.height;
 		stVpssChnAttr.u32Height = uvc_frame_info.width;
-#else
+		CVI_VPSS_SetChnRotation(DEFAULT_SNR4UVC, 0, ROTATION_90);
+	}
+	else
+	{
 		stVpssChnAttr.u32Width = uvc_frame_info.width;
 		stVpssChnAttr.u32Height = uvc_frame_info.height;
-#endif
+		CVI_VPSS_SetChnRotation(DEFAULT_SNR4UVC, 0, ROTATION_0);
+	}
 	if (g_xSS.iUvcDirect == UVC_ROTATION_270 || g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
 	{
 		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);

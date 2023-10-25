@@ -7,6 +7,7 @@
  */
 #include "custom_param.h"
 #include "board_config.h"
+#include "appdef.h"
 
 PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
     {
@@ -18,9 +19,9 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
         .enCmpMode = COMPRESS_MODE_NONE,
     },
     {
-        .u16width = 1280,
-        .u16height = 720,
-        .u8VbBlkCnt = 3,
+        .u16width = UVC_MAX_WIDTH,
+        .u16height = UVC_MAX_HEIGHT,
+        .u8VbBlkCnt = UVC_VBPOOL1CNT,
         .fmt = PIXEL_FORMAT_NV21,
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,
