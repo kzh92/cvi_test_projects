@@ -426,7 +426,7 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
 #else
     p = (uint8_t *)usbd_core_cfg.descriptors;
 #endif
-#if (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
+#if (SPECIFIC_LOG_PRINT == 1)
 	aos_debug_printf("[H] iface %u alt_setting %u\r\n", iface, alt_setting);
 #else
     USB_LOG_DBG("iface %u alt_setting %u\r\n", iface, alt_setting);

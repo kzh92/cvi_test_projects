@@ -28,8 +28,8 @@
 #define AUDIO_IN_PACKET ((uint32_t)((AUDIO_FREQ * 2 * AUDIO_CHANNEL_NUM) / 1000))
 
 /* AUDIO ep address*/
-#define AUDIO_IN_EP  0x82
-#define AUDIO_OUT_EP 0x02
+#define AUDIO_IN_EP  UAC_SPK_EP
+#define AUDIO_OUT_EP UAC_MIC_EP
 
 #define AUDIO_FIRST_INTERFACE 2
 #define AUDIO_INTERFACE_COUNT 3

@@ -225,6 +225,9 @@ enum E_Baud_Rate
 #define UAC_SPEAKER_VOL             32 // 0 ~ 32
 #define UAC_SAMPLE_RATE             8000
 #define DEFAULT_VPSS_DIR            VPSS_ROTATE_0
+#define SPECIFIC_LOG_PRINT          0
+#define UAC_SPK_EP                  0x82
+#define UAC_MIC_EP                  2
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30
@@ -1489,6 +1492,8 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef USE_TONGXIN_PROTO
 #define USE_TONGXIN_PROTO                   1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
 
 //----------------------------------------------------------
 
