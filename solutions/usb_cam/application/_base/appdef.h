@@ -409,7 +409,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_OKEDA_UAC                     320
 #define FRM_DBS3M_XIJIN_UAC                     321
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LIWEN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KELINGPU_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -699,8 +699,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_KELINGPU_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.13.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.13.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.13.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.13.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -724,10 +724,10 @@ enum E_Baud_Rate
 #define USE_SANJIANG3_MODE                  1
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
-// #undef USE_WHITE_LED
-// #define USE_WHITE_LED                       1
-// #undef WLED_PWM_DUTY
-// #define WLED_PWM_DUTY                       15
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef WLED_PWM_DUTY
+#define WLED_PWM_DUTY                       30
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
