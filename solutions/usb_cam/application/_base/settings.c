@@ -349,6 +349,7 @@ void ResetSystemState(int iAppType)
     g_xSS.iUvcSensor = DEFAULT_SNR4UVC;
     g_xSS.iUvcDirect = DEFAULT_UVC_DIR;
     g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MODE;
+    g_xSS.iVerifyThrLevel = S_VERIFY_LEVEL_DEFAULT;
 }
 
 void SetMountStatus(int iSuccess)

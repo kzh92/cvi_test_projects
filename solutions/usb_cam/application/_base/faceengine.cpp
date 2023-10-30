@@ -144,6 +144,7 @@ void FaceEngine::VerifyInit(int fAdminMode, int iUserID)
     fr_SetLivenessCheckStrong_On_NoUser(DEFAULT_LIVENESS_MODE);
     fr_SetCheckOpenEyeEnable(g_xPS.x.bHijackEnable);
     fr_SetEngineState(ENS_VERIFY, fAdminMode, iUserID);
+    fr_SetSecurityLevel(g_xSS.iVerifyThrLevel);
 }
 
 void FaceEngine::UnregisterFace(int nUpdateID, int isMultiDirectionMode)

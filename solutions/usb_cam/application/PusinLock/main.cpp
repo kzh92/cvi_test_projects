@@ -2201,12 +2201,9 @@ int MsgProcSense(MSG* pMsg)
         }
     }
 #endif // DESMAN_ENC_MODE
-#if (USE_TWIN_ENGINE)
     else if(pSenseMsg->mid == MID_SET_THRESHOLD_LEVEL)
     {
         dbug_printf("MID_SET_THRESHOLD_LEVEL\n");
-        int iOldValue = g_xPS.x.bTwinsMode;
-        int iUpdate = 0;
         int iSuccCode = MR_SUCCESS;
         if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_algo_threshold_level))
         {
@@ -2217,29 +2214,39 @@ int MsgProcSense(MSG* pMsg)
             s_msg_algo_threshold_level hdata;
 
             memcpy(&hdata, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-            if (hdata.verify_threshold_level == S_VERIFY_LEVEL_HIGH && iOldValue != S_VERIFY_LEVEL_HIGH)
+            if (hdata.verify_threshold_level > S_VERIFY_LEVEL_VERY_HIGH)
             {
-                iUpdate = 1;
+                iSuccCode = MR_FAILED4_INVALIDPARAM;
             }
-            else if (hdata.verify_threshold_level != S_VERIFY_LEVEL_HIGH && iOldValue == S_VERIFY_LEVEL_HIGH)
+            else
             {
-                iUpdate = 1;
-            }
-            if (iUpdate)
-            {
-                //delete all users
+#if (USE_TWIN_ENGINE)
+                int iOldValue = g_xPS.x.bTwinsMode;
+                int iUpdate = 0;
+                int iUpdateValue = hdata.verify_threshold_level <= S_VERIFY_LEVEL_DEFAULT ? S_VERIFY_LEVEL_DEFAULT : S_VERIFY_LEVEL_HIGH;
+                if (iUpdateValue != iOldValue)
                 {
-                    ResetPersonDB(SM_DEL_ALL_TYPE_DEFAULT);
-                    //save config
-                    g_xPS.x.bTwinsMode = hdata.verify_threshold_level;
-                    UpdatePermanenceSettings();
+                    iUpdate = 1;
                 }
+                if (iUpdate)
+                {
+                    //delete all users
+                    {
+                        ResetPersonDB(SM_DEL_ALL_TYPE_DEFAULT);
+                        //save config
+                        g_xPS.x.bTwinsMode = iUpdateValue;
+                        UpdatePermanenceSettings();
+                    }
+                }
+#endif // USE_TWIN_ENGINE
+#if (FRM_PRODUCT_TYPE == FRM_DBS20_GUAXIONG_MODE)
+                g_xSS.iVerifyThrLevel = hdata.verify_threshold_level;
+#endif
             }
         }
         s_msg* reply_msg = SenseLockTask::Get_Reply(MID_SET_THRESHOLD_LEVEL, iSuccCode);
         g_pSenseTask->Send_Msg(reply_msg);
     }
-#endif // USE_TWIN_ENGINE
     else if(pSenseMsg->mid == MID_ENABLE_LOGFILE)
     {
         dbug_printf("MID_ENABLE_LOGFILE\n");
