@@ -10,6 +10,7 @@
 #include "senselocktask.h"
 #include "upgradebase.h"
 #include "cam_base.h"
+#include "FaceRetrievalSystem.h"
 #if (USE_PRINT_TEMP)
 #include "cvi_tempsen.h"
 #endif
@@ -244,7 +245,13 @@ void WatchTask::run()
 #else // USE_WHITE_LED
 #if (USE_3M_MODE)
                 if (USE_3M_MODE == 1 || g_xSS.bUVCRunning)
+                {
                     gpio_whiteled_on(ON);
+#if (FRM_PRODUCT_TYPE == FRM_DBS3M_KELINGPU_MODE)
+                    //notice that using white led
+                    fr_SetColorLed(1);
+#endif
+                }
 #endif
 #endif // USE_WHITE_LED
             }

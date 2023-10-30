@@ -711,7 +711,7 @@ enum E_Baud_Rate
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         2
+#define USE_3M_MODE                         1
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
