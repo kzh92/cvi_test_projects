@@ -410,7 +410,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_XIJIN_UAC                     321
 #define FRM_DBS3M_KEXIONG_UAC                   322
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_BOLATAIN_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -1140,8 +1140,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BOLATAIN_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.42.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.42.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.42.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.42.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10

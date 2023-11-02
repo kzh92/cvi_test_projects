@@ -247,7 +247,7 @@ void WatchTask::run()
                 if (USE_3M_MODE == 1 || g_xSS.bUVCRunning)
                 {
                     gpio_whiteled_on(ON);
-#if (FRM_PRODUCT_TYPE == FRM_DBS3M_KELINGPU_MODE)
+#if (FRM_PRODUCT_TYPE == FRM_DBS3M_KELINGPU_MODE || FRM_PRODUCT_TYPE == FRM_DBS3M_BOLATAIN_MODE)
                     //notice that using white led
                     fr_SetColorLed(1);
 #endif
