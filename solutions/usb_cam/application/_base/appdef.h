@@ -1381,8 +1381,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.49.0.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.0.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.49.0.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.0.5_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1417,7 +1417,7 @@ enum E_Baud_Rate
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef NEW_CLR_IR_SWITCH_THR 
-#define NEW_CLR_IR_SWITCH_THR               0x08
+#define NEW_CLR_IR_SWITCH_THR               0x04
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_OKEDA_UAC)
