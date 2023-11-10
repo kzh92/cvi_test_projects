@@ -399,6 +399,7 @@ static void *send_to_uvc()
 {
     uint32_t out_len, i = 0, ret = 0;
 	uint32_t buf_len = 0,buf_len_stride = 0, packets = 0;
+	uint8_t isOverflow = 0;
 	uint8_t *packet_buffer_media = (uint8_t *)aos_ion_malloc(DEFAULT_FRAME_SIZE);
     memset(packet_buffer_media, 0, DEFAULT_FRAME_SIZE);
     memset(packet_buffer_uvc, 0, DEFAULT_FRAME_SIZE);
@@ -446,16 +447,25 @@ static void *send_to_uvc()
 				}
 				for (i = 0; i < pstStream->u32PackCount; ++i)
 				{
-					if(buf_len < DEFAULT_FRAME_SIZE){
-						ppack = &pstStream->pstPack[i];
+					ppack = &pstStream->pstPack[i];
+					if ((ppack->u32Len - ppack->u32Offset) < DEFAULT_FRAME_SIZE)
+					{
 						memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
 						buf_len = (ppack->u32Len - ppack->u32Offset);
 					}
-					else{
-							printf("venc buf_len oversize\n");
-							MEDIA_VIDEO_VencReleaseStream(0,pstStream);
-							continue;
+					else
+					{
+						isOverflow = 1;
+						break;
+						
 					}
+				}
+				if (isOverflow)
+				{
+					printf("venc buf_len oversize\n");
+					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
+					isOverflow = 0;
+					continue;
 				}
 #if (USE_WHITE_LED == 0 && 0)
 				if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.iUVCIRDataReady == 0)
