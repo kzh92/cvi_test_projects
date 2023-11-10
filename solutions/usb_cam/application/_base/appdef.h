@@ -224,6 +224,9 @@ enum E_Baud_Rate
 #define UAC_MIC_EP                  2
 #define UVC_VBPOOL1CNT              3
 
+#define UVC_PIXEL_FMT_NV21          0
+#define UVC_PIXEL_FMT_YUV420P       1
+
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30
 #define RESET_TIMEOUT               9
@@ -281,6 +284,7 @@ enum E_Baud_Rate
 #define DEFAULT_UVC_COMP_PARAM_BT_MAX   6
 #define DEFAULT_UVC_COMP_PARAM_BT_DEF   4
 #define DEFAULT_UVC_COMP_PARAM_RPFR     1
+#define DEFAULT_UVC_PIXEL_FMT       UVC_PIXEL_FMT_NV21
 #define DEFAULT_LIVENESS_MODE       0   //engine state for liveness, for special use only
 #define DEFAULT_SECURE_VALUE        75  //caution!!! DO NOT MODIFY this value.
 #define DEFAULT_SECURE_FALSE_VAL    5  //caution!!! DO NOT MODIFY this value.
@@ -411,7 +415,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KEXIONG_UAC                   322
 #define FRM_DBS3M_HAND_PRIO_UAC                 323
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -825,8 +829,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.8_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.8_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.8.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.8.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -855,6 +859,8 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#undef DEFAULT_UVC_PIXEL_FMT
+#define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV420P
 
 //----------------------------------------------------------
 

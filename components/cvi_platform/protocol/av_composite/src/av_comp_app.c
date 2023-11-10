@@ -217,12 +217,15 @@ int uvc_media_update(){
 	switch(uvc_format_info.format_index){
 	case YUYV_FORMAT_INDEX:
 		enPixelFormat = PIXEL_FORMAT_YUYV;
+		printf("PIXEL_FORMAT_YUYV\n");
 		break;
 	case NV21_FORMAT_INDEX:
 		enPixelFormat = PIXEL_FORMAT_NV21;
+		printf("PIXEL_FORMAT_NV21-1\n");
 		break;
 	default:
-		enPixelFormat = PIXEL_FORMAT_NV21;
+		enPixelFormat = (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21 ? PIXEL_FORMAT_NV21 : PIXEL_FORMAT_YUV_PLANAR_420);
+		printf("%s\n", (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21 ? "PIXEL_FORMAT_NV21" : "PIXEL_FORMAT_YUV_PLANAR_420"));
 		break;
 	}
 
