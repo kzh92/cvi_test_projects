@@ -1389,8 +1389,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.49.0.7_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.0.7_D"
+#define DEVICE_FIRMWARE_VERSION             "3.49.0.8_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.0.8_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1424,7 +1424,7 @@ enum E_Baud_Rate
 #define USE_TONGXIN_PROTO                   1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#define UVC_CLR2IR_THR4ISP                  (-150) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_OKEDA_UAC)
