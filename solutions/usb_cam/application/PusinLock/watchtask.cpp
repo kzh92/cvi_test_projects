@@ -14,6 +14,7 @@
 #if (USE_PRINT_TEMP)
 #include "cvi_tempsen.h"
 #endif
+#include "cvi_ae.h"
 #include <string.h>
 
 extern SenseLockTask* g_pSenseTask;
@@ -219,15 +220,34 @@ void WatchTask::run()
     while(m_iRunning)
     {
         {
-            if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
-                iClrDarkCounter = 0;
-            else
+#ifdef UVC_CLR2IR_THR4ISP
+            //CVI_S32 CVI_ISP_GetCurrentLvX100(VI_PIPE ViPipe, CVI_S16 *ps16Lv);
+            CVI_S16 lv = 0;
+            CVI_ISP_GetCurrentLvX100(0, &lv);
+            if (lv <= UVC_CLR2IR_THR4ISP && g_xSS.iGotUvcEvent)
             {
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
                 if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
 #endif
-                iClrDarkCounter++;
+                    iClrDarkCounter++;
             }
+            else
+                iClrDarkCounter = 0;
+            //printf("[ROK] %d, %d, %d\n", (int)Now(), lv, iClrDarkCounter);
+            if (g_xSS.rFaceEngineTime != 0)
+#endif // UVC_CLR2IR_THR4ISP
+            {
+                if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
+                    iClrDarkCounter = 0;
+                else
+                {
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+                    if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
+#endif
+                        iClrDarkCounter++;
+                }
+            }
+
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if(iClrDarkCounter)
 #else

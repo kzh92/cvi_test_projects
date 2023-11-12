@@ -188,7 +188,9 @@ enum E_Baud_Rate
 #define UVC_WIDTH                   1280
 #define UVC_HEIGHT                  720
 #define CHECK_CLR_IR_SWITCH_THR     0
-#define NEW_CLR_IR_SWITCH_THR       0x20 
+#define NEW_CLR_IR_SWITCH_THR       0x20
+#define UVC_CLR2IR_THR4ISP          (-150) //threshold value for turning white led on.
+#undef UVC_CLR2IR_THR4ISP
 #define UVC_CLR_LUMINANCE           0x80
 #define UVC_CLR_SAT_Gl              0x50
 #define UVC_CLR_SAT_Cb              0x42
@@ -415,7 +417,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KEXIONG_UAC                   322
 #define FRM_DBS3M_HAND_PRIO_UAC                 323
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DUAL_CAM_AIPAI
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -838,7 +840,7 @@ enum E_Baud_Rate
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {1, 864, 480, 30, 0, 10240},
+                                            {2, 864, 480, 30, 0, 10240},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -1387,8 +1389,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.49.0.6_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.0.6_D"
+#define DEVICE_FIRMWARE_VERSION             "3.49.0.7_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.0.7_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1422,8 +1424,7 @@ enum E_Baud_Rate
 #define USE_TONGXIN_PROTO                   1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#undef NEW_CLR_IR_SWITCH_THR 
-#define NEW_CLR_IR_SWITCH_THR               0x01
+#define UVC_CLR2IR_THR4ISP                  (-150) //threshold value for turning white led on.
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_OKEDA_UAC)
