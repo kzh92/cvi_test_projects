@@ -1137,7 +1137,10 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iEnrollFaceDupCheck = ENROLL_DUPLICATION_CHECK;
 #if (USE_SANJIANG3_MODE)
         if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
+        {
+            g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
             g_xSS.iEnrollFaceDupCheck = 0;
+        }
 #endif // USE_SANJIANG3_MODE
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
 
@@ -1208,6 +1211,8 @@ int MsgProcSense(MSG* pMsg)
             if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
                 g_xSS.iEnrollFaceDupCheck = 0;
         }
+        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
+            g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
 #else // USE_SANJIANG3_MODE
         if (g_xSS.iRegisterHand)
             g_xSS.iEnrollFaceDupCheck = ENROLL_HAND_DUP_CHECK;
@@ -1295,6 +1300,8 @@ int MsgProcSense(MSG* pMsg)
             g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_SEPERATE;
             g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
         }
+        if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
+            g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
 #endif // N_MAX_HAND_NUM
         g_xSS.iEnrollDupCheckMode = g_xSS.msg_enroll_itg_data.enable_duplicate;
         g_xSS.iEnrollFaceDupCheck = (g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_NFACE_NAME);
@@ -3114,7 +3121,7 @@ int ProcessSenseFace(int iCmd)
                         int rID = g_xSS.iRegisterID + N_MAX_PERSON_NUM;
                         int rDir = g_xSS.iRegisterDir;
 
-#if (USE_SANJIANG3_MODE && ENROLL_FACE_HAND_MODE == ENROLL_FACE_HAND_MIX && N_MAX_HAND_NUM)
+#if (USE_SANJIANG3_MODE && N_MAX_HAND_NUM)
                         if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
                         {
                             rDir = FACE_DIRECTION_HAND;
