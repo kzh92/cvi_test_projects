@@ -417,7 +417,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KEXIONG_UAC                   322
 #define FRM_DBS3M_HAND_PRIO_UAC                 323
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DUAL_CAM_AIPAI
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -831,8 +831,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.8.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.8.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.9_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.9_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -840,7 +840,9 @@ enum E_Baud_Rate
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240},
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -861,8 +863,8 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
-#undef DEFAULT_UVC_PIXEL_FMT
-#define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV420P
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
 
 //----------------------------------------------------------
 
