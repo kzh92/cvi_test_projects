@@ -1300,6 +1300,12 @@ int MsgProcSense(MSG* pMsg)
             g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_SEPERATE;
             g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
         }
+#if (USE_TONGXIN_PROTO)
+        else if (g_xSS.msg_enroll_itg_data.enroll_type == FACE_ENROLL_TYPE_SINGLE)
+        {
+            g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
+        }
+#endif // USE_TONGXIN_PROTO
         if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
             g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
 #endif // N_MAX_HAND_NUM
