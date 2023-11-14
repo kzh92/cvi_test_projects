@@ -418,7 +418,8 @@ enum E_Baud_Rate
 #define FRM_DBS3M_HAND_PRIO_UAC                 323
 #define FRM_DBS3M_7916_UAC                      324
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_7916_UAC
+
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN2
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -502,8 +503,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN2)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.3.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.3.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.3.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.3.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -529,8 +530,8 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-#undef ENROLL_FACE_HAND_MODE
-#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+// #undef ENROLL_FACE_HAND_MODE
+// #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef UAC_SPEAKER_VOL
