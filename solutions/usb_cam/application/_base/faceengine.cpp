@@ -90,7 +90,13 @@ int FaceEngine::RemoveUser(int iUserID, int iType, int iSkipUpdateCount)
     if (iUserID > N_MAX_PERSON_NUM)
         pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - N_MAX_PERSON_NUM - 1);
     else if (iType == SM_DEL_USER_TYPE_HAND)
+    {
+#if (FRM_PRODUCT_TYPE != FRM_DBS3M_OKEDA_UAC)
         pxMetaInfo = dbm_GetHandMetaInfoByID(iUserID - 1);
+#else
+        pxMetaInfo = NULL;
+#endif
+    }
 #endif // N_MAX_HAND_NUM
     if(pxMetaInfo == NULL)
     {
