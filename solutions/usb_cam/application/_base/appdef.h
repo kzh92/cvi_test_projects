@@ -419,7 +419,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_7916_UAC                      324
 
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_OKEDA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -1162,8 +1162,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS35_LH_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.32.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.32.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.32.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.32.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1177,7 +1177,7 @@ enum E_Baud_Rate
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         1
+#define USE_3M_MODE                         2
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
@@ -1191,7 +1191,7 @@ enum E_Baud_Rate
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 

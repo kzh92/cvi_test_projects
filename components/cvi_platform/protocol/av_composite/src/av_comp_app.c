@@ -259,7 +259,7 @@ int uvc_media_update(){
 		stVpssChnAttr.u32Height = uvc_frame_info.height;
 		CVI_VPSS_SetChnRotation(DEFAULT_SNR4UVC, 0, ROTATION_0);
 	}
-	if (g_xSS.iUvcDirect == UVC_ROTATION_270 || g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+	if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
 	{
 		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
 		stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
