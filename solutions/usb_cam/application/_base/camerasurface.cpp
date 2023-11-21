@@ -685,7 +685,7 @@ void* ProcessTCMipiCapture(void */*param*/)
     int frm_num = 1;
     CVI_U32 dev = 0;
     CVI_S32 s_ret = 0;
-    int pat_set = 0;
+    // int pat_set = 0;
     int iFrameCount = 0;
     int iNeedNext = 0;
     float rOld = Now();
@@ -711,9 +711,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 
     while (g_xSS.iRunningCamSurface)
     {
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && pat_set == 0)
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE/* && pat_set == 0*/)
         {
-            pat_set = 1;
+            // pat_set = 1;
             camera_set_pattern_mode(TC_MIPI_CAM, 1);
         }
 #if (USE_WHITE_LED == 0)
@@ -844,7 +844,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
             //swtich to id->1
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-#if (USE_3M_MODE == 1 && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+#if ((USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI) && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.iFirstFlag == 0)
             {
                 g_xSS.iFirstFlag = 2; // get first color frame
@@ -940,7 +940,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             g_iTwoCamFlag ++;
 #else // ENGINE_USE_TWO_CAM
             WaitIRCancel();
-#if (USE_3M_MODE == 1)
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
             if (g_xSS.iFirstFlag == 0 && g_iTwoCamFlag == IR_CAMERA_STEP2)
             {
                 g_xSS.iFirstFlag = 1;
