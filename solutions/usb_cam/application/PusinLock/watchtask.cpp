@@ -234,7 +234,7 @@ void WatchTask::run()
             else
                 iClrDarkCounter = 0;
             //printf("[ROK] %d, %d, %d\n", (int)Now(), lv, iClrDarkCounter);
-            if (g_xSS.rFaceEngineTime != 0)
+            if (g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_SEMI)
 #endif // UVC_CLR2IR_THR4ISP
             {
                 if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
@@ -256,15 +256,15 @@ void WatchTask::run()
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)
-                if (g_xSS.iUvcSensor != (DEFAULT_SNR4UVC + 1) % 2)
+                if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
                 {
                     g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
                     camera_set_mono_chrome(1);
                     uvc_set_reinit_flag();
                 }
 #else // USE_WHITE_LED
-#if (USE_3M_MODE)
-                if (USE_3M_MODE == 1 || g_xSS.bUVCRunning)
+#if (USE_3M_MODE && USE_3M_MODE != U3M_SEMI)
+                if (USE_3M_MODE == U3M_DEFAULT || g_xSS.bUVCRunning)
                 {
                     gpio_whiteled_on(ON);
                     //notice that using white led

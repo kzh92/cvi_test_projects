@@ -602,10 +602,7 @@ int main0(int argc, char** argv)
     g_pWatchTask->Start(0);
     if (argc == 1)
     {
-        fr_InitLive();
-#if (DEFAULT_CHIP_TYPE != MY_CHIP_D10)
-        fr_InitEngine_Hand();
-#endif
+        fr_LoadCreateMachine_1();
         fr_InitIRCamera_ExpGain();
         //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
         ProcessInsmod(NULL);

@@ -118,6 +118,12 @@ enum E_Baud_Rate
 #define UVC_ROTATION_90             1
 #define UVC_ROTATION_270            2       //180degree of UVC_ROTATION_90
 
+//USE_3M_MODE
+#define U3M_DISABLE                 0
+#define U3M_DEFAULT                 1       //얼굴인식에 색카메라리용, 백색레드리용함
+#define U3M_IR_ONLY                 2       //얼굴인식에 색카메라를 쓰지 않음, 백색레드쓰지 않음
+#define U3M_SEMI                    3       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 적외선만 리용, 백색레드쓰지 않음
+
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE               0
@@ -163,7 +169,7 @@ enum E_Baud_Rate
 #define ENGINE_USE_TWO_CAM          EUTC_2V0_MODE
 #define YAOYANG_MODE                0
 #define SEND_LAST_MSG               0
-#define USE_3M_MODE                 0       //0: not 3M, 1: 3M default, 2: 3M+2D
+#define USE_3M_MODE                 U3M_DISABLE
 #define USE_UAC_MODE                0
 #define USE_USB_EP_ERR_FIX_MODE     0
 #define USE_WHITE_LED               0
@@ -191,6 +197,7 @@ enum E_Baud_Rate
 #define NEW_CLR_IR_SWITCH_THR       0x20
 #define UVC_CLR2IR_THR4ISP          (-150) //threshold value for turning white led on.
 #undef UVC_CLR2IR_THR4ISP
+#define UVC_CLR2IR_THR4ISP_TH       (100) //threshold value for returning to color mode
 #define UVC_CLR_LUMINANCE           0x80
 #define UVC_CLR_SAT_Gl              0x50
 #define UVC_CLR_SAT_Cb              0x42
@@ -419,7 +426,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_7916_UAC                      324
 
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -1175,7 +1182,7 @@ enum E_Baud_Rate
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         2
+#define USE_3M_MODE                         U3M_SEMI
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
@@ -1192,6 +1199,9 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TOYO_UAC)

@@ -85,6 +85,9 @@ void FaceRecogTask::Start(int iCmd)
 
     }
     fr_SetCameraFlip(g_xSS.iCameraRotate);
+#if (USE_3M_MODE == U3M_SEMI)
+    fr_SetColorLed(2);
+#endif
     m_isFaceOcculution = 0;
     memset(m_iFaceNearFar, 0, sizeof(m_iFaceNearFar));
     memset(m_iFacePosition, 0, sizeof(m_iFacePosition));
@@ -483,11 +486,14 @@ void FaceRecogTask::run()
         UpdateHeadInfos2();
 #endif // DEFAULT_SECURE_MODE
 
-#if (USE_3M_MODE == 1)
-    camera_clr_set_exp(g_sc201cs_aec_exp);
-    camera_clr_set_gain(g_sc201cs_aec_gain, g_sc201cs_aec_dig_gain, g_sc201cs_aec_fine_gain);
-    camera_clr_start_aec();
-#endif
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
+    if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
+    {
+        camera_clr_set_exp(g_sc201cs_aec_exp);
+        camera_clr_set_gain(g_sc201cs_aec_gain, g_sc201cs_aec_dig_gain, g_sc201cs_aec_fine_gain);
+        camera_clr_start_aec();
+    }
+#endif // USE_3M_MODE
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
     dbug_printf("[Recog] Verify Face End!\n");
     g_xSS.rFaceEngineTime = 0;
@@ -866,8 +872,8 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         return 1;
 
 #if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
-#if (USE_3M_MODE == 1)
-    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] ==  0) //face mode only
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] == 0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC) //face mode only
     {
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
@@ -877,7 +883,7 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         }
         else
         {
-#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+#if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.iFirstFlag == 2) // use first clr frame
             {
                 g_xSS.iFirstFlag = 1;
@@ -972,8 +978,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
     if(g_xSS.iResetFlag == 1)
         return 1;
 #if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
-#if (USE_3M_MODE == 1)
-    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] ==  0) //face mode only
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] == 0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC) //face mode only
     {
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {

@@ -157,18 +157,26 @@ int	dbm_LoadPersonDB()
 //    int fUserFileState = 0;
 
     memset(getDBPtr(), 0, sizeof(DB_INFO));
-    int FILESIZE = sizeof(DB_INFO);
     int real_file_len;
 
     LOG_PRINT("[%s] start, %d, %ld, %ld\n", __func__, FILESIZE, sizeof(DB_UNIT), sizeof(g_xDB->aiValid));
+    int read_first_len;
+#ifdef USE_TWIN_ENGINE
+    const int blk_size = 1;
+#else
+    const int blk_size = 20;
+#endif
+    read_first_len = sizeof(g_xDB->aiValid);
+    int read_flag[(N_MAX_PERSON_NUM - 1)/ blk_size + 1] = {0};
+    LOG_PRINT("[%s] start, %d, %ld, %ld\n", __func__, read_first_len, sizeof(DB_UNIT), sizeof(g_xDB->aiValid));
 
     my_userdb_open(dbfs_get_cur_part());
 
-    real_file_len = my_userdb_read(0, g_xDB, FILESIZE);
+    real_file_len = my_userdb_read(0, g_xDB, read_first_len);
 
-    if (real_file_len != FILESIZE)
+    if (real_file_len != read_first_len)
     {
-        my_printf("file size not match: %d, %d\n", real_file_len, FILESIZE);
+        my_printf("file size not match: %d, %d\n", real_file_len, read_first_len);
         dbm_Free();
         return ES_FILE_ERROR;
     }
@@ -180,7 +188,20 @@ int	dbm_LoadPersonDB()
     {
         if(g_xDB->aiValid[i] != 1)
             continue;
-
+        int blk_num = i / blk_size;
+        int read_blk_size = sizeof(DB_UNIT) * blk_size;
+        if (read_flag[blk_num] == 0)
+        {
+            int offset = sizeof(g_xDB->aiValid) + blk_num * read_blk_size;
+            real_file_len = my_userdb_read(offset, (char *)g_xDB + offset, read_blk_size);
+            if (real_file_len != read_blk_size)
+            {
+                my_printf("file size not match: %d, %d\n", real_file_len, read_blk_size);
+                dbm_Free();
+                return ES_FILE_ERROR;
+            }
+            read_flag[blk_num] = 1;
+        }
         g_aiDBValid[i] = 1;
         int iCheckSum = GetIntCheckSum((int*)&g_xDB->ax[i].xM, sizeof(SMetaInfo));
         if(iCheckSum != g_xDB->ax[i].iMetaCheckSum)
