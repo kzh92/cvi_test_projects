@@ -1199,7 +1199,7 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
-#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ISP                  (-250) //threshold value for turning white led on.
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 
