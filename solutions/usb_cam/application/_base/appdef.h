@@ -419,7 +419,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_7916_UAC                      324
 
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -1308,8 +1308,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.44.0.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.44.0.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.44.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.44.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1347,6 +1347,10 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UAC_SPK_EP
