@@ -419,7 +419,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_7916_UAC                      324
 
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DAS3M_LS35_LH_UAC)
@@ -955,8 +955,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.21.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.21.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -967,7 +967,7 @@ enum E_Baud_Rate
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 480, 854, 10, 0}, \
 											{2, 480, 800, 10, 0}, \
-											{3, 480, 320, 10, 0},
+											{3, 320, 480, 10, 0},
 #undef UVC_MAX_FPS_TIME
 #define UVC_MAX_FPS_TIME 					60
 #undef ENGINE_USE_TWO_CAM
