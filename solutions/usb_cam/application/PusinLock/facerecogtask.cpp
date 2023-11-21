@@ -243,6 +243,9 @@ void FaceRecogTask::run()
         if(g_xSS.iResetFlag == 1)
             break;
 
+        if (iLoopCount == 0)
+            fr_LoadCreateMachine_2();
+
         if (ProcessEnrollFile1Step())
             break;
 
