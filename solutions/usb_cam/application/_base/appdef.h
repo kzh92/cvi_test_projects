@@ -426,7 +426,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_7916_UAC                      324
 #define FRM_DBS3M_YIHE_UAC                      325
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AJISHI_CHANGSI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -605,19 +605,19 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.7.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.7.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0},  \
-                                            {3, 800, 480, 30, 0},  \
-                                            {4, 480, 320, 30, 0},  \
-                                            {5, 320, 240, 30, 0},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
+                                            {2, 864, 480, 12, 0, 9000},\
+                                            {3, 800, 480, 12, 0, 9000},\
+                                            {4, 480, 320, 12, 0, 9000},\
+                                            {5, 320, 240, 12, 0, 9000}
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef UAC_AUDALGO_USE 
@@ -644,10 +644,13 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
-#undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   9000
-#undef ISP_FPS_FOR_UVC
-#define ISP_FPS_FOR_UVC                     12
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
+#undef ENROLL_FACE_HAND_MODE
+#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 
 //----------------------------------------------------------
 
