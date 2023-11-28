@@ -415,7 +415,7 @@ static void *send_to_uvc()
 
     while (uvc_session_init_flag) {
         if (tx_flag) {
-			
+			g_xSS.rUvcFrameTime = aos_now_ms();
 			if(uvc_update){
 				uvc_media_update();
 				uvc_get_video_format_info(&uvc_format_info);

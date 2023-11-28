@@ -263,17 +263,29 @@ void WatchTask::run()
                     uvc_set_reinit_flag();
                 }
 #else // USE_WHITE_LED
-#if (USE_3M_MODE && USE_3M_MODE != U3M_SEMI)
+#if (USE_3M_MODE && USE_WHITE_LED != 0)
                 if (USE_3M_MODE == U3M_DEFAULT || g_xSS.bUVCRunning)
                 {
                     gpio_whiteled_on(ON);
                     //notice that using white led
-                    fr_SetColorLed(1);
+                    if (USE_3M_MODE != U3M_SEMI)
+                        fr_SetColorLed(1);
                 }
 #endif
 #endif // USE_WHITE_LED
             }
         }
+
+#if (USE_WHITE_LED == 1)
+        if (g_xSS.rUvcFrameTime != 0 && Now() - g_xSS.rUvcFrameTime >= 1000)
+        {
+            g_xSS.bUVCRunning = 0;
+            g_xSS.iGotUvcEvent = 0;
+            if (USE_3M_MODE == U3M_SEMI || g_xSS.rFaceEngineTime == 0)
+                gpio_whiteled_on(OFF);
+        }
+#endif // USE_WHITE_LED
+
 #ifdef PSENSE_DET
         int bFlag = GPIO_fast_getvalue(PSENSE_DET);
         if (bFlag == 0 && iPowerOnFlag != 0)

@@ -140,7 +140,7 @@ typedef struct _tagSYSTEM_STATE
     int             iRunningCamSurface;
     int             iRunningDvpCam;
     int             iShowIrCamera;
-    float           rIRCamTime;
+    float           rUvcFrameTime;
     float           rCLRCamTime;
 
     //Face Recog Task
