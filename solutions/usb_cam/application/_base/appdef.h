@@ -198,6 +198,8 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP          (-150) //threshold value for turning white led on.
 #undef UVC_CLR2IR_THR4ISP
 #define UVC_CLR2IR_THR4ISP_TH       (100) //threshold value for returning to color mode
+#define UVC_CLR2IR_THR4ENGINE       (-100) //threshold value for turning white led on for face engine.
+#undef UVC_CLR2IR_THR4ENGINE
 #define UVC_CLR_LUMINANCE           0x80
 #define UVC_CLR_SAT_Gl              0x50
 #define UVC_CLR_SAT_Cb              0x42
@@ -427,7 +429,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_YIHE_UAC                      325
 #define FRM_DBS3M_JIASHIBANG_UAC                326
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -897,8 +899,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.9_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.9_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.10_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.10_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -931,6 +933,8 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-100)
 
 //----------------------------------------------------------
 

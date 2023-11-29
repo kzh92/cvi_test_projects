@@ -318,14 +318,6 @@ void uvc_streaming_on(int is_on) {
 	{
 		g_xSS.bUVCRunning = 1;
 		g_xSS.rLastSenseCmdTime = aos_now_ms();
-#if (USE_WHITE_LED == 0)
-		if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
-	    {
-	        g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
-	        camera_set_mono_chrome(1);
-	        uvc_update = 2;
-	    }
-#endif
 	}
 	else
 		g_xSS.bUVCRunning = 0;

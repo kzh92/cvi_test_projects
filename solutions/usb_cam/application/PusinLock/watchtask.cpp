@@ -232,27 +232,34 @@ void WatchTask::run()
                     iClrDarkCounter++;
             }
             else
+            {
+#ifdef UVC_CLR2IR_THR4ENGINE
+                if (lv <= UVC_CLR2IR_THR4ENGINE && g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_SEMI)
+                {
+                    if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
+                        iClrDarkCounter++;
+                }
+                else
+#endif // UVC_CLR2IR_THR4ENGINE
                 iClrDarkCounter = 0;
-            //printf("[ROK] %d, %d, %d\n", (int)Now(), lv, iClrDarkCounter);
+            }
+//            if ((iROKCounter % 10) == 0)
+//                my_printf("[ROK] %d, %d, %d, %0.1f\n", (int)Now(), lv, iClrDarkCounter, g_xSS.rFaceEngineTime);
             if (g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_SEMI)
 #endif // UVC_CLR2IR_THR4ISP
             {
+#ifndef UVC_CLR2IR_THR4ENGINE
                 if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
                     iClrDarkCounter = 0;
                 else
                 {
-#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
-#endif
                         iClrDarkCounter++;
                 }
+#endif // !UVC_CLR2IR_THR4ENGINE
             }
 
-#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-            if(iClrDarkCounter)
-#else
-            if(iClrDarkCounter > 10)
-#endif
+            if (iClrDarkCounter > 3)
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)
@@ -283,6 +290,10 @@ void WatchTask::run()
             g_xSS.iGotUvcEvent = 0;
             if (USE_3M_MODE == U3M_SEMI || g_xSS.rFaceEngineTime == 0)
                 gpio_whiteled_on(OFF);
+        }
+        else if(g_xSS.rUvcFrameTime == 0 && g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        {
+            gpio_whiteled_on(OFF);
         }
 #endif // USE_WHITE_LED
 
