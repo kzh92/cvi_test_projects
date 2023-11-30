@@ -233,7 +233,7 @@ enum E_Baud_Rate
 #define SPECIFIC_LOG_PRINT          0
 #define UAC_SPK_EP                  0x82
 #define UAC_MIC_EP                  2
-#define UVC_VBPOOL1CNT              3
+#define UVC_VBPOOL1CNT              5
 #define UVC_LANDSCAPE               0
 
 #define UVC_PIXEL_FMT_NV21          0
@@ -431,7 +431,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIASHIBANG_UAC                326
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIJIN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_BINRUI10IN_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
