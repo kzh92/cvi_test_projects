@@ -278,8 +278,13 @@ int uvc_media_update(){
     }
     else
     {
+#if (UVC_LANDSCAPE == 0)
     	int real_width = CLR_CAM_WIDTH * UVC_CROP_RESIZE;
     	int real_height = CLR_CAM_WIDTH * stVpssChnAttr.u32Height / stVpssChnAttr.u32Width * UVC_CROP_RESIZE;
+#else
+		int real_width = CLR_CAM_HEIGHT * uvc_frame_info.height / uvc_frame_info.width;
+		int real_height = CLR_CAM_HEIGHT;
+#endif
 		pstCropInfo.bEnable = CVI_TRUE;
 		pstCropInfo.stCropRect.s32X = CLR_CAM_WIDTH > real_width ? ((CLR_CAM_WIDTH - real_width) / 2) : 0;
 		pstCropInfo.stCropRect.s32Y = CLR_CAM_HEIGHT > real_height ? ((CLR_CAM_HEIGHT - real_height) / 2) : 0;

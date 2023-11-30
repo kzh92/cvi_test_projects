@@ -249,12 +249,20 @@ void WatchTask::run()
 #endif // UVC_CLR2IR_THR4ISP
             {
 #ifndef UVC_CLR2IR_THR4ENGINE
-                if(g_xSS.iCurClrGain <= (0xf80 - NEW_CLR_IR_SWITCH_THR))
-                    iClrDarkCounter = 0;
-                else
+                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
                 {
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
-                        iClrDarkCounter++;
+                    {
+#if (USE_3M_MODE && USE_WHITE_LED != 0)
+                        if (USE_3M_MODE == U3M_DEFAULT)
+                        {
+                            gpio_whiteled_on(ON);
+                            //notice that using white led
+                            if (USE_3M_MODE != U3M_SEMI)
+                                fr_SetColorLed(1);
+                        }
+#endif
+                    }
                 }
 #endif // !UVC_CLR2IR_THR4ENGINE
             }
