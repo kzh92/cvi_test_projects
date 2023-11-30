@@ -431,7 +431,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIASHIBANG_UAC                326
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_BINRUI10IN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIJIN_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1115,8 +1115,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIJIN_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.22.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.22.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.22.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.22.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1127,7 +1127,7 @@ enum E_Baud_Rate
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         1
+#define USE_3M_MODE                         U3M_SEMI
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
@@ -1141,7 +1141,7 @@ enum E_Baud_Rate
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef DEFAULT_UVC_DIR
@@ -1156,6 +1156,7 @@ enum E_Baud_Rate
 // #define UVC_HEIGHT                          480
 #undef UVC_VBPOOL1CNT
 #define UVC_VBPOOL1CNT                      3
+#define UVC_CLR2IR_THR4ISP                  (-250) //threshold value for turning white led on.
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_7916_UAC)
