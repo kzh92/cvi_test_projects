@@ -431,7 +431,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIASHIBANG_UAC                326
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_BINRUI10IN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HONGLI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1196,24 +1196,24 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HONGLI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.24.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.24.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.24.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.24.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 640, 480, 30, 0}, \
-                                            {3, 480, 320, 30, 0}, \
-                                            {4, 320, 240, 30, 0},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+                                            {2, 640, 480, 30, 0, 8192}, \
+                                            {3, 480, 320, 30, 0, 4096}, \
+                                            {4, 320, 240, 30, 0, 2048},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
 #undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
+#define USE_UAC_MODE                        0
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
@@ -1230,6 +1230,9 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef DEFAULT_UART0_BAUDRATE
 #define DEFAULT_UART0_BAUDRATE              Baud_Rate_9600
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#define UVC_CLR2IR_THR4ISP                  (-200)
 
 //----------------------------------------------------------
                                             
