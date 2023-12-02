@@ -733,7 +733,7 @@ static void video_notify_handler(uint8_t event, void *arg)
 
         case USBD_EVENT_SET_INTERFACE: {
             struct usb_interface_descriptor *intf = (struct usb_interface_descriptor *)arg;
-            if (intf->bAlternateSetting == 1) {
+            if (intf->bAlternateSetting == 1 || intf->bAlternateSetting == 4) {
                 is_on = 1;
             } else {
                 is_on = 0;

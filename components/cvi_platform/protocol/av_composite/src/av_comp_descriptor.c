@@ -330,7 +330,11 @@ static struct usb_interface_descriptor uvc_streaming_intf_alt1 = {
     .bLength        = USB_DT_INTERFACE_SIZE,
     .bDescriptorType    = USB_DT_INTERFACE,
     .bInterfaceNumber    = UVC_INTF_VIDEO_STREAMING,
+#if (FRM_PRODUCT_TYPE == FRM_DBS3M_HONGLI_MODE)
+    .bAlternateSetting    = 4,
+#else
     .bAlternateSetting    = 1,
+#endif
     .bNumEndpoints        = 1,
     .bInterfaceClass    = USB_CLASS_VIDEO,
     .bInterfaceSubClass    = UVC_SC_VIDEOSTREAMING,
