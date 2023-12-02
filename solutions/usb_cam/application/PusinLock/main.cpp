@@ -3372,8 +3372,10 @@ int MsgProcFM(MSG* pMsg)
     {
         if (pMsg->data2 == E_FUNC_MIC_SPEAKER)
         {
+#if (USE_UAC_MODE)
             my_printf("[FuncTest] E_FUNC_SPEAKER\n");
             test_Audio();
+#endif // USE_UAC_MODE
         }
         else
         {

@@ -51,6 +51,7 @@ CVI_S32 is_media_info_update();
 void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex);
 int uvc_media_update();
 
+#if (USE_UAC_MODE)
 static struct usbd_endpoint audio_in_ep = {
     .ep_cb = usbd_audio_in_callback,
     .ep_addr = AUDIO_IN_EP
@@ -60,6 +61,7 @@ static struct usbd_endpoint audio_out_ep = {
     .ep_cb = usbd_audio_out_callback,
     .ep_addr = AUDIO_OUT_EP
 };
+#endif // USE_UAC_MODE
 
 #if 0
 static struct uvc_frame_info_st yuy2_frame_info[] = {
@@ -566,9 +568,11 @@ static void *send_to_uvc()
 static struct usbd_endpoint video_in_ep;
 static struct usbd_interface uvc_inf0;
 static struct usbd_interface uvc_inf1;
+#if (USE_UAC_MODE)
 static struct usbd_interface uac_intf0;
 static struct usbd_interface uac_intf1;
 static struct usbd_interface uac_intf2;
+#endif // USE_UAC_MODE
 static uint8_t *av_comp_descriptor = NULL;
 
 void usb_av_comp_init()
@@ -580,7 +584,7 @@ void usb_av_comp_init()
     usbd_add_interface(usbd_video_init_intf(&uvc_inf1, INTERVAL, MAX_FRAME_SIZE, MAX_PAYLOAD_SIZE));
     usbd_add_endpoint(usbd_video_init_ep(&video_in_ep, VIDEO_IN_EP, NULL));
     usbd_video_register_uvc_callbacks(&uvc_evt_callbks);
-
+#if (USE_UAC_MODE)
     usbd_add_interface(usbd_audio_init_intf(&uac_intf0));
     usbd_add_interface(usbd_audio_init_intf(&uac_intf1));
     usbd_add_interface(usbd_audio_init_intf(&uac_intf2));
@@ -589,7 +593,7 @@ void usb_av_comp_init()
 
     usbd_audio_add_entity(0x02, AUDIO_CONTROL_FEATURE_UNIT);
     usbd_audio_add_entity(0x05, AUDIO_CONTROL_FEATURE_UNIT);
-
+#endif // USE_UAC_MODE
     usbd_initialize();
 }
 
@@ -604,8 +608,9 @@ int MEDIA_AV_Init()
 	// csi_dcache_disable();
 
 	usb_av_comp_init();
-
+#if (USE_UAC_MODE)
 	MEDIA_UAC_Init();
+#endif // USE_UAC_MODE
 
 	packet_buffer_uvc = (uint8_t *)usb_iomalloc(DEFAULT_FRAME_SIZE);
 
@@ -635,7 +640,9 @@ int MEDIA_AV_DeInit()
 	aos_msleep(100);
 	usbd_deinitialize();
 	aos_event_free(&_gslUvcEvent);
+#if (USE_UAC_MODE)
 	MEDIA_UAC_deInit();
+#endif // USE_UAC_MODE
     if (av_comp_descriptor) {
         av_comp_destroy_descriptors(av_comp_descriptor);
     }

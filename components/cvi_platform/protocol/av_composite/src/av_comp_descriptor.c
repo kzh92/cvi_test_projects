@@ -38,7 +38,7 @@ struct usb_config_descriptor uvc_config_descriptor = {
     .bLength                = USB_DT_CONFIG_SIZE,
     .bDescriptorType        = USB_DT_CONFIG,
     .wTotalLength           = 0, /* dynamic */
-    .bNumInterfaces         = 5,
+    .bNumInterfaces         = (USE_UAC_MODE ? 5 : 2),
     .bConfigurationValue    = 1,
     .iConfiguration         = 0,
     .bmAttributes           = USB_CONFIG_ATT_ONE,
@@ -397,6 +397,9 @@ static const struct UVC_STRING_DESCRIPTOR(12) uvc_string_descriptor_product = {
     },
 };
 
+DECLARE_UVC_STRING_DESCRIPTOR(9);
+
+#if (USE_UAC_MODE)
 DECLARE_UVC_STRING_DESCRIPTOR(11);
 
 static const struct UVC_STRING_DESCRIPTOR(11) uvc_string_descriptor_speaker = {
@@ -417,8 +420,6 @@ static const struct UVC_STRING_DESCRIPTOR(11) uvc_string_descriptor_speaker = {
     },
 };
 
-DECLARE_UVC_STRING_DESCRIPTOR(9);
-
 static const struct UVC_STRING_DESCRIPTOR(9) uvc_string_descriptor_mic = {
     .bLength            = UVC_STRING_DESCRIPTOR_SIZE(9),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
@@ -434,6 +435,8 @@ static const struct UVC_STRING_DESCRIPTOR(9) uvc_string_descriptor_mic = {
         cpu_to_le16('C'),
     },
 };
+
+#endif // USE_UAC_MODE
 
 static const struct UVC_STRING_DESCRIPTOR(9) uvc_string_descriptor_serial = {
     .bLength            = UVC_STRING_DESCRIPTOR_SIZE(9),
@@ -456,8 +459,10 @@ static const struct usb_descriptor_header * const uvc_string_descriptors[] = {
     (struct usb_descriptor_header *) &uvc_string_descriptor_manufacturer,
     (struct usb_descriptor_header *) &uvc_string_descriptor_product,
     (struct usb_descriptor_header *) &uvc_string_descriptor_serial,
+#if (USE_UAC_MODE)
     (struct usb_descriptor_header *) &uvc_string_descriptor_speaker,
     (struct usb_descriptor_header *) &uvc_string_descriptor_mic,
+#endif // USE_UAC_MODE
     NULL,
 };
 
@@ -807,27 +812,31 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
 {
     uint8_t *av_desc = NULL;
     uint8_t *video_desc = NULL;
-    uint8_t *audio_desc = NULL;
     uint32_t av_desc_len = 0;
     uint32_t video_desc_len = 0;
-    uint32_t audio_desc_len = 0;
     uint32_t bytes = 0;
     uint32_t n_desc = 15;
     void *mem = NULL;
     const struct usb_descriptor_header * const *src;
     struct usb_descriptor_header **dst;
     struct usb_config_descriptor *uvc_config_header;
-
+#if (USE_UAC_MODE)
+    uint8_t *audio_desc = NULL;
+    uint32_t audio_desc_len = 0;
     audio_desc = uac_build_descriptor(&audio_desc_len);
     if (audio_desc != NULL
         && audio_desc_len > 0) {
     }
-
+#endif //USE_UAC_MODE
     video_desc = uvc_build_descriptor(format_info, num_formats, &video_desc_len);
     if (video_desc != NULL
         && video_desc_len > 0) {
     }
+#if (USE_UAC_MODE)
     av_desc_len = video_desc_len + audio_desc_len + uvc_config_descriptor.bLength;
+#else
+    av_desc_len = video_desc_len  + uvc_config_descriptor.bLength;
+#endif //USE_UAC_MODE
     bytes += av_desc_len;
     bytes += uvc_device_descriptor.bLength;
     for (src = uvc_string_descriptors; *src; ++src) {
@@ -851,17 +860,19 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
     memcpy(mem, video_desc, video_desc_len);
     mem += video_desc_len;
     // Copy uac iad
+#if (USE_UAC_MODE)
     memcpy(mem, audio_desc, audio_desc_len);
     mem += audio_desc_len;
-
+#endif //USE_UAC_MODE
     UVC_COPY_DESCRIPTORS(mem, dst, uvc_string_descriptors);
 #ifdef CONFIG_USB_HS
     UVC_COPY_DESCRIPTOR(mem, dst, &uvc_qual_descriptor);
 #endif
     ((uint32_t *)mem)[0] = 0x00;
 
-
+#if (USE_UAC_MODE)
     uac_destroy_descriptor(audio_desc);
+#endif //USE_UAC_MODE
     uvc_destroy_descriptor(video_desc);
 
     return av_desc;
