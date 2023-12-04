@@ -77,19 +77,19 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 };
 #endif
 
+#if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
     UVC_RES_DEFINE
 };
+#endif
+
+#if (UVC_ENC_TYPE == 1 || UVC_ENC_TYPE == 2)
+static struct uvc_frame_info_st h264_frame_info[] = {
+    UVC_RES_DEFINE
+};
+#endif
 
 #if 0
-static struct uvc_frame_info_st h264_frame_info[] = {
-    {1, 800, 600, 30, 0},
-    {2, 1280, 720, 30, 0},
-    {3, 640, 480, 30, 0},
-    {4, 400, 300, 30, 0},
-    {5, 1920, 1080, 30, 0},
-};
-
 static struct uvc_frame_info_st nv21_frame_info[] = {
     {1, 800, 600, 30, 0},
     {2, 1280, 720, 30, 0},
@@ -98,9 +98,13 @@ static struct uvc_frame_info_st nv21_frame_info[] = {
 #endif
 
 static struct uvc_format_info_st uvc_format_info[] = {
+#if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
-#if 0
+#endif
+#if (UVC_ENC_TYPE == 1 || UVC_ENC_TYPE == 2)
     {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
+#endif
+#if 0
     {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
     {NV21_FORMAT_INDEX, UVC_FORMAT_NV21, 1, ARRAY_SIZE(nv21_frame_info), nv21_frame_info},
 #endif
@@ -411,16 +415,19 @@ static void *send_to_uvc()
 	VPSS_CHN_ATTR_S stChnAttr,*pstChnAttr = &stChnAttr;
 	struct uvc_format_info_st uvc_format_info;
 	int print_flag = 0;
+#if (UVC_ENC_TYPE == 0)
 	int skip_count = 0;
-
+#endif
     while (uvc_session_init_flag) {
         if (tx_flag) {
 			g_xSS.rUvcFrameTime = aos_now_ms();
 			if(uvc_update){
 				uvc_media_update();
 				uvc_get_video_format_info(&uvc_format_info);
+#if (UVC_ENC_TYPE == 0)
 				if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && uvc_update == 2)
 					skip_count = 1;
+#endif
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
 				skip_count = 4;
 #endif
@@ -437,6 +444,7 @@ static void *send_to_uvc()
 					aos_msleep(10);
 					continue;
 				}
+#if (UVC_ENC_TYPE == 0)
 				if (skip_count)
 				{
 					skip_count--;
@@ -446,13 +454,19 @@ static void *send_to_uvc()
 #endif
 					continue;
 				}
+#endif //UVC_ENC_TYPE
 				for (i = 0; i < pstStream->u32PackCount; ++i)
 				{
 					ppack = &pstStream->pstPack[i];
 					if ((ppack->u32Len - ppack->u32Offset) < DEFAULT_FRAME_SIZE)
 					{
+					#if (UVC_ENC_TYPE == 0)
 						memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
 						buf_len = (ppack->u32Len - ppack->u32Offset);
+					#elif (UVC_ENC_TYPE == 1)
+						memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
+						buf_len += (ppack->u32Len - ppack->u32Offset);
+					#endif
 					}
 					else
 					{
@@ -479,7 +493,7 @@ static void *send_to_uvc()
 				if (print_flag ++ < 8)
 				{
 					if (print_flag == 8)
-						printf("mjpeg len=%d, %d\n", buf_len, (int)aos_now_ms());
+						printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 				if(ret != CVI_SUCCESS)
