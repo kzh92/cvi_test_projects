@@ -242,13 +242,12 @@ typedef struct _tagSYSTEM_STATE
     int                         iUvcSensor;
     int                         iUvcBitrate;
     int                         iUvcFps;
-    unsigned char               iGotUvcEvent;
-#if (USE_WHITE_LED == 0)
-    int                         iUvcResChanged;
-    int                         iUVCIRDataReady;
-#endif
+    unsigned char               iGotUvcEvent:1;
+    unsigned char               iUvcResChanged:1;
+    unsigned char               iUVCIRDataReady:2;
+    unsigned char               iProtoMode:2; // 0: no encryption, 1:sanjiang mode
+    unsigned char               iReserved:2; // 0: no encryption, 1:sanjiang mode
     int                         iCurClrGain;
-    int                         iProtoMode; // 0: no encryption, 1:sanjiang mode
     int                         iCapWidth;
     int                         iCapHeight;
 

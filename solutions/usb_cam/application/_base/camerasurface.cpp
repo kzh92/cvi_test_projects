@@ -62,7 +62,7 @@ mymutex_ptr g_captureLock = 0;
 
 unsigned char*  g_irOnData1 = NULL;
 unsigned char*  g_irOnData2 = NULL;
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
 unsigned char*  g_iUVCIRDataY = NULL;
 unsigned char*  g_iUVCIRDataU = NULL;
 #endif
@@ -146,7 +146,7 @@ void StartFirstCam()
     if (g_irOnData1 == NULL)
         my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
     g_irOnData2 = g_irOnData1 + IR_BUFFER_SIZE;
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
     g_iUVCIRDataY = g_irOnData2;
 #endif
 #if (USE_VDBTASK)
@@ -621,7 +621,7 @@ void* ProcessDVPCapture(void */*param*/)
     return NULL;
 }
 
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
 int PrepareDataForVenc(uint8_t* idstBuf, uint8_t* isrcBuf, int iWidth, int iHeight, int rotate)
 {
     // memcpy(idstBuf, isrcBuf, iWidth * iHeight);
@@ -716,7 +716,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             // pat_set = 1;
             camera_set_pattern_mode(TC_MIPI_CAM, 1);
         }
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
         if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.bUVCRunning && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iUVCIRDataReady == 0)
         {
             camera_set_irled_on(1);
@@ -873,7 +873,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             {
                 g_iLedOnStatus = 0;
                 gpio_irled_on(ON);
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
                 if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
                     CVI_VI_StartPipe(0);
@@ -902,7 +902,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         else if(g_iTwoCamFlag == IR_CAMERA_STEP2)
         {
 #if (USE_3M_MODE)
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
             if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 CVI_VI_StopPipe(0);
 #endif // USE_WHITE_LED
@@ -951,7 +951,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             {
                 gpio_irled_on(OFF);
                 g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-#if (USE_3M_MODE != 1 && USE_WHITE_LED == 0)
+#if (USE_3M_MODE != 1 && USE_WHITE_LED != 1)
                 if (g_xSS.bUVCRunning && !g_xSS.iUVCIRDataReady && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
 #if 0
@@ -988,7 +988,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 #endif
-#if (USE_WHITE_LED == 0)
+#if (USE_WHITE_LED != 1)
             g_xSS.iUVCIRDataReady = 0;
 #endif
             lockIRBuffer();

@@ -2659,6 +2659,15 @@ int ProcessSenseFace(int iCmd)
         StartClrCam();
 #endif // USE_VDBTASK
 
+#if (USE_WHITE_LED == 2)
+    if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.rFaceEngineTime != 0)
+    {
+        g_xSS.iUvcSensor = DEFAULT_SNR4UVC;
+        camera_set_mono_chrome(0);
+        uvc_set_reinit_flag();
+    }
+#endif // USE_WHITE_LED
+
     g_xSS.iResetFlag = 0;
     unsigned int iflag_NoStopCam = 0;
     FaceRecogTask* pFaceTask = getFaceInstance();
@@ -3226,6 +3235,10 @@ int ProcessSenseFace(int iCmd)
 #if (USE_VDBTASK)
     g_pFaceRecogTask = NULL;
 #endif // USE_VDBTASK
+
+#if (USE_WHITE_LED == 2)
+    gpio_whiteled_on(0);
+#endif // USE_WHITE_LED
 
 #if (USE_VDBTASK)
 #if (NO_ENCRYPT_FRM3_4 == 0)

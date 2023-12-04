@@ -277,8 +277,8 @@ void WatchTask::run()
                     camera_set_mono_chrome(1);
                     uvc_set_reinit_flag();
                 }
-#else // USE_WHITE_LED
-#if (USE_3M_MODE && USE_WHITE_LED != 0)
+#elif (USE_WHITE_LED == 1) // USE_WHITE_LED
+#if (USE_3M_MODE)
                 if (USE_3M_MODE == U3M_DEFAULT || g_xSS.bUVCRunning)
                 {
                     gpio_whiteled_on(ON);
@@ -287,11 +287,25 @@ void WatchTask::run()
                         fr_SetColorLed(1);
                 }
 #endif
+#elif (USE_WHITE_LED == 2) // USE_WHITE_LED
+                if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && g_xSS.rFaceEngineTime == 0)
+                {
+                    g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
+                    camera_set_mono_chrome(1);
+                    uvc_set_reinit_flag();
+                }
+                else
+                {
+                    gpio_whiteled_on(ON);
+                    //notice that using white led
+                    if (USE_3M_MODE != U3M_SEMI)
+                        fr_SetColorLed(1);
+                }
 #endif // USE_WHITE_LED
             }
         }
 
-#if (USE_WHITE_LED == 1)
+#if (USE_WHITE_LED)
         if (g_xSS.rUvcFrameTime != 0 && Now() - g_xSS.rUvcFrameTime >= 1000)
         {
             g_xSS.bUVCRunning = 0;
