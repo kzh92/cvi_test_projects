@@ -212,11 +212,11 @@ static const struct UVC_FRAME_MJPEG(3) uvc_frame_mjpg_default = {
     .dwMinBitRate           = cpu_to_le32(995328000),
     .dwMaxBitRate           = cpu_to_le32(995328000),
     .dwMaxVideoFrameBufferSize  = cpu_to_le32(4147200),
-    .dwDefaultFrameInterval     = cpu_to_le32(FRAME_INTERVAL_FPS(30)),
+    .dwDefaultFrameInterval     = cpu_to_le32(FRAME_INTERVAL_FPS(UVC_FI_FPS0)),
     .bFrameIntervalType     = 3,
-    .dwFrameInterval[0]     = cpu_to_le32(FRAME_INTERVAL_FPS(30)),
-    .dwFrameInterval[1]     = cpu_to_le32(FRAME_INTERVAL_FPS(15)),
-    .dwFrameInterval[2]     = cpu_to_le32(FRAME_INTERVAL_FPS(10)),
+    .dwFrameInterval[0]     = cpu_to_le32(FRAME_INTERVAL_FPS(UVC_FI_FPS0)),
+    .dwFrameInterval[1]     = cpu_to_le32(FRAME_INTERVAL_FPS(UVC_FI_FPS1)),
+    .dwFrameInterval[2]     = cpu_to_le32(FRAME_INTERVAL_FPS(UVC_FI_FPS2)),
 };
 
 struct uvc_format_framebased uvc_format_h264 = {

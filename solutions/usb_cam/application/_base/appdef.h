@@ -118,6 +118,11 @@ enum E_Baud_Rate
 #define UVC_ROTATION_90             1
 #define UVC_ROTATION_270            2       //180degree of UVC_ROTATION_90
 
+//uvc dwFrameInterval
+#define UVC_FI_FPS0                 30
+#define UVC_FI_FPS1                 15
+#define UVC_FI_FPS2                 10
+
 //USE_3M_MODE
 #define U3M_DISABLE                 0
 #define U3M_DEFAULT                 1       //얼굴인식에 색카메라리용, 백색레드리용함
@@ -411,7 +416,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_TONGXIN_PROTO                 305
 #define FRM_DBS3M_LS35_LH_UAC                   306
 #define FRM_DBS3M_AIPAI_TOYA_UAC                307
-#define FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE      308
+#define FRM_DBS3M_BAOJIAHEZHONG_MODE            308     //심전보가합중
 #define FRM_DBS3M_KELINGPU_MODE                 309   //WLED->PWM
 #define FRM_DBS3M_FANHAI_MODE                   310
 #define FRM_DBS3M_AJISHI_CHANGSI_MODE           311
@@ -433,7 +438,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 #define FRM_DBS3M_XINNENG_H264                  328
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_H264
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_BAOJIAHEZHONG_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -986,30 +991,33 @@ enum E_Baud_Rate
 
 //----------------------------------------------------------
 
-#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AIPAI_TOYA_SANJIANG_MODE)
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BAOJIAHEZHONG_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.15.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.15.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.15.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.15.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 640, 360, 30, 0},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144}, \
+                                            {5, 480, 320, 30, 0, 4096}, \
+                                            {6, 320, 240, 30, 0, 4096},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         1
+#define USE_3M_MODE                         U3M_SEMI
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
 #define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-// #undef CAM_ROTATION_MODE
-// #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
@@ -1017,13 +1025,18 @@ enum E_Baud_Rate
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
-#undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   2048
-#undef USE_USB_EP_ERR_FIX_MODE
-#define USE_USB_EP_ERR_FIX_MODE             1
-#undef ENROLL_FACE_HAND_MODE
-#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define UVC_CLR2IR_THR4ISP                  (-250) //threshold value for turning white led on.
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_FI_FPS0
+#define UVC_FI_FPS0                         15
+#undef UVC_FI_FPS1
+#define UVC_FI_FPS1                         10
+#undef UVC_FI_FPS2
+#define UVC_FI_FPS2                         10
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BINRUI10IN_UAC)
