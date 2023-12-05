@@ -126,7 +126,7 @@ enum E_Baud_Rate
 //USE_3M_MODE
 #define U3M_DISABLE                 0
 #define U3M_DEFAULT                 1       //얼굴인식에 색카메라리용, 백색레드리용함
-#define U3M_IR_ONLY                 2       //얼굴인식에 색카메라를 쓰지 않음, 백색레드쓰지 않음
+#define U3M_IR_ONLY                 2       //얼굴인식에 색카메라를 쓰지 않음
 #define U3M_SEMI                    3       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 적외선만 리용, 백색레드쓰지 않음
 
 //batt test
@@ -438,7 +438,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 #define FRM_DBS3M_XINNENG_H264                  328
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JIGAO_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1119,6 +1119,53 @@ enum E_Baud_Rate
 #define UAC_SPK_EP                          0x83
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JIGAO_UAC)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.19.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.19.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 960, 30, 0}, \
+                                            {2, 1280, 720, 30, 0, 10240}, \
+                                            {3, 864, 480, 30, 0, 10240}, \
+                                            {4, 800, 480, 30, 0, 10240}, \
+                                            {5, 640, 480, 30, 0, 6144}, \
+                                            {6, 480, 320, 30, 0, 4096}, \
+                                            {7, 320, 240, 30, 0, 4096},
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_IR_ONLY
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#undef UVC_MAX_WIDTH
+#define UVC_MAX_WIDTH                       1280
+#undef UVC_MAX_HEIGHT
+#define UVC_MAX_HEIGHT                      960
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
