@@ -111,6 +111,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v2            6
 #define ISP_BIN_VER_21v4            7
 #define ISP_BIN_VER_22v0            8
+#define ISP_BIN_VER_301v9           9
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
 //uvc direction
@@ -1158,7 +1159,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_301v9
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
