@@ -249,7 +249,7 @@ void WatchTask::run()
 #endif // UVC_CLR2IR_THR4ISP
             {
 #ifndef UVC_CLR2IR_THR4ENGINE
-                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
+                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR) && g_xSS.iGotUvcEvent)
                 {
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
                     {
@@ -276,7 +276,7 @@ void WatchTask::run()
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)
-                if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
+                if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && g_xSS.bUVCRunning)
                 {
                     g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
                     camera_set_mono_chrome(1);
