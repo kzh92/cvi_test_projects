@@ -253,21 +253,26 @@ void WatchTask::run()
                 {
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
                     {
-#if (USE_3M_MODE && USE_WHITE_LED != 0)
-                        if (USE_3M_MODE == U3M_DEFAULT)
+                        if (USE_3M_MODE == U3M_DEFAULT && USE_WHITE_LED != 0)
                         {
                             gpio_whiteled_on(ON);
                             //notice that using white led
                             if (USE_3M_MODE != U3M_SEMI)
                                 fr_SetColorLed(1);
                         }
-#endif
+                        iClrDarkCounter ++;
                     }
                 }
+                else
+                    iClrDarkCounter = 0;
 #endif // !UVC_CLR2IR_THR4ENGINE
             }
 
-            if (iClrDarkCounter > 3)
+            int iDarkLimit = 10;
+#ifdef UVC_CLR2IR_THR4ISP
+            iDarkLimit = 3;
+#endif
+            if (iClrDarkCounter > iDarkLimit)
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)

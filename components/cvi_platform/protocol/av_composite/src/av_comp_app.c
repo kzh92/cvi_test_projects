@@ -327,6 +327,15 @@ void uvc_streaming_on(int is_on) {
 	{
 		g_xSS.bUVCRunning = 1;
 		g_xSS.rLastSenseCmdTime = aos_now_ms();
+#if (USE_WHITE_LED == 0)
+#ifndef UVC_CLR2IR_THR4ISP
+		if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
+	    {
+	        g_xSS.iUvcSensor = 0;
+	        uvc_update = 2;
+	    }
+#endif // ! UVC_CLR2IR_THR4ISP
+#endif // USE_WHITE_LED
 	}
 	else
 		g_xSS.bUVCRunning = 0;
@@ -452,18 +461,14 @@ static void *send_to_uvc()
 					continue;
 				}
 #endif //UVC_ENC_TYPE
+				buf_len = 0;
 				for (i = 0; i < pstStream->u32PackCount; ++i)
 				{
 					ppack = &pstStream->pstPack[i];
-					if ((ppack->u32Len - ppack->u32Offset) < DEFAULT_FRAME_SIZE)
+					if (buf_len + (ppack->u32Len - ppack->u32Offset) < DEFAULT_FRAME_SIZE)
 					{
-					#if (UVC_ENC_TYPE == 0)
-						memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
-						buf_len = (ppack->u32Len - ppack->u32Offset);
-					#elif (UVC_ENC_TYPE == 1)
 						memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
 						buf_len += (ppack->u32Len - ppack->u32Offset);
-					#endif
 					}
 					else
 					{
