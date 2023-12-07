@@ -327,15 +327,6 @@ void uvc_streaming_on(int is_on) {
 	{
 		g_xSS.bUVCRunning = 1;
 		g_xSS.rLastSenseCmdTime = aos_now_ms();
-#if (USE_WHITE_LED == 0)
-#ifndef UVC_CLR2IR_THR4ISP
-		if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
-	    {
-	        g_xSS.iUvcSensor = 0;
-	        uvc_update = 2;
-	    }
-#endif // ! UVC_CLR2IR_THR4ISP
-#endif // USE_WHITE_LED
 	}
 	else
 		g_xSS.bUVCRunning = 0;
