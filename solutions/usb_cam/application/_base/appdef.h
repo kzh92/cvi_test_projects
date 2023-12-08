@@ -439,7 +439,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 #define FRM_DBS3M_XINNENG_H264                  328
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN2
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -522,19 +522,21 @@ enum E_Baud_Rate
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 
 //----------------------------------------------------------
-
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN2)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.3.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.3.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.3.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.3.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -559,12 +561,12 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
-#undef USE_USB_CHECKFIRM_MODE
-#define USE_USB_CHECKFIRM_MODE              0
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-250) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-100)
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JIASHIBANG_UAC)
