@@ -768,8 +768,35 @@ void camera_set_vi_fps(int pipe, int fps)
 
 void camera_set_mono_chrome(int enable)
 {
+    if (enable)
+    {
+        camera_clr_stop_aec();
+    }
+    else
+    {
+        camera_clr_start_aec();
+    }
     ISP_MONO_ATTR_S monoAttr;
     CVI_ISP_GetMonoAttr(0, &monoAttr);
     monoAttr.Enable = enable;
     CVI_ISP_SetMonoAttr(0, &monoAttr);
+    ISP_MODULE_CTRL_U xModCtrl;
+    if (CVI_ISP_GetModuleControl(0, &xModCtrl) == CVI_SUCCESS)
+    {
+        //printf("getm ok: %d\n", xModCtrl.bitBypassMono);
+        xModCtrl.bitBypass3dnr = enable;
+        xModCtrl.bitBypassWBGain = enable;
+        if (CVI_ISP_SetModuleControl(0, &xModCtrl) == CVI_SUCCESS)
+        {
+            //printf("setm ok.\n");
+        }
+        else
+        {
+            printf("setm fail.\n");
+        }
+    }
+    else
+    {
+        printf("getm fail\n");
+    }
 }
