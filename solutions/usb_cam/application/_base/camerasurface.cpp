@@ -928,7 +928,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
             unlockIRBuffer();
 
-#if (USE_VDBTASK)
+#if (USE_VDBTASK && !USE_3M_MODE)
             if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             {
                 fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
