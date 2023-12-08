@@ -228,6 +228,7 @@ typedef struct _tagSYSTEM_STATE
 
     int                         iRestoreRootfs;
     int                         iCamError;
+    unsigned char               iCamReinitState;
     float                       rLastSenseCmdTime;
     float                       rAppStartTime;
     int                         iEnrollMutiDirMode;

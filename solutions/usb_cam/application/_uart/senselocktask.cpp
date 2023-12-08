@@ -50,6 +50,10 @@ extern void StopVDB();
 void* senseLockTask_ThreadProc1(void*);
 void* senseSendThread_ThreadProc1(void*);
 extern int processGlobalMsg();
+#if (USE_CAM_REINIT)
+extern "C" int MEDIA_VIDEO_Deinit();
+extern "C" int MEDIA_VIDEO_Init();
+#endif // USE_CAM_REINIT
 
 #define MODE921600  1
 #define APB2_30MHZ  (0x02000013)
@@ -146,6 +150,16 @@ void* senseSendThread_ThreadProc1(void*)
 #endif // ! NOTHREAD_MUL
     while(1)
     {
+#if (USE_CAM_REINIT)
+        if (g_xSS.iCamReinitState)
+        {
+            if (MEDIA_VIDEO_Deinit() != 0)
+                printf("@@@ MEDIA_VIDEO_Deinit fail @@@\n");
+            if (MEDIA_VIDEO_Init() != 0)
+                printf("@@@ MEDIA_VIDEO_Init fail @@@\n");
+            g_xSS.iCamReinitState = 0;
+        }
+#endif // USE_CAM_REINIT
 #if (!NOTE_INTERVAL_MS)
         pMsg = (MSG*)message_queue_tryread(&g_queue_send);
 #endif // NOTE_INTERVAL_MS

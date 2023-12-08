@@ -695,6 +695,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     unsigned int iClrFrameCount = 0;
 #endif
+    int reinit_count = 0;
 
     dbug_printf("[%s]\n", __func__);
 
@@ -774,6 +775,40 @@ void* ProcessTCMipiCapture(void */*param*/)
         s_ret = CVI_VI_GetPipeFrame(dev, stVideoFrame, 1000);
         if (s_ret != CVI_SUCCESS)
         {
+#if (USE_CAM_REINIT)
+            if (reinit_count < 3)
+            {
+                g_xSS.iCamReinitState = 1;
+                reinit_count++;
+                for (int i = 0; i < 1000; i++) // 1s
+                {
+                    my_usleep(1000);
+                    if (!g_xSS.iCamReinitState)
+                        break;
+                }
+                if (g_xSS.iCamReinitState)
+                    printf("@@@ Reinit Fail @@@\n");
+                g_xSS.iCamReinitState = 0;
+
+                for (dev = 0; dev < devCount; dev ++)
+                {
+                    attr[dev].bEnable = 1;
+                    attr[dev].u32Depth = 0;
+                    attr[dev].enDumpType = VI_DUMP_TYPE_RAW;
+
+                    if (CVI_VI_SetPipeDumpAttr(dev, &attr[dev]) != CVI_SUCCESS)
+                        my_printf("dev=%d SetPipeDumpAttr failed\n", dev);
+                }
+
+                camera_switch(TC_MIPI_CAM, camera_get_actIR());
+
+                if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+                {
+                    camera_set_pattern_mode(TC_MIPI_CAM, 1);
+                }
+                continue;
+            }
+#endif // USE_CAM_REINIT
 #if (USE_3M_MODE)
             g_xSS.iCamError = (dev == 0 ? CAM_ERROR_DVP2 : CAM_ERROR_MIPI2);
 #elif (USE_VDBTASK) // USE_3M_MODE
@@ -792,6 +827,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             GPIO_fast_setvalue(IR_LED, OFF);
             break;
         }
+        if (reinit_count)
+            reinit_count = 0;
         if (stVideoFrame[1].stVFrame.u64PhyAddr[0] != 0)
             frm_num = 2;
 
