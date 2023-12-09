@@ -941,7 +941,11 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         {
             dbug_printf("FRS %d, %f\n", iFindIndex, Now());
             if (arEngineResult[1] == 0) //face
+            {
                 m_iResult = FACE_RESULT_SUCCESS;
+                if (fr_GetClrIsDarkGotoIr())
+                    g_xSS.iForceUvcIR = 1;
+            }
             else if (arEngineResult[1] == 1) //hand
                 m_iResult = HAND_RESULT_SUCCESS;
             m_iEyeOpened = arEngineResult[6];

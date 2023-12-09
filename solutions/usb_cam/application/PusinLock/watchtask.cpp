@@ -269,7 +269,7 @@ void WatchTask::run()
             }
 
             int iDarkLimit = 3;
-            if (iClrDarkCounter > iDarkLimit)
+            if (iClrDarkCounter > iDarkLimit || g_xSS.iForceUvcIR)
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)
