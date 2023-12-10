@@ -1038,6 +1038,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             if(arEngineResult[0] == ES_SUCCESS)
             {
                 m_iResult = FACE_RESULT_ENROLLED_FACE;
+                if (fr_GetClrIsDarkGotoIr())
+                    g_xSS.iForceUvcIR = 1;
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_DUPLICATED)
@@ -1053,6 +1055,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             if(arEngineResult[0] == ES_ENEXT)
             {
                 m_iResult = FACE_RESULT_ENROLLED_NEXT;
+                if (fr_GetClrIsDarkGotoIr())
+                    g_xSS.iForceUvcIR = 1;
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_DIRECTION_ERROR)
