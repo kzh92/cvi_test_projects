@@ -928,8 +928,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
             unlockIRBuffer();
 
-#if (USE_VDBTASK && !USE_3M_MODE)
-            if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+#if (USE_VDBTASK)
+            if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
             {
                 fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
                 CalcNextExposure();

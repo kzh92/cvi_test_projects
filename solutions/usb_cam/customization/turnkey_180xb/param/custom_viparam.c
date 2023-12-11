@@ -7,7 +7,6 @@
  */
 #include "custom_param.h"
 #include "appdef.h"
-#define BIN_DATA_SIZE       347537
 extern unsigned char rgb_color_mode_param[];
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {

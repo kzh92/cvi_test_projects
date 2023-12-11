@@ -21,6 +21,7 @@
 #include "common_vi.h"
 #include "cvi_isp.h"
 #include "cvi_vi.h"
+#include "cvi_bin.h"
 #include <inttypes.h>
 
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -766,10 +767,17 @@ void camera_set_vi_fps(int pipe, int fps)
     CVI_ISP_SetPubAttr(pipe, &stPubAttr);
 }
 
+extern unsigned char rgb_mono_mode_param[];
+
 void camera_set_mono_chrome(int enable)
 {
-    ISP_MONO_ATTR_S monoAttr;
-    CVI_ISP_GetMonoAttr(0, &monoAttr);
-    monoAttr.Enable = enable;
-    CVI_ISP_SetMonoAttr(0, &monoAttr);
+    if (enable)
+    {
+        camera_clr_stop_aec();
+    }
+    else
+    {
+        camera_clr_start_aec();
+    }
+    CVI_BIN_ImportBinData(rgb_mono_mode_param, BIN_DATA_SIZE);
 }

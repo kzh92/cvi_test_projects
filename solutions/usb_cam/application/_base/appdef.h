@@ -114,6 +114,10 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_301v9           9
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
+//isp mono file version
+#define ISP_BINM_VER_100v1          0   //v1.0.0.1
+#define DEFAULT_ISP_BINM_VER        ISP_BINM_VER_100v1
+
 //uvc direction
 #define UVC_ROTATION_0              0
 #define UVC_ROTATION_90             1
@@ -242,6 +246,7 @@ enum E_Baud_Rate
 #define UVC_VBPOOL1CNT              5
 #define UVC_LANDSCAPE               0
 #define UVC_ENC_TYPE                0 // 0:mjpeg 1:h264 2:dual
+#define BIN_DATA_SIZE               174513
 
 #define UVC_PIXEL_FMT_NV21          0
 #define UVC_PIXEL_FMT_YUV420P       1
@@ -439,7 +444,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BINRUI10IN_UAC                327
 #define FRM_DBS3M_XINNENG_H264                  328
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1531,8 +1536,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.44.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.44.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.44.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.44.6_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10

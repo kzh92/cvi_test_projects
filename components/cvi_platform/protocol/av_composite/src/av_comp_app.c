@@ -305,7 +305,13 @@ int uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:2048;
 	if (g_xSS.iUvcBitrate > 0)
+	{
 		pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
+		if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+		{
+			pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate / 2;
+		}
+	}
 	if (g_xSS.iUvcFps > 0 && g_xSS.iUvcFps <= 20)
 		camera_set_vi_fps(DEFAULT_SNR4UVC, g_xSS.iUvcFps);
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
@@ -464,13 +470,13 @@ static void *send_to_uvc()
 					else
 					{
 						isOverflow = 1;
+						printf("of: %d+%d\n", buf_len, (ppack->u32Len - ppack->u32Offset));
 						break;
-						
 					}
 				}
 				if (isOverflow)
 				{
-					printf("venc buf_len oversize\n");
+					//printf("venc buf_len oversize\n");
 					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 					isOverflow = 0;
 					continue;
