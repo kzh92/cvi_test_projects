@@ -876,6 +876,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_WHITE_LED != 1)
                 if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
+                    my_usleep(50*1000);
                     CVI_VI_StartPipe(0);
                 }
 #endif // USE_WHITE_LED
