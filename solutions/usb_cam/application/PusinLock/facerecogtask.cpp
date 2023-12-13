@@ -353,7 +353,7 @@ void FaceRecogTask::run()
                 {
                     if (nGotOffFrame == 0)
                     {
-                        WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                        WAIT_CAM_FRAME(1000, WaitIROffTimeout);
                         nGotOffFrame = 1;
                     }
                     if (g_xSS.iResetFlag == 1)
@@ -399,7 +399,7 @@ void FaceRecogTask::run()
                 {
                     if (nGotOffFrame == 0)
                     {
-                        WAIT_CAM_FRAME(500, WaitIROffTimeout);
+                        WAIT_CAM_FRAME(1000, WaitIROffTimeout);
                         nGotOffFrame = 1;
                     }
                     if (g_xSS.iResetFlag == 1)
@@ -753,7 +753,7 @@ int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
     //in case of 1st IR frame, wait for...
     if(!iUseFirstFrame || !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
     {
-        WAIT_CAM_FRAME(500, WaitIRTimeout2);
+        WAIT_CAM_FRAME(1000, WaitIRTimeout2);
     }
     if (!pBuffer)
         return 0;
@@ -1195,7 +1195,7 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
 // #if (ENGINE_USE_TWO_CAM == 1)
 //         if (g_iTwoCamFlag != -1 && !(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
 //         {
-//             WAIT_CAM_FRAME(500, WaitIROffTimeout);
+//             WAIT_CAM_FRAME(1000, WaitIROffTimeout);
 //         }
 //         dbug_printf("g_iTwoCamFlag=%d\n", g_iTwoCamFlag);
 // #endif // ENGINE_USE_TWO_CAM
@@ -1206,7 +1206,7 @@ int FaceRecogTask::GetLeftIrFrame(int* p_iUseFirstFrame)
         g_iTwoCamFlag = IR_CAMERA_STEP0;
         g_iLedOffFrameFlag = 0;
 #endif
-        WAIT_CAM_FRAME(500, WaitIRTimeout);
+        WAIT_CAM_FRAME(1000, WaitIRTimeout);
     }
     return 0;
 }
