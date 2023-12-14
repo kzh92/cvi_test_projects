@@ -36,13 +36,16 @@ enum
     OTA_CUS_DATA = 0xff,
 };
 
+#define EKESI_ID_TYPE_FACE                                  1
+#define EKESI_ID_TYPE_HAND                                  2
+
 //unlock status
-#define ST_FACE_MODULE_STATUS_UNLOCK_OK                     200
+#define ST_FACE_MODULE_STATUS_UNLOCK_OK                     (USE_EKESI_PROTO ? EKESI_ID_TYPE_FACE : 200)
 #define ST_FACE_MODULE_STATUS_UNLOCK_WITH_EYES_CLOSE        204
 #if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 0)
 #define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                (USE_SHENAO_HAND ? (ST_FACE_MODULE_STATUS_UNLOCK_OK) : 250)
 #else // ENROLL_FACE_HAND_MODE
-#define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                ST_FACE_MODULE_STATUS_UNLOCK_OK
+#define ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK                (USE_EKESI_PROTO ? EKESI_ID_TYPE_HAND : ST_FACE_MODULE_STATUS_UNLOCK_OK)
 #endif // ENROLL_FACE_HAND_MODE
 
 #pragma pack(push, 1)
@@ -114,33 +117,36 @@ typedef uint8_t s_msg_id;
 
 /* message result code */
 typedef uint8_t s_msg_result;
-#define MR_SUCCESS    0      // success
-#define MR_REJECTED   1      // module rejected this command
-#define MR_ABORTED    2      // algo aborted
-#define MR_FAILED4_CAMERA 4  // camera open failed
-#define MR_FAILED4_UNKNOWNREASON 5  // UNKNOWN_ERROR
-#define MR_FAILED4_INVALIDPARAM 6   // invalid param
-#define MR_FAILED4_NOMEMORY 7       // no enough memory
-#define MR_FAILED4_UNKNOWNUSER 8    // no user enrolled
-#define MR_FAILED4_MAXUSER 9        // exceed maximum user number
-#define MR_FAILED4_FACEENROLLED 10  // this face has been enrolled
-#define MR_FAILED4_LIVENESSCHECK 12 // liveness check failed
-#define MR_FAILED4_TIMEOUT 13       // exceed the time limit
-#define MR_FAILED4_AUTHORIZATION 14 // authorization failed
-#define MR_FAILED4_CAMERAFOV 15     // camera fov test failed
-#define MR_FAILED4_CAMERAQUA 16     // camera quality test failed
-#define MR_FAILED4_CAMERASTRU 17    // camera structure test failed
-#define MR_FAILED4_BOOT_TIMEOUT 18  // boot up timeout
-#define MR_FAILED4_READ_FILE 19     // read file failed
-#define MR_FAILED4_WRITE_FILE 20    // write file failed
-#define MR_FAILED4_NO_ENCRYPT 21    // encrypt must be set
-#define MR_FAILED4_NOCAMERA 240     // MID_GETSAVEDIMAGE, failed to get scene picture, no color camera.
+#define MR_SUCCESS                          0      // success
+#define MR_REJECTED                         1      // module rejected this command
+#define MR_ABORTED                          2      // algo aborted
+#define MR_FAILED4_CAMERA                   4  // camera open failed
+#define MR_FAILED4_UNKNOWNREASON            5  // UNKNOWN_ERROR
+#define MR_FAILED4_INVALIDPARAM             6   // invalid param
+#define MR_FAILED4_NOMEMORY                 7       // no enough memory
+#define MR_FAILED4_UNKNOWNUSER              8    // no user enrolled
+#define MR_FAILED4_MAXUSER                  9        // exceed maximum user number
+#define MR_FAILED4_FACEENROLLED             10  // this face has been enrolled
+#define MR_FAILED4_LIVENESSCHECK            12 // liveness check failed
+#define MR_FAILED4_TIMEOUT                  13       // exceed the time limit
+#define MR_FAILED4_AUTHORIZATION            14 // authorization failed
+#define MR_FAILED4_CAMERAFOV                15     // camera fov test failed
+#define MR_FAILED4_CAMERAQUA                16     // camera quality test failed
+#define MR_FAILED4_CAMERASTRU               17    // camera structure test failed
+#define MR_FAILED4_BOOT_TIMEOUT             18  // boot up timeout
+#define MR_FAILED4_READ_FILE                19     // read file failed
+#define MR_FAILED4_WRITE_FILE               20    // write file failed
+#define MR_FAILED4_NO_ENCRYPT               21    // encrypt must be set
+#define MR_FAILED4_NOCAMERA                 240     // MID_GETSAVEDIMAGE, failed to get scene picture, no color camera.
 #if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 0)
-#define MR_FAILED4_UNKNOWN_HANDUSER 239   // no hand user enrolled
-#define MR_FAILED4_HANDENROLLED 241 // this hand has been enrolled
+#define MR_FAILED4_UNKNOWN_HANDUSER         239   // no hand user enrolled
+#define MR_FAILED4_HANDENROLLED             241 // this hand has been enrolled
+#elif (USE_EKESI_PROTO == 1)
+#define MR_FAILED4_UNKNOWN_HANDUSER         22   // no hand user enrolled
+#define MR_FAILED4_HANDENROLLED             MR_FAILED4_FACEENROLLED // this hand has been enrolled
 #else // ENROLL_FACE_HAND_MODE
-#define MR_FAILED4_UNKNOWN_HANDUSER      MR_FAILED4_UNKNOWNUSER   // no hand user enrolled
-#define MR_FAILED4_HANDENROLLED    MR_FAILED4_FACEENROLLED // this hand has been enrolled
+#define MR_FAILED4_UNKNOWN_HANDUSER         MR_FAILED4_UNKNOWNUSER   // no hand user enrolled
+#define MR_FAILED4_HANDENROLLED             MR_FAILED4_FACEENROLLED // this hand has been enrolled
 #endif // ENROLL_FACE_HAND_MODE
 /* message result code end */
 
@@ -199,37 +205,37 @@ typedef uint8_t s_face_dir;
     (a) == FACE_DIRECTION_HAND)
 /* msg face direction end */
 
-#define FACE_STATE_NORMAL     0  // normal state, the face is available
-#define FACE_STATE_NOFACE     1  // no face detected
-#define FACE_STATE_TOOUP      2  // face is too up side
-#define FACE_STATE_TOODOWN    3  // face is too down side
-#define FACE_STATE_TOOLEFT    4  // face is too left side
-#define FACE_STATE_TOORIGHT   5  // face is too right side
-#define FACE_STATE_TOOFAR     6  // face is too far
-#define FACE_STATE_TOOCLOSE   7  // face is too near
-#define FACE_STATE_EYEBROW_OCCLUSION 8      // eyebrow occlusion
-#define FACE_STATE_EYE_OCCLUSION     9      // eye occlusion
-#define FACE_STATE_FACE_OCCLUSION    10     // face occlusion
-#define FACE_STATE_DIRECTION_ERROR   11     // face direction error
-#define FACE_STATE_EYE_CLOSE_STATUS_OPEN_EYE 12    // eye close time out
-#define FACE_STATE_EYE_CLOSE_STATUS          13      // confirm eye close status
-#define FACE_STATE_EYE_CLOSE_UNKNOW_STATUS   14  // eye close unknow status
+#define FACE_STATE_NORMAL                           0  // normal state, the face is available
+#define FACE_STATE_NOFACE                           1  // no face detected
+#define FACE_STATE_TOOUP                            2  // face is too up side
+#define FACE_STATE_TOODOWN                          3  // face is too down side
+#define FACE_STATE_TOOLEFT                          4  // face is too left side
+#define FACE_STATE_TOORIGHT                         5  // face is too right side
+#define FACE_STATE_TOOFAR                           6  // face is too far
+#define FACE_STATE_TOOCLOSE                         7  // face is too near
+#define FACE_STATE_EYEBROW_OCCLUSION                8      // eyebrow occlusion
+#define FACE_STATE_EYE_OCCLUSION                    9      // eye occlusion
+#define FACE_STATE_FACE_OCCLUSION                   10     // face occlusion
+#define FACE_STATE_DIRECTION_ERROR                  11     // face direction error
+#define FACE_STATE_EYE_CLOSE_STATUS_OPEN_EYE        12    // eye close time out
+#define FACE_STATE_EYE_CLOSE_STATUS                 13      // confirm eye close status
+#define FACE_STATE_EYE_CLOSE_UNKNOW_STATUS          14  // eye close unknow status
 #if (ENROLL_FACE_HAND_MODE != ENROLL_FACE_HAND_MIX)
-#define FACE_STATE_HAND_NORMAL  128 // hand detected
-#define FACE_STATE_HAND_FAR    129 // hand is far
-#define FACE_STATE_HAND_CLOSE    130 // hand is close
-#define FACE_STATE_HAND_TOOUP      131 // hand is too up side
-#define FACE_STATE_HAND_TOODOWN    132 // hand is too down side
-#define FACE_STATE_HAND_TOOLEFT    133 // hand is too left side
-#define FACE_STATE_HAND_TOORIGHT   134 // hand is too right side
+#define FACE_STATE_HAND_NORMAL                      128 // hand detected
+#define FACE_STATE_HAND_FAR                         129 // hand is far
+#define FACE_STATE_HAND_CLOSE                       130 // hand is close
+#define FACE_STATE_HAND_TOOUP                       131 // hand is too up side
+#define FACE_STATE_HAND_TOODOWN                     132 // hand is too down side
+#define FACE_STATE_HAND_TOOLEFT                     133 // hand is too left side
+#define FACE_STATE_HAND_TOORIGHT                    134 // hand is too right side
 #else // ENROLL_FACE_HAND_MODE
-#define FACE_STATE_HAND_NORMAL  FACE_STATE_NORMAL // hand detected
-#define FACE_STATE_HAND_FAR    FACE_STATE_TOOFAR // hand is far
-#define FACE_STATE_HAND_CLOSE    FACE_STATE_TOOCLOSE // hand is close
-#define FACE_STATE_HAND_TOOUP      FACE_STATE_TOOUP // face is too up side
-#define FACE_STATE_HAND_TOODOWN    FACE_STATE_TOODOWN // face is too down side
-#define FACE_STATE_HAND_TOOLEFT    FACE_STATE_TOOLEFT // face is too left side
-#define FACE_STATE_HAND_TOORIGHT   FACE_STATE_TOORIGHT // face is too right side
+#define FACE_STATE_HAND_NORMAL                      FACE_STATE_NORMAL // hand detected
+#define FACE_STATE_HAND_FAR                         FACE_STATE_TOOFAR // hand is far
+#define FACE_STATE_HAND_CLOSE                       FACE_STATE_TOOCLOSE // hand is close
+#define FACE_STATE_HAND_TOOUP                       FACE_STATE_TOOUP // face is too up side
+#define FACE_STATE_HAND_TOODOWN                     FACE_STATE_TOODOWN // face is too down side
+#define FACE_STATE_HAND_TOOLEFT                     FACE_STATE_TOOLEFT // face is too left side
+#define FACE_STATE_HAND_TOORIGHT                    FACE_STATE_TOORIGHT // face is too right side
 #endif // ENROLL_FACE_HAND_MODE
 
 /* logfile type */
@@ -456,6 +462,8 @@ typedef struct {
     uint8_t face_direction;
 #if (USE_TONGXIN_PROTO)
     uint8_t recog_type; // enroll recog type
+#elif (USE_EKESI_PROTO)
+    uint8_t fea_type;   //
 #endif
 } s_msg_reply_enroll_data;
 

@@ -952,6 +952,12 @@ s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirect
     else
         msg_reply_enroll_data->recog_type = ERT_HAND;
 #endif // USE_TONGXIN_PROTO
+#if (USE_EKESI_PROTO)
+    if (iUserID <= N_MAX_PERSON_NUM)
+        msg_reply_enroll_data->fea_type = EKESI_ID_TYPE_FACE;
+    else
+        msg_reply_enroll_data->fea_type = EKESI_ID_TYPE_HAND;
+#endif // USE_EKESI_PROTO
 #if (USE_UVC_PAUSE_MODE)
     if (iUserID < 0)
     {
