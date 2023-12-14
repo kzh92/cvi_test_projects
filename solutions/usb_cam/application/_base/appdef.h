@@ -447,7 +447,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_EKESI                         329
 #define FRM_DBS3M_XINNENG_UAC                   330
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_EKESI
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1220,26 +1220,29 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_EKESI)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.20.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.20.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.20.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.20.0_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240}, \
-                                            {3, 800, 480, 30, 0, 10240}, \
-                                            {4, 640, 480, 30, 0, 6144}, \
-                                            {5, 480, 320, 30, 0, 4096}, \
-                                            {6, 320, 240, 30, 0, 4096},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
+                                            {2, 864, 480, 12, 0, 9000},\
+                                            {3, 800, 480, 12, 0, 9000},\
+                                            {4, 480, 320, 12, 0, 9000},\
+                                            {5, 320, 240, 12, 0, 9000}
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
+#undef UAC_AUDALGO_USE
+#define UAC_AUDALGO_USE                     1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     16
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
@@ -1254,8 +1257,6 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
-#undef SPECIFIC_LOG_PRINT
-#define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef USE_EKESI_PROTO
@@ -1264,6 +1265,10 @@ enum E_Baud_Rate
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
