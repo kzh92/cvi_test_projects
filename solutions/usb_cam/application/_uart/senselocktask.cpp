@@ -557,10 +557,10 @@ void SenseLockTask::run()
                     continue;
                 }
 
-                LOG_PRINT("[Sense] Decode = %d: ", iMsgLen);
-                for (int i = 0;i < iMsgLen; i++)
-                    LOG_PRINT("0x%02x,", pMsg[i]);
-                LOG_PRINT("\n");
+                //my_printf("[Dec] = %d: ", iMsgLen);
+                //for (int i = 0;i < iMsgLen; i++)
+                //    my_printf("0x%02x,", pMsg[i]);
+                //my_printf("\n");
 
                 my_free(pPck);
             }
@@ -569,6 +569,12 @@ void SenseLockTask::run()
                 iMsgLen = iPckLen;
                 pMsg = (unsigned char*)my_malloc(iPckLen);
                 SenseLockTask::Decrypt_Msg(pPck + 2, iPckLen, &pMsg);
+
+                //my_printf("[Dec] = %d: ", iMsgLen);
+                //for (int i = 0;i < iMsgLen; i++)
+                //    my_printf("0x%02x,", pMsg[i]);
+                //my_printf("\n");
+
                 my_free(pPck);
             }
         }

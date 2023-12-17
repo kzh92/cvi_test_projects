@@ -1163,6 +1163,10 @@ int MsgProcSense(MSG* pMsg)
         s_msg_enroll_data d;
         memcpy(&d, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
 #if (N_MAX_HAND_NUM)
+#if (FRM_PRODUCT_TYPE == FRM_DBS3M_EKESI)
+        //중산화내대상의 조종기판에서 단방향등록에서는 손바닥만 등록하게 하였음.
+        d.face_direction = FACE_DIRECTION_HAND;
+#endif
         g_xSS.iRegisterHand = 0;
         if (d.face_direction == FACE_DIRECTION_HAND)
             g_xSS.iRegisterHand = 1;
