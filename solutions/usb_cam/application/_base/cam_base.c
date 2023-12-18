@@ -780,4 +780,24 @@ void camera_set_mono_chrome(int enable)
         camera_clr_start_aec();
     }
     CVI_BIN_ImportBinData(rgb_mono_mode_param, BIN_DATA_SIZE);
+#if (USE_ISP_IR_3DNR == 0)
+    ISP_MODULE_CTRL_U xModCtrl;
+    if (CVI_ISP_GetModuleControl(0, &xModCtrl) == CVI_SUCCESS)
+    {
+        // printf("getm ok: %d\n", xModCtrl.bitBypassMono);
+        xModCtrl.bitBypass3dnr = 1;
+        if (CVI_ISP_SetModuleControl(0, &xModCtrl) == CVI_SUCCESS)
+        {
+            // printf("setm ok.\n");
+        }
+        else
+        {
+            printf("setm fail.\n");
+        }
+    }
+    else
+    {
+        printf("getm fail\n");
+    }
+#endif
 }
