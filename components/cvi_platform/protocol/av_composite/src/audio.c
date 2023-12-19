@@ -64,7 +64,7 @@ static void audio_algo_init(void)
     pstVqeConfig->stAecDelayCfg.para_delay_sample = 1;
 
     CviAud_Algo_GetVersion(pstrVersion);
-    printf("[cvi3aVersion:%s]\n", pstrVersion);
+    // printf("[cvi3aVersion:%s]\n", pstrVersion);
 
     pssp_handle = CviAud_Algo_Init(pstVqeConfig->u32OpenMask, pstVqeConfig);
     if (!pssp_handle) {
