@@ -1331,6 +1331,8 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER         		ISP_BIN_VER_22v0
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UAC_AUDALGO_USE
+#define UAC_AUDALGO_USE                     1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIJIN_UAC)
