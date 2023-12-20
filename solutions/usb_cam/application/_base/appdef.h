@@ -242,6 +242,7 @@ enum E_Baud_Rate
 #define WLED_PWM_DUTY               100     // %
 #define UAC_AUDALGO_USE             0
 #define UAC_SPEAKER_VOL             32 // 0 ~ 32
+#define UAC_MIC_VOL                 12 // 0 ~ 24
 #define UAC_SAMPLE_RATE             8000
 #define SPECIFIC_LOG_PRINT          0
 #define UAC_SPK_EP                  0x82
@@ -1284,8 +1285,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.21.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.21.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.5_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1333,6 +1334,8 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef UAC_AUDALGO_USE
 #define UAC_AUDALGO_USE                     1
+#undef UAC_MIC_VOL
+#define UAC_MIC_VOL                         24
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIJIN_UAC)

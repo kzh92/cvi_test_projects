@@ -123,13 +123,13 @@ int audio_get_pcm_len(int type)
 
 void audio_set_vol(void)
 {
-	// u32 mic_volume = 24;//default:12 max:24
+#if (UAC_MIC_VOL != 12)
+    u32 mic_volume = UAC_MIC_VOL;//default:12 max:24
+	cv182xadc_ioctl(ACODEC_SET_ADCL_VOL, (u64)&mic_volume);
+	cv182xadc_ioctl(ACODEC_SET_ADCR_VOL, (u64)&mic_volume);
+	cv182xadc_ioctl(ACODEC_SET_INPUT_VOL, (u64)&mic_volume);
+#endif //
     u32 speaker_volume = UAC_SPEAKER_VOL;//default:16 max:32
-
-	// cv182xadc_ioctl(ACODEC_SET_ADCL_VOL, (u64)&mic_volume);
-	// cv182xadc_ioctl(ACODEC_SET_ADCR_VOL, (u64)&mic_volume);
-	// cv182xadc_ioctl(ACODEC_SET_INPUT_VOL, (u64)&mic_volume);
-
     cv182xdac_ioctl(ACODEC_SET_DACL_VOL, (u64)&speaker_volume);
     cv182xdac_ioctl(ACODEC_SET_DACR_VOL, (u64)&speaker_volume);
     cv182xdac_ioctl(ACODEC_SET_OUTPUT_VOL, (u64)&speaker_volume);
