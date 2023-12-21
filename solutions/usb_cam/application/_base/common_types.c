@@ -745,7 +745,7 @@ int my_thread_create_ext(mythread_ptr *thread, void *attr, void *(*start_routine
     }
     if (thd_name)
     {
-        pthread_setname_np(pThread, thd_name);
+        pthread_setname_np(*pThread, thd_name);
     }
     *thread = pThread;
     return 0;
