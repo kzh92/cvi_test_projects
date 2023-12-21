@@ -458,7 +458,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_DEFAULT                    331
 #define FRM_DBS3M_JINJIAN_UAC                   332
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JINJIAN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -900,15 +900,16 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AIPAI_TOYA_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.11.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.11.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.11.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.11.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 640, 360, 30, 0},
+#define UVC_RES_DEFINE                      {1, 640, 480, 30, 0, 8192}, \
+                                            {2, 640, 360, 30, 0, 2048},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -927,8 +928,6 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
-#undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   2048
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
