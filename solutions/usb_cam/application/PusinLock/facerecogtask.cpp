@@ -943,8 +943,10 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
             if (arEngineResult[1] == 0) //face
             {
                 m_iResult = FACE_RESULT_SUCCESS;
+#if (USE_WHITE_LED == UWL_DISABLE)
                 if (fr_GetClrIsDarkGotoIr())
                     g_xSS.iForceUvcIR = 1;
+#endif
             }
             else if (arEngineResult[1] == 1) //hand
                 m_iResult = HAND_RESULT_SUCCESS;
@@ -1038,8 +1040,10 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             if(arEngineResult[0] == ES_SUCCESS)
             {
                 m_iResult = FACE_RESULT_ENROLLED_FACE;
+#if (USE_WHITE_LED == UWL_DISABLE)
                 if (fr_GetClrIsDarkGotoIr())
                     g_xSS.iForceUvcIR = 1;
+#endif
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_DUPLICATED)
@@ -1055,8 +1059,10 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             if(arEngineResult[0] == ES_ENEXT)
             {
                 m_iResult = FACE_RESULT_ENROLLED_NEXT;
+#if (USE_WHITE_LED == UWL_DISABLE)
                 if (fr_GetClrIsDarkGotoIr())
                     g_xSS.iForceUvcIR = 1;
+#endif
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_DIRECTION_ERROR)

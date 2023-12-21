@@ -224,7 +224,7 @@ void WatchTask::run()
             //CVI_S32 CVI_ISP_GetCurrentLvX100(VI_PIPE ViPipe, CVI_S16 *ps16Lv);
             CVI_S16 lv = 0;
             CVI_ISP_GetCurrentLvX100(0, &lv);
-            if (lv <= UVC_CLR2IR_THR4ISP && g_xSS.iGotUvcEvent)
+            if (lv <= UVC_CLR2IR_THR4ISP && g_xSS.iGotUvcEvent && g_xSS.rFaceEngineTime == 0)
             {
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
                 if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
@@ -234,7 +234,7 @@ void WatchTask::run()
             else
             {
 #ifdef UVC_CLR2IR_THR4ENGINE
-                if (lv <= UVC_CLR2IR_THR4ENGINE && g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_SEMI)
+                if (lv <= UVC_CLR2IR_THR4ENGINE && g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_SEMI && USE_WHITE_LED != UWL_EN_F0U1)
                 {
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
                         iClrDarkCounter++;
@@ -279,7 +279,7 @@ void WatchTask::run()
                     camera_set_mono_chrome(1);
                     uvc_set_reinit_flag();
                 }
-#elif (USE_WHITE_LED == 1) // USE_WHITE_LED
+#elif (USE_WHITE_LED == UWL_EN_NORMAL || USE_WHITE_LED == UWL_EN_F0U1) // USE_WHITE_LED
 #if (USE_3M_MODE)
                 if (USE_3M_MODE == U3M_DEFAULT || g_xSS.bUVCRunning)
                 {
@@ -320,6 +320,10 @@ void WatchTask::run()
             gpio_whiteled_on(OFF);
         }
 #endif // USE_WHITE_LED
+#if (USE_WHITE_LED == UWL_EN_F0U1)
+        if (g_xSS.rFaceEngineTime != 0)
+            gpio_whiteled_on(OFF);
+#endif
 
 #ifdef PSENSE_DET
         int bFlag = GPIO_fast_getvalue(PSENSE_DET);

@@ -134,6 +134,12 @@ enum E_Baud_Rate
 #define U3M_IR_ONLY                 2       //얼굴인식에 색카메라를 쓰지 않음
 #define U3M_SEMI                    3       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 적외선만 리용, 백색레드쓰지 않음
 
+//USE_WHITE_LED               0   //0: , 1: , 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
+#define UWL_DISABLE                 0       // 백색레드쓰지 않는 방식
+#define UWL_EN_NORMAL               1       // 백색레드를 리용하는 방식
+#define UWL_EN_F1U0                 2       // face on, uvc off, 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
+#define UWL_EN_F0U1                 3       // face off, uvc on, 얼굴인식에는 백색레드를 리용하지 않고 화상대화때에만 리용
+
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
 #define CAPTURE_SCENE               0
@@ -450,8 +456,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_EKESI                         329
 #define FRM_DBS3M_XINNENG_UAC                   330
 #define FRM_DBS3M_IR_DEFAULT                    331
+#define FRM_DBS3M_JINJIAN_UAC                   332
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JINJIAN_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1047,7 +1054,7 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef USE_CAM_REINIT
-#define USE_CAM_REINIT                      1  
+#define USE_CAM_REINIT                      1
 
 //----------------------------------------------------------
 
@@ -1553,6 +1560,51 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP                  (-50)
 #undef USE_ISP_IR_3DNR
 #define USE_ISP_IR_3DNR                     0
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JINJIAN_UAC)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.30.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.30.0_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       UWL_EN_F0U1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
+#undef CAM_ROTATION_MODE
+#define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS35_LH_UAC)
