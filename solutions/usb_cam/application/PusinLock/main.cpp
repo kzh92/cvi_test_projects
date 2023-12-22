@@ -604,6 +604,9 @@ int main0(int argc, char** argv)
     {
         fr_LoadCreateMachine_1();
         fr_LoadCreateMachine_1after();
+#if (USE_TONGXIN_PROTO == 1)
+        fr_LoadCreateMachine_2(0);
+#endif
         fr_InitIRCamera_ExpGain();
         //my_thread_create_ext(&g_thdInsmod, 0, ProcessInsmod, NULL, (char*)"insmod1", 8192, 0/*MYTHREAD_PRIORITY_MEDIUM*/);
         ProcessInsmod(NULL);

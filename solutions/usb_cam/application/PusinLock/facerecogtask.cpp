@@ -243,8 +243,10 @@ void FaceRecogTask::run()
         if(g_xSS.iResetFlag == 1)
             break;
 
+#if (USE_TONGXIN_PROTO == 0)
         if (iLoopCount == 0)
-            fr_LoadCreateMachine_2();
+            fr_LoadCreateMachine_2(1);
+#endif
 
         if (ProcessEnrollFile1Step())
             break;
