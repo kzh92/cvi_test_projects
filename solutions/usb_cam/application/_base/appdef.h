@@ -458,7 +458,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_DEFAULT                    331
 #define FRM_DBS3M_JINJIAN_UAC                   332
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1291,17 +1291,17 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.21.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.21.5.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.5.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     UVC_ROTATION_90       // 0: not rotate 90, 1: rotate 90
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_0       // 0: not rotate 90, 1: rotate 90
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 480, 320, 10, 0},
+#define UVC_RES_DEFINE                      {1, 320, 480, 10, 0},
 #undef UVC_MAX_FPS_TIME
 #define UVC_MAX_FPS_TIME 					60
 #undef ENGINE_USE_TWO_CAM
