@@ -24,8 +24,8 @@
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
-#define MAX_FRAME_SIZE (unsigned long)(UVC_MAX_WIDTH * UVC_MAX_HEIGHT / 3)
-#define DEFAULT_FRAME_SIZE (unsigned long)(UVC_MAX_WIDTH * UVC_MAX_HEIGHT / 3)
+#define MAX_FRAME_SIZE (unsigned long)(UVC_MAX_WIDTH * UVC_MAX_HEIGHT / 3 * 2)
+#define DEFAULT_FRAME_SIZE (unsigned long)(UVC_MAX_WIDTH * UVC_MAX_HEIGHT / 3 * 2)
 
 #define UVC_VENC_CHN   (0)
 #define UVC_VPSS_CHN   (0)
