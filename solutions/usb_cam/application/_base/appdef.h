@@ -1775,6 +1775,10 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef USE_TONGXIN_PROTO
 #define USE_TONGXIN_PROTO                   1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     4 // 0 ~ 32
+#undef UAC_AUDALGO_USE
+#define UAC_AUDALGO_USE                     1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BOLATAIN_MODE)
