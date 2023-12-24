@@ -1106,6 +1106,8 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
                 if ((SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG) || (g_xSS.iRegisterMixMode == ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 1))
                 {
                     m_iResult = HAND_RESULT_ENROLLED;
+                    if (USE_TONGXIN_PROTO == 1 && g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE)
+                        m_iResult = FACE_RESULT_TIMEOUT;
                 }
                 else
                 {
