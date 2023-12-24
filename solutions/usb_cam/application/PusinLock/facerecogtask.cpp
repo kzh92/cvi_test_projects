@@ -1080,7 +1080,11 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             {
                 my_usleep(20*1000);
                 m_iResult = HAND_RESULT_ENROLLED;
-                if (g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE && g_xSS.iEnrollMutiDirMode)
+                if (USE_TONGXIN_PROTO == 1 && g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE && g_xSS.iEnrollMutiDirMode)
+                {
+                    m_iResult = FACE_RESULT_TIMEOUT;
+                }
+                else if (g_xSS.msg_enroll_itg_data.face_direction != FACE_DIRECTION_MIDDLE && g_xSS.iEnrollMutiDirMode)
                 {
                     for (int t = 0; t < 100; t ++)
                     {
