@@ -460,7 +460,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_TX_PROTO_IR                   333
 #define FRM_DBS3M_TX2_UAC                       334
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TX2_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1293,8 +1293,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANGKUAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.21.5.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.5.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.21.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.21.6_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1305,7 +1305,7 @@ enum E_Baud_Rate
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 320, 480, 10, 0},
 #undef UVC_MAX_FPS_TIME
-#define UVC_MAX_FPS_TIME 					60
+#define UVC_MAX_FPS_TIME                    60
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -1315,7 +1315,7 @@ enum E_Baud_Rate
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     16 // 0 ~ 32
 // #undef UAC_SAMPLE_RATE
-// #define UAC_SAMPLE_RATE             		16000
+// #define UAC_SAMPLE_RATE                  16000
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
@@ -1323,7 +1323,7 @@ enum E_Baud_Rate
 #undef USE_VDBTASK
 #define USE_VDBTASK                         1
 #undef ISP_FPS_FOR_UVC
-#define ISP_FPS_FOR_UVC             		10
+#define ISP_FPS_FOR_UVC                     10
 #undef USE_SANJIANG3_MODE
 #define USE_SANJIANG3_MODE                  1
 #undef N_MAX_HAND_NUM
@@ -1337,13 +1337,13 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER         		ISP_BIN_VER_22v0
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_22v0
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef UAC_AUDALGO_USE
 #define UAC_AUDALGO_USE                     1
-#undef UAC_MIC_VOL
-#define UAC_MIC_VOL                         18
+// #undef UAC_MIC_VOL
+// #define UAC_MIC_VOL                         24
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIJIN_UAC)
