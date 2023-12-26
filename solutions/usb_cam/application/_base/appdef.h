@@ -257,6 +257,7 @@ enum E_Baud_Rate
 #define UVC_LANDSCAPE               0
 #define UVC_ENC_TYPE                0 // 0:mjpeg 1:h264 2:dual
 #define BIN_DATA_SIZE               174513
+#define UVC_USBD_PRINT              0
 
 #define UVC_PIXEL_FMT_NV21          0
 #define UVC_PIXEL_FMT_YUV420P       1
@@ -460,7 +461,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_TX_PROTO_IR                   333
 #define FRM_DBS3M_TX2_UAC                       334
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANGKUAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -902,8 +903,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AIPAI_TOYA_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.11.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.11.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.11.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.11.4_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -936,6 +937,10 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_UAC)

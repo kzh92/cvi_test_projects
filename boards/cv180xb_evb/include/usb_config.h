@@ -8,7 +8,7 @@
 
 /* ================ USB common Configuration ================ */
 #ifndef CONFIG_USB_PRINTF
-#define CONFIG_USB_PRINTF printf
+#define CONFIG_USB_PRINTF aos_debug_printf
 #endif
 
 #define usb_malloc(size) malloc(size)

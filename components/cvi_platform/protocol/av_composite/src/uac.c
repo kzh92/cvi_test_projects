@@ -120,7 +120,7 @@ void usbd_audio_out_callback(uint8_t ep, uint32_t nbytes)
 
 void usbd_audio_in_callback(uint8_t ep, uint32_t nbytes)
 {
-    USB_LOG_DBG("actual in len:%d\r\n", nbytes);
+    // USB_LOG_DBG("actual in len:%d\r\n", nbytes);
     ep_tx_busy_flag = false;
 }
 

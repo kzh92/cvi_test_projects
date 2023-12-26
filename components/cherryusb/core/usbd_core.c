@@ -71,6 +71,7 @@ static void usbd_class_event_notify_handler(uint8_t event, void *arg);
 
 static void usbd_print_setup(struct usb_setup_packet *setup)
 {
+#if 0
     USB_LOG_INFO("Setup: "
                  "bmRequestType 0x%02x, bRequest 0x%02x, wValue 0x%04x, wIndex 0x%04x, wLength 0x%04x\r\n",
                  setup->bmRequestType,
@@ -78,6 +79,11 @@ static void usbd_print_setup(struct usb_setup_packet *setup)
                  setup->wValue,
                  setup->wIndex,
                  setup->wLength);
+#else
+#if (UVC_USBD_PRINT)
+    aos_debug_printf("[H] sr\n");
+#endif
+#endif
 }
 
 static bool is_device_configured(void)
