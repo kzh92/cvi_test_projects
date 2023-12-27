@@ -194,7 +194,7 @@ enum E_Baud_Rate
 #define USE_SHENAO_HAND             0
 #define USE_PRINT_TEMP              0
 #define USE_USB_CHECKFIRM_MODE      1
-#define USE_CAM_REINIT              0
+#define USE_CAM_REINIT              1
 #define USE_ISP_IR_3DNR             1
 
 #define CLR_CAM_WIDTH               1600
