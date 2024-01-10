@@ -202,6 +202,10 @@ void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 	setUvcWindow(format_info->frames[bFrameIndex - 1].width, format_info->frames[bFrameIndex - 1].height);
 	g_xSS.iUvcBitrate = format_info->frames[bFrameIndex - 1].bitrate;
 	g_xSS.iUvcFps = format_info->frames[bFrameIndex - 1].fps;
+	if (format_info->frames[bFrameIndex - 1].rotate_flag == 0)
+		g_xSS.iUvcDirect = DEFAULT_UVC_DIR;
+	else
+		g_xSS.iUvcDirect = format_info->frames[bFrameIndex - 1].rotate_flag - 1;
 }
 
 int uvc_media_update(){
