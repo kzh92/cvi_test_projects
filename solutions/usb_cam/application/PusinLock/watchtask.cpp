@@ -224,7 +224,7 @@ void WatchTask::run()
             //CVI_S32 CVI_ISP_GetCurrentLvX100(VI_PIPE ViPipe, CVI_S16 *ps16Lv);
             CVI_S16 lv = 0;
             CVI_ISP_GetCurrentLvX100(0, &lv);
-            if (lv <= UVC_CLR2IR_THR4ISP && g_xSS.iGotUvcEvent && g_xSS.rFaceEngineTime == 0)
+            if (lv <= UVC_CLR2IR_THR4ISP && g_xSS.iGotUvcEvent && (USE_WHITE_LED != UWL_EN_F0U1 || g_xSS.rFaceEngineTime == 0))
             {
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
                 if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
