@@ -197,6 +197,18 @@ static struct usb_interface_descriptor as_out_interface_alt_1_desc = {
 	.iInterface	=	5,
 };
 
+static struct usb_interface_descriptor as_out_interface_alt_4_desc = {
+	.bLength =		sizeof as_out_interface_alt_4_desc,
+	.bDescriptorType =	USB_DESCRIPTOR_TYPE_INTERFACE,
+	.bInterfaceNumber = AS_OUT_INTF_NR,
+	.bAlternateSetting =	4,
+	.bNumEndpoints =	1,
+	.bInterfaceClass =	USB_DEVICE_CLASS_AUDIO,
+	.bInterfaceSubClass =	AUDIO_SUBCLASS_AUDIOSTREAMING,
+	.bInterfaceProtocol	=	0,
+	.iInterface	=	5,
+};
+
 /* B.4.2  Class-Specific AS Interface Descriptor */
 static struct audio_cs_if_as_general_descriptor as_out_general_desc = {
 	.bLength =		sizeof as_out_general_desc,
@@ -246,6 +258,7 @@ static struct audio_cs_ep_ep_general_descriptor cs_as_iso_out_ep_desc = {
 static const struct usb_desc_header * const hs_audio_out_intf[] = {
 	(struct usb_desc_header *)&as_out_interface_alt_0_desc,
 	(struct usb_desc_header *)&as_out_interface_alt_1_desc,
+	(struct usb_desc_header *)&as_out_interface_alt_4_desc,
 	(struct usb_desc_header *)&as_out_general_desc,
 	(struct usb_desc_header *)&as_out_type_i_desc,
 	(struct usb_desc_header *)&as_iso_out_ep_desc,
@@ -273,6 +286,18 @@ static struct usb_interface_descriptor as_in_interface_alt_1_desc = {
 	.bDescriptorType =	USB_DESCRIPTOR_TYPE_INTERFACE,
 	.bInterfaceNumber = AS_IN_INTF_NR,
 	.bAlternateSetting =	1,
+	.bNumEndpoints =	1,
+	.bInterfaceClass =	USB_DEVICE_CLASS_AUDIO,
+	.bInterfaceSubClass =	AUDIO_SUBCLASS_AUDIOSTREAMING,
+	.bInterfaceProtocol	=	0,
+	.iInterface	=	5,
+};
+
+static struct usb_interface_descriptor as_in_interface_alt_4_desc = {
+	.bLength =		sizeof as_in_interface_alt_4_desc,
+	.bDescriptorType =	USB_DESCRIPTOR_TYPE_INTERFACE,
+	.bInterfaceNumber = AS_IN_INTF_NR,
+	.bAlternateSetting =	4,
 	.bNumEndpoints =	1,
 	.bInterfaceClass =	USB_DEVICE_CLASS_AUDIO,
 	.bInterfaceSubClass =	AUDIO_SUBCLASS_AUDIOSTREAMING,
@@ -329,6 +354,7 @@ static struct audio_cs_ep_ep_general_descriptor cs_as_iso_in_ep_desc = {
 static const struct usb_desc_header * const hs_audio_in_intf[] = {
 	(struct usb_desc_header *)&as_in_interface_alt_0_desc,
 	(struct usb_desc_header *)&as_in_interface_alt_1_desc,
+	(struct usb_desc_header *)&as_in_interface_alt_4_desc,
 	(struct usb_desc_header *)&as_in_general_desc,
 	(struct usb_desc_header *)&as_in_type_i_desc,
 	(struct usb_desc_header *)&as_iso_in_ep_desc,

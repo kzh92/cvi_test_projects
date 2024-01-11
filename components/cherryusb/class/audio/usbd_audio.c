@@ -359,7 +359,7 @@ static void audio_notify_handler(uint8_t event, void *arg)
 
         case USBD_EVENT_SET_INTERFACE: {
             struct usb_interface_descriptor *intf = (struct usb_interface_descriptor *)arg;
-            if (intf->bAlternateSetting == 1) {
+            if (intf->bAlternateSetting != 0) {
                 usbd_audio_open(intf->bInterfaceNumber);
             } else {
                 usbd_audio_close(intf->bInterfaceNumber);
