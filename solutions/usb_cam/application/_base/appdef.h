@@ -469,7 +469,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_OKEDA2_UAC                    335
 #define FRM_DBS3M_TONGXIN_UVC                   336
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_H264
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JIASHIBANG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -611,8 +611,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JIASHIBANG_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.4.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.4.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.4.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.4.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -641,8 +641,6 @@ enum E_Baud_Rate
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
-#undef ENROLL_FACE_HAND_MODE
-#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef UAC_AUDALGO_USE 
@@ -653,6 +651,10 @@ enum E_Baud_Rate
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef USE_ISP_IR_3DNR
+#define USE_ISP_IR_3DNR                     0
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_KEXIONG_UAC)
