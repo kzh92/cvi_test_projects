@@ -469,7 +469,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_OKEDA2_UAC                    335
 #define FRM_DBS3M_TONGXIN_UVC                   336
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_H264
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_IR_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1612,8 +1612,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_IR_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.28.2.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.28.2.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.28.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.28.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
