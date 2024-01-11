@@ -36,6 +36,33 @@
 #define YUYV_FORMAT_INDEX   (3)
 #define NV21_FORMAT_INDEX   (4)
 
+#if (UVC_ENC_TYPE == 2)
+#define __bswap_16(x) ((uint16_t) ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8)))
+#define __bswap_32(x) ((uint32_t) ((((x) >> 24) & 0xff) | \
+				   (((x) >> 8) & 0xff00) | \
+				   (((x) & 0xff00) << 8) | \
+				   (((x) & 0xff) << 24)))
+
+#define UVC_VENC_H26X_CHN	(1)
+#define H26X_FRAME_OFFSET		(0x14)
+#define H26X_HEADER_SIZE		(14)
+#define MAX_H26X_PACKET_SIZE	(0xFFF3)
+#define MAX_H26X_TAG_SIZE		(H26X_HEADER_SIZE + MAX_H26X_PACKET_SIZE)
+#define MAX_H26X_FRAME_SIZE		(3 * MAX_H26X_PACKET_SIZE)
+
+typedef struct{
+    u16 app_mark;
+    u16 total_size;     ///< 不包括usAppMaker字段
+    u8 strm_type;       ///< H264:0x01, H265:0x02
+    u8 fps;
+    u8 frm_type;        ///<  1:I  2:P
+    u8 checksum;        ///< H265 payload数据校验和，仅添加到APP7即可
+    u32 seq;            ///< 帧序号
+    u16 data_size;      ///< 包括本字段2bytes
+} __attribute((packed)) mjpeg_app_header;
+
+#endif
+
 volatile bool tx_flag = CVI_FALSE;
 volatile unsigned int uvc_update = 0;
 static int uvc_session_init_flag = CVI_FALSE;
@@ -80,7 +107,7 @@ static struct uvc_frame_info_st mjpeg_frame_info[] = {
 };
 #endif
 
-#if (UVC_ENC_TYPE == 1 || UVC_ENC_TYPE == 2)
+#if (UVC_ENC_TYPE == 1)
 static struct uvc_frame_info_st h264_frame_info[] = {
     UVC_RES_DEFINE
 };
@@ -98,7 +125,7 @@ static struct uvc_format_info_st uvc_format_info[] = {
 #if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
 #endif
-#if (UVC_ENC_TYPE == 1 || UVC_ENC_TYPE == 2)
+#if (UVC_ENC_TYPE == 1)
     {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
 #endif
 #if 0
@@ -307,7 +334,7 @@ int uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
-	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:2048;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:UVC_H26X_BITRATE;
 	if (g_xSS.iUvcBitrate > 0)
 	{
 		pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
@@ -320,6 +347,14 @@ int uvc_media_update(){
 		camera_set_vi_fps(DEFAULT_SNR4UVC, g_xSS.iUvcFps);
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
 	printf("uvc(%dx%d),%dbr\n", uvc_frame_info.width, uvc_frame_info.height, pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate);
+#if (UVC_ENC_TYPE == 2)	
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u8DevId = iSensor;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u16Width = uvc_frame_info.width;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u16Height = uvc_frame_info.height;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u16EnType = H26X_TYPE;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stRcParam.u16BitRate = UVC_H26X_BITRATE;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stRcParam.u16RcMode = (H26X_TYPE == PT_H265) ? VENC_RC_MODE_H265CBR : VENC_RC_MODE_H264CBR;
+#endif
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index)
 		MEDIA_VIDEO_VencInit(pstVencCfg);
@@ -424,6 +459,13 @@ static void *send_to_uvc()
 	int print_flag = 0;
 #if (UVC_ENC_TYPE == 0)
 	int skip_count = 0;
+#elif (UVC_ENC_TYPE == 2)
+	mjpeg_app_header h26x_header = {0};
+    VENC_STREAM_S stH26XStream = {0},*pstH26XStream= &stH26XStream;
+    uint8_t *h26x_buffer_media = (uint8_t *)aos_ion_malloc(MAX_H26X_FRAME_SIZE);
+	memset(h26x_buffer_media, 0, MAX_H26X_FRAME_SIZE);
+	uint32_t frameCnt = 0;
+	uint32_t frameType = 0;
 #endif
     while (uvc_session_init_flag) {
         if (tx_flag) {
@@ -444,10 +486,38 @@ static void *send_to_uvc()
 			
 			if(H264_FORMAT_INDEX == uvc_format_info.format_index || 
 				MJPEG_FORMAT_INDEX == uvc_format_info.format_index){
+			#if (UVC_ENC_TYPE == 2)
+				ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_H26X_CHN,pstH26XStream,2000);
+				if(ret == CVI_SUCCESS)
+				{
+					for (i = 0; i < pstH26XStream->u32PackCount; ++i)
+					{
+						ppack = &pstH26XStream->pstPack[i];
+						frameType = (uint32_t)ppack->DataType.enH265EType;
+						if(buf_len + (ppack->u32Len - ppack->u32Offset) <= MAX_H26X_FRAME_SIZE){
+							memcpy(h26x_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
+							buf_len += (ppack->u32Len - ppack->u32Offset);
+						}
+						else{
+							printf("venc h26x buf_len oversize\n");
+							MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
+							continue;
+						}
+					}
+					//printf("h26x data len=0x%x, type=%d, %d\n", buf_len, frameType, (int)aos_now_ms());
+				}
+				else
+				{
+					buf_len = 0;
+					aos_msleep(10);
+					continue;
+				}
+			#endif
 				
 		        ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN,pstStream,2000);
 				if(ret != CVI_SUCCESS){
 	//				printf("MEDIA_VIDEO_VencGetStream failed\n");
+					buf_len = 0;
 					aos_msleep(10);
 					continue;
 				}
@@ -461,15 +531,106 @@ static void *send_to_uvc()
 #endif
 					continue;
 				}
-#endif //UVC_ENC_TYPE
-				buf_len = 0;
+			#elif (UVC_ENC_TYPE == 2)
+				frameCnt++;
+				if (buf_len > 2 * MAX_H26X_PACKET_SIZE) {
+					h26x_header.app_mark = __bswap_16(0xFFE7);
+					h26x_header.total_size = __bswap_16(0xFFFF);
+					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
+					h26x_header.fps = 20;
+					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
+					h26x_header.checksum = (buf_len & 0xFF);
+					//h26x_header.seq = __bswap_32(frameCnt);
+					h26x_header.seq = frameCnt;
+					h26x_header.data_size = __bswap_16(MAX_H26X_PACKET_SIZE + 2);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + H26X_HEADER_SIZE], h26x_buffer_media, MAX_H26X_PACKET_SIZE);
+
+					h26x_header.app_mark = __bswap_16(0xFFE8);
+					h26x_header.total_size = __bswap_16(0xFFFF);
+					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
+					h26x_header.fps = 20;
+					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
+					h26x_header.checksum = 0;
+					//h26x_header.seq = __bswap_32(frameCnt);
+					h26x_header.seq = frameCnt;
+					h26x_header.data_size = __bswap_16(MAX_H26X_PACKET_SIZE + 2);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE + H26X_HEADER_SIZE], &h26x_buffer_media[MAX_H26X_PACKET_SIZE], MAX_H26X_PACKET_SIZE);
+
+					h26x_header.app_mark = __bswap_16(0xFFE9);
+					h26x_header.total_size = __bswap_16(buf_len - (2 * MAX_H26X_PACKET_SIZE) + 12);
+					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
+					h26x_header.fps = 20;
+					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
+					h26x_header.checksum = 0;
+					//h26x_header.seq = __bswap_32(frameCnt);
+					h26x_header.seq = frameCnt;
+					h26x_header.data_size = __bswap_16(buf_len - (2 * MAX_H26X_PACKET_SIZE) + 2);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + 2 * MAX_H26X_TAG_SIZE], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + 2 * MAX_H26X_TAG_SIZE + H26X_HEADER_SIZE], &h26x_buffer_media[2 * MAX_H26X_PACKET_SIZE], buf_len - (2 * MAX_H26X_PACKET_SIZE));
+					buf_len += 3 * H26X_HEADER_SIZE;
+				} else if (buf_len > MAX_H26X_PACKET_SIZE) {
+					h26x_header.app_mark = __bswap_16(0xFFE7);
+					h26x_header.total_size = __bswap_16(0xFFFF);
+					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
+					h26x_header.fps = 20;
+					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
+					h26x_header.checksum = (buf_len & 0xFF);
+					//h26x_header.seq = __bswap_32(frameCnt);
+					h26x_header.seq = frameCnt;
+					h26x_header.data_size = __bswap_16(MAX_H26X_PACKET_SIZE + 2);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + H26X_HEADER_SIZE], h26x_buffer_media, MAX_H26X_PACKET_SIZE);
+	
+					h26x_header.app_mark = __bswap_16(0xFFE8);
+					h26x_header.total_size = __bswap_16(buf_len - MAX_H26X_PACKET_SIZE + 12);
+					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
+					h26x_header.fps = 20;
+					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
+					h26x_header.checksum = 0;
+					//h26x_header.seq = __bswap_32(frameCnt);
+					h26x_header.seq = frameCnt;
+					h26x_header.data_size = __bswap_16(buf_len - MAX_H26X_PACKET_SIZE + 2);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE + H26X_HEADER_SIZE], &h26x_buffer_media[MAX_H26X_PACKET_SIZE], buf_len - MAX_H26X_PACKET_SIZE);
+					buf_len += 2 * H26X_HEADER_SIZE;
+				} else if (buf_len > 0){
+					h26x_header.app_mark = __bswap_16(0xFFE7);
+					h26x_header.total_size = __bswap_16(buf_len + 12);
+					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
+					h26x_header.fps = 20;
+					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
+					h26x_header.checksum = (buf_len & 0xFF);
+					//h26x_header.seq = __bswap_32(frameCnt);
+					h26x_header.seq = frameCnt;
+					h26x_header.data_size = __bswap_16(buf_len + 2);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
+					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + H26X_HEADER_SIZE], h26x_buffer_media, buf_len);
+					buf_len += H26X_HEADER_SIZE;
+				}
+#endif
 				for (i = 0; i < pstStream->u32PackCount; ++i)
 				{
 					ppack = &pstStream->pstPack[i];
 					if (buf_len + (ppack->u32Len - ppack->u32Offset) < DEFAULT_FRAME_SIZE)
 					{
+					#if (UVC_ENC_TYPE == 2)
+						if (i == 0)
+						{
+							memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, H26X_FRAME_OFFSET);
+							memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + buf_len], ppack->pu8Addr + ppack->u32Offset + H26X_FRAME_OFFSET, ppack->u32Len - ppack->u32Offset - H26X_FRAME_OFFSET);
+							buf_len += (ppack->u32Len - ppack->u32Offset);
+						}
+						else
+						{
+							memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
+							buf_len += (ppack->u32Len - ppack->u32Offset);
+						}
+					#else
 						memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
 						buf_len += (ppack->u32Len - ppack->u32Offset);
+					#endif
 					}
 					else
 					{
@@ -481,6 +642,9 @@ static void *send_to_uvc()
 				if (isOverflow)
 				{
 					//printf("venc buf_len oversize\n");
+				#if (UVC_ENC_TYPE == 2)
+					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
+				#endif
 					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 					isOverflow = 0;
 					continue;
@@ -498,6 +662,11 @@ static void *send_to_uvc()
 					if (print_flag == 8)
 						printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
+			#if (UVC_ENC_TYPE == 2)	
+				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
+				if(ret != CVI_SUCCESS)
+					printf("MEDIA_VIDEO_VencReleaseStream failed\n");
+			#endif
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 				if(ret != CVI_SUCCESS)
 					printf("MEDIA_VIDEO_VencReleaseStream failed\n");
@@ -553,6 +722,12 @@ static void *send_to_uvc()
 					printf("CVI_VPSS_ReleaseChnFrame failed\n");
 			}
 
+
+			// printf("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+			// 	packet_buffer_media[20], packet_buffer_media[21], packet_buffer_media[22], packet_buffer_media[23],
+			// 	packet_buffer_media[24], packet_buffer_media[25], packet_buffer_media[26], packet_buffer_media[27],
+			// 	packet_buffer_media[28], packet_buffer_media[29], packet_buffer_media[30], packet_buffer_media[31],
+			// 	packet_buffer_media[32], packet_buffer_media[33], packet_buffer_media[34], packet_buffer_media[35]);
 			packets = usbd_video_payload_fill(packet_buffer_media, buf_len, packet_buffer_uvc, &out_len);
 
 			buf_len = 0;
@@ -643,7 +818,7 @@ int MEDIA_AV_Init()
 	pthread_attr_setschedpolicy(&pthread_attr, SCHED_RR);
 	pthread_attr_setschedparam(&pthread_attr, &param);
 	pthread_attr_setinheritsched(&pthread_attr, PTHREAD_EXPLICIT_SCHED);
-	pthread_attr_setstacksize(&pthread_attr, 6*1024);
+	pthread_attr_setstacksize(&pthread_attr, 16*1024);
 	pthread_create(&pthreadId,&pthread_attr,send_to_uvc,NULL);
 	snprintf(threadname,sizeof(threadname),"uvc_send%d",0);
 	pthread_setname_np(pthreadId, threadname);

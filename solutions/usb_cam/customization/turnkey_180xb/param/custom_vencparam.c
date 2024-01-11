@@ -21,7 +21,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u16Width = 0,
             .u16Height = 0,
             .u8EsBufQueueEn = 0,
-#if (UVC_ENC_TYPE == 0)
+#if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
             .u16EnType = PT_MJPEG,
 #elif (UVC_ENC_TYPE == 1)
             .u16EnType = PT_H264,
@@ -41,7 +41,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
             .u8VariFpsEn = 0,
             .u8StartTime = 2,
-#if (UVC_ENC_TYPE == 0)
+#if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
             .u16RcMode = VENC_RC_MODE_MJPEGCBR,
 #elif (UVC_ENC_TYPE == 1)
             .u16RcMode = VENC_RC_MODE_H264CBR,
@@ -62,27 +62,27 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
         },
         .s8RoiNumber = -1,
     },
-#if 0
+#if (UVC_ENC_TYPE == 2)
     {
         .stChnParam = {
             .u8InitStatus = 0,
             .u8VencChn = 1,
             .u8ModId = CVI_ID_VPSS,
             .u8DevId = 0,
-            .u8DevChnid = 1,
+            .u8DevChnid = 0,
             .u8Profile = 0,
             .u16Width = 0,
             .u16Height = 0,
             .u8EsBufQueueEn = 0,
-            .u16EnType = PT_H264,
-            .u32BitStreamBufSize = 1024 * 1024,
+            .u16EnType = H26X_TYPE,
+            .u32BitStreamBufSize = 256 * 1024,
         },
         .stGopParam = {
             .u16gopMode = 0,
             .s8IPQpDelta = 0,
         },
         .stRcParam = {
-            .u16Gop = 25,
+            .u16Gop = 15,
             .u8SrcFrameRate = 15,
             .u8DstFrameRate = 15,
             .u16BitRate = 1024,
@@ -90,7 +90,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
             .u8VariFpsEn = 0,
             .u8StartTime = 2,
-            .u16RcMode = VENC_RC_MODE_H264CBR,
+            .u16RcMode = (H26X_TYPE == PT_H265) ? VENC_RC_MODE_H265CBR : VENC_RC_MODE_H264CBR,
             .u16FirstFrmstartQp = 30,
             .u16InitialDelay = CVI_INITIAL_DELAY_DEFAULT, // RW = , Range:[10, 3000] Rate control initial delay (ms).
             .u16ThrdLv = 2,/*RW = , Range:[0, 4] = , Mad threshold for controlling the macroblock-level bit rate */
@@ -111,7 +111,11 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
 };
 
 PARAM_VENC_CFG_S  g_stVencCtx = {
+#if (UVC_ENC_TYPE == 2)
+    .s32VencChnCnt = 2,
+#else
     .s32VencChnCnt = 1,
+#endif
     .pstVencChnCfg = PARAM_CLASS(VENCCFG,CTX,VENC),
 };
 

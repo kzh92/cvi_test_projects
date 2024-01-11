@@ -246,6 +246,7 @@ enum E_Baud_Rate
 #define UVC_MAX_FPS_TIME            40      //25fps
 #define UVC_FIX_COMPRATE            0
 #define UVC_MJPEG_BITRATE           20480
+#define UVC_H26X_BITRATE            2048
 #define UVC_CROP_RESIZE             1
 #define ISP_FPS_FOR_UVC             0
 #define WLED_PWM_DUTY               100     // %
@@ -259,6 +260,7 @@ enum E_Baud_Rate
 #define UVC_VBPOOL1CNT              5
 #define UVC_LANDSCAPE               0
 #define UVC_ENC_TYPE                0 // 0:mjpeg 1:h264 2:dual
+#define H26X_TYPE                   PT_H264
 #define BIN_DATA_SIZE               174513
 #define UVC_USBD_PRINT              0
 
@@ -466,7 +468,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_OKEDA2_UAC                    335
 #define FRM_DBS3M_TONGXIN_UVC                   336
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_IR_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_H264
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
