@@ -705,19 +705,17 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.6.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.6.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_0       // 0: not rotate 90, 1: rotate 90
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1920, 1080, 30, 0}, \
-                                            {2, 1280, 720, 30, 0}, \
-                                            {3, 864, 480, 30, 0, 10240}, \
-                                            {4, 800, 480, 30, 0, 10240}, \
-                                            {5, 640, 480, 30, 0, 6144},
+#define UVC_RES_DEFINE                      {1, 480, 854, 30, 0}
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -732,24 +730,26 @@ enum E_Baud_Rate
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
 #define USE_SANJIANG3_MODE                  1
-// #undef N_MAX_HAND_NUM
-// #define N_MAX_HAND_NUM                      100
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
-// #undef UVC_ENC_TYPE
-// #define UVC_ENC_TYPE                        1 //h264
+#undef UVC_ENC_TYPE
+#define UVC_ENC_TYPE                        2 //dual stream
+#undef H26X_TYPE 
+#define H26X_TYPE                           PT_H265
+#undef UVC_MJPEG_BITRATE
+#define UVC_MJPEG_BITRATE                   10240
+#undef UVC_H26X_BITRATE
+#define UVC_H26X_BITRATE                    1024
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
-#define UVC_CLR2IR_THR4ENGINE               (-100)
-#undef UVC_MAX_WIDTH
-#define UVC_MAX_WIDTH                       1920
-#undef UVC_MAX_HEIGHT
-#define UVC_MAX_HEIGHT                      1080
-#undef UVC_VBPOOL1CNT
-#define UVC_VBPOOL1CNT                      3
+#define UVC_CLR2IR_THR4ENGINE               (-30)
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)
