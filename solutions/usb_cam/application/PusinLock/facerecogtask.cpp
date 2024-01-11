@@ -243,7 +243,7 @@ void FaceRecogTask::run()
         if(g_xSS.iResetFlag == 1)
             break;
 
-#if (USE_TONGXIN_PROTO == 0)
+#if (USE_TONGXIN_PROTO == 0 && UVC_ENC_TYPE != 2)
         if (iLoopCount == 0)
             fr_LoadCreateMachine_2(1);
 #endif
