@@ -5,6 +5,7 @@
  */
 #include "usbd_core.h"
 #include "usbd_audio.h"
+#include "appdef.h"
 
 #if CONFIG_USBDEV_AUDIO_VERSION < 0x0200
 struct usbd_audio_volume_info {
@@ -359,8 +360,12 @@ static void audio_notify_handler(uint8_t event, void *arg)
 
         case USBD_EVENT_SET_INTERFACE: {
             struct usb_interface_descriptor *intf = (struct usb_interface_descriptor *)arg;
-            if (intf->bAlternateSetting != 0) {
+            if (intf->bAlternateSetting == 1) {
                 usbd_audio_open(intf->bInterfaceNumber);
+#if (USE_UAC_DESC_ALT4 == 1)
+            } else if (intf->bAlternateSetting != 0) {
+                usbd_audio_open(intf->bInterfaceNumber);
+#endif
             } else {
                 usbd_audio_close(intf->bInterfaceNumber);
             }

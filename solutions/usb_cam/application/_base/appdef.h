@@ -199,6 +199,7 @@ enum E_Baud_Rate
 #define USE_USB_CHECKFIRM_MODE      1
 #define USE_CAM_REINIT              1
 #define USE_ISP_IR_3DNR             1
+#define USE_UAC_DESC_ALT4           0
 
 #define CLR_CAM_WIDTH               1600
 #define CLR_CAM_HEIGHT              1200
@@ -750,6 +751,8 @@ enum E_Baud_Rate
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef USE_UAC_DESC_ALT4
+#define USE_UAC_DESC_ALT4                   1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)
