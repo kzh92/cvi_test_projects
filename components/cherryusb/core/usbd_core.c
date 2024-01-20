@@ -8,6 +8,7 @@
 #include "usbd_core.h"
 #include "appdef.h"
 #include "settings.h"
+#include "ds_h264_types.h"
 
 /* general descriptor field offsets */
 #define DESC_bLength         0 /** Length offset */
@@ -66,6 +67,21 @@ usb_slist_t usbd_intf_head = USB_SLIST_OBJECT_INIT(usbd_intf_head);
 static struct usb_msosv1_descriptor *msosv1_desc;
 static struct usb_msosv2_descriptor *msosv2_desc;
 static struct usb_bos_descriptor *bos_desc;
+
+#if (USE_USB_XN_PROTO)
+static s_ds_h264_video_res g_ds_video_res = {
+    1280, //width
+    720, //height
+    20, //usGop;
+    0, //usDataSize; //Reserved
+    UVC_H26X_BITRATE, //uiBitrate; //Kbps
+    20, //ucFps;
+    0, //ucCheckSum;
+    DS_VENC_TYPE_H264, //ucEncodeType; //e_ds_venc_type
+    DS_VRC_MODE_CBR, // ucRcMode; //e_ds_vrc_mode
+    1, // ucUcodeMode; // 1：基础, 2：高级
+};
+#endif // USE_USB_XN_PROTO
 
 static void usbd_class_event_notify_handler(uint8_t event, void *arg);
 
@@ -862,7 +878,50 @@ static int usbd_vendor_request_handler(struct usb_setup_packet *setup, uint8_t *
             }
         }
     }
-#else
+#else // CHERRYUSB_VERSION
+
+#if (USE_USB_XN_PROTO)
+    if (setup->bRequest == DS_UUR_XIN_REQ) {
+        USB_LOG_ERR("Setup: "
+                 "bmRequestType 0x%02x, bRequest 0x%02x, wValue 0x%04x, wIndex 0x%04x, wLength 0x%04x\r\n",
+                 setup->bmRequestType,
+                 setup->bRequest,
+                 setup->wValue,
+                 setup->wIndex,
+                 setup->wLength);
+        switch (setup->wIndex) {
+        // case DS_UUR_XIN_FORCE_KEYFRAME:
+        //     USB_LOG_ERR("DS_UUR_XIN_FORCE_KEYFRAME\r\n");
+        //     *data = 0;
+        //     *len = 0;
+        //     return 0;
+        case DS_UUR_XIN_GET_VIDEO_RES:
+            USB_LOG_ERR("DS_UUR_XIN_GET_VIDEO_RES\r\n");
+            *data = (uint8_t *)&g_ds_video_res;
+            *len = sizeof(g_ds_video_res);
+            return 0;
+        case DS_UUR_XIN_SET_VIDEO_RES:
+            USB_LOG_ERR("DS_UUR_XIN_SET_VIDEO_RES\r\n");
+            *data = 0;
+            *len = 0;
+            return 0;
+        case DS_UUR_XIN_GET_AUDIO_RES:
+            USB_LOG_ERR("DS_UUR_XIN_GET_AUDIO_RES\r\n");
+            *data = 0;
+            *len = 0;
+            return 0;
+        case DS_UUR_XIN_SET_AUDIO_RES:
+            USB_LOG_ERR("DS_UUR_XIN_SET_AUDIO_RES\r\n");
+            *data = 0;
+            *len = 0;
+            return 0;
+        default:
+            USB_LOG_ERR("unknown xin proto\r\n");
+            return -1;
+        }
+    }
+#endif // USE_USB_XN_PROTO
+
     if (msosv1_desc) {
         if (setup->bRequest == msosv1_desc->vendor_code) {
             switch (setup->wIndex) {
@@ -897,7 +956,7 @@ static int usbd_vendor_request_handler(struct usb_setup_packet *setup, uint8_t *
             }
         }
     }
-#endif
+#endif // CHERRYUSB_VERSION
     usb_slist_t *i;
 
     usb_slist_for_each(i, &usbd_intf_head)

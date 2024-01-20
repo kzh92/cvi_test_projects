@@ -200,6 +200,7 @@ enum E_Baud_Rate
 #define USE_CAM_REINIT              1
 #define USE_ISP_IR_3DNR             1
 #define USE_UAC_DESC_ALT4           0
+#define USE_USB_XN_PROTO            0   //use XinNeng USB Protocol
 
 #define CLR_CAM_WIDTH               1600
 #define CLR_CAM_HEIGHT              1200
@@ -470,7 +471,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_TONGXIN_UVC                   336
 #define FRM_DBS3M_AIPAI2_UAC                    337
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HONGLI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_H264
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -709,17 +710,17 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.6.2.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.2.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.6.2.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.2.4_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     UVC_ROTATION_0       // 0: not rotate 90, 1: rotate 90
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_90       // 0: not rotate 90, 1: rotate 90
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 480, 854, 30, 0}
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -743,9 +744,9 @@ enum E_Baud_Rate
 #undef UVC_ENC_TYPE
 #define UVC_ENC_TYPE                        2 //dual stream
 #undef H26X_TYPE 
-#define H26X_TYPE                           PT_H265
+#define H26X_TYPE                           PT_H264
 #undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   10240
+#define UVC_MJPEG_BITRATE                   8192
 #undef UVC_H26X_BITRATE
 #define UVC_H26X_BITRATE                    512
 #undef USE_USB_EP_ERR_FIX_MODE
@@ -756,6 +757,12 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef USE_UAC_DESC_ALT4
 #define USE_UAC_DESC_ALT4                   1
+#undef USE_USB_XN_PROTO
+#define USE_USB_XN_PROTO                    1
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)

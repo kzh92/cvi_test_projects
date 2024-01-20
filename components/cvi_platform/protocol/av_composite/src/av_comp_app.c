@@ -279,6 +279,12 @@ int uvc_media_update(){
 	if(u8VencInitStatus == 1)
 		MEDIA_VIDEO_VencDeInit(pstVencCfg);
 
+	if (uvc_frame_info.width == 0)
+	{
+		uvc_frame_info.width = UVC_MAX_WIDTH;
+		uvc_frame_info.height = UVC_MAX_HEIGHT;
+	}
+
 	CVI_VPSS_GetChnAttr(iSensor, UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
 	if (g_xSS.iUvcDirect == UVC_ROTATION_0)
