@@ -51,6 +51,30 @@ typedef struct
     //可扩展
 } s_ds_h264_audio_res;
 
+#define __bswap_16(x) ((uint16_t) ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8)))
+#define __bswap_32(x) ((uint32_t) ((((x) >> 24) & 0xff) | \
+                   (((x) >> 8) & 0xff00) | \
+                   (((x) & 0xff00) << 8) | \
+                   (((x) & 0xff) << 24)))
+
+#define UVC_VENC_H26X_CHN   (1)
+#define H26X_FRAME_OFFSET       (0x14)
+#define H26X_HEADER_SIZE        (14)
+#define MAX_H26X_PACKET_SIZE    (0xFFF3)
+#define MAX_H26X_TAG_SIZE       (H26X_HEADER_SIZE + MAX_H26X_PACKET_SIZE)
+#define MAX_H26X_FRAME_SIZE     (3 * MAX_H26X_PACKET_SIZE)
+
+typedef struct{
+    unsigned short app_mark;
+    unsigned short total_size;     ///< 不包括usAppMaker字段
+    unsigned char strm_type;       ///< H264:0x01, H265:0x02
+    unsigned char fps;
+    unsigned char frm_type;        ///<  1:I  2:P
+    unsigned char checksum;        ///< H265 payload数据校验和，仅添加到APP7即可
+    unsigned int seq;            ///< 帧序号
+    unsigned short data_size;      ///< 包括本字段2bytes
+} __attribute((packed)) ds_mjpeg_app_header;
+
 #pragma pack(pop)
 
 #endif // USE_USB_XN_PROTO

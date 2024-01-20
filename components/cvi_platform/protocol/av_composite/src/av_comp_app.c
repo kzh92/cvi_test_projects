@@ -15,6 +15,7 @@
 #include "appdef.h"
 #include "settings.h"
 #include "cam_base.h"
+#include "ds_h264_types.h"
 
 #define USB_OTG_HS                     0U
 #define USB_OTG_HS_IN_FULL             1U
@@ -35,33 +36,6 @@
 #define H264_FORMAT_INDEX   (2)
 #define YUYV_FORMAT_INDEX   (3)
 #define NV21_FORMAT_INDEX   (4)
-
-#if (UVC_ENC_TYPE == 2)
-#define __bswap_16(x) ((uint16_t) ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8)))
-#define __bswap_32(x) ((uint32_t) ((((x) >> 24) & 0xff) | \
-				   (((x) >> 8) & 0xff00) | \
-				   (((x) & 0xff00) << 8) | \
-				   (((x) & 0xff) << 24)))
-
-#define UVC_VENC_H26X_CHN	(1)
-#define H26X_FRAME_OFFSET		(0x14)
-#define H26X_HEADER_SIZE		(14)
-#define MAX_H26X_PACKET_SIZE	(0xFFF3)
-#define MAX_H26X_TAG_SIZE		(H26X_HEADER_SIZE + MAX_H26X_PACKET_SIZE)
-#define MAX_H26X_FRAME_SIZE		(3 * MAX_H26X_PACKET_SIZE)
-
-typedef struct{
-    u16 app_mark;
-    u16 total_size;     ///< 不包括usAppMaker字段
-    u8 strm_type;       ///< H264:0x01, H265:0x02
-    u8 fps;
-    u8 frm_type;        ///<  1:I  2:P
-    u8 checksum;        ///< H265 payload数据校验和，仅添加到APP7即可
-    u32 seq;            ///< 帧序号
-    u16 data_size;      ///< 包括本字段2bytes
-} __attribute((packed)) mjpeg_app_header;
-
-#endif
 
 volatile bool tx_flag = CVI_FALSE;
 volatile unsigned int uvc_update = 0;
@@ -466,13 +440,13 @@ static void *send_to_uvc()
 #if (UVC_ENC_TYPE == 0)
 	int skip_count = 0;
 #elif (UVC_ENC_TYPE == 2)
-	mjpeg_app_header h26x_header = {0};
+	ds_mjpeg_app_header h26x_header = {0};
     VENC_STREAM_S stH26XStream = {0},*pstH26XStream= &stH26XStream;
     uint8_t *h26x_buffer_media = (uint8_t *)aos_ion_malloc(MAX_H26X_FRAME_SIZE);
 	memset(h26x_buffer_media, 0, MAX_H26X_FRAME_SIZE);
 	uint32_t frameCnt = 0;
 	uint32_t frameType = 0;
-#endif
+#endif // UVC_ENC_TYPE
     while (uvc_session_init_flag) {
         if (tx_flag) {
 			g_xSS.rUvcFrameTime = aos_now_ms();

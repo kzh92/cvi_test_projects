@@ -70,9 +70,9 @@ static struct usb_bos_descriptor *bos_desc;
 
 #if (USE_USB_XN_PROTO)
 static s_ds_h264_video_res g_ds_video_res = {
-    1280, //width
-    720, //height
-    20, //usGop;
+    UVC_H26X_WIDTH, //width
+    UVC_H26X_HEIGHT, //height
+    UVC_H26X_GOP, //usGop;
     0, //usDataSize; //Reserved
     UVC_H26X_BITRATE, //uiBitrate; //Kbps
     20, //ucFps;

@@ -262,6 +262,9 @@ enum E_Baud_Rate
 #define UVC_VBPOOL1CNT              5
 #define UVC_LANDSCAPE               0
 #define UVC_ENC_TYPE                0 // 0:mjpeg 1:h264 2:dual
+#define UVC_H26X_GOP                20
+#define UVC_H26X_WIDTH              1280
+#define UVC_H26X_HEIGHT             720
 #define H26X_TYPE                   PT_H264
 #define BIN_DATA_SIZE               174513
 #define UVC_USBD_PRINT              0
