@@ -890,11 +890,12 @@ static int usbd_vendor_request_handler(struct usb_setup_packet *setup, uint8_t *
                  setup->wIndex,
                  setup->wLength);
         switch (setup->wIndex) {
-        // case DS_UUR_XIN_FORCE_KEYFRAME:
-        //     USB_LOG_ERR("DS_UUR_XIN_FORCE_KEYFRAME\r\n");
-        //     *data = 0;
-        //     *len = 0;
-        //     return 0;
+        case DS_UUR_XIN_FORCE_KEYFRAME:
+            USB_LOG_ERR("DS_UUR_XIN_FORCE_KEYFRAME\r\n");
+            g_xSS.iForceVencIDR = 2;
+            *data = 0;
+            *len = 0;
+            return 0;
         case DS_UUR_XIN_GET_VIDEO_RES:
             USB_LOG_ERR("DS_UUR_XIN_GET_VIDEO_RES\r\n");
             *data = (uint8_t *)&g_ds_video_res;

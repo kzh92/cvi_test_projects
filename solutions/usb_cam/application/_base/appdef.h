@@ -713,8 +713,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.6.2.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.2.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.6.2.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.2.5_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -743,7 +743,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v0
 #undef UVC_ENC_TYPE
 #define UVC_ENC_TYPE                        2 //dual stream
 #undef H26X_TYPE 
@@ -766,6 +766,8 @@ enum E_Baud_Rate
 #define UAC_SPK_EP                          0x83
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef UVC_H26X_GOP
+#define UVC_H26X_GOP                        50
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)

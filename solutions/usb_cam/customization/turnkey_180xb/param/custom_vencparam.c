@@ -82,7 +82,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .s8IPQpDelta = 0,
         },
         .stRcParam = {
-            .u16Gop = 20,
+            .u16Gop = UVC_H26X_GOP,
             .u8SrcFrameRate = 15,
             .u8DstFrameRate = 15,
             .u16BitRate = 1024,

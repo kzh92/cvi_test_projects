@@ -466,7 +466,12 @@ static void *send_to_uvc()
 			
 			if(H264_FORMAT_INDEX == uvc_format_info.format_index || 
 				MJPEG_FORMAT_INDEX == uvc_format_info.format_index){
-			#if (UVC_ENC_TYPE == 2)
+#if (UVC_ENC_TYPE == 2)
+				if (g_xSS.iForceVencIDR > 0)
+				{
+					MEDIA_VIDEO_VencRequstIDR(UVC_VENC_H26X_CHN);
+					g_xSS.iForceVencIDR--;
+				}
 				ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_H26X_CHN,pstH26XStream,2000);
 				if(ret == CVI_SUCCESS)
 				{
@@ -484,7 +489,8 @@ static void *send_to_uvc()
 							continue;
 						}
 					}
-					//printf("h26x data len=0x%x, type=%d, %d\n", buf_len, frameType, (int)aos_now_ms());
+					//if (frameType != H264E_NALU_PSLICE)
+						//printf("h26x data len=0x%x, type=%d, %d\n", buf_len, frameType, (int)aos_now_ms());
 				}
 				else
 				{
@@ -492,7 +498,7 @@ static void *send_to_uvc()
 					aos_msleep(10);
 					continue;
 				}
-			#endif
+#endif // UVC_ENC_TYPE
 				
 		        ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN,pstStream,2000);
 				if(ret != CVI_SUCCESS){

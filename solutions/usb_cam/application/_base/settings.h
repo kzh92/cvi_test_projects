@@ -248,7 +248,7 @@ typedef struct _tagSYSTEM_STATE
     unsigned char               iUVCIRDataReady:2;
     unsigned char               iProtoMode:2; // 0: no encryption, 1:sanjiang mode
     unsigned char               iForceUvcIR:1;
-    unsigned char               iReserved:2; // 0: no encryption, 1:sanjiang mode
+    unsigned char               iForceVencIDR:2;
     int                         iCurClrGain;
     int                         iCapWidth;
     int                         iCapHeight;
