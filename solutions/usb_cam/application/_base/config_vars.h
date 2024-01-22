@@ -23,6 +23,7 @@
 #define FN_CH_DICT_SIZE                 (434304)
 #define FN_DETECT_DICT_SIZE             (122720)
 #define FN_DETECT_H_DICT_SIZE           (121224)
+#define FN_DETECT_C_DICT_SIZE           (617920)
 #define FN_DLAMK_DICT_SIZE              (603448)
 #define FN_DLAMK_H_DICT_SIZE            (477480)
 #define FN_ESN_DICT_SIZE                230360
@@ -44,6 +45,7 @@
 #define FN_CH_DICT_SIZE                 (442504)
 #define FN_DETECT_DICT_SIZE             (129320)
 #define FN_DETECT_H_DICT_SIZE           (121464)
+#define FN_DETECT_C_DICT_SIZE           (841576)
 #define FN_DLAMK_DICT_SIZE              (624696)
 #define FN_DLAMK_H_DICT_SIZE            (495328)
 #define FN_H_LIVE_DICT_SIZE             442504
@@ -76,7 +78,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define UPGRADER_INFO_SIZE              64
 #define IR_ERROR_SAVE_ADDR              (16*1024*1024 - 1024*1024)
 
-#define FN_WNO_DICT_PATH        "/test/wno.bin"
+#define FN_WNO_DICT_PATH        (USE_RENT_ENGINE ? "/test/wno_c.bin" : "/test/wno.bin")
 #define FN_WNOH_DICT_PATH       "/test/wnh.bin"
 #define FN_A1_DICT_PATH         "/test/a1.bin"
 #define FN_A2_DICT_PATH         "/test/a2.bin"
@@ -86,6 +88,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_C_DICT_PATH          "/test/c.bin"
 #define FN_DETECT_DICT_PATH     "/test/detect.bin"
 #define FN_DETECT_H_DICT_PATH   "/test/detect_h.bin"
+#define FN_DETECT_C_DICT_PATH   "/test/detect_c.bin"
 #define FN_DLAMK_DICT_PATH      "/test/dlamk.bin"
 #define FN_DLAMK_H_DICT_PATH    "/test/dlamk_h.bin"
 #define FN_ESN_DICT_PATH        "/test/esn.bin"

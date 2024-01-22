@@ -41,7 +41,7 @@ public:
     static int	VerifyFace(float* prResultArray);
     static void RegisterFace(float* prResultArray, int iFaceDir);
     static void RegisterImage(float* prResultArray, unsigned char* pbClrBuffer, int width, int height);
-    static void RegisterFeat(float* prResultArray, unsigned char* pbFeat, int length);
+    static void RegisterFeat(float* prResultArray, unsigned char* pbFeat, int length, int isIRImage = 0);
 
     static void InitCalibOffset();
     static int  AutoCameraAdjust(unsigned char* pbClrData, unsigned char* pbRedOnData, float* pnResultArray);
@@ -51,6 +51,7 @@ public:
     static int  GetLastFaceImage(unsigned char* pbJpgData, int* pnJpgLen);
     static int  SetLastFaceScene(unsigned char* pbRgbData);
     static void GetRegisteredFeatInfo(PSFeatInfo pxFeatInfo);
+    static int GetIRFeatInfo(void**);
     static int SavePerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum);
 #if (N_MAX_HAND_NUM)
     static int CreateHand(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum);
@@ -60,6 +61,8 @@ public:
     static int  DecodeRegisterFileData(unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
     static int  UpdateDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int uid);
     static int  GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int iID, int iOffset);
+private:
+    static void* m_irFeatBuffer;
 };
 
 #endif // FACEENGINE_H

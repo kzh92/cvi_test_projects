@@ -18,6 +18,7 @@
 //#include <sys/mman.h>
 //#include <fcntl.h>
 FaceRecogTask xFaceTask;
+void* FaceEngine::m_irFeatBuffer = NULL;
 
 int FaceEngine::Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum)
 {
@@ -253,10 +254,10 @@ void FaceEngine::RegisterImage(float* prResultArray, unsigned char* pbClrBuffer,
 #endif // USE_RENT_ENGINE
 }
 
-void FaceEngine::RegisterFeat(float* prResultArray, unsigned char* pbFeat, int length)
+void FaceEngine::RegisterFeat(float* prResultArray, unsigned char* pbFeat, int length, int isIRImage)
 {
 #if (USE_RENT_ENGINE)
-    int nRet = fr_EnrollClrFeat(pbFeat, length);
+    int nRet = fr_EnrollClrFeat(pbFeat, length, isIRImage);
     prResultArray[0] = (float)nRet;
 #endif // USE_RENT_ENGINE
 }
@@ -294,6 +295,28 @@ int  FaceEngine::SetLastFaceScene(unsigned char* /*pbRgbData*/)
 void FaceEngine::GetRegisteredFeatInfo(PSFeatInfo pxFeatInfo)
 {
     fr_GetRegisteredFeatInfo(pxFeatInfo);
+}
+
+int FaceEngine::GetIRFeatInfo(void** outBuffer)
+{
+    if (m_irFeatBuffer == NULL)
+        m_irFeatBuffer = my_malloc(OUT_FEAT_SIZE);
+    if (m_irFeatBuffer == NULL)
+        return 0;
+#if (USE_RENT_ENGINE)
+    memset(m_irFeatBuffer, 0, FEAT_HEADER_SIZE);
+    memcpy(m_irFeatBuffer, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2));
+    ((char*)m_irFeatBuffer)[sizeof(ENROLL_FACE_IMG_MAGIC2)] = '1';
+    fr_GetIRFeatBuffer((unsigned char*)m_irFeatBuffer + FEAT_HEADER_SIZE);
+    //use xor key for old compatibility
+    xor_encrypt((unsigned char*)m_irFeatBuffer + FEAT_HEADER_SIZE, FEAT_SIZE, (unsigned char*)ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2));
+
+    if (outBuffer != NULL)
+        *outBuffer = m_irFeatBuffer;
+    return OUT_FEAT_SIZE;
+#else
+    return 0;
+#endif // USE_RENT_ENGINE    
 }
 
 int FaceEngine::SavePerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* piBlkNum)
@@ -573,7 +596,10 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         FaceEngine::UnregisterFace(-1, 0);
         xor_encrypt(fd_v2->feat_data, sizeof(fd_v2->feat_data),
                     (unsigned char*)ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2));
-        FaceEngine::RegisterFeat(arEngineResult, fd_v2->feat_data, sizeof(fd_v2->feat_data));
+        if (fd_v2->m_magic[sizeof(ENROLL_FACE_IMG_MAGIC2)] == '1')
+            FaceEngine::RegisterFeat(arEngineResult, fd_v2->feat_data, sizeof(fd_v2->feat_data), 1);
+        else
+            FaceEngine::RegisterFeat(arEngineResult, fd_v2->feat_data, sizeof(fd_v2->feat_data));
         if (arEngineResult[0] != ES_SUCCESS)
         {
             dbug_printf("reg fail, get feat\n");
@@ -641,7 +667,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         return 1;
     } else
 #endif // USE_RENT_ENGINE
-#if (USE_DB_UPDATE_MODE)    
+#if (USE_DB_UPDATE_MODE)
     if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC, strlen(DB_UPDATE_MAGIC)) == 0)
     {
         mount_backup_db(0);
@@ -676,7 +702,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         umount_backup_db();
     }
 #endif // USE_DB_UPDATE_MODE
-#if (USE_RENT_ENGINE)
+#if (USE_RENT_ENGINE && 0)
     else
     {
         dbug_printf("decode jpeg data\n");

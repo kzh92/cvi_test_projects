@@ -285,6 +285,13 @@ int uvc_media_update(){
 		stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_FALSE : CVI_TRUE);
 		stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_FALSE : CVI_TRUE);
 	}
+#if (USE_RENT_ENGINE)
+	if (g_xSS.iSnapImageFace)
+	{
+		stVpssChnAttr.u32Width = 320;
+		stVpssChnAttr.u32Height = 320;
+	}
+#endif // USE_RENT_ENGINE
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
     if (stVpssChnAttr.u32Width * 3 / 4 == stVpssChnAttr.u32Height)
@@ -306,6 +313,58 @@ int uvc_media_update(){
 		pstCropInfo.stCropRect.u32Width = real_width;
 		pstCropInfo.stCropRect.u32Height = real_height;
     }
+#if (USE_RENT_ENGINE)
+    if (g_xSS.iSnapImageFace)
+    {
+    	int real_width = 0;
+    	int real_height = 0;
+    	int w = (g_xSS.note_data_face.right - g_xSS.note_data_face.left) * 2;
+    	int h = (g_xSS.note_data_face.bottom - g_xSS.note_data_face.top) * 2;
+    	int cx = g_xSS.note_data_face.left*2 + w / 2;
+    	int cy = g_xSS.note_data_face.top*2 + h / 2;
+    	int w2 = w * 1.2 + 200;
+    	int h2 = h * 1.2 + 200;
+    	int x2 = cx - w2/2;
+    	int y2 = cy - h2/2;
+    	real_width = y2;
+    	y2 = (900 - x2 - w2) + (1200 - 900) / 2;
+    	x2 = real_width;
+
+    	real_width = h2;
+    	real_height = w2;
+    	x2 = CLR_CAM_WIDTH - x2 - real_width;
+    	y2 = CLR_CAM_HEIGHT - y2 - real_height;
+    	if (x2 < 0)
+    		x2 = 0;
+    	if (y2 < 0)
+    		y2 = 0;
+    	int x3 = x2 + real_width;
+    	int y3 = y2 + real_height;
+    	int balign = 64;
+    	x2 = x2 / balign * balign;
+    	y2 = y2 / balign * balign;
+    	x3 = (x3 + balign - 1) / balign * balign;
+    	y3 = (y3 + balign - 1) / balign * balign;
+
+    	if (x3 > CLR_CAM_WIDTH)
+    		x3 = CLR_CAM_WIDTH;
+    	if (y3 > CLR_CAM_HEIGHT)
+    		y3 = CLR_CAM_HEIGHT;
+    	real_width = x3 - x2;
+    	real_height = y3 - y2;
+    	int max_h = real_width > real_height ? real_width: real_height;
+    	x2 = x3 - max_h;
+    	y2 = y3 - max_h;
+    	real_width = max_h;
+    	real_height = max_h;
+
+		pstCropInfo.bEnable = CVI_TRUE;
+		pstCropInfo.stCropRect.s32X = x2;
+		pstCropInfo.stCropRect.s32Y = y2;
+		pstCropInfo.stCropRect.u32Width = real_width;
+		pstCropInfo.stCropRect.u32Height = real_height;
+    }
+#endif // USE_RENT_ENGINE
 	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(iSensor, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
 
 	CVI_VPSS_SetChnAttr(iSensor,UVC_VPSS_CHN, &stVpssChnAttr);
@@ -708,12 +767,6 @@ static void *send_to_uvc()
 					printf("CVI_VPSS_ReleaseChnFrame failed\n");
 			}
 
-
-			// printf("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-			// 	packet_buffer_media[20], packet_buffer_media[21], packet_buffer_media[22], packet_buffer_media[23],
-			// 	packet_buffer_media[24], packet_buffer_media[25], packet_buffer_media[26], packet_buffer_media[27],
-			// 	packet_buffer_media[28], packet_buffer_media[29], packet_buffer_media[30], packet_buffer_media[31],
-			// 	packet_buffer_media[32], packet_buffer_media[33], packet_buffer_media[34], packet_buffer_media[35]);
 			packets = usbd_video_payload_fill(packet_buffer_media, buf_len, packet_buffer_uvc, &out_len);
 
 			buf_len = 0;

@@ -198,7 +198,7 @@ int main(int /*argc*/, char** /*argv*/)
         FACEENGINEDIR "/c_onecam.bin",
     #endif // ENGINE_USE_TWO_CAM
     #if (USE_RENT_ENGINE)
-        FACEENGINEDIR "/Dic/D10/detect_c.bin",
+        // FACEENGINEDIR "/detect_c.bin",
     #endif
     #if (N_MAX_HAND_NUM)
         FACEENGINEDIR "/detect_h.bin",

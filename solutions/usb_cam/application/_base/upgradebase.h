@@ -51,6 +51,7 @@ typedef struct st_uf_file_header
 
 #define FEAT_SIZE				(sizeof(float) * 256)
 #define FEAT_HEADER_SIZE		(8)
+#define OUT_FEAT_SIZE           (FEAT_HEADER_SIZE + FEAT_SIZE)
 
 typedef struct {
     char m_magic[FEAT_HEADER_SIZE];

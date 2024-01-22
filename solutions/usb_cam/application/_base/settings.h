@@ -114,7 +114,12 @@ typedef struct _tagMY_ALL_SETTINGS
 
     //encrypt settings
     unsigned char   bEncKeyPos[16];
+#if (USE_RENT_ENGINE)
+    unsigned char   bVerifyThrLevel;
+    unsigned char   bReserved07[14];
+#else
     unsigned char   bReserved07[15];
+#endif
 
     unsigned char   bCheckSum;
 } MY_ALL_SETTINGS__;
@@ -210,9 +215,9 @@ typedef struct _tagSYSTEM_STATE
     int                         iUpgradeImgLen;
 
     unsigned char*              pbOtaData;
-    int                         iDBUpdateFlag;
-    int                         iDBgetFlag;
+    unsigned char               iDBgetFlag;
     int                         iDBgetIndex;
+    unsigned char               iGetFeatFlag;
     int*                        piOtaPckIdx;
     int                         iOtaError;
 

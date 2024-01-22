@@ -1287,12 +1287,15 @@ int FaceRecogTask::ProcessEnrollFile1Step()
     return ret;
 }
 
+extern "C" int uvc_media_update();
+
 int FaceRecogTask::ProcessSaveFaceImage1Step()
 {
     int ret = 0;
 #if (USE_RENT_ENGINE)
     if (g_xSS.iSnapImageFace == 1 && m_isFaceDetected[FMI_FACE])
     {
+#if 0
         int face_w = 160, face_h = 160;
         unsigned char* tmpImageBuffer = (unsigned char*)malloc(IR_BUFFER_SIZE);
         if (tmpImageBuffer)
@@ -1311,6 +1314,11 @@ int FaceRecogTask::ProcessSaveFaceImage1Step()
             m_iResult = FACE_RESULT_TIMEOUT;
             ret = 1;
         }
+#else
+        uvc_media_update();
+        m_iResult = FACE_RESULT_CAPTURED_FACE;
+        ret = 1;
+#endif
     }
 #endif // USE_RENT_ENGINE
     return ret;

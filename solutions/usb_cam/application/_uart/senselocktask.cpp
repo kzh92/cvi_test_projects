@@ -942,9 +942,11 @@ s_msg* SenseLockTask::Get_Reply_PowerDown()
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd)
+s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd, unsigned char* pbExtData, int iExtDataLen)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_enroll_data);
+    if (pbExtData != NULL && iExtDataLen > 0)
+        iMsgDataLen += iExtDataLen;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -978,6 +980,12 @@ s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirect
     else
         msg_reply_enroll_data->fea_type = EKESI_ID_TYPE_HAND;
 #endif // USE_EKESI_PROTO
+
+    if (pbExtData != NULL && iExtDataLen > 0)
+    {
+        memcpy(msg_reply_enroll_data->face_data, pbExtData, iExtDataLen);
+    }
+
 #if (USE_UVC_PAUSE_MODE)
     if (iUserID < 0)
     {

@@ -7,12 +7,13 @@
 // #include <stdarg.h>
 #include "appdef.h"
 
-#define USER_NAME_SIZE   32
-#define VERSION_INFO_BUFFER_SIZE 32
-#define UID_INFO_BUFFER_SIZE 32
-#define MAX_USER_COUNTS  (N_MAX_PERSON_NUM > N_MAX_HAND_NUM ? N_MAX_PERSON_NUM : N_MAX_HAND_NUM)
-#define MAX_IMAGE_SIZE  (4000)
-#define TRANS_FILE_MAX_SIZE                 (1024*1024)
+#define USER_NAME_SIZE                  32
+#define USER_NAME_SIZE_EXT              256
+#define VERSION_INFO_BUFFER_SIZE        32
+#define UID_INFO_BUFFER_SIZE            32
+#define MAX_USER_COUNTS                 (N_MAX_PERSON_NUM > N_MAX_HAND_NUM ? N_MAX_PERSON_NUM : N_MAX_HAND_NUM)
+#define MAX_IMAGE_SIZE                  (4000)
+#define TRANS_FILE_MAX_SIZE             (1024*1024)
 
 #if (USE_FUSHI_PROTO)
 #define FUSHI_HEAD1     0x53
@@ -104,13 +105,14 @@ typedef uint8_t s_msg_id;
 #define MID_SET_LIVENESS_MODE 0xA2  //set liveness mode
 #define MID_SET_ENCRYPTION_MODE 0xA3  //set encryption mode
 #define MID_HIJACK 0xB2 //Enable or disable Hijack function
-#define MID_FACTORY_TEST 0xC0   // factory test
-#define MID_DDR_TEST 0xC1       // DDR test
-#define MID_CAMERA_FLIP 0xC2      // Camera flip, 180 degree
-#define MID_SET_THRESHOLD_LEVEL 0xD4  // Set threshold level
-#define MID_POWERDOWN 0xC3  // be prepared to power off, changed to C3
-#define MID_SET_TWINS_MODE 0xC5  // use twins engine.
-#define MID_GET_TWINS_MODE 0xC6  // use twins engine.
+#define MID_FACTORY_TEST            0xC0   // factory test
+#define MID_DDR_TEST                0xC1       // DDR test
+#define MID_CAMERA_FLIP             0xC2      // Camera flip, 180 degree
+#define MID_SET_THRESHOLD_LEVEL     0xD4  // Set threshold level
+#define MID_POWERDOWN               0xC3  // be prepared to power off, changed to C3
+#define MID_SET_TWINS_MODE          0xC5  // use twins engine.
+#define MID_GET_TWINS_MODE          0xC6  // use twins engine.
+#define MID_FUNC_CTRL               0xC7
 #define MID_POWERDOWN_ED 0xED  // be prepared to power off, ignore now
 #define MID_DEBUG_MODE 0xF0 
 #define MID_GET_DEBUG_INFO 0xF1       // get size of debug information
@@ -196,6 +198,7 @@ typedef uint8_t s_face_dir;
 #define FACE_DIRECTION_RIGHT    0x02        // face right
 #define FACE_DIRECTION_MIDDLE   0x01        // face middle
 #define FACE_DIRECTION_UNDEFINE 0x00        // face undefine
+#define FACE_DIRECTION_RENT     0xFC        // register face for rent
 #define FACE_DIRECTION_HAND     0xFD        // register hand
 #define FACE_DIRECTION_PICTURE  0xFE        // register face with picture
 
@@ -469,6 +472,7 @@ typedef struct {
 #elif (USE_EKESI_PROTO)
     uint8_t fea_type;   //
 #endif
+    uint8_t face_data[0];
 } s_msg_reply_enroll_data;
 
 //enroll recog type

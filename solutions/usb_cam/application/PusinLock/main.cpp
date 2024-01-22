@@ -1146,6 +1146,7 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+        g_xSS.iGetFeatFlag = 0;
 #if (N_MAX_HAND_NUM)
         g_xSS.iRegisterHand = 0;
 #endif
@@ -1174,6 +1175,10 @@ int MsgProcSense(MSG* pMsg)
         if (d.face_direction == FACE_DIRECTION_HAND)
             g_xSS.iRegisterHand = 1;
 #endif // N_MAX_HAND_NUM
+#if (USE_RENT_ENGINE)
+        if (d.face_direction == FACE_DIRECTION_RENT)
+            g_xSS.iGetFeatFlag = 1;
+#endif
         //ignores face direction
         if (d.face_direction != FACE_DIRECTION_PICTURE)
             d.face_direction = FACE_DIRECTION_UNDEFINE;
@@ -1229,6 +1234,7 @@ int MsgProcSense(MSG* pMsg)
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
 //        dbug_printf("Enroll Ret = %d\n", iRet);
         g_xSS.iEFIFlag = 0;
+        g_xSS.iGetFeatFlag = 0;
 #if (N_MAX_HAND_NUM)
         g_xSS.iRegisterHand = 0;
 #endif
@@ -1318,6 +1324,7 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iEnrollFaceDupCheck = (g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_NFACE_NAME);
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+        g_xSS.iGetFeatFlag = 0;
 #if (N_MAX_HAND_NUM)
         g_xSS.iRegisterHand = 0;
 #endif
@@ -1738,7 +1745,7 @@ int MsgProcSense(MSG* pMsg)
             ResetFaceRegisterStates();
         }
     }
-#if (USE_RENT_ENGINE)
+#if (USE_RENT_ENGINE && USE_VDBTASK == 0)
     else if(pSenseMsg->mid == MID_SNAPIMAGE2)
     {
         dbug_printf("MID_SNAPIMAGE2\n");
@@ -1788,10 +1795,10 @@ int MsgProcSense(MSG* pMsg)
 
         g_xSS.iCapWidth = g_xSS.msg_get_saved_image_data.image_width;
         g_xSS.iCapHeight = g_xSS.msg_get_saved_image_data.image_height;
-        if (g_xSS.iCapWidth <= 0 || g_xSS.iCapWidth > CAPTURE_WIDTH)
-            g_xSS.iCapWidth = CAPTURE_SCENE_WIDTH;
-        if (g_xSS.iCapHeight <= 0 || g_xSS.iCapHeight > CAPTURE_HEIGHT)
-            g_xSS.iCapHeight = CAPTURE_SCENE_HEIGHT;
+        if (g_xSS.iCapWidth <= 0 || g_xSS.iCapWidth > CAPTURE_MAX_WIDTH)
+            g_xSS.iCapWidth = CAPTURE_WIDTH;
+        if (g_xSS.iCapHeight <= 0 || g_xSS.iCapHeight > CAPTURE_MAX_HEIGHT)
+            g_xSS.iCapHeight = CAPTURE_HEIGHT;
 
         if(iImgNum > 0)
         {
@@ -2259,6 +2266,11 @@ int MsgProcSense(MSG* pMsg)
 #endif // USE_TWIN_ENGINE
 #if (FRM_PRODUCT_TYPE == FRM_DBS20_GUAXIONG_MODE)
                 g_xSS.iVerifyThrLevel = hdata.verify_threshold_level;
+#endif
+#if (USE_RENT_ENGINE)
+                g_xSS.iVerifyThrLevel = hdata.verify_threshold_level;
+                g_xAS.x.bVerifyThrLevel = g_xSS.iVerifyThrLevel;
+                UpdateMyAllSettings();
 #endif
             }
         }
@@ -2805,42 +2817,55 @@ int ProcessSenseFace(int iCmd)
                     int iSuccessCode = MR_SUCCESS;
                     SMetaInfo *pxMetaInfo = (SMetaInfo *)my_malloc(sizeof(SMetaInfo));
                     SFeatInfo *pxFeatInfo = (SFeatInfo *)my_malloc(sizeof(SFeatInfo));
+                    s_msg* msg = NULL;
                     memset(pxMetaInfo, 0, sizeof(SMetaInfo));
                     memset(pxFeatInfo, 0, sizeof(SFeatInfo));
                     pxMetaInfo->iID = g_xSS.iRegisterID - 1;
                     strncpy(pxMetaInfo->szName, (char*)g_xSS.msg_enroll_itg_data.user_name, N_MAX_NAME_LEN - 1);
                     pxMetaInfo->fPrivilege = g_xSS.iRegsterAuth;
 
-                    dbug_printf("Endroll Face: ID=%d, Privilege=%d, Name: %s, Len=%ld\n", 
+                    dbug_printf("Enroll Face: ID=%d, Privilege=%d, Name: %s, Len=%ld\n", 
                         pxMetaInfo->iID, pxMetaInfo->fPrivilege, pxMetaInfo->szName, strlen(pxMetaInfo->szName));
                     if (pxFeatInfo == NULL)
                     {
                         //fail
                     }
 
-                    FaceEngine::GetRegisteredFeatInfo(pxFeatInfo);
+                    unsigned char* pExtData = NULL;
+                    int iExtDataLen = 0;
 
-                    SetModifyUser(1);
+                    if (g_xSS.iGetFeatFlag == 0)
+                    {
+                        FaceEngine::GetRegisteredFeatInfo(pxFeatInfo);
 
-                    int iBackupState = mount_backup_db(0);
-                    if (iBackupState < 0)
-                    {
-                        iSuccessCode = MR_FAILED4_WRITE_FILE;
-                        SetModifyUser(0);
-                    }
-                    else
-                    {
-                        int ret = FaceEngine::SavePerson(pxMetaInfo, pxFeatInfo, &iBackupState);
-                        umount_backup_db();
-                        if (ret != ES_SUCCESS)
+                        SetModifyUser(1);
+
+                        int iBackupState = mount_backup_db(0);
+                        if (iBackupState < 0)
                         {
                             iSuccessCode = MR_FAILED4_WRITE_FILE;
                             SetModifyUser(0);
                         }
                         else
                         {
-                            UpdateUserCount();
+                            int ret = FaceEngine::SavePerson(pxMetaInfo, pxFeatInfo, &iBackupState);
+                            umount_backup_db();
+                            if (ret != ES_SUCCESS)
+                            {
+                                iSuccessCode = MR_FAILED4_WRITE_FILE;
+                                SetModifyUser(0);
+                            }
+                            else
+                            {
+                                UpdateUserCount();
+                            }
                         }
+                    }
+                    else
+                    {
+                        iExtDataLen = FaceEngine::GetIRFeatInfo((void**)&pExtData);
+                        g_xSS.iRegisterID = -1;
+                        g_xSS.iGetFeatFlag = 0;
                     }
                     if (pxMetaInfo != NULL)
                         my_free(pxMetaInfo);
@@ -2849,7 +2874,7 @@ int ProcessSenseFace(int iCmd)
 
                     if (g_xSS.iEnrollMutiDirMode)
                         g_xSS.iRegisterDir |= g_xSS.msg_enroll_itg_data.face_direction;
-                    s_msg* msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
+                    msg = SenseLockTask::Get_Reply_Enroll(iSuccessCode, g_xSS.iRegisterID, g_xSS.iRegisterDir, g_xSS.iRunningCmd, pExtData, iExtDataLen);
                     if(g_xSS.iSendLastMsgMode)
                         g_xSS.pLastMsg = msg;
                     else

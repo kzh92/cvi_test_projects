@@ -99,6 +99,9 @@ void ResetMyAllSettings()
     ResetCS(&g_xCS);
     ResetPermanenceSettings();
     ResetEncryptSettings();
+#if (USE_RENT_ENGINE)
+    g_xAS.x.bVerifyThrLevel = S_VERIFY_LEVEL_DEFAULT;
+#endif
     if (memcmp(&xTemp, &g_xAS, sizeof(g_xAS) - 1))
         UpdateMyAllSettings();
 }
@@ -196,7 +199,6 @@ void UpdateBackupSettings()
  */
 void ResetCS(MY_ALL_SETTINGS* pxCS)
 {
-    pxCS->x.bPresentation = DEFAULT_PRESENATATION;
     pxCS->x.bSecureFlag = DEFAULT_SECURE_VALUE;
 }
 
@@ -349,7 +351,11 @@ void ResetSystemState(int iAppType)
     g_xSS.iUvcSensor = DEFAULT_SNR4UVC;
     g_xSS.iUvcDirect = DEFAULT_UVC_DIR;
     g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MODE;
+#if (USE_RENT_ENGINE)
+    g_xSS.iVerifyThrLevel = g_xAS.x.bVerifyThrLevel;
+#else
     g_xSS.iVerifyThrLevel = S_VERIFY_LEVEL_DEFAULT;
+#endif
 }
 
 void SetMountStatus(int iSuccess)
