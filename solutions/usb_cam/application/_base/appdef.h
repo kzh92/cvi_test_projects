@@ -1970,18 +1970,25 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_RENT_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.48.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.48.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.48.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.48.0.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240}, \
-                                            {3, 800, 480, 30, 0, 10240}, \
-                                            {4, 640, 480, 30, 0, 6144},
+#define UVC_RES_DEFINE                      {1, 640, 480, 30, 0, 6144}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {3, 1280, 800, 30, 0, 10240}, \
+                                            {4, 1280, 720, 30, 0, 10240}, \
+                                            {5, 1024, 768, 30, 0, 8192}, \
+                                            {6, 800, 600, 30, 0, 8192}, \
+                                            {7, 640, 400, 30, 0, 6144}, \
+                                            {8, 480, 864, 30, UVC_ROTATION_0 + 1, 8192}, \
+                                            {9, 800, 1280, 30, UVC_ROTATION_0 + 1, 10240}, \
+                                            {10, 608, 800, 30, UVC_ROTATION_0 + 1, 8192}, \
+                                            {11, 480, 640, 30, UVC_ROTATION_0 + 1, 6144},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -2021,10 +2028,10 @@ enum E_Baud_Rate
 // #define CAPTURE_MAX_WIDTH                   (480)
 // #undef CAPTURE_MAX_HEIGHT
 // #define CAPTURE_MAX_HEIGHT                  (640)
-// #undef UVC_MAX_WIDTH
-// #define UVC_MAX_WIDTH                       480
-// #undef UVC_MAX_HEIGHT
-// #define UVC_MAX_HEIGHT                      640
+#undef UVC_MAX_WIDTH
+#define UVC_MAX_WIDTH                       1280
+#undef UVC_MAX_HEIGHT
+#define UVC_MAX_HEIGHT                      800
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN)
