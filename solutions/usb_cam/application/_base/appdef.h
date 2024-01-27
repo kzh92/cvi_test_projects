@@ -1970,8 +1970,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_RENT_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.48.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.48.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.48.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.48.0.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1979,16 +1979,17 @@ enum E_Baud_Rate
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 640, 480, 30, 0, 6144}, \
-                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {2, 1820, 1080, 30, 0, 20480}, \
                                             {3, 1280, 800, 30, 0, 10240}, \
                                             {4, 1280, 720, 30, 0, 10240}, \
                                             {5, 1024, 768, 30, 0, 8192}, \
                                             {6, 800, 600, 30, 0, 8192}, \
                                             {7, 640, 400, 30, 0, 6144}, \
-                                            {8, 480, 864, 30, UVC_ROTATION_0 + 1, 8192}, \
+                                            {8, 1088, 1920, 30, UVC_ROTATION_0 + 1, 20480}, \
                                             {9, 800, 1280, 30, UVC_ROTATION_0 + 1, 10240}, \
                                             {10, 608, 800, 30, UVC_ROTATION_0 + 1, 8192}, \
-                                            {11, 480, 640, 30, UVC_ROTATION_0 + 1, 6144},
+                                            {11, 480, 640, 30, UVC_ROTATION_0 + 1, 6144}, \
+                                            {12, 640, 480, 30, 0, 6144},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -2003,8 +2004,8 @@ enum E_Baud_Rate
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
 #define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
+// #undef N_MAX_HAND_NUM
+// #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
@@ -2029,9 +2030,9 @@ enum E_Baud_Rate
 // #undef CAPTURE_MAX_HEIGHT
 // #define CAPTURE_MAX_HEIGHT                  (640)
 #undef UVC_MAX_WIDTH
-#define UVC_MAX_WIDTH                       1280
+#define UVC_MAX_WIDTH                       1920
 #undef UVC_MAX_HEIGHT
-#define UVC_MAX_HEIGHT                      800
+#define UVC_MAX_HEIGHT                      1088
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN)
