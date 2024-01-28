@@ -1,7 +1,7 @@
 ## 第一部分： 基础信息
-name: helloworld                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+name: usb_cam                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: v7.5.1                                     # <必选项> 组件版本号
-description: yoc helloworld                         # <必选项> 建议至少20字以上
+description: yoc usb_cam                         # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 hw_info:
@@ -149,8 +149,6 @@ build_config:
     - application/FaceEngine/HEngineLib
     - application/FaceEngine/AEngineLib
     - application/FaceEngine/_dnn
-    - application/FaceEngine/enn
-    - application/FaceEngine/ennq
     - application/FaceEngine/hand
 
   internal_include:
@@ -176,10 +174,6 @@ source_file:
   - application/FaceEngine/*.c
   - application/FaceEngine/_dnn/*.cpp
   - application/FaceEngine/_dnn/*.c
-  - application/FaceEngine/enn/*.cpp
-  - application/FaceEngine/enn/*.c
-  - application/FaceEngine/ennq/*.cpp
-  - application/FaceEngine/ennq/*.c
   - application/FaceEngine/hand/*.cpp
   - application/FaceEngine/hand/*.c
   - application/_check_camera/*.cpp
@@ -214,7 +208,7 @@ def_config:
   CONFIG_APP_TEST: 0
   CONFIG_SUPPORT_TPU: 1
   CONFIG_KV_ENABLE_CACHE: 1
-  CONFIG_INIT_TASK_STACK_SIZE: 131072
+  CONFIG_INIT_TASK_STACK_SIZE: 196608
 ## Demo APP Func config
   CONFIG_APP_ETHERNET_SUPPORT: 0
   CONFIG_APP_WIFI_SUPPORT: 0
