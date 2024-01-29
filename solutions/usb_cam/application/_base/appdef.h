@@ -474,8 +474,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_TONGXIN_UVC                   336
 #define FRM_DBS3M_AIPAI2_UAC                    337
 #define FRM_DBS3M_RENT_UAC                      338
+#define FRM_DBS3M_LAIJI_UAC                     339
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JIASHIBANG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LAIJI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2287,6 +2288,59 @@ enum E_Baud_Rate
 #undef UVC_CROP_RESIZE
 #define UVC_CROP_RESIZE                     0.88
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LAIJI_UAC)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.52.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.52.0.1_D"
+
+#undef DEFAULT_CHIP_TYPE
+#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
+                                            {2, 800, 480, 30, 0, 10240}, \
+                                            {3, 640, 480, 30, 0, 8192}, \
+                                            {4, 480, 320, 30, 0, 6144}, \
+                                            {5, 320, 240, 30, 0, 6144},
+#undef ENGINE_USE_TWO_CAM
+#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        1
+#undef DEFAULT_BOARD_TYPE
+#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
+#undef DEFAULT_CAM_MIPI_TYPE
+#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
+#undef USE_VDBTASK
+#define USE_VDBTASK                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef N_MAX_HAND_NUM
+#define N_MAX_HAND_NUM                      100
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v8
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef USE_ISP_IR_3DNR
+#define USE_ISP_IR_3DNR                     0
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef USE_RENT_ENGINE
+#define USE_RENT_ENGINE                     1
+#undef USE_DB_UPDATE_MODE
+#define USE_DB_UPDATE_MODE                  1
+#undef USE_USB_CHECKFIRM_MODE
+#define USE_USB_CHECKFIRM_MODE              0
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
 
 //----------------------------------------------------------
 
