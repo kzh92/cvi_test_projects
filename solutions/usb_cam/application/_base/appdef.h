@@ -650,7 +650,7 @@ enum E_Baud_Rate
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef UAC_AUDALGO_USE 
-#define UAC_AUDALGO_USE                     1
+#define UAC_AUDALGO_USE                     0
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
