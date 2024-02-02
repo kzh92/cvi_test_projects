@@ -315,7 +315,7 @@ void WatchTask::run()
             if (USE_3M_MODE == U3M_SEMI || g_xSS.rFaceEngineTime == 0)
                 gpio_whiteled_on(OFF);
         }
-        else if(g_xSS.rUvcFrameTime == 0 && g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        else if(g_xSS.rUvcFrameTime == 0 && g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && g_xSS.iFtIRLed == 0)
         {
             gpio_whiteled_on(OFF);
         }
