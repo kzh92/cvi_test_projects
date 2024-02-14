@@ -66,6 +66,7 @@ public:
     static s_msg*       Get_Reply_Verify(int iResult, int iUserID, int iUnlockState, int iAuthType = 0);
     static s_msg*       Get_Reply_GetUserInfo(int iResult, int iUserID);
     static s_msg*       Get_Reply_GetAllUserID(int iResult, int iFmt);
+    static s_msg*       Get_Reply_MxGetAllUserID(int iResult, int iFmt);
     static s_msg*       Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds);
     static s_msg*       Get_Reply_GetVersion(int iResult);
     static s_msg*       Get_Reply_GetUID(int iResult);

@@ -59,66 +59,66 @@ enum
 /* communication message ID definitions*/
 typedef uint8_t s_msg_id;
 // Module to Host (m->h)
-#define MID_REPLY 0x00      // request(command) reply message, success with data or fail with reason
-#define MID_NOTE  0x01      // note to host e.g. the position or angle of the face
-#define MID_IMAGE 0X02      // send image to host
+#define MID_REPLY                       0x00    // request(command) reply message, success with data or fail with reason
+#define MID_NOTE                        0x01    // note to host e.g. the position or angle of the face
+#define MID_IMAGE                       0X02    // send image to host
 // Host to Module (h->m)
-#define MID_RESET 0x10      // stop and clear all in-processing messages. enter standby mode
-#define MID_GETSTATUS 0x11  // to ping the module and get the status
-#define MID_VERIFY 0x12     // to verify the person in front of the camera
-#define MID_ENROLL 0x13     // to enroll and register the persion in front of the camera
-#define MID_SNAPIMAGE 0x16  // to snap a picture and save it
-#define MID_GETSAVEDIMAGE 0x17  // to get size of saved image
-#define MID_UPLOADIMAGE 0x18    // upload images
-#define MID_ENROLL_SINGLE 0x1D     // to enroll and register the persion in front of the camera, single frame
-#define MID_DELUSER 0x20    // Delete the specified user with user id
-#define MID_DELALL  0x21    // Delete all registerred users
-#define MID_GETUSERINFO 0x22    // Get user info
-#define MID_FACERESET 0x23      // Reset face status
-#define MID_GET_ALL_USERID 0x24   // get all users ID
-#define MID_ENROLL_ITG 0x26  // Enroll user, extended mode
-#define MID_GET_VERSION 0x30    // get version information
-#define MID_WRITE_SN 0x31       // write sn to board
-#define MID_START_OTA 0x40      // ask the module to enter OTA mode
-#define MID_STOP_OTA 0x41       // ask the module to exit OTA mode
-#define MID_GET_OTA_STATUS 0x42 // query the current ota status
-#define MID_OTA_HEADER 0x43     // the ota header data
-#define MID_OTA_PACKET 0x44     // the data packet, carries real firmware data
-#define MID_INIT_ENCRYPTION 0x50  // initialize encrypted communication
-#define MID_CONFIG_BAUDRATE 0x51  // config uart baudrate
-#define MID_SET_RELEASE_ENC_KEY 0x52  // set release encrypted key(Warning!!!:Once set, the KEY will not be able to modify)
-#define MID_SET_ENC_KEY 0x53  // set encrypted key, MID_ENCKEY
-#define MID_GET_LOGFILE 0x60  // get log file
-#define MID_UPLOAD_LOGFILE 0x61  // upload log file cmd to cloud
+#define MID_RESET                       0x10    // stop and clear all in-processing messages. enter standby mode
+#define MID_GETSTATUS                   0x11    // to ping the module and get the status
+#define MID_VERIFY                      0x12    // to verify the person in front of the camera
+#define MID_ENROLL                      0x13    // to enroll and register the persion in front of the camera
+#define MID_SNAPIMAGE                   0x16    // to snap a picture and save it
+#define MID_GETSAVEDIMAGE               0x17    // to get size of saved image
+#define MID_UPLOADIMAGE                 0x18    // upload images
+#define MID_ENROLL_SINGLE               0x1D    // to enroll and register the persion in front of the camera, single frame
+#define MID_DELUSER                     0x20    // Delete the specified user with user id
+#define MID_DELALL                      0x21    // Delete all registerred users
+#define MID_GETUSERINFO                 0x22    // Get user info
+#define MID_FACERESET                   0x23    // Reset face status
+#define MID_GET_ALL_USERID              0x24    // get all users ID
+#define MID_ENROLL_ITG                  0x26    // Enroll user, extended mode
+#define MID_GET_VERSION                 0x30    // get version information
+#define MID_WRITE_SN                    0x31    // write sn to board
+#define MID_START_OTA                   0x40    // ask the module to enter OTA mode
+#define MID_STOP_OTA                    0x41    // ask the module to exit OTA mode
+#define MID_GET_OTA_STATUS              0x42    // query the current ota status
+#define MID_OTA_HEADER                  0x43    // the ota header data
+#define MID_OTA_PACKET                  0x44    // the data packet, carries real firmware data
+#define MID_INIT_ENCRYPTION             0x50    // initialize encrypted communication
+#define MID_CONFIG_BAUDRATE             0x51    // config uart baudrate
+#define MID_SET_RELEASE_ENC_KEY         0x52    // set release encrypted key(Warning!!!:Once set, the KEY will not be able to modify)
+#define MID_SET_ENC_KEY                 0x53    // set encrypted key, MID_ENCKEY
+#define MID_GET_LOGFILE                 0x60    // get log file
+#define MID_UPLOAD_LOGFILE              0x61    // upload log file cmd to cloud
 #if 0
-#define MID_VIDEO_ON 0x70  // video on
-#define MID_VIDEO_OFF 0x71  // video off
+#define MID_VIDEO_ON                    0x70    // video on
+#define MID_VIDEO_OFF                   0x71    // video off
 #endif
-#define MID_UVC_DIR 0x76   // rotate uvc image
-#define MID_UVC_SET_COMPRESS_PARAM 0x77   // set UVC compression parameters
-#define MID_TRANS_FILE_PACKET 0x90 // receive file data from master
-#define MID_ENROLL_FROM_IMAGE 0x91 // enroll with image data of MID_TRANS_FILE_PACKET
-
-#define MID_GET_UID 0x93    //XiShang require module ID
-#define MID_SEND_LAST_MSG 0xA0  //더스만모듈에서 응답을 받아서 주동적으로 체계를 끄는 방식설정
-#define MID_ENABLE_LOGFILE 0xA1  //더스만모듈에서 응답을 받아서 주동적으로 체계를 끄는 방식설정
-#define MID_SET_LIVENESS_MODE 0xA2  //set liveness mode
-#define MID_SET_ENCRYPTION_MODE 0xA3  //set encryption mode
-#define MID_HIJACK 0xB2 //Enable or disable Hijack function
-#define MID_FACTORY_TEST            0xC0   // factory test
-#define MID_DDR_TEST                0xC1       // DDR test
-#define MID_CAMERA_FLIP             0xC2      // Camera flip, 180 degree
-#define MID_SET_THRESHOLD_LEVEL     0xD4  // Set threshold level
-#define MID_POWERDOWN               0xC3  // be prepared to power off, changed to C3
-#define MID_SET_TWINS_MODE          0xC5  // use twins engine.
-#define MID_GET_TWINS_MODE          0xC6  // use twins engine.
-#define MID_FUNC_CTRL               0xC7
-#define MID_POWERDOWN_ED 0xED  // be prepared to power off, ignore now
-#define MID_DEBUG_MODE 0xF0 
-#define MID_GET_DEBUG_INFO 0xF1       // get size of debug information
-#define MID_UPLOAD_DEBUG_INFO 0xF2    // upload debug information
-#define MID_DEMOMODE 0xFE   // enter demo mode, verify flow will skip feature comparation step.
-#define MID_SNAPIMAGE2 0xFF       // snapimage for renthouse
+#define MID_UVC_DIR                     0x76    // rotate uvc image
+#define MID_UVC_SET_COMPRESS_PARAM      0x77    // set UVC compression parameters
+#define MID_TRANS_FILE_PACKET           0x90    // receive file data from master
+#define MID_ENROLL_FROM_IMAGE           0x91    // enroll with image data of MID_TRANS_FILE_PACKET
+#define MID_GET_UID                     0x93    // XiShang require module ID
+#define MID_MX_GET_ALL_USERID           0x9B    // 등록된 사용자수얻기
+#define MID_SEND_LAST_MSG               0xA0    // 더스만모듈에서 응답을 받아서 주동적으로 체계를 끄는 방식설정
+#define MID_ENABLE_LOGFILE              0xA1    // 엔진상세로그보관설정
+#define MID_SET_LIVENESS_MODE           0xA2    // set liveness mode
+#define MID_SET_ENCRYPTION_MODE         0xA3    // set encryption mode
+#define MID_HIJACK                      0xB2    // Enable or disable Hijack function
+#define MID_FACTORY_TEST                0xC0    // factory test
+#define MID_DDR_TEST                    0xC1    // DDR test
+#define MID_CAMERA_FLIP                 0xC2    // Camera flip, 180 degree
+#define MID_POWERDOWN                   0xC3    // be prepared to power off, changed to C3
+#define MID_SET_TWINS_MODE              0xC5    // use twins engine.
+#define MID_GET_TWINS_MODE              0xC6    // use twins engine.
+#define MID_FUNC_CTRL                   0xC7
+#define MID_SET_THRESHOLD_LEVEL         0xD4    // Set threshold level
+#define MID_POWERDOWN_ED                0xED    // be prepared to power off, ignore now
+#define MID_DEBUG_MODE                  0xF0
+#define MID_GET_DEBUG_INFO              0xF1    // get size of debug information
+#define MID_UPLOAD_DEBUG_INFO           0xF2    // upload debug information
+#define MID_DEMOMODE                    0xFE    // enter demo mode, verify flow will skip feature comparation step.
+#define MID_SNAPIMAGE2                  0xFF    // snapimage for renthouse
 /* communication message ID definitions end */
 
 /* message result code */
@@ -660,6 +660,10 @@ typedef struct {
     uint8_t verify_threshold_level; // level 0~4, safety from low to high, default 2
     uint8_t liveness_threshold_level; // level 0~4, safety from low to high, default 2
 } s_msg_algo_threshold_level;
+
+typedef struct {
+    unsigned short user_counts;
+} s_msg_reply_mx_get_all_userid_data;
 
 #pragma pack(pop)
 

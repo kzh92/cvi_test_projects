@@ -1219,6 +1219,33 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
     return msg;
 }
 
+s_msg* SenseLockTask::Get_Reply_MxGetAllUserID(int iResult, int iFmt)
+{
+    s_msg* msg = NULL;
+    int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_mx_get_all_userid_data);
+    int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+    msg = (s_msg*)my_malloc(iMsgLen);
+    memset(msg, 0, iMsgLen);
+
+    msg->mid = MID_REPLY;
+    msg->size_heb = HIGH_BYTE(iMsgDataLen);
+    msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+    s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+    msg_reply_data->mid = MID_MX_GET_ALL_USERID;
+    msg_reply_data->result = iResult;
+
+    s_msg_reply_mx_get_all_userid_data* d =
+            (s_msg_reply_mx_get_all_userid_data*)(msg_reply_data->data);
+
+    d->user_counts = dbm_GetPersonCount();
+
+    if (msg == NULL)
+        msg = SenseLockTask::Get_Reply(MID_MX_GET_ALL_USERID, MR_FAILED4_INVALIDPARAM);
+
+    return msg;
+}
+
 s_msg* SenseLockTask::Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds)
 {
     s_msg* msg;

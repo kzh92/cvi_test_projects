@@ -1518,6 +1518,14 @@ int MsgProcSense(MSG* pMsg)
             reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, failed_code);
         g_pSenseTask->Send_Msg(reply_msg);
     }
+    else if(pSenseMsg->mid == MID_MX_GET_ALL_USERID)
+    {
+        dbug_printf("MID_MX_GET_ALL_USERID\n");
+
+        s_msg* reply_msg = NULL;
+        reply_msg = SenseLockTask::Get_Reply_MxGetAllUserID(MR_SUCCESS, 0);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
 #if (USE_FUSHI_PROTO)
     else if(pSenseMsg->mid == MID_GET_FREE_USERID)
     {
