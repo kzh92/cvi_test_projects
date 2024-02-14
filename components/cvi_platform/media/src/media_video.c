@@ -50,18 +50,11 @@
 #include "gui_display.h"
 #include "osdyuv.h"
 
-#if (USE_WHITE_LED == 0)
 #include "appdef.h"
-#include "settings.h"
-#endif
 
 static PARAM_VENC_CFG_S *g_pstVencCfg = NULL;
 static int g_mediaVideoRunStatus = 0;
 static unsigned char g_snsInited[2] = {0};
-#if (USE_WHITE_LED == 0)
-uint8_t* stYData = NULL;
-uint8_t* stUData = NULL;
-#endif
 int fr_GetFaceRectClrImage(unsigned char* pbClrBuffer, int nClrBufferWidth, int nClrBufferHeight, int* nFaceRect, int* pnRectFromClr);
 #if 0
 CVI_S32 _getFileSize(FILE *fp, CVI_U32 *size)
@@ -1359,40 +1352,10 @@ static int _MEDIA_VIDEO_VencDeInit()
 
 void InsertDataForVenc(uint8_t* iYBuf, uint8_t* iUBuf)
 {
-#if (USE_WHITE_LED == 0)
-    stYData = iYBuf;
-    stUData = iUBuf;
-#endif
 }
 
 int VPSS_Draw_Custom_Rect(VIDEO_FRAME_INFO_S* stSrcFrame)
 {
-#if 0
-    int offx = 30;
-    int offy = 60;
-    int dstwidth = 40;
-    int dstheight = 80;
-    VIDEO_FRAME_S *vFrame = &stSrcFrame->stVFrame;
-    unsigned char* bufY = (unsigned char*)vFrame->u64PhyAddr[0];
-    unsigned char* bufU = (unsigned char*)vFrame->u64PhyAddr[1];
-    unsigned char* bufV = (unsigned char*)vFrame->u64PhyAddr[1] + vFrame->u32Width * vFrame->u32Height / 4;
-    static int print_flag = 0;
-    if (print_flag == 0)
-    {
-        printf("[%s]%dx%d,%p,%p,%p\n", __func__, vFrame->u32Width, vFrame->u32Height,
-            (void*)vFrame->u64PhyAddr[0], (void*)vFrame->u64PhyAddr[1], (void*)vFrame->u64PhyAddr[2]);
-        print_flag = 1;
-    }
-    for (int x = offx; x < offx + dstwidth; x ++)
-    {
-        for (int y = offy; y < offy + dstheight; y ++)
-        {
-            bufY[y * vFrame->u32Height + x] = 144;
-            bufU[(y * vFrame->u32Height + x)/4] = 53;
-            bufV[(y * vFrame->u32Height + x)/4] = 34;
-        }
-    }
-#else
     VIDEO_FRAME_S *vFrame = &stSrcFrame->stVFrame;
     YUVImgInfo m_YUVImgInfo;
     static unsigned char* yuvBuffer = NULL;
@@ -1442,8 +1405,6 @@ int VPSS_Draw_Custom_Rect(VIDEO_FRAME_INFO_S* stSrcFrame)
             yuvBuffer + vFrame->u32Width * vFrame->u32Height,
             vFrame->u32Width * vFrame->u32Height / 2);
     }
-
-#endif
     return 0;
 }
 
@@ -1468,7 +1429,9 @@ int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned
     pstVecncChnCtx->stChnParam.u8RunStatus = 1;
     if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
         MEDIA_CHECK_RET(CVI_VPSS_GetChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame, 2000), "CVI_VPSS_GetChnFrame");
+#if (USE_UVC_FACE_RECT)
         VPSS_Draw_Custom_Rect(&stSrcFrame);
+#endif
         s32ret = CVI_VENC_SendFrame(VencChn, &stSrcFrame, 2000);
         if(s32ret != CVI_SUCCESS) {
             MEDIABUG_PRINTF("%d CVI_VENC_SendFrame err \n",VencChn);
