@@ -1562,6 +1562,12 @@ int MsgProcSense(MSG* pMsg)
         s_msg* reply_msg = SenseLockTask::Get_Reply_GetUID(MR_SUCCESS);
         g_pSenseTask->Send_Msg(reply_msg);
     }
+    else if(pSenseMsg->mid == MID_GET_SN)
+    {
+        dbug_printf("MID_GET_SN\n");
+        s_msg* reply_msg = SenseLockTask::Get_Reply_GetSN(MR_SUCCESS);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
     else if(pSenseMsg->mid == MID_INIT_ENCRYPTION)
     {
         dbug_printf("MID_INIT_ENCRYPTION\n");

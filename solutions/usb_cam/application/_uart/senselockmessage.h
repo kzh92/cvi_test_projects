@@ -79,6 +79,7 @@ typedef uint8_t s_msg_id;
 #define MID_ENROLL_ITG                  0x26    // Enroll user, extended mode
 #define MID_GET_VERSION                 0x30    // get version information
 #define MID_WRITE_SN                    0x31    // write sn to board
+#define MID_GET_SN                      0x35    // get the serial number of the device
 #define MID_START_OTA                   0x40    // ask the module to enter OTA mode
 #define MID_STOP_OTA                    0x41    // ask the module to exit OTA mode
 #define MID_GET_OTA_STATUS              0x42    // query the current ota status

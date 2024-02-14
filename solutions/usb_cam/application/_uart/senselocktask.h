@@ -70,6 +70,7 @@ public:
     static s_msg*       Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds);
     static s_msg*       Get_Reply_GetVersion(int iResult);
     static s_msg*       Get_Reply_GetUID(int iResult);
+    static s_msg*       Get_Reply_GetSN(int iResult);
     static s_msg*       Get_Reply_GetStatus(int iResult, int iStatus);
     static s_msg*       Get_Reply_GetSavedImage(int iResult, int iImgLen);
     static s_msg*       Get_Reply_GetLogFile(int iResult, int iImgLen);

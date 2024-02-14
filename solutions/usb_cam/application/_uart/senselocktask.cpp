@@ -1329,6 +1329,30 @@ s_msg* SenseLockTask::Get_Reply_GetUID(int iResult)
     return msg;
 }
 
+s_msg* SenseLockTask::Get_Reply_GetSN(int iResult)
+{
+    int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_uid_data);
+    int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+    s_msg* msg = (s_msg*)my_malloc(iMsgLen);
+    memset(msg, 0, iMsgLen);
+
+    msg->mid = MID_REPLY;
+    msg->size_heb = HIGH_BYTE(iMsgDataLen);
+    msg->size_leb = LOW_BYTE(iMsgDataLen);
+
+    s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+    msg_reply_data->mid = MID_GET_SN;
+    msg_reply_data->result = iResult;
+
+    s_msg_reply_uid_data* msg_reply_uid_data =
+            (s_msg_reply_uid_data*)(msg_reply_data->data);
+
+    char szSN[UID_INFO_BUFFER_SIZE] = {0};
+    GetSerialNumber(szSN);
+    memcpy((char*)msg_reply_uid_data->uid_info, szSN, UID_INFO_BUFFER_SIZE);
+    return msg;
+}
+
 s_msg* SenseLockTask::Get_Reply_GetStatus(int iResult, int iStatus)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_getstatus_data);
