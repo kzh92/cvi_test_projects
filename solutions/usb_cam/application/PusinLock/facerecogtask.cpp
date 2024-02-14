@@ -313,7 +313,7 @@ void FaceRecogTask::run()
 #if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
         int nGotRightFrame = 0;
 #endif
-        int nGotOffFrame = 0;
+        // int nGotOffFrame = 0;
         for(nProcessModeIndex = nProcessModeIndexStart; nProcessModeIndex <= nProcessModeIndexEnd; nProcessModeIndex ++)
         {
             //g_irOnData1 is required
@@ -394,6 +394,7 @@ void FaceRecogTask::run()
             }
 #endif // USE_FUSHI_PROTO
 
+#if 0
             if (fr_GetNeedSmallFaceCheck())
             {
                 //fr_GetOffImageBuffer() is required, wait for
@@ -408,7 +409,7 @@ void FaceRecogTask::run()
                         break;
                 }
             }
-
+#endif
             if(iNeedExp && nProcessModeIndex == nProcessModeIndexEnd)
             {
                 CalcNextExposure();

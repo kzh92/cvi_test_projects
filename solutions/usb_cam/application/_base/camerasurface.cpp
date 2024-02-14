@@ -919,11 +919,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 #endif // USE_WHITE_LED
             }
 
-            lockIROffBuffer();
-            genIROffData10bit(ptr + (int)image_size/8, fr_GetOffImageBuffer(), IR_CAM_WIDTH, IR_CAM_HEIGHT);
-            unlockIROffBuffer();
-            g_iLedOffFrameFlag = LEFT_IROFF_CAM_RECVED;
-            WaitIROffCancel();
             g_iTwoCamFlag ++;
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.bUVCRunning && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
