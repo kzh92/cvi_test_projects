@@ -48,11 +48,13 @@
 #include "cvi_misc.h"
 #include "cvi_sys.h"
 #include "gui_display.h"
+#include "osdyuv.h"
 
 #if (USE_WHITE_LED == 0)
 #include "appdef.h"
 #include "settings.h"
 #endif
+
 static PARAM_VENC_CFG_S *g_pstVencCfg = NULL;
 static int g_mediaVideoRunStatus = 0;
 static unsigned char g_snsInited[2] = {0};
@@ -60,6 +62,7 @@ static unsigned char g_snsInited[2] = {0};
 uint8_t* stYData = NULL;
 uint8_t* stUData = NULL;
 #endif
+int fr_GetFaceRectClrImage(unsigned char* pbClrBuffer, int nClrBufferWidth, int nClrBufferHeight, int* nFaceRect, int* pnRectFromClr);
 #if 0
 CVI_S32 _getFileSize(FILE *fp, CVI_U32 *size)
 {
@@ -395,7 +398,7 @@ static int _meida_sensor_init(PARAM_VI_CFG_S * pstViCtx,CVI_U8 *devNum)
                 printf("sensor probe failed: %d\n", i);
                 // return CVI_FAILURE;
             } else {
-            	media_snr_set_inited(i, 1);
+                media_snr_set_inited(i, 1);
             }
         }
     }
@@ -412,7 +415,7 @@ static  int _media_sensor_deinit()
 static int setFastConvergeAttr(VI_PIPE ViPipe, CVI_BOOL en)
 {
     CVI_S16 firstFrLuma[5] = {62, 77, 173, 343, 724};
-	CVI_S16 targetBv[5] = {89, 194, 479, 533, 721};
+    CVI_S16 targetBv[5] = {89, 194, 479, 533, 721};
     ISP_AE_BOOT_FAST_CONVERGE_S stConvergeAttr;
 
     stConvergeAttr.bEnable = en;
@@ -1258,11 +1261,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
         MEDIA_CHECK_RET(CVI_VENC_GetJpegParam(VencChn, &stJpegParam), "CVI_VENC_GetJpegParam");
         MEDIA_CHECK_RET(CVI_VENC_SetJpegParam(VencChn, &stJpegParam), "CVI_VENC_SetJpegParam");
     }
-#if (USE_WHITE_LED == 0 && 0)
-    if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && (pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI )){
-#else
 	if (pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VPSS || pstVecncChnCtx->stChnParam.u8ModId == CVI_ID_VI ){
-#endif
         stDestChn.enModId = CVI_ID_VENC;
         stDestChn.s32DevId = 0;
         stDestChn.s32ChnId = pstVecncChnCtx->stChnParam.u8VencChn;
@@ -1366,6 +1365,88 @@ void InsertDataForVenc(uint8_t* iYBuf, uint8_t* iUBuf)
 #endif
 }
 
+int VPSS_Draw_Custom_Rect(VIDEO_FRAME_INFO_S* stSrcFrame)
+{
+#if 0
+    int offx = 30;
+    int offy = 60;
+    int dstwidth = 40;
+    int dstheight = 80;
+    VIDEO_FRAME_S *vFrame = &stSrcFrame->stVFrame;
+    unsigned char* bufY = (unsigned char*)vFrame->u64PhyAddr[0];
+    unsigned char* bufU = (unsigned char*)vFrame->u64PhyAddr[1];
+    unsigned char* bufV = (unsigned char*)vFrame->u64PhyAddr[1] + vFrame->u32Width * vFrame->u32Height / 4;
+    static int print_flag = 0;
+    if (print_flag == 0)
+    {
+        printf("[%s]%dx%d,%p,%p,%p\n", __func__, vFrame->u32Width, vFrame->u32Height,
+            (void*)vFrame->u64PhyAddr[0], (void*)vFrame->u64PhyAddr[1], (void*)vFrame->u64PhyAddr[2]);
+        print_flag = 1;
+    }
+    for (int x = offx; x < offx + dstwidth; x ++)
+    {
+        for (int y = offy; y < offy + dstheight; y ++)
+        {
+            bufY[y * vFrame->u32Height + x] = 144;
+            bufU[(y * vFrame->u32Height + x)/4] = 53;
+            bufV[(y * vFrame->u32Height + x)/4] = 34;
+        }
+    }
+#else
+    VIDEO_FRAME_S *vFrame = &stSrcFrame->stVFrame;
+    YUVImgInfo m_YUVImgInfo;
+    static unsigned char* yuvBuffer = NULL;
+    if (yuvBuffer == NULL)
+        yuvBuffer = malloc(UVC_MAX_WIDTH * UVC_MAX_HEIGHT * 3 / 2);
+    if (yuvBuffer == NULL)
+    {
+        printf("failed to malloc yuv buffer.\n");
+        return 0;
+    }
+
+    int nWidth = vFrame->u32Width;
+    int nHeight = vFrame->u32Height;
+
+    memcpy(yuvBuffer, (unsigned char*)vFrame->u64PhyAddr[0], vFrame->u32Width * vFrame->u32Height);
+    memcpy(yuvBuffer + vFrame->u32Width * vFrame->u32Height, 
+        (unsigned char*)vFrame->u64PhyAddr[1], 
+        vFrame->u32Width * vFrame->u32Height / 2);
+    m_YUVImgInfo.imgdata = yuvBuffer;// imgYUV.data;
+    m_YUVImgInfo.width = nWidth;
+    m_YUVImgInfo.height = nHeight;
+    m_YUVImgInfo.yuvType = TYPE_YUV420SP_NV21;//TYPE_YUV422I_YUYV;// TYPE_YUV420I;// TYPE_YUV420SP_NV12;
+
+    int aFaceRect[4];
+    int iIsClr = 0;
+    if (0 == fr_GetFaceRectClrImage(yuvBuffer, vFrame->u32Width, vFrame->u32Height, aFaceRect, &iIsClr))
+    {
+        YUVRectangle m_Rect;
+        m_Rect.height = aFaceRect[2] - aFaceRect[0];//nRectW;
+        m_Rect.width = aFaceRect[3] - aFaceRect[1];//nRectH;
+        m_Rect.y = vFrame->u32Height - aFaceRect[2];//nRectX;
+        m_Rect.x = aFaceRect[1];//nRectY;
+
+
+        if (m_Rect.x < 0 || m_Rect.x > vFrame->u32Width)
+        	return 1;
+        if (m_Rect.y < 0 || m_Rect.y > vFrame->u32Height)
+        	return 1;
+        if (m_Rect.width + m_Rect.x > vFrame->u32Width)
+            m_Rect.width = vFrame->u32Width - m_Rect.x;
+        if (m_Rect.height + m_Rect.y > vFrame->u32Height)
+            m_Rect.height = vFrame->u32Height - m_Rect.y;
+
+        drawRectangle(&m_YUVImgInfo, m_Rect, YUV_LIGHT_BLUE, 4);
+        memcpy((unsigned char*)vFrame->u64PhyAddr[0], yuvBuffer, vFrame->u32Width * vFrame->u32Height);
+        memcpy((unsigned char*)vFrame->u64PhyAddr[1],
+            yuvBuffer + vFrame->u32Width * vFrame->u32Height,
+            vFrame->u32Width * vFrame->u32Height / 2);
+    }
+
+#endif
+    return 0;
+}
+
 int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned int blocktimeMs)
 {
     CVI_S32 s32ret = CVI_SUCCESS;
@@ -1385,38 +1466,9 @@ int MEDIA_VIDEO_VencGetStream(int VencChn,VENC_STREAM_S *pstStreamFrame,unsigned
     }
     pstVecncChnCtx = &pstVencCfg->pstVencChnCfg[VencChn];
     pstVecncChnCtx->stChnParam.u8RunStatus = 1;
-#if (USE_WHITE_LED == 0 && 0)
-    if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
-    {
-        if (g_xSS.iUVCIRDataReady == 0)
-        {
-            pstVecncChnCtx->stChnParam.u8RunStatus = 0;
-            return CVI_FAILURE;
-        }
-        CVI_U32 nAlignVal = DEFAULT_ALIGN;
-
-        MEDIA_CHECK_RET(CVI_VPSS_GetChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame, 2000), "CVI_VPSS_GetChnFrame");
-        VIDEO_FRAME_S *vFrame = &stSrcFrame.stVFrame;
-        memset(stUData, 0x80, vFrame->u32Width * vFrame->u32Height / 2);
-        nAlignVal = (vFrame->u32Width % DEFAULT_ALIGN) ? 16 : DEFAULT_ALIGN;
-        vFrame->u32Stride[0] = ALIGN(vFrame->u32Width, nAlignVal);
-        vFrame->u32Stride[1] = ALIGN(vFrame->u32Width >> 1, nAlignVal);
-        vFrame->u32Stride[2] = 0;
-        vFrame->u64PhyAddr[0] = (u64)stYData;
-        vFrame->u64PhyAddr[1] = (u64)stUData;
-        vFrame->u64PhyAddr[2] = 0;
-
-        s32ret = CVI_VENC_SendFrame(VencChn, &stSrcFrame, 2000);
-        if(s32ret != CVI_SUCCESS) {
-            MEDIABUG_PRINTF("%d CVI_VENC_SendFrame err \n",VencChn);
-            goto EXIT;
-        }
-    }
-    else if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
-#else
     if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
-#endif
         MEDIA_CHECK_RET(CVI_VPSS_GetChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame, 2000), "CVI_VPSS_GetChnFrame");
+        VPSS_Draw_Custom_Rect(&stSrcFrame);
         s32ret = CVI_VENC_SendFrame(VencChn, &stSrcFrame, 2000);
         if(s32ret != CVI_SUCCESS) {
             MEDIABUG_PRINTF("%d CVI_VENC_SendFrame err \n",VencChn);
@@ -1447,10 +1499,6 @@ EXIT:
     if(pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VPSS && pstVecncChnCtx->stChnParam.u8ModId != CVI_ID_VI ) {
         MEDIA_CHECK_RET(CVI_VPSS_ReleaseChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame), "CVI_VPSS_ReleaseChnFrame");
     }
-#if (USE_WHITE_LED == 0 && 0)
-    if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
-        MEDIA_CHECK_RET(CVI_VPSS_ReleaseChnFrame(pstVecncChnCtx->stChnParam.u8DevId, pstVecncChnCtx->stChnParam.u8DevChnid, &stSrcFrame), "CVI_VPSS_ReleaseChnFrame");
-#endif
     pstVecncChnCtx->stChnParam.u8RunStatus = 0;
     return s32ret;
 }

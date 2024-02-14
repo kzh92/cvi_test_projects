@@ -14,12 +14,12 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
         .stChnParam = {
             .u8InitStatus = 0,
             .u8VencChn = 0,
-            .u8ModId = CVI_ID_VPSS,
+            .u8ModId = (USE_UVC_FACE_RECT ? -1: CVI_ID_VPSS),
             .u8DevId = 0,
             .u8DevChnid = 0,
             .u8Profile = 0,
-            .u16Width = 0,
-            .u16Height = 0,
+            .u16Width = UVC_MAX_WIDTH,
+            .u16Height = UVC_MAX_HEIGHT,
             .u8EsBufQueueEn = 0,
 #if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
             .u16EnType = PT_MJPEG,
