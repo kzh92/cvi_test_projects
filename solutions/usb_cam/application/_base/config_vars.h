@@ -31,11 +31,7 @@
 #define FN_H1_DICT_SIZE                 290964
 #define FN_H2_DICT_SIZE                 4263260
 #elif (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
-#if (USE_RENT_ENGINE == 1)
-#define FN_WNO_DICT_SIZE                3557760
-#else
-#define FN_WNO_DICT_SIZE                3562136
-#endif
+#define FN_WNO_DICT_SIZE                (USE_RENT_ENGINE ? 3557648: 3562136)
 #define FN_WNOH_DICT_SIZE               2410080
 #define FN_A1_DICT_SIZE                 (442504)
 #define FN_A2_DICT_SIZE                 (442504)
