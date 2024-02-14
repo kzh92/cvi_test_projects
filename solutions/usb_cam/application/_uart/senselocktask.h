@@ -73,7 +73,7 @@ public:
     static s_msg*       Get_Reply_GetSN(int iResult);
     static s_msg*       Get_Reply_GetStatus(int iResult, int iStatus);
     static s_msg*       Get_Reply_GetSavedImage(int iResult, int iImgLen);
-    static s_msg*       Get_Reply_GetLogFile(int iResult, int iImgLen);
+    static s_msg*       Get_Reply_GetLogFile(int iResult, int iImgLen, int iCmd = MID_GET_LOGFILE);
     static s_msg*       Get_Reply_GetOtaStatus(int iStatus, int iPID);
     static s_msg*       Get_Reply(int iMID, int iResult, unsigned char* pParam = NULL, int paramLen = 0);
     static s_msg*       Get_Reply_CamError(int iMID, int iResult, int iCamError);

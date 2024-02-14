@@ -1402,7 +1402,7 @@ s_msg* SenseLockTask::Get_Reply_GetSavedImage(int iResult, int iImgLen)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetLogFile(int iResult, int iImgLen)
+s_msg* SenseLockTask::Get_Reply_GetLogFile(int iResult, int iImgLen, int iCmd)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_get_saved_image_data);
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
@@ -1414,7 +1414,7 @@ s_msg* SenseLockTask::Get_Reply_GetLogFile(int iResult, int iImgLen)
     msg->size_leb = LOW_BYTE(iMsgDataLen);
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
-    msg_reply_data->mid = MID_GET_LOGFILE;
+    msg_reply_data->mid = iCmd;
     msg_reply_data->result = iResult;
 
     s_msg_reply_get_saved_image_data* msg_reply_get_saved_image_data =

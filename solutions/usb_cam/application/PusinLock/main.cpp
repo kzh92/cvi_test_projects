@@ -1855,21 +1855,33 @@ int MsgProcSense(MSG* pMsg)
         }
 #endif //USE_VDBTASK
     }
-    else if(pSenseMsg->mid == MID_GET_LOGFILE)
+    else if(pSenseMsg->mid == MID_GET_LOGFILE || pSenseMsg->mid == MID_GET_FEATURE_INFO)
     {
-        dbug_printf("MID_GET_LOGFILE\n");
+        dbug_printf("%s\n", pSenseMsg->mid == MID_GET_LOGFILE ? "MID_GET_LOGFILE" : "MID_GET_FEATURE_INFO");
         s_msg_get_userdb_data d;
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(d))
+        s_msg* reply_msg = NULL;
+        if (pSenseMsg->mid == MID_GET_LOGFILE && SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_get_userdb_data))
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GET_LOGFILE, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
+            reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+        }
+        else if (pSenseMsg->mid == MID_GET_FEATURE_INFO && SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_get_feature_info))
+        {
+            reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
         }
         else
         {
             int iImgLen = 0;
             iImgLen = fr_GetAppLogLen();
 
-            memcpy(&d, pSenseMsg->data, sizeof(d));
+            if (pSenseMsg->mid == MID_GET_LOGFILE)
+                memcpy(&d, pSenseMsg->data, sizeof(d));
+            else
+            {
+                d.image_number = 2;
+                s_msg_get_feature_info* fd = (s_msg_get_feature_info*)pSenseMsg->data;
+                d.user_id_heb = fd->user_id_heb;
+                d.user_id_leb = fd->user_id_leb;
+            }
 #if (USE_DB_UPDATE_MODE)
             if (d.image_number == 2)
             {
@@ -1915,20 +1927,20 @@ int MsgProcSense(MSG* pMsg)
                     iImgLen += MAGIC_LEN_UPDATE_DB;
 #endif // USE_DB_UPDATE_MODE
 
-                s_msg* reply_msg = SenseLockTask::Get_Reply_GetLogFile(MR_SUCCESS, iImgLen);
-                g_pSenseTask->Send_Msg(reply_msg);
+                reply_msg = SenseLockTask::Get_Reply_GetLogFile(MR_SUCCESS, iImgLen, pSenseMsg->mid);
             }
             else
             {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_GET_LOGFILE, MR_FAILED4_UNKNOWNREASON);
-                g_pSenseTask->Send_Msg(reply_msg);
+                reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_UNKNOWNREASON);
             }
         }
+        if (reply_msg != NULL)
+            g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_UPLOADIMAGE)
     {
         dbug_printf("MID_UPLOADIMAGE\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_upload_image_data))
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_upload_image_data))
         {
             s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UPLOADIMAGE, MR_FAILED4_INVALIDPARAM);
             g_pSenseTask->Send_Msg(reply_msg);
@@ -1938,19 +1950,19 @@ int MsgProcSense(MSG* pMsg)
             return -1;
         }
 
-        memcpy(&g_xSS.msg_upload_image_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+        s_msg_upload_image_data* d = (s_msg_upload_image_data*)pSenseMsg->data;
 
         mount_db1();
 
-        int iImageOffset = (g_xSS.msg_upload_image_data.upload_image_offset[0] << 24) |
-                (g_xSS.msg_upload_image_data.upload_image_offset[1] << 16) |
-                (g_xSS.msg_upload_image_data.upload_image_offset[2] << 8) |
-                (g_xSS.msg_upload_image_data.upload_image_offset[3]);
+        int iImageOffset = (d->upload_image_offset[0] << 24) |
+                (d->upload_image_offset[1] << 16) |
+                (d->upload_image_offset[2] << 8) |
+                (d->upload_image_offset[3]);
 
-        int iImageSize = (g_xSS.msg_upload_image_data.upload_image_size[0] << 24) |
-                (g_xSS.msg_upload_image_data.upload_image_size[1] << 16) |
-                (g_xSS.msg_upload_image_data.upload_image_size[2] << 8) |
-                (g_xSS.msg_upload_image_data.upload_image_size[3]);
+        int iImageSize = (d->upload_image_size[0] << 24) |
+                (d->upload_image_size[1] << 16) |
+                (d->upload_image_size[2] << 8) |
+                (d->upload_image_size[3]);
 
         int iImgNum = g_xSS.msg_get_saved_image_data.image_number;
         if(iImageSize <= 0 || iImageSize > MAX_IMAGE_SIZE || iImageOffset < 0 || iImgNum < 0 || iImgNum > SI_MAX_IMAGE_COUNT)
@@ -1991,66 +2003,64 @@ int MsgProcSense(MSG* pMsg)
 #endif //USE_VDBTASK
         }
     }
-    else if(pSenseMsg->mid == MID_UPLOAD_LOGFILE)
+    else if(pSenseMsg->mid == MID_UPLOAD_LOGFILE || pSenseMsg->mid == MID_UPLOAD_FEATURE)
     {
-        dbug_printf("MID_UPLOAD_LOGFILE\n");
-        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_upload_image_data))
+        dbug_printf("%s\n", pSenseMsg->mid == MID_UPLOAD_LOGFILE ? "MID_UPLOAD_LOGFILE" : "MID_UPLOAD_FEATURE");
+        s_msg* reply_msg = NULL;
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_upload_image_data))
         {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UPLOAD_LOGFILE, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
-
-            my_free(pSenseMsg);
-            g_xSS.iMState = MS_STANDBY;
-            return -1;
-        }
-
-        memcpy(&g_xSS.msg_upload_image_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
-
-        int iImageOffset = (g_xSS.msg_upload_image_data.upload_image_offset[0] << 24) |
-                (g_xSS.msg_upload_image_data.upload_image_offset[1] << 16) |
-                (g_xSS.msg_upload_image_data.upload_image_offset[2] << 8) |
-                (g_xSS.msg_upload_image_data.upload_image_offset[3]);
-
-        int iImageSize = (g_xSS.msg_upload_image_data.upload_image_size[0] << 24) |
-                (g_xSS.msg_upload_image_data.upload_image_size[1] << 16) |
-                (g_xSS.msg_upload_image_data.upload_image_size[2] << 8) |
-                (g_xSS.msg_upload_image_data.upload_image_size[3]);
-
-        if(iImageSize <= 0 || iImageSize > MAX_IMAGE_SIZE || iImageOffset < 0)
-        {
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_UPLOAD_LOGFILE, MR_FAILED4_INVALIDPARAM);
-            g_pSenseTask->Send_Msg(reply_msg);
+            reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
         }
         else
         {
-            unsigned char* pbImageData = NULL;
-            s_msg* reply_msg = NULL;
-            if (g_xSS.iDBgetFlag == 0)
-            {
-                pbImageData = (unsigned char*)my_malloc(iImageSize + 4);
+            s_msg_upload_image_data* d = (s_msg_upload_image_data*)pSenseMsg->data;
 
-                fr_ReadAppLog("app_log.txt", 0, pbImageData, iImageSize + 4);
-                reply_msg = SenseLockTask::Get_Image(pbImageData + 4, iImageSize);// 4B: Header
-            }
-#if (USE_DB_UPDATE_MODE)
-            else if(g_xSS.iDBgetFlag >= 1 && g_xSS.iDBgetFlag <= 2)
+            int iImageOffset = (d->upload_image_offset[0] << 24) |
+                    (d->upload_image_offset[1] << 16) |
+                    (d->upload_image_offset[2] << 8) |
+                    (d->upload_image_offset[3]);
+
+            int iImageSize = (d->upload_image_size[0] << 24) |
+                    (d->upload_image_size[1] << 16) |
+                    (d->upload_image_size[2] << 8) |
+                    (d->upload_image_size[3]);
+
+            if(iImageSize <= 0 || iImageSize > MAX_IMAGE_SIZE || iImageOffset < 0)
             {
-                pbImageData = (unsigned char*)my_malloc(iImageSize);
-                
-                if (FaceEngine::GetPersonDbBin(pbImageData, iImageSize, g_xSS.iDBgetFlag, g_xSS.iDBgetIndex, iImageOffset) == 0)
+                reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
+            }
+            else
+            {
+                unsigned char* pbImageData = NULL;
+                reply_msg = NULL;
+                if (g_xSS.iDBgetFlag == 0)
                 {
-                    reply_msg = SenseLockTask::Get_Image(pbImageData, iImageSize);
+                    pbImageData = (unsigned char*)my_malloc(iImageSize + 4);
+
+                    fr_ReadAppLog("app_log.txt", 0, pbImageData, iImageSize + 4);
+                    reply_msg = SenseLockTask::Get_Image(pbImageData + 4, iImageSize);// 4B: Header
+                }
+#if (USE_DB_UPDATE_MODE)
+                else if(g_xSS.iDBgetFlag >= 1 && g_xSS.iDBgetFlag <= 2)
+                {
+                    pbImageData = (unsigned char*)my_malloc(iImageSize);
+                    
+                    if (FaceEngine::GetPersonDbBin(pbImageData, iImageSize, g_xSS.iDBgetFlag, g_xSS.iDBgetIndex, iImageOffset) == 0)
+                    {
+                        reply_msg = SenseLockTask::Get_Image(pbImageData, iImageSize);
+                    }
+                }
+#endif // USE_DB_UPDATE_MODE
+                if (pbImageData)
+                    my_free(pbImageData);
+                if (!reply_msg)
+                {
+                    reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_FAILED4_INVALIDPARAM);
                 }
             }
-#endif // USE_DB_UPDATE_MODE
-            if (pbImageData)
-                my_free(pbImageData);
-            if (!reply_msg)
-            {
-                reply_msg = SenseLockTask::Get_Reply(MID_UPLOAD_LOGFILE, MR_FAILED4_INVALIDPARAM);
-            }
-            g_pSenseTask->Send_Msg(reply_msg);
         }
+        if (reply_msg != NULL)
+            g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_POWERDOWN)
     {

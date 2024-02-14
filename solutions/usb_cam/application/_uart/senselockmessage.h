@@ -99,7 +99,9 @@ typedef uint8_t s_msg_id;
 #define MID_UVC_SET_COMPRESS_PARAM      0x77    // set UVC compression parameters
 #define MID_TRANS_FILE_PACKET           0x90    // receive file data from master
 #define MID_ENROLL_FROM_IMAGE           0x91    // enroll with image data of MID_TRANS_FILE_PACKET
+#define MID_GET_FEATURE_INFO            0x92    // 사용자특징자료얻기
 #define MID_GET_UID                     0x93    // XiShang require module ID
+#define MID_UPLOAD_FEATURE              0x96    // 사용자특징자료전송
 #define MID_MX_GET_ALL_USERID           0x9B    // 등록된 사용자수얻기
 #define MID_SEND_LAST_MSG               0xA0    // 더스만모듈에서 응답을 받아서 주동적으로 체계를 끄는 방식설정
 #define MID_ENABLE_LOGFILE              0xA1    // 엔진상세로그보관설정
@@ -665,6 +667,11 @@ typedef struct {
 typedef struct {
     unsigned short user_counts;
 } s_msg_reply_mx_get_all_userid_data;
+
+typedef struct {
+    uint8_t user_id_heb;
+    uint8_t user_id_leb;
+} s_msg_get_feature_info;
 
 #pragma pack(pop)
 

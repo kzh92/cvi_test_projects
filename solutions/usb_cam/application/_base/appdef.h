@@ -182,7 +182,7 @@ enum E_Baud_Rate
 #define USE_NEW_RST_PROTO           1
 #define USE_16M_FLASH               1
 #define USE_RENT_ENGINE             0
-#define USE_DB_UPDATE_MODE          0
+#define USE_DB_UPDATE_MODE          1
 #define USE_TONGXIN_PROTO           0
 #define USE_EKESI_PROTO             0
 #define ENROLL_ANGLE_MODE           0
@@ -2373,8 +2373,6 @@ enum E_Baud_Rate
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
 #define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
@@ -2393,6 +2391,8 @@ enum E_Baud_Rate
 #define UVC_HEIGHT                          480
 #undef USE_UVC_FACE_RECT
 #define USE_UVC_FACE_RECT                   1
+#undef USE_RENT_ENGINE
+#define USE_RENT_ENGINE                     1
 
 //----------------------------------------------------------
 
