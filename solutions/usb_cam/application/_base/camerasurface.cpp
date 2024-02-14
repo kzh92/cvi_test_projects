@@ -880,25 +880,26 @@ void* ProcessTCMipiCapture(void */*param*/)
             //카메라절환할때 등록기설정명령과 app에서 내려보내는 등록기설정명령이 겹치면서 카메라오유가 나오댔음
             //camera_switch를 내려보낸 다음 프레임의 dqbuf하기 전부터 10ms미만에는 카메라등록기설정을 하지 않게 함
             //swtich to id->1
+            if(g_iLedOnStatus == 1)
+            {
+                g_iLedOnStatus = 0;
+                gpio_irled_on(ON);
+            }
+            g_iTwoCamFlag ++;
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 #if ((USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI) && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-            if (g_xSS.iFirstFlag == 0)
+            g_xSS.iFirstFlag = 2; // get first color frame
+            lockIRBuffer();
+            size_t test_pos = 0;
+            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
             {
-                g_xSS.iFirstFlag = 2; // get first color frame
-                lockIRBuffer();
-                size_t test_pos = 0;
-                for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
-                {
-                    g_irOnData2[test_pos++] = ptr[k];
-                    g_irOnData2[test_pos++] = ptr[k+1];
-                    if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                        break;
-                }
-                unlockIRBuffer();
-                WaitIRCancel2();
+                g_irOnData2[test_pos++] = ptr[k];
+                g_irOnData2[test_pos++] = ptr[k+1];
+                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                    break;
             }
-            else
-                g_xSS.iFirstFlag = 1;
+            unlockIRBuffer();
+            WaitIRCancel2();
 #endif // USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122
             iNeedNext = 1;
         }
@@ -932,7 +933,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         {
             g_iTwoCamFlag ++;
         }
-        else if(g_iTwoCamFlag == IR_CAMERA_STEP2)
+        else if(g_iTwoCamFlag == IR_CAMERA_STEP2 && iNeedNext == 0)
         {
 #if (USE_3M_MODE)
 #if (USE_WHITE_LED != 1)
