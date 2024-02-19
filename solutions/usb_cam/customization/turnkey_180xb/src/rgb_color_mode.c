@@ -22,6 +22,8 @@
 #include "rgb_color_v2.1.0.8.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v9)
 #include "rgb_color_v2.1.0.9.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v11)
+#include "rgb_color_v2.1.0.11.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_22v0)
 #include "rgb_color_v2.2.0.0.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_301v9)
