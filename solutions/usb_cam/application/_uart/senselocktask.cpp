@@ -853,25 +853,6 @@ void SenseLockTask::run()
             iMsgSent = 1;
 #endif // NOTHREAD_MUL
         }
-#if 0
-        else if(msg->mid == MID_VIDEO_ON)
-        {
-            if(g_xSS.iVDBStart > 0)
-            {
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VIDEO_ON, MR_SUCCESS);
-                Send_Msg(reply_msg);
-            }
-
-            StartVDB();
-        }
-        else if(msg->mid == MID_VIDEO_OFF)
-        {
-            StopVDB();
-
-            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VIDEO_OFF, MR_SUCCESS);
-            Send_Msg(reply_msg);
-        }
-#endif
         else
         {
             SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);

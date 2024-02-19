@@ -91,10 +91,8 @@ typedef uint8_t s_msg_id;
 #define MID_SET_ENC_KEY                 0x53    // set encrypted key, MID_ENCKEY
 #define MID_GET_LOGFILE                 0x60    // get log file
 #define MID_UPLOAD_LOGFILE              0x61    // upload log file cmd to cloud
-#if 0
 #define MID_VIDEO_ON                    0x70    // video on
 #define MID_VIDEO_OFF                   0x71    // video off
-#endif
 #define MID_UVC_DIR                     0x76    // rotate uvc image
 #define MID_UVC_SET_COMPRESS_PARAM      0x77    // set UVC compression parameters
 #define MID_TRANS_FILE_PACKET           0x90    // receive file data from master

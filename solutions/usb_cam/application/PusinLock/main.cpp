@@ -211,9 +211,6 @@ void StartVDB()
 {
 #if (USE_VDBTASK)
     my_mutex_lock(g_xVDBMutex);
-#ifdef MID_VIDEO_ON
-    g_xSS.iVDBCmd = MID_VIDEO_ON;
-#endif
     if(g_xSS.iVDBStart == 0)
     {
         g_xSS.iVDBStart = 1;
@@ -376,24 +373,7 @@ int processGlobalMsg()
                     s_msg* reply_msg = SenseLockTask::Get_Reply_CamError(MID_GETSAVEDIMAGE, MR_FAILED4_CAMERA, g_xSS.iCamError);
                     g_pSenseTask->Send_Msg(reply_msg);
                 }
-#ifdef MID_VIDEO_ON
-                else if(g_xSS.iVDBCmd == MID_VIDEO_ON)
-                {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply_CamError(MID_VIDEO_ON, MR_FAILED4_CAMERA, g_xSS.iCamError);
-                    g_pSenseTask->Send_Msg(reply_msg);
-                }
-#endif // MID_VIDEO_ON
             }
-#ifdef MID_VIDEO_ON
-            else if(pMsg->data1 == VDB_STARTED && pMsg->data3 == g_pVDBTask->GetCounter())
-            {
-                if(g_xSS.iVDBCmd == MID_VIDEO_ON)
-                {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_VIDEO_ON, MR_SUCCESS);
-                    g_pSenseTask->Send_Msg(reply_msg);
-                }
-            }
-#endif // MID_VIDEO_ON
         }
 #endif // USE_VDBTASK
 
@@ -1720,6 +1700,20 @@ int MsgProcSense(MSG* pMsg)
         dbug_printf("MID_RESET\n");
         ResetFaceRegisterStates();
         s_msg* reply_msg = SenseLockTask::Get_Reply(MID_RESET, MR_SUCCESS);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+    else if(pSenseMsg->mid == MID_VIDEO_ON)
+    {
+        dbug_printf("MID_VIDEO_ON\n");
+        g_xSS.iForceIRLedOff = 0;
+        s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_SUCCESS);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+    else if(pSenseMsg->mid == MID_VIDEO_OFF)
+    {
+        dbug_printf("MID_VIDEO_OFF\n");
+        g_xSS.iForceIRLedOff = 1;
+        s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_SUCCESS);
         g_pSenseTask->Send_Msg(reply_msg);
     }
     else if(pSenseMsg->mid == MID_SNAPIMAGE)

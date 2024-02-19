@@ -883,7 +883,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             if(g_iLedOnStatus == 1)
             {
                 g_iLedOnStatus = 0;
-                gpio_irled_on(ON);
+                if (g_xSS.iForceIRLedOff == 0 || g_xSS.rFaceEngineTime != 0)
+                    gpio_irled_on(ON);
             }
             g_iTwoCamFlag ++;
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
@@ -910,7 +911,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             if(g_iLedOnStatus == 1)
             {
                 g_iLedOnStatus = 0;
-                gpio_irled_on(ON);
+                if (g_xSS.iForceIRLedOff == 0 || g_xSS.rFaceEngineTime != 0)
+                    gpio_irled_on(ON);
 #if (USE_WHITE_LED != 1)
                 if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
