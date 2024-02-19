@@ -113,8 +113,10 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v7            8
 #define ISP_BIN_VER_21v8            9
 #define ISP_BIN_VER_21v9            10
-#define ISP_BIN_VER_22v0            11
-#define ISP_BIN_VER_301v9           12
+#define ISP_BIN_VER_21v10           11
+#define ISP_BIN_VER_21v11           12
+#define ISP_BIN_VER_22v0            13
+#define ISP_BIN_VER_301v9           14
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
 //isp mono file version
@@ -478,7 +480,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_JIZHI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_OKEDA2_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1529,8 +1531,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_OKEDA2_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.25.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.25.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.25.0.8_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.25.0.8_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1565,7 +1567,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v8
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
