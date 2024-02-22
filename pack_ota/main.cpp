@@ -4,17 +4,33 @@
 #include "appdef.h"
 #include "../z_base/folderfile.h"
 #include "aescrypt.h"
+#include "config_vars.h"
 //#define USE_APP_UPGRADE
 
 //list of upgrade files
 s_uf_part_info g_upg_list[] = {
-    {"prim", 0x2E000, 0x390000, UF_PF_APP},
-    {"b.bin", 0x3d0000 + 5201344, 442560, UF_PF_NORMAL},
-    {"b2.bin", 0x3d0000 + 5643904, 152960, UF_PF_NORMAL},
-    // {"ch.bin", 0x00390000 + 6856960, 442560, UF_PF_NORMAL},
-    // {"detect_h.bin", 0x00390000 + 6239424, 121472, UF_PF_NORMAL},
-    // {"dlamk_h.bin", 0x00390000 + 6360896, 496064, UF_PF_NORMAL},
-    // {"wnh.bin", 0x00390000 + 7299520, 2732480, UF_PF_WEIGHT_CRYPT},
+    //{"prim", 0x2E000, 0x300000, UF_PF_APP},
+#if 0
+    {"wno_c.bin", 0x003d0000, FN_WNO_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
+#endif
+#if 0
+    {"detect.bin", 0x003d0000 + 3557696, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
+    {"dlamk.bin", 0x003d0000 + 3687040, FN_DLAMK_DICT_SIZE, UF_PF_NORMAL},
+    {"a1.bin", 0x003d0000 + 4311744, FN_A1_DICT_SIZE, UF_PF_NORMAL},
+    {"a2.bin", 0x003d0000 + 4754304, FN_A2_DICT_SIZE, UF_PF_NORMAL},
+    {"b.bin", 0x003d0000 + 5196864, FN_B_DICT_SIZE, UF_PF_NORMAL},
+    {"b2.bin", 0x003d0000 + 5639424, FN_B2_DICT_SIZE, UF_PF_NORMAL},
+    {"c.bin", 0x003d0000 + 5792384, FN_C_DICT_SIZE, UF_PF_NORMAL},
+    {"detect_h.bin", 0x003d0000 + 6234944, FN_DETECT_H_DICT_SIZE, UF_PF_NORMAL},
+#endif
+#if 1
+    {"dlamk_h.bin", 0x003d0000 + 6356416, FN_DLAMK_H_DICT_SIZE, UF_PF_NORMAL},
+    {"ch.bin", 0x003d0000 + 6851776, FN_CH_DICT_SIZE, UF_PF_NORMAL},
+    {"wnh.bin", 0x003d0000 + 7294336, FN_WNOH_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
+    {"lh.bin", 0x003d0000 + 9704448, FN_H_LIVE_DICT_SIZE, UF_PF_NORMAL},
+    {"face_ir.bin", 0x003d0000 + 10147008, FN_FACE_IR_BIN_SIZE, UF_PF_NORMAL},
+    {"audiotest.pcm", 0x003d0000 + 10574144, FN_TESTAUDIO_PCM_SIZE, UF_PF_NORMAL},
+#endif
     {"", 0, 0, 0} //terminator
 };
 
