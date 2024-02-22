@@ -275,9 +275,12 @@ void WatchTask::run()
 #if (USE_WHITE_LED == 0)
                 if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && g_xSS.bUVCRunning)
                 {
-                    g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
-                    camera_set_mono_chrome(1);
-                    uvc_set_reinit_flag();
+                    if (g_xSS.iForceIRLedOff == 0)
+                    {
+                        g_xSS.iUvcSensor = (DEFAULT_SNR4UVC + 1) % 2;
+                        camera_set_mono_chrome(1);
+                        uvc_set_reinit_flag();
+                    }
                 }
 #elif (USE_WHITE_LED == UWL_EN_NORMAL || USE_WHITE_LED == UWL_EN_F0U1) // USE_WHITE_LED
 #if (USE_3M_MODE)

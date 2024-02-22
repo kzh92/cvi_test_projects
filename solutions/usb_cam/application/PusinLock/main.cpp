@@ -1713,6 +1713,10 @@ int MsgProcSense(MSG* pMsg)
     {
         dbug_printf("MID_VIDEO_OFF\n");
         g_xSS.iForceIRLedOff = 1;
+        //color image will be output to uvc
+        g_xSS.iUvcSensor = DEFAULT_SNR4UVC;
+        uvc_set_reinit_flag();
+        camera_set_mono_chrome(0);
         s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg->mid, MR_SUCCESS);
         g_pSenseTask->Send_Msg(reply_msg);
     }
