@@ -155,7 +155,7 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
 
     fclose(fp_out);
     printf("created file: %s, size=%d, 0x%08x\n", dest_file, total_size, total_size);
-    system("mv -f " FACEENGINEDIR "/Dic/D10/*.out ./pack/");
+    system("mv -f " FACEENGINEDIR "/*.out ./pack/");
     return 0;
 }
 
