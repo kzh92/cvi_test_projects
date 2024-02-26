@@ -498,13 +498,9 @@ static void *send_to_uvc()
 	int print_flag = 0;
 #if (UVC_ENC_TYPE == 0)
 	int skip_count = 0;
-#elif (UVC_ENC_TYPE == 2)
-	ds_mjpeg_app_header h26x_header = {0};
+#elif (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
     VENC_STREAM_S stH26XStream = {0},*pstH26XStream= &stH26XStream;
-    uint8_t *h26x_buffer_media = (uint8_t *)aos_ion_malloc(MAX_H26X_FRAME_SIZE);
-	memset(h26x_buffer_media, 0, MAX_H26X_FRAME_SIZE);
 	uint32_t frameCnt = 0;
-	uint32_t frameType = 0;
 #endif // UVC_ENC_TYPE
     while (uvc_session_init_flag) {
         if (tx_flag) {
@@ -531,25 +527,18 @@ static void *send_to_uvc()
 					MEDIA_VIDEO_VencRequstIDR(UVC_VENC_H26X_CHN);
 					g_xSS.iForceVencIDR--;
 				}
-				ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_H26X_CHN,pstH26XStream,2000);
+				ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_H26X_CHN, pstH26XStream, 2000);
 				if(ret == CVI_SUCCESS)
 				{
-					for (i = 0; i < pstH26XStream->u32PackCount; ++i)
+					//printf("h26x data len=0x%x, type=%d, %d\n", buf_len, frameType, (int)aos_now_ms());
+					buf_len = xndsParseH264CviStream((void*)pstH26XStream);
+					if (buf_len < 0)
 					{
-						ppack = &pstH26XStream->pstPack[i];
-						frameType = (uint32_t)ppack->DataType.enH265EType;
-						if(buf_len + (ppack->u32Len - ppack->u32Offset) <= MAX_H26X_FRAME_SIZE){
-							memcpy(h26x_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
-							buf_len += (ppack->u32Len - ppack->u32Offset);
-						}
-						else{
-							printf("venc h26x buf_len oversize\n");
-							MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
-							continue;
-						}
+						//overflow
+						buf_len = 0;
+						MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
+	            		continue;
 					}
-					//if (frameType != H264E_NALU_PSLICE)
-						//printf("h26x data len=0x%x, type=%d, %d\n", buf_len, frameType, (int)aos_now_ms());
 				}
 				else
 				{
@@ -576,91 +565,16 @@ static void *send_to_uvc()
 #endif
 					continue;
 				}
-			#elif (UVC_ENC_TYPE == 2)
+#elif (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
 				frameCnt++;
-				if (buf_len > 2 * MAX_H26X_PACKET_SIZE) {
-					h26x_header.app_mark = __bswap_16(0xFFE7);
-					h26x_header.total_size = __bswap_16(0xFFFF);
-					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
-					h26x_header.fps = 20;
-					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
-					h26x_header.checksum = (buf_len & 0xFF);
-					//h26x_header.seq = __bswap_32(frameCnt);
-					h26x_header.seq = frameCnt;
-					h26x_header.data_size = __bswap_16(MAX_H26X_PACKET_SIZE + 2);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + H26X_HEADER_SIZE], h26x_buffer_media, MAX_H26X_PACKET_SIZE);
-
-					h26x_header.app_mark = __bswap_16(0xFFE8);
-					h26x_header.total_size = __bswap_16(0xFFFF);
-					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
-					h26x_header.fps = 20;
-					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
-					h26x_header.checksum = 0;
-					//h26x_header.seq = __bswap_32(frameCnt);
-					h26x_header.seq = frameCnt;
-					h26x_header.data_size = __bswap_16(MAX_H26X_PACKET_SIZE + 2);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE + H26X_HEADER_SIZE], &h26x_buffer_media[MAX_H26X_PACKET_SIZE], MAX_H26X_PACKET_SIZE);
-
-					h26x_header.app_mark = __bswap_16(0xFFE9);
-					h26x_header.total_size = __bswap_16(buf_len - (2 * MAX_H26X_PACKET_SIZE) + 12);
-					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
-					h26x_header.fps = 20;
-					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
-					h26x_header.checksum = 0;
-					//h26x_header.seq = __bswap_32(frameCnt);
-					h26x_header.seq = frameCnt;
-					h26x_header.data_size = __bswap_16(buf_len - (2 * MAX_H26X_PACKET_SIZE) + 2);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + 2 * MAX_H26X_TAG_SIZE], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + 2 * MAX_H26X_TAG_SIZE + H26X_HEADER_SIZE], &h26x_buffer_media[2 * MAX_H26X_PACKET_SIZE], buf_len - (2 * MAX_H26X_PACKET_SIZE));
-					buf_len += 3 * H26X_HEADER_SIZE;
-				} else if (buf_len > MAX_H26X_PACKET_SIZE) {
-					h26x_header.app_mark = __bswap_16(0xFFE7);
-					h26x_header.total_size = __bswap_16(0xFFFF);
-					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
-					h26x_header.fps = 20;
-					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
-					h26x_header.checksum = (buf_len & 0xFF);
-					//h26x_header.seq = __bswap_32(frameCnt);
-					h26x_header.seq = frameCnt;
-					h26x_header.data_size = __bswap_16(MAX_H26X_PACKET_SIZE + 2);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + H26X_HEADER_SIZE], h26x_buffer_media, MAX_H26X_PACKET_SIZE);
-	
-					h26x_header.app_mark = __bswap_16(0xFFE8);
-					h26x_header.total_size = __bswap_16(buf_len - MAX_H26X_PACKET_SIZE + 12);
-					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
-					h26x_header.fps = 20;
-					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
-					h26x_header.checksum = 0;
-					//h26x_header.seq = __bswap_32(frameCnt);
-					h26x_header.seq = frameCnt;
-					h26x_header.data_size = __bswap_16(buf_len - MAX_H26X_PACKET_SIZE + 2);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + MAX_H26X_TAG_SIZE + H26X_HEADER_SIZE], &h26x_buffer_media[MAX_H26X_PACKET_SIZE], buf_len - MAX_H26X_PACKET_SIZE);
-					buf_len += 2 * H26X_HEADER_SIZE;
-				} else if (buf_len > 0){
-					h26x_header.app_mark = __bswap_16(0xFFE7);
-					h26x_header.total_size = __bswap_16(buf_len + 12);
-					h26x_header.strm_type = (H26X_TYPE == PT_H265) ? 2 : 1;
-					h26x_header.fps = 20;
-					h26x_header.frm_type = (frameType == H264E_NALU_PSLICE) ? 2 : 1;
-					h26x_header.checksum = (buf_len & 0xFF);
-					//h26x_header.seq = __bswap_32(frameCnt);
-					h26x_header.seq = frameCnt;
-					h26x_header.data_size = __bswap_16(buf_len + 2);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET], (uint8_t*)&h26x_header, H26X_HEADER_SIZE);
-					memcpy(&packet_buffer_media[H26X_FRAME_OFFSET + H26X_HEADER_SIZE], h26x_buffer_media, buf_len);
-					buf_len += H26X_HEADER_SIZE;
-				}
-#endif
+				buf_len = xndsMakeMediaPacket(frameCnt, packet_buffer_media, (void*)pstH26XStream);
+#endif // !UVC_ENC_TYPE
 				for (i = 0; i < pstStream->u32PackCount; ++i)
 				{
 					ppack = &pstStream->pstPack[i];
 					if (buf_len + (ppack->u32Len - ppack->u32Offset) < DEFAULT_FRAME_SIZE)
 					{
-					#if (UVC_ENC_TYPE == 2)
+#if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
 						if (i == 0)
 						{
 							memcpy(packet_buffer_media, ppack->pu8Addr + ppack->u32Offset, H26X_FRAME_OFFSET);
@@ -672,10 +586,10 @@ static void *send_to_uvc()
 							memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
 							buf_len += (ppack->u32Len - ppack->u32Offset);
 						}
-					#else
+#else // UVC_ENC_TYPE
 						memcpy(packet_buffer_media + buf_len, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
 						buf_len += (ppack->u32Len - ppack->u32Offset);
-					#endif
+#endif // UVC_ENC_TYPE
 					}
 					else
 					{
@@ -694,14 +608,6 @@ static void *send_to_uvc()
 					isOverflow = 0;
 					continue;
 				}
-#if (USE_WHITE_LED == 0 && 0)
-				if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.iUVCIRDataReady == 0)
-				{
-					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
-					continue;
-				}
-				g_xSS.iUVCIRDataReady = 0;
-#endif
 				if (print_flag ++ < 8)
 				{
 					if (print_flag == 8)
@@ -789,9 +695,8 @@ static void *send_to_uvc()
         }else {
 			aos_msleep(1);
 		}
-
     }
-	
+
     return 0;
 }
 

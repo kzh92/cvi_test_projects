@@ -77,6 +77,23 @@ typedef struct{
 
 #pragma pack(pop)
 
+#ifdef __cplusplus
+extern  "C"
+{
+#endif
+
+/*
+* return
+* buffer length greater than zero on success
+* -1 on buffer overflow
+*/
+int xndsParseH264CviStream(void* pstStream);
+int xndsMakeMediaPacket(uint32_t frameCnt, unsigned char* dstMedia, void* pstStream);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // USE_USB_XN_PROTO
 
 #endif //!_DS_H264_TYPES_H
