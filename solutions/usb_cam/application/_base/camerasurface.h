@@ -74,6 +74,9 @@ void*   ProcessDVPCapture(void *param);
 void*   ProcessTCMipiCapture(void *param);
 
 void    CalcNextExposure();
+int     DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int iYOnly);
+int     GetDumpVpssWidth();
+int     GetDumpVpssHeight();
 void    ConvertYUV420_NV21toRGB888(unsigned char* data, int width, int height, unsigned char* dstData);
 void    rotateImage_inner(unsigned char* pbBuffer, int nOrgWidth, int nOrgHeight, int nDegreeAngle);
 void    gammaCorrection_screen(unsigned char* pBuffer, int nWidth, int nHeight);

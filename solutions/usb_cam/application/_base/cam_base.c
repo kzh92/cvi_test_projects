@@ -444,6 +444,7 @@ int camera_clr_set_gain(int value, int nDigGain, int nFineValue)
 
 int camera_clr_stop_aec()
 {
+    return 0;
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -466,6 +467,7 @@ int camera_clr_stop_aec()
 
 int camera_clr_start_aec()
 {
+    return 0;
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;

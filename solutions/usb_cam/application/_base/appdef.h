@@ -218,8 +218,8 @@ enum E_Baud_Rate
 #define UVC_MAX_HEIGHT              720
 #define UVC_MIN_WIDTH               320
 #define UVC_MIN_HEIGHT              240
-#define UVC_WIDTH                   1280
-#define UVC_HEIGHT                  720
+#define UVC_INIT_WIDTH              640
+#define UVC_INIT_HEIGHT             480
 #define CHECK_CLR_IR_SWITCH_THR     0
 #define NEW_CLR_IR_SWITCH_THR       0x20
 #define UVC_CLR2IR_THR4ISP          (-150) //threshold value for turning white led on.
@@ -480,7 +480,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LAIJI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1072,8 +1072,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.12_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.12_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.13_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.13_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10

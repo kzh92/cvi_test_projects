@@ -255,8 +255,8 @@ int uvc_media_update(){
 
 	if (uvc_frame_info.width == 0)
 	{
-		uvc_frame_info.width = UVC_MAX_WIDTH;
-		uvc_frame_info.height = UVC_MAX_HEIGHT;
+		uvc_frame_info.width = UVC_INIT_WIDTH;
+		uvc_frame_info.height = UVC_INIT_HEIGHT;
 	}
 
 	CVI_VPSS_GetChnAttr(iSensor, UVC_VPSS_CHN, &stVpssChnAttr);
@@ -600,10 +600,10 @@ static void *send_to_uvc()
 				}
 				if (isOverflow)
 				{
-					//printf("venc buf_len oversize\n");
-				#if (UVC_ENC_TYPE == 2)
+					// printf("venc buf_len oversize\n");
+#if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
 					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
-				#endif
+#endif
 					MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 					isOverflow = 0;
 					continue;
@@ -613,11 +613,11 @@ static void *send_to_uvc()
 					if (print_flag == 8)
 						printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
-			#if (UVC_ENC_TYPE == 2)	
+#if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)	
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
 				if(ret != CVI_SUCCESS)
 					printf("MEDIA_VIDEO_VencReleaseStream failed\n");
-			#endif
+#endif
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
 				if(ret != CVI_SUCCESS)
 					printf("MEDIA_VIDEO_VencReleaseStream failed\n");
@@ -746,9 +746,8 @@ int MEDIA_AV_Init()
 	usb_av_comp_init();
 #if (USE_UAC_MODE)
 	MEDIA_UAC_Init();
-#endif // USE_UAC_MODE
-
-	packet_buffer_uvc = (uint8_t *)usb_iomalloc(DEFAULT_FRAME_SIZE);
+#endif //USE_UAC_MODE
+	packet_buffer_uvc = (uint8_t *)usb_iomalloc(MAX_FRAME_SIZE);
 
 	// Wait until configured
 	while (!usb_device_is_configured()) {

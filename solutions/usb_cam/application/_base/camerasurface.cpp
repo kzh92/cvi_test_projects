@@ -134,83 +134,19 @@ int             g_nValueSettenPassed = 0;
     } while(0)
 
 void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height);
+extern "C" int uvc_media_update();
 
-void StartFirstCam()
+void InitCamera(int iMode)
 {
-    dbug_printf("[%s] start, %0.3f\n", __func__, Now());
-    g_irWriteLock = my_mutex_init();
-    g_irWriteLock2 = my_mutex_init();
-    g_captureLock = my_mutex_init();
-
-    g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE * 2);
-    if (g_irOnData1 == NULL)
-        my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-    g_irOnData2 = g_irOnData1 + IR_BUFFER_SIZE;
-#if (USE_WHITE_LED != 1)
-    g_iUVCIRDataY = g_irOnData2;
-#endif
-#if (USE_VDBTASK)
-    // g_clrWriteLock = my_mutex_init();
-    // g_clrYuvData_tmp = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
-    // if (g_clrYuvData_tmp == NULL)
-    //     my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-    // g_clrYuvData = (unsigned char*)my_malloc(CLR_CAM_WIDTH * ALIGN_16B(CLR_CAM_HEIGHT) * 2);
-    // if (g_clrYuvData == NULL)
-    //     my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
-#endif // USE_VDBTASK
-#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-    g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2RIGHT);
-#else
-    g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
-#endif
-    if(g_iMipiCamInited == 0)
-    {
-        fr_InitIRCamera_ExpGain();
-        CalcNextExposure();
-    }
-}
-
-#if (USE_VDBTASK)
-void StartClrCam()
-{
-    // if(g_xSS.iRunningDvpCam == 0)
-    // {
-    //     g_xSS.iRunningDvpCam = 1;
-    //     my_thread_create_ext(&g_capture1, 0, ProcessDVPCapture, NULL, (char*)"getdvp1", 8192, 0);
-    // }
-}
-
-void StopClrCam()
-{
-    // g_xSS.iRunningDvpCam = 0;
-    // if(g_capture1)
-    // {
-    //     my_thread_join(&g_capture1);
-    //     g_capture1 = 0;
-    // }
-}
-#endif // USE_VDBTASK
-
-void StartCamSurface(int iMode)
-{
-#if (USE_VDBTASK && 0)
-#else // USE_VDBTASK
-    g_xSS.iRunningCamSurface = 1;
-
     g_iDvpCamInited = 0;
 
-    //init tc mipi camera
     if(g_iMipiCamInited == -1)
     {
-        float r = Now();
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
         g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2RIGHT);
 #else
         g_iMipiCamInited = camera_init(MIPI_1_CAM, IR_CAM_WIDTH, IR_CAM_HEIGHT, MIPI_CAM_S2LEFT);
 #endif
-        if(Now() - r > 500)
-            my_printf("$$$$$$$$$$$$$$$$$  MIPI_1_ERROR:   %f\n", Now() - r);
-
         if(g_iMipiCamInited == -1)
         {
             g_xSS.iCamError |= CAM_ERROR_MIPI1;
@@ -222,6 +158,43 @@ void StartCamSurface(int iMode)
         fr_InitIRCamera_ExpGain();
         CalcNextExposure();
     }
+}
+
+void StartFirstCam()
+{
+    dbug_printf("[%s] start, %0.3f\n", __func__, Now());
+    g_irWriteLock = my_mutex_init();
+    g_irWriteLock2 = my_mutex_init();
+    g_captureLock = my_mutex_init();
+
+    g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE * 2);
+    if (g_irOnData1 == NULL)
+    {
+        my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
+        return;
+    }
+    g_irOnData2 = g_irOnData1 + IR_BUFFER_SIZE;
+
+    InitCamera(0);
+}
+
+#if (USE_VDBTASK)
+void StartClrCam()
+{
+}
+
+void StopClrCam()
+{
+}
+#endif // USE_VDBTASK
+
+void StartCamSurface(int iMode)
+{
+#if (USE_VDBTASK && 0)
+#else // USE_VDBTASK
+    g_xSS.iRunningCamSurface = 1;
+
+    InitCamera(iMode);
 
     if(g_iMipiCamInited == 0 && g_capture0 == 0)
         my_thread_create_ext(&g_capture0, 0, ProcessTCMipiCapture, NULL, (char*)"getmipi1", 8192, MYTHREAD_PRIORITY_HIGH);
@@ -232,8 +205,13 @@ void StartCamSurface(int iMode)
 void StopCamSurface()
 {
     if (g_xSS.bCheckFirmware && g_irOnData1)
+    {
         my_free(g_irOnData1);
-    return; //kkk test
+        g_irOnData1 = NULL;
+    }
+
+    return;
+
     g_xSS.iRunningCamSurface = 0;
 #if (USE_VDBTASK)
     if(g_capture0)
@@ -890,16 +868,6 @@ void* ProcessTCMipiCapture(void */*param*/)
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
 #if ((USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI) && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             g_xSS.iFirstFlag = 2; // get first color frame
-            lockIRBuffer();
-            size_t test_pos = 0;
-            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
-            {
-                g_irOnData2[test_pos++] = ptr[k];
-                g_irOnData2[test_pos++] = ptr[k+1];
-                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                    break;
-            }
-            unlockIRBuffer();
             WaitIRCancel2();
 #endif // USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122
             iNeedNext = 1;
@@ -980,7 +948,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             if (g_xSS.iFirstFlag == 0 && g_iTwoCamFlag == IR_CAMERA_STEP2)
             {
                 g_xSS.iFirstFlag = 1;
-                g_iTwoCamFlag ++;
+                g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
             }
             else
 #endif // USE_3M_MODE
@@ -1027,16 +995,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_WHITE_LED != 1)
             g_xSS.iUVCIRDataReady = 0;
 #endif
-            lockIRBuffer();
-            size_t test_pos = 0;
-            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
-            {
-                g_irOnData2[test_pos++] = ptr[k];
-                g_irOnData2[test_pos++] = ptr[k+1];
-                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
-                    break;
-            }
-            unlockIRBuffer();
             WaitIRCancel2();
             g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
         }
@@ -1052,7 +1010,10 @@ void* ProcessTCMipiCapture(void */*param*/)
     }
 
     if (g_irOnData1)
+    {
         my_free(g_irOnData1);
+        g_irOnData1 = NULL;
+    }
 
     g_xSS.iShowIrCamera = 0;
     my_thread_exit(NULL);
@@ -1575,7 +1536,7 @@ bool rotate_image_inplace(unsigned char* pbBuffer, int nSrcWidth, int nSrcHeight
         return false;
 
     unsigned char* pbBufferIt = pbBuffer;
-    unsigned char* pb_alloc_buf = (unsigned char*)malloc(nSizeSec * 3 + gcd * nChannel);
+    unsigned char* pb_alloc_buf = (unsigned char*)my_malloc(nSizeSec * 3 + gcd * nChannel);
 
     unsigned short *n_rep_idx = (unsigned short*)pb_alloc_buf;                  // (unsigned short*)malloc(nSizeSec * 2);
     unsigned char  *b_rep_idx = (unsigned char*)(pb_alloc_buf + nSizeSec * 2);  // (unsigned char*)malloc(nSizeSec);
@@ -1665,7 +1626,7 @@ bool rotate_image_inplace(unsigned char* pbBuffer, int nSrcWidth, int nSrcHeight
             b_rep_idx[cu] = 1;
         }
     }
-    free(pb_alloc_buf);
+    my_free(pb_alloc_buf);
     return true;
 }
 
@@ -2111,7 +2072,17 @@ extern unsigned char*  g_abJpgData;
 extern int             g_iJpgDataLen;
 int vpss_width = 0, vpss_height = 0;
 
-int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned char* outBuf)
+int GetDumpVpssWidth()
+{
+    return vpss_width;
+}
+
+int GetDumpVpssHeight()
+{
+    return vpss_height;
+}
+
+int DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int iYOnly)
 {
 #if 1
     CVI_S32 s32MilliSec = 1000;
@@ -2178,6 +2149,8 @@ int test_vpss_dump(VPSS_GRP Grp, VPSS_CHN Chn, CVI_U32 u32FrameCnt, unsigned cha
             // aos_write(fd, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
             memcpy(outBuf + buf_offset, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
             buf_offset += u32DataLen;
+            if (iYOnly)
+                break;
         }
 
         if (CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo) != CVI_SUCCESS)
@@ -2202,12 +2175,8 @@ int saveUvcScene()
 {
     unsigned char* imgBuf = fr_GetInputImageBuffer1();
     lockIRBuffer();
-#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
-    int buf_len = test_vpss_dump(0, 0, 10, g_irOnData1);
-#else
-    int buf_len = test_vpss_dump(DEFAULT_SNR4UVC, 0, 1, g_irOnData1);
-#endif  
+    int buf_len = DumpFromVpss(0, 0, 5, g_irOnData1, 0);
     if (buf_len <= 0)
     {
         my_printf("dump vpss fail\n");

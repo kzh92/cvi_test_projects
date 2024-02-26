@@ -264,12 +264,9 @@ void FaceRecogTask::run()
 
         if(m_iCmd == E_GET_IMAGE && g_xSS.iSnapImageFace == 0)
         {
-            if(iFlag)
-            {
-                EndIns();
-                StartCamSurface(1);
-            }
+#if (USE_3M_MODE == 0)
             GetRightIrFrame(NULL, iLoopCount == 0);
+#endif
             if (ProcessGetImage1Step(iLoopCount))
                 break;
             continue;
@@ -313,7 +310,6 @@ void FaceRecogTask::run()
 #if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
         int nGotRightFrame = 0;
 #endif
-        // int nGotOffFrame = 0;
         for(nProcessModeIndex = nProcessModeIndexStart; nProcessModeIndex <= nProcessModeIndexEnd; nProcessModeIndex ++)
         {
             //g_irOnData1 is required
@@ -394,22 +390,6 @@ void FaceRecogTask::run()
             }
 #endif // USE_FUSHI_PROTO
 
-#if 0
-            if (fr_GetNeedSmallFaceCheck())
-            {
-                //fr_GetOffImageBuffer() is required, wait for
-                if (!(g_iLedOffFrameFlag & LEFT_IROFF_CAM_RECVED))
-                {
-                    if (nGotOffFrame == 0)
-                    {
-                        WAIT_CAM_FRAME(1000, WaitIROffTimeout);
-                        nGotOffFrame = 1;
-                    }
-                    if (g_xSS.iResetFlag == 1)
-                        break;
-                }
-            }
-#endif
             if(iNeedExp && nProcessModeIndex == nProcessModeIndexEnd)
             {
                 CalcNextExposure();
@@ -493,7 +473,7 @@ void FaceRecogTask::run()
 #endif // DEFAULT_SECURE_MODE
 
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
-    if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
+    if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && 0)
     {
         camera_clr_set_exp(g_sc201cs_aec_exp);
         camera_clr_set_gain(g_sc201cs_aec_gain, g_sc201cs_aec_dig_gain, g_sc201cs_aec_fine_gain);
@@ -746,26 +726,19 @@ int FaceRecogTask::ProcessCheckCamera1Step()
 
 int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
 {
-#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE || ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
-    if (!iUseFirstFrame)
-    {
-        camera_set_irled_on(1);
-        g_iTwoCamFlag = IR_CAMERA_STEP4;
-    }
-#endif // ENGINE_USE_TWO_CAM
-    //in case of 1st IR frame, wait for...
-    if(!iUseFirstFrame || !(g_iFirstCamFlag & RIGHT_IR_CAM_RECVED))
-    {
-        WAIT_CAM_FRAME(1000, WaitIRTimeout2);
-    }
     if (!pBuffer)
         return 0;
     //caution: you should not use pInputImageBuffer2 here!!!
     if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
     {
-        lockIRBuffer();
-        memcpy(pBuffer, g_irOnData2, IR_BUFFER_SIZE);
-        unlockIRBuffer();
+        int buf_len = DumpFromVpss(DEFAULT_SNR4UVC, 0, 1, (unsigned char*)pBuffer, 1);
+        if (buf_len <= 0)
+        {
+            my_printf("dump vpss fail\n");
+            unlockIRBuffer();
+            return -1;
+        }
+        dbug_printf("dump vpss ok\n");
     }
     else
     {
@@ -805,7 +778,7 @@ int FaceRecogTask::GetFaceState()
             }
         }
     }
-    else
+    else if (iNext == ES_SUCCESS)
     {
         if (nProcessMode == FMI_FACE)
             m_isFaceDetected[nProcessMode] = FDS_FACE_DETECTED;
@@ -881,28 +854,25 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] == 0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC) //face mode only
     {
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
+        if (g_xSS.iFirstFlag == 2) // use first clr frame
         {
-            lockIRBuffer();
-            ReadStaticIRImage(g_irOnData2, 1);
-            unlockIRBuffer();
+            g_xSS.iFirstFlag = 1;
+            GetRightIrFrame(pInputImageBuffer1, 1);
         }
         else
+            GetRightIrFrame(pInputImageBuffer1, 0);
+        int w = GetDumpVpssWidth();
+        int h = GetDumpVpssHeight();
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
-#if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
-            if (g_xSS.iFirstFlag == 2) // use first clr frame
-            {
-                g_xSS.iFirstFlag = 1;
-                GetRightIrFrame(NULL, 1);
-            }
-            else
-#endif // USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122
-            GetRightIrFrame(NULL, 0);
+            memset(pInputImageBuffer1, 0, IR_BUFFER_SIZE);
+            ReadStaticIRImage(pInputImageBuffer1, 1);
+            w = IR_CAM_WIDTH;
+            h = IR_CAM_HEIGHT;
         }
 
-        lockIRBuffer();
-        int iCheck = fr_PreExtractFaceClr(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-        unlockIRBuffer();
+        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1);
         if(iCheck != ES_SUCCESS)
         {
             arEngineResult[0] = ES_PROCESS;
@@ -993,20 +963,19 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
     if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] == 0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC) //face mode only
     {
+        unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
+        GetRightIrFrame(pInputImageBuffer1, 0);
+        int w = GetDumpVpssWidth();
+        int h = GetDumpVpssHeight();
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
-            lockIRBuffer();
-            ReadStaticIRImage(g_irOnData2, 1);
-            unlockIRBuffer();
-        }
-        else
-        {
-            GetRightIrFrame(NULL, 0);
+            memset(pInputImageBuffer1, 0, IR_BUFFER_SIZE);
+            ReadStaticIRImage(pInputImageBuffer1, 1);
+            w = IR_CAM_WIDTH;
+            h = IR_CAM_HEIGHT;
         }
 
-        lockIRBuffer();
-        int iCheck = fr_PreExtractFaceClr(g_irOnData2, IR_CAM_WIDTH, IR_CAM_HEIGHT);
-        unlockIRBuffer();
+        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1);
         if(iCheck != ES_SUCCESS)
         {
             arEngineResult[0] = ES_PROCESS;
