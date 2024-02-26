@@ -1903,9 +1903,7 @@ enum E_Baud_Rate
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240}, \
-                                            {3, 800, 480, 30, 0, 10240}, \
-                                            {4, 640, 480, 30, 0, 6144},
+                                            {2, 640, 480, 30, 0, 6144},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -1935,7 +1933,7 @@ enum E_Baud_Rate
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     4 // 0 ~ 32
 #undef UAC_AUDALGO_USE
-#define UAC_AUDALGO_USE                     0
+#define UAC_AUDALGO_USE                     1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BOLATAIN_MODE)
