@@ -480,7 +480,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TX2_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
