@@ -65,6 +65,7 @@ struct regval_list {
 #define ALIGN_32B(x) (((x) + (31)) & ~(31))
 #define ALIGN_16B(x) (((x) + (15)) & ~(15))
 #define ALIGN_16B_C(x) ((x) & ~(15))
+#define ALIGN_64B(x) (((x) + 63) / 64 * 64)
 
 int wait_camera_ready(int id);
 int camera_release (int id);

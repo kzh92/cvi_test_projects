@@ -2124,9 +2124,12 @@ int DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int i
             //     CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo);
             //     return;
             // }
-            dbug_printf("dump frame %dx%d, fmt=%d\n", stFrameInfo.stVFrame.u32Width, stFrameInfo.stVFrame.u32Height, stFrameInfo.stVFrame.enPixelFormat);
-            vpss_width = stFrameInfo.stVFrame.u32Width;
+            vpss_width = ALIGN_64B(stFrameInfo.stVFrame.u32Width);
             vpss_height = stFrameInfo.stVFrame.u32Height;
+            dbug_printf("dump frame %dx%d-%dx%d, fmt=%d\n", 
+                stFrameInfo.stVFrame.u32Width, stFrameInfo.stVFrame.u32Height, 
+                vpss_width, vpss_height,
+                stFrameInfo.stVFrame.enPixelFormat);
 
             bFlag = CVI_FALSE;
         }
