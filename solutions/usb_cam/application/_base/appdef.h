@@ -480,7 +480,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DUAL_CAM_AIPAI
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2211,8 +2211,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.49.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.49.8_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.49.8_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2234,8 +2234,8 @@ enum E_Baud_Rate
 #define USE_VDBTASK                         1
 #undef USE_SANJIANG3_MODE
 #define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
+// #undef N_MAX_HAND_NUM
+// #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
@@ -2247,6 +2247,10 @@ enum E_Baud_Rate
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     4 // 0 ~ 32
+#undef UAC_AUDALGO_USE
+#define UAC_AUDALGO_USE                     1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_OKEDA_UAC)
