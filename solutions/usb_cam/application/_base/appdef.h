@@ -266,6 +266,8 @@ enum E_Baud_Rate
 #define UVC_LANDSCAPE               0
 #define UVC_ENC_TYPE                0 // 0:mjpeg 1:h264 2:dual
 #define UVC_H26X_GOP                20
+#define UVC_H26X_MAXIQP             36
+#define UVC_H26X_MAXQP              36
 #define UVC_H26X_WIDTH              1280
 #define UVC_H26X_HEIGHT             720
 #define H26X_TYPE                   PT_H264
@@ -480,7 +482,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DUAL_CAM_AIPAI
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_H264
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -719,8 +721,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.6.2.6_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.2.6_D"
+#define DEVICE_FIRMWARE_VERSION             "3.6.3.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.6.3.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -749,13 +751,13 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v0
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v10
 #undef UVC_ENC_TYPE
 #define UVC_ENC_TYPE                        2 //dual stream
 #undef H26X_TYPE 
 #define H26X_TYPE                           PT_H264
 #undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   8192
+#define UVC_MJPEG_BITRATE                   15360
 #undef UVC_H26X_BITRATE
 #define UVC_H26X_BITRATE                    120
 #undef USE_USB_EP_ERR_FIX_MODE
@@ -774,6 +776,10 @@ enum E_Baud_Rate
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 #undef UVC_H26X_GOP
 #define UVC_H26X_GOP                        50
+#undef UVC_INIT_WIDTH
+#define UVC_INIT_WIDTH                      1280
+#undef UVC_INIT_HEIGHT
+#define UVC_INIT_HEIGHT                     720
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)

@@ -374,7 +374,7 @@ int uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:UVC_H26X_BITRATE;
-	if (g_xSS.iUvcBitrate > 0)
+	if (g_xSS.iUvcBitrate > 0 && enType == PT_MJPEG)
 	{
 		pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
 		if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
@@ -488,7 +488,7 @@ static void *send_to_uvc()
 	uint8_t isOverflow = 0;
 	uint8_t *packet_buffer_media = (uint8_t *)aos_ion_malloc(DEFAULT_FRAME_SIZE);
     memset(packet_buffer_media, 0, DEFAULT_FRAME_SIZE);
-    memset(packet_buffer_uvc, 0, DEFAULT_FRAME_SIZE);
+    memset(packet_buffer_uvc, 0, MAX_FRAME_SIZE);
 	extern volatile bool tx_flag;
     VENC_STREAM_S stStream = {0},*pstStream= &stStream;
 	VENC_PACK_S *ppack;
@@ -501,6 +501,8 @@ static void *send_to_uvc()
 #elif (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
     VENC_STREAM_S stH26XStream = {0},*pstH26XStream= &stH26XStream;
 	uint32_t frameCnt = 0;
+	int print_time = 0;
+	int h26x_len = 0;
 #endif // UVC_ENC_TYPE
     while (uvc_session_init_flag) {
         if (tx_flag) {
@@ -521,7 +523,7 @@ static void *send_to_uvc()
 			
 			if(H264_FORMAT_INDEX == uvc_format_info.format_index || 
 				MJPEG_FORMAT_INDEX == uvc_format_info.format_index){
-#if (UVC_ENC_TYPE == 2)
+#if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
 				if (g_xSS.iForceVencIDR > 0)
 				{
 					MEDIA_VIDEO_VencRequstIDR(UVC_VENC_H26X_CHN);
@@ -532,6 +534,7 @@ static void *send_to_uvc()
 				{
 					//printf("h26x data len=0x%x, type=%d, %d\n", buf_len, frameType, (int)aos_now_ms());
 					buf_len = xndsParseH264CviStream((void*)pstH26XStream);
+					h26x_len = buf_len;
 					if (buf_len < 0)
 					{
 						//overflow
@@ -608,12 +611,16 @@ static void *send_to_uvc()
 					isOverflow = 0;
 					continue;
 				}
+
 				if (print_flag ++ < 8)
 				{
 					if (print_flag == 8)
 						printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
-#if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)	
+#if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
+                if (print_flag < 8)
+				    printf("dlen=%d/%d, %d\n", buf_len, h26x_len, print_time == 0 ? (int)aos_now_ms() : ((int)aos_now_ms() - print_time));
+				print_time = (int)aos_now_ms();
 				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_H26X_CHN,pstH26XStream);
 				if(ret != CVI_SUCCESS)
 					printf("MEDIA_VIDEO_VencReleaseStream failed\n");

@@ -21,11 +21,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u16Width = UVC_MAX_WIDTH,
             .u16Height = UVC_MAX_HEIGHT,
             .u8EsBufQueueEn = 0,
-#if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
-            .u16EnType = PT_MJPEG,
-#elif (UVC_ENC_TYPE == 1)
-            .u16EnType = PT_H264,
-#endif
+            .u16EnType = (UVC_ENC_TYPE != 1 ? PT_MJPEG : PT_H264),
             .u32BitStreamBufSize = 1024 * 1024,
         },
         .stGopParam = {
@@ -41,11 +37,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
             .u8VariFpsEn = 0,
             .u8StartTime = 2,
-#if (UVC_ENC_TYPE == 0 || UVC_ENC_TYPE == 2)
-            .u16RcMode = VENC_RC_MODE_MJPEGCBR,
-#elif (UVC_ENC_TYPE == 1)
-            .u16RcMode = VENC_RC_MODE_H264CBR,
-#endif
+            .u16RcMode = (UVC_ENC_TYPE != 1 ? VENC_RC_MODE_MJPEGCBR : VENC_RC_MODE_H264CBR),
             .u16FirstFrmstartQp = 30,
             .u16InitialDelay = CVI_INITIAL_DELAY_DEFAULT, // RW = , Range:[10, 3000] Rate control initial delay (ms).
             .u16ThrdLv = 2,/*RW = , Range:[0, 4] = , Mad threshold for controlling the macroblock-level bit rate */
@@ -97,10 +89,10 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u16BgDeltaQp = 0, /* RW = , Range:[-51, 51] =  Backgournd Qp Delta */
             .u8MinIprop = 1,
             .u8MaxIprop = 100,
-            .u8MinIqp = CVI_H26X_MINQP_DEFAULT,//0-51
-            .u8MaxIqp = CVI_H26X_MAXQP_DEFAULT,//0-51
-            .u8MinQp = CVI_H26X_MINQP_DEFAULT,//0-51
-            .u8MaxQp = CVI_H26X_MAXQP_DEFAULT,//0-51
+            .u8MinIqp = 1,//0-51
+            .u8MaxIqp = UVC_H26X_MAXIQP,//0-51
+            .u8MinQp = 1,//0-51
+            .u8MaxQp = UVC_H26X_MAXQP,//0-51
             .u8MaxReEncodeTimes = 0, /* RW = , Range:[0, 3]  Range:max number of re-encode times.*/
             .u8QpMapEn = CVI_FALSE, /* RW = , Range:[0, 1]  enable qpmap.*/
             .u8ChangePos = DEF_26X_CHANGE_POS, //VBR使用
@@ -111,11 +103,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
 };
 
 PARAM_VENC_CFG_S  g_stVencCtx = {
-#if (UVC_ENC_TYPE == 2)
-    .s32VencChnCnt = 2,
-#else
-    .s32VencChnCnt = 1,
-#endif
+    .s32VencChnCnt = (UVC_ENC_TYPE == 2 ? 2 : 1),
     .pstVencChnCfg = PARAM_CLASS(VENCCFG,CTX,VENC),
 };
 
