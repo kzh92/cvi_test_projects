@@ -476,6 +476,10 @@ void EngineMapRelease()
 int Upgrade_Firmware(void)
 {
     MEDIA_VIDEO_Deinit();
+    fr_FreeEngine();
+#if (N_MAX_HAND_NUM)
+    fr_FreeEngine_Hand();
+#endif
 #ifndef UPGRADE_MODE
     unsigned int nWaitCnt = 0;
 #endif
