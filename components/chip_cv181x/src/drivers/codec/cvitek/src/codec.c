@@ -163,7 +163,7 @@ csi_error_t csi_codec_output_config(csi_codec_output_t *ch, csi_codec_output_con
 
         csi_i2s_tx_set_buffer(&i2s_codec_output, ch->ring_buf);
         csi_i2s_tx_buffer_reset(&i2s_codec_output);
-        printf("%s ch->period = %d \n", __func__, ch->period);
+        // printf("%s ch->period = %d \n", __func__, ch->period);
         ret = csi_i2s_tx_set_period(&i2s_codec_output, ch->period);
         cv182xdac_init(config->sample_rate, 2);
         //cv182xdac_ioctl(ACODEC_SET_OUTPUT_VOL, (u64)&vol);

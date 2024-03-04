@@ -687,7 +687,7 @@ csi_error_t csi_i2s_format(csi_i2s_t *i2s, csi_i2s_format_t *format)
                 ret = CSI_UNSUPPORTED;
                 break;
         }
-        printf("%s format->rate = %d\n", __func__, pi2s_tx->samplingrate);
+        // printf("%s format->rate = %d\n", __func__, pi2s_tx->samplingrate);
     } else {
     }
 
