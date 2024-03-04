@@ -220,6 +220,7 @@ int             my_settings_write(unsigned int offset, void* buf, unsigned int l
 int             dbfs_get_cur_part();
 void            dbfs_set_cur_part(int part_no);
 int32_t         cli_handle_input(char *inbuf);
+float           my_get_cpu_temp();
 
 int my_msync(void*, int);
 int my_munmap(void*, int);

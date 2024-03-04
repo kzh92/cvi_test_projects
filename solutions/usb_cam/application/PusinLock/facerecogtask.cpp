@@ -202,6 +202,7 @@ void FaceRecogTask::run()
 #if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
     int i2ndCheck = 0;
 #endif
+    g_xSS.iTempHighState = 0;
     if(m_iCmd == E_REGISTER)
     {
         iTimeout = g_xSS.msg_enroll_itg_data.timeout;

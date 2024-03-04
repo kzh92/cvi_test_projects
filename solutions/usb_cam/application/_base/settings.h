@@ -255,7 +255,8 @@ typedef struct _tagSYSTEM_STATE
     unsigned char               iForceUvcIR:1;
     unsigned char               iForceVencIDR:2;
     unsigned char               iForceIRLedOff:1;
-    unsigned char               bReserved:7;
+    unsigned char               iTempHighState:1;
+    unsigned char               bReserved:6;
     int                         iCurClrGain;
     int                         iCapWidth;
     int                         iCapHeight;

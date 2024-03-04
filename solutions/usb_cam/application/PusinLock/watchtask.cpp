@@ -337,6 +337,17 @@ void WatchTask::run()
         iPowerOnFlag = (bFlag != 0);
 #endif // PSENSE_DET
 
+#if (USE_TEMP_MODE)
+        if((iROKCounter % 5) == 0)
+        {
+            float temp = my_get_cpu_temp();
+            if (temp > 120)
+                g_xSS.iTempHighState = 1;
+            else if(temp < 100)
+                g_xSS.iTempHighState = 0;
+        }
+#endif // USE_TEMP_MODE
+
         if((iROKCounter % 10) == 0)
         {
             // printf("[ROK] %d\n", (int)Now());

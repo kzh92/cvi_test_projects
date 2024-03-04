@@ -204,6 +204,7 @@ enum E_Baud_Rate
 #define USE_UAC_DESC_ALT4           0
 #define USE_USB_XN_PROTO            0   //use XinNeng USB Protocol
 #define USE_UVC_FACE_RECT           0
+#define USE_TEMP_MODE               0
 
 #define CLR_CAM_WIDTH               1600
 #define CLR_CAM_HEIGHT              1200
@@ -482,7 +483,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_IR_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1681,6 +1682,8 @@ enum E_Baud_Rate
 #define USE_ISP_IR_3DNR                     0
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef USE_TEMP_MODE
+#define USE_TEMP_MODE                       1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AIPAI2_UAC)

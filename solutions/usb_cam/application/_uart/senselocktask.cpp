@@ -139,6 +139,9 @@ void* senseSendThread_ThreadProc1(void*)
 {
     s_msg* msg = NULL;
     MSG* pMsg = NULL;
+#if (USE_TEMP_MODE)
+    int tmp_time_cnt = 0;
+#endif // USE_TEMP_MODE
 #if (NOTE_INTERVAL_MS)
     MSG* pMsgNext = NULL;
     float rLastSendTime = 0;
@@ -168,6 +171,18 @@ void* senseSendThread_ThreadProc1(void*)
 #ifdef NOTHREAD_MUL
             break;
 #else // NOTHREAD_MUL
+#if (USE_TEMP_MODE)
+            if (tmp_time_cnt++ >= 100)
+            {
+                tmp_time_cnt = 0;
+                float temp = my_get_cpu_temp();
+                if (temp > 120)
+                    g_xSS.iTempHighState = 1;
+                else if(temp < 100)
+                    g_xSS.iTempHighState = 0;
+                dbug_printf("temp=%0.3f, %d\n", temp, (int)Now());
+            }
+#endif // USE_TEMP_MODE
             my_usleep(5000);
             continue;
 #endif // NOTHREAD_MUL

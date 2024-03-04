@@ -14,12 +14,16 @@
 #include "cvi_sys.h"
 #include "zstd.h"
 #include "drv/spiflash.h"
+#include "cvi_tempsen.h"
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
 
 csi_spiflash_t spiflash_handle;
 unsigned int flash_read_write_init = 0;
+
+cvi_tempsen_t tps;
+int tps_inited = 0;
 
 const char* dbfs_part_names[DB_PART_END+1] =
 {
@@ -1430,5 +1434,23 @@ int xor_encrypt(unsigned char* buf, int length, unsigned char* key, int key_leng
 {
     for (int i = 0; i < length; i ++)
         buf[i] = buf[i] ^ key[i % key_length];
+    return 0;
+}
+
+float my_get_cpu_temp()
+{
+    if (tps_inited == 0)
+    {
+        cvi_tempsen_init(&tps);
+        tps_inited = 1;
+    }
+    unsigned int temp = 0;
+
+    temp = cvi_tempsen_read_temp_mC(&tps, 500);
+    if (temp > 0 && temp < 1000000)
+    {
+        //my_printf("******* temper(%08d): %u\n", (int)Now(), temp);
+        return ((float)temp / 1000);
+    }
     return 0;
 }

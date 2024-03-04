@@ -254,7 +254,7 @@ void StopCamSurface()
 
     g_iMipiCamInited = -1;
 
-    GPIO_fast_setvalue(IR_LED, OFF);
+    gpio_irled_on(OFF);
 }
 
 void* ProcessDVPCapture(void */*param*/)
@@ -744,7 +744,8 @@ void* ProcessTCMipiCapture(void */*param*/)
         if(g_iTwoCamFlag == IR_CAMERA_STEP4 && g_iLedOnStatus == 1)
         {
 #if (!USE_3M_MODE)
-            gpio_irled_on(ON);
+            if (g_xSS.iTempHighState == 0)
+                gpio_irled_on(ON);
 #endif
             dev = 0;
             g_iLedOnStatus = 0;
@@ -861,7 +862,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             if(g_iLedOnStatus == 1)
             {
                 g_iLedOnStatus = 0;
-                if (g_xSS.iForceIRLedOff == 0 || g_xSS.rFaceEngineTime != 0)
+                if ((g_xSS.iForceIRLedOff == 0 || g_xSS.rFaceEngineTime != 0) && g_xSS.iTempHighState == 0)
                     gpio_irled_on(ON);
             }
             g_iTwoCamFlag ++;
@@ -879,7 +880,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             if(g_iLedOnStatus == 1)
             {
                 g_iLedOnStatus = 0;
-                if (g_xSS.iForceIRLedOff == 0 || g_xSS.rFaceEngineTime != 0)
+                if ((g_xSS.iForceIRLedOff == 0 || g_xSS.rFaceEngineTime != 0) && g_xSS.iTempHighState == 0)
                     gpio_irled_on(ON);
 #if (USE_WHITE_LED != 1)
                 if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
