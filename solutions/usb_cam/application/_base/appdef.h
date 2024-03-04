@@ -200,7 +200,7 @@ enum E_Baud_Rate
 #define USE_PRINT_TEMP              0
 #define USE_USB_CHECKFIRM_MODE      1
 #define USE_CAM_REINIT              1
-#define USE_ISP_IR_3DNR             1
+#define USE_ISP_IR_3DNR             0
 #define USE_UAC_DESC_ALT4           0
 #define USE_USB_XN_PROTO            0   //use XinNeng USB Protocol
 #define USE_UVC_FACE_RECT           0
