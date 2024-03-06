@@ -238,12 +238,16 @@ int  FaceEngine::VerifyFace(float* prResultArray)
     return -1;
 }
 
-void FaceEngine::RegisterFace(float* prResultArray, int iFaceDir)
+int FaceEngine::RegisterFace(float* prResultArray, int iFaceDir)
 {
+    SEngineResult* pxEngineResult = NULL;
     int nProcessMode = 0;
     int nRet = fr_RegisterCombo(iFaceDir, &nProcessMode);
+    pxEngineResult =  fr_GetEngineResultCombo(&nProcessMode);
+
     prResultArray[0] = (float)(nRet);
     prResultArray[1] = nProcessMode;
+    return pxEngineResult->nFineUserIndex;
 }
 
 void FaceEngine::RegisterImage(float* prResultArray, unsigned char* pbClrBuffer, int width, int height)

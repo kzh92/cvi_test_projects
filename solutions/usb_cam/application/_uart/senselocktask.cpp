@@ -620,7 +620,7 @@ void SenseLockTask::run()
             if(msg->mid == MID_STOP_OTA)
             {
                 my_printf("MID_STOP_OTA\n");
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_STOP_OTA, MR_SUCCESS);
+                s_msg* reply_msg = SenseLockTask::Get_Reply(NULL, MID_STOP_OTA, MR_SUCCESS);
                 Send_Msg(reply_msg);
 
                 SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_DONE_STOP, 0);
@@ -656,7 +656,7 @@ void SenseLockTask::run()
 #if 1
                 if (BR_IS_VALID(msg_config_baudrate->baudrate_index))
                 {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_CONFIG_BAUDRATE, MR_SUCCESS);
+                    s_msg* reply_msg = SenseLockTask::Get_Reply(NULL, MID_CONFIG_BAUDRATE, MR_SUCCESS);
                     Send_Msg(reply_msg);
 
                     my_usleep(50 * 1000);
@@ -664,7 +664,7 @@ void SenseLockTask::run()
                 }
                 else
                 {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_CONFIG_BAUDRATE, MR_FAILED4_INVALIDPARAM);
+                    s_msg* reply_msg = SenseLockTask::Get_Reply(NULL, MID_CONFIG_BAUDRATE, MR_FAILED4_INVALIDPARAM);
                     Send_Msg(reply_msg);
                 }
 #endif
@@ -672,9 +672,9 @@ void SenseLockTask::run()
             else if(msg->mid == MID_OTA_HEADER)
             {
                 my_printf("MID_OTA_HEADER\n");
-                if(SenseLockTask::Get_MsgLen(msg) < (int)sizeof(g_xSS.msg_otaheader_data))
+                if(SenseLockTask::Get_DataLen(msg) < (int)sizeof(g_xSS.msg_otaheader_data))
                 {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_OTA_HEADER, MR_FAILED4_INVALIDPARAM);
+                    s_msg* reply_msg = SenseLockTask::Get_Reply(NULL, MID_OTA_HEADER, MR_FAILED4_INVALIDPARAM);
                     Send_Msg(reply_msg);
 
                     SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
@@ -686,7 +686,7 @@ void SenseLockTask::run()
                     continue;
                 }
 
-                memcpy(&g_xSS.msg_otaheader_data, msg->data, SenseLockTask::Get_MsgLen(msg));
+                memcpy(&g_xSS.msg_otaheader_data, msg->data, SenseLockTask::Get_DataLen(msg));
 
                 int iFileSize = TO_INT(g_xSS.msg_otaheader_data.fsize_b);
                 int iPckCount = TO_INT(g_xSS.msg_otaheader_data.num_pkt);
@@ -694,7 +694,7 @@ void SenseLockTask::run()
 
                 if(iFileSize < 0 || iFileSize > MAX_OTA_FSIZE || iPckSize <= 0 || iPckSize > MAX_OTA_PCK_SIZE)
                 {
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(MID_OTA_HEADER, MR_FAILED4_INVALIDPARAM);
+                    s_msg* reply_msg = SenseLockTask::Get_Reply(NULL, MID_OTA_HEADER, MR_FAILED4_INVALIDPARAM);
                     Send_Msg(reply_msg);
 
                     SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PACKET_ERROR, 0);
@@ -709,7 +709,7 @@ void SenseLockTask::run()
                 g_xSS.piOtaPckIdx = (int*)my_malloc(iPckCount * sizeof(int));
                 memset(g_xSS.piOtaPckIdx, 0, iPckCount * sizeof(int));
 
-                s_msg* reply_msg = SenseLockTask::Get_Reply(MID_OTA_HEADER, MR_SUCCESS);
+                s_msg* reply_msg = SenseLockTask::Get_Reply(NULL, MID_OTA_HEADER, MR_SUCCESS);
                 Send_Msg(reply_msg);
 
                 SendGlobalMsg(MSG_SENSE, 0, OTA_RECV_PCK, 0);
@@ -733,7 +733,7 @@ void SenseLockTask::run()
                     //my_printf("msg: MID_OTA_PACKET: %d, %d, ===%d, %d\n", iPID, iPSize, g_xSS.iOtaOff, g_xSS.iOtaSize);
                     my_printf("%d, %d, %d, %d\n", iPID, iPckSize, iPID * iPckSize + iPSize, iFSize);
 
-                    s_msg* reply_msg = Get_Reply(MID_OTA_PACKET, MR_SUCCESS);
+                    s_msg* reply_msg = Get_Reply(NULL, MID_OTA_PACKET, MR_SUCCESS);
                     Send_Msg(reply_msg);
 
                     g_xSS.piOtaPckIdx[iPID] = 1;
@@ -817,7 +817,7 @@ void SenseLockTask::run()
         else if(msg->mid == MID_GET_UID)
         {
             dbug_printf("MID_GET_UID\n");
-            s_msg* reply_msg = SenseLockTask::Get_Reply_GetUID(MR_SUCCESS);
+            s_msg* reply_msg = SenseLockTask::Get_Reply_GetUID(msg, MR_SUCCESS);
             Send_Msg(reply_msg);
 #ifdef NOTHREAD_MUL
             iMsgSent = 1;
@@ -892,6 +892,7 @@ void SenseLockTask::run()
 s_msg* SenseLockTask::Get_Reply_Init_Encryption_Data(int iResult)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_init_encryption_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     if (msg == NULL)
@@ -923,6 +924,7 @@ s_msg* SenseLockTask::Get_Reply_Init_Encryption_Data(int iResult)
 s_msg* SenseLockTask::Get_Reply_PowerDown()
 {
     int iMsgDataLen = sizeof(s_msg_reply_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -938,9 +940,10 @@ s_msg* SenseLockTask::Get_Reply_PowerDown()
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd, unsigned char* pbExtData, int iExtDataLen)
+s_msg* SenseLockTask::Get_Reply_Enroll(s_msg* pSenseMsg, int iResult, int iUserID, int iFaceDirection, int iCmd, unsigned char* pbExtData, int iExtDataLen)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_enroll_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     if (pbExtData != NULL && iExtDataLen > 0)
         iMsgDataLen += iExtDataLen;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
@@ -950,6 +953,10 @@ s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirect
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     if (iCmd == -1)
@@ -999,9 +1006,10 @@ s_msg* SenseLockTask::Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirect
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockState, int iAuthType)
+s_msg* SenseLockTask::Get_Reply_Verify(s_msg* pSenseMsg, int iResult, int iUserID, int iUnlockState, int iAuthType)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_verify_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1009,6 +1017,10 @@ s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockStat
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_VERIFY;
@@ -1042,9 +1054,10 @@ s_msg* SenseLockTask::Get_Reply_Verify(int iResult, int iUserID, int iUnlockStat
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetUserInfo(int iResult, int iUserID)
+s_msg* SenseLockTask::Get_Reply_GetUserInfo(s_msg* pSenseMsg, int iResult, int iUserID)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_getuserinfo_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1052,6 +1065,10 @@ s_msg* SenseLockTask::Get_Reply_GetUserInfo(int iResult, int iUserID)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_GETUSERINFO;
@@ -1078,13 +1095,14 @@ s_msg* SenseLockTask::Get_Reply_GetUserInfo(int iResult, int iUserID)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
+s_msg* SenseLockTask::Get_Reply_GetAllUserID(s_msg* pSenseMsg, int iResult, int iFmt)
 {
     s_msg* msg = NULL;
     {
         if (iFmt == SM_USERID_DATA_FMT_DEFAULT)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data);
+            iMsgDataLen += USE_LAIJI_PROTO * 4;
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
             msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
@@ -1114,6 +1132,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         else if (iFmt == SM_USERID_DATA_FMT_BIT1)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt1);
+            iMsgDataLen += USE_LAIJI_PROTO * 4;
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
             msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
@@ -1144,6 +1163,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         else if (iFmt == SM_USERID_DATA_FMT_BIT_EXT)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt_ext);
+            iMsgDataLen += USE_LAIJI_PROTO * 4;
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
             msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
@@ -1178,6 +1198,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
         else if (iFmt == SM_USERID_DATA_FMT_HAND1)
         {
             int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_all_userid_data_fmt1);
+            iMsgDataLen += USE_LAIJI_PROTO * 4;
             int iMsgLen = sizeof(s_msg) + iMsgDataLen;
             msg = (s_msg*)my_malloc(iMsgLen);
             memset(msg, 0, iMsgLen);
@@ -1210,15 +1231,20 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(int iResult, int iFmt)
 
     }
     if (msg == NULL)
-        msg = SenseLockTask::Get_Reply(MID_GET_ALL_USERID, MR_FAILED4_INVALIDPARAM);
+        msg = SenseLockTask::Get_Reply(NULL, MID_GET_ALL_USERID, MR_FAILED4_INVALIDPARAM);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_MxGetAllUserID(int iResult, int iFmt)
+s_msg* SenseLockTask::Get_Reply_MxGetAllUserID(s_msg* pSenseMsg, int iResult, int iFmt)
 {
     s_msg* msg = NULL;
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_mx_get_all_userid_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1226,7 +1252,10 @@ s_msg* SenseLockTask::Get_Reply_MxGetAllUserID(int iResult, int iFmt)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
-
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_MX_GET_ALL_USERID;
     msg_reply_data->result = iResult;
@@ -1237,43 +1266,46 @@ s_msg* SenseLockTask::Get_Reply_MxGetAllUserID(int iResult, int iFmt)
     d->user_counts = dbm_GetPersonCount();
 
     if (msg == NULL)
-        msg = SenseLockTask::Get_Reply(MID_MX_GET_ALL_USERID, MR_FAILED4_INVALIDPARAM);
+        msg = SenseLockTask::Get_Reply(pSenseMsg, MID_MX_GET_ALL_USERID, MR_FAILED4_INVALIDPARAM);
 
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds)
+s_msg* SenseLockTask::Get_Reply_TransFilePacket(s_msg* pSenseMsg, int iResult, int iUserCount, uint16_t* pUserIds)
 {
-    s_msg* msg;
+    s_msg* msg = NULL;
+    int iReplyDataLen = sizeof(uint8_t) + (sizeof(uint16_t) * iUserCount);
+    int iMsgDataLen = sizeof(s_msg_reply_data) + iReplyDataLen;
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
+    int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+    msg = (s_msg*)malloc(iMsgLen);
+    memset(msg, 0, iMsgLen);
+
+    msg->mid = MID_REPLY;
+    msg->size_heb = HIGH_BYTE(iMsgDataLen);
+    msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
+    s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+    msg_reply_data->mid = MID_TRANS_FILE_PACKET;
+    msg_reply_data->result = iResult;
+
+    if (iUserCount > 0)
     {
-        int iReplyDataLen = sizeof(uint8_t) + (sizeof(uint16_t) * iUserCount);
-        int iMsgDataLen = sizeof(s_msg_reply_data) + iReplyDataLen;
-        int iMsgLen = sizeof(s_msg) + iMsgDataLen;
-        msg = (s_msg*)malloc(iMsgLen);
-        memset(msg, 0, iMsgLen);
-
-        msg->mid = MID_REPLY;
-        msg->size_heb = HIGH_BYTE(iMsgDataLen);
-        msg->size_leb = LOW_BYTE(iMsgDataLen);
-
-        s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
-        msg_reply_data->mid = MID_TRANS_FILE_PACKET;
-        msg_reply_data->result = iResult;
-
-        if (iUserCount > 0)
-        {
-            s_msg_reply_trans_file_data* reply_data = (s_msg_reply_trans_file_data*)msg_reply_data->data;
-            reply_data->m_usercount = iUserCount;
-            memcpy(reply_data->m_userids, pUserIds, (sizeof(uint16_t) * iUserCount));
-        }
+        s_msg_reply_trans_file_data* reply_data = (s_msg_reply_trans_file_data*)msg_reply_data->data;
+        reply_data->m_usercount = iUserCount;
+        memcpy(reply_data->m_userids, pUserIds, (sizeof(uint16_t) * iUserCount));
     }
 
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetVersion(int iResult)
+s_msg* SenseLockTask::Get_Reply_GetVersion(s_msg* pSenseMsg, int iResult)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_version_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1281,6 +1313,10 @@ s_msg* SenseLockTask::Get_Reply_GetVersion(int iResult)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_GET_VERSION;
@@ -1301,9 +1337,10 @@ s_msg* SenseLockTask::Get_Reply_GetVersion(int iResult)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetUID(int iResult)
+s_msg* SenseLockTask::Get_Reply_GetUID(s_msg* pSenseMsg, int iResult)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_uid_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1311,6 +1348,10 @@ s_msg* SenseLockTask::Get_Reply_GetUID(int iResult)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_GET_UID;
@@ -1325,9 +1366,10 @@ s_msg* SenseLockTask::Get_Reply_GetUID(int iResult)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetSN(int iResult)
+s_msg* SenseLockTask::Get_Reply_GetSN(s_msg* pSenseMsg, int iResult)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_uid_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1335,6 +1377,10 @@ s_msg* SenseLockTask::Get_Reply_GetSN(int iResult)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_GET_SN;
@@ -1352,6 +1398,7 @@ s_msg* SenseLockTask::Get_Reply_GetSN(int iResult)
 s_msg* SenseLockTask::Get_Reply_GetStatus(int iResult, int iStatus)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_getstatus_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1372,9 +1419,10 @@ s_msg* SenseLockTask::Get_Reply_GetStatus(int iResult, int iStatus)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetSavedImage(int iResult, int iImgLen)
+s_msg* SenseLockTask::Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int iImgLen)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_get_saved_image_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1382,6 +1430,10 @@ s_msg* SenseLockTask::Get_Reply_GetSavedImage(int iResult, int iImgLen)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = MID_GETSAVEDIMAGE;
@@ -1398,9 +1450,10 @@ s_msg* SenseLockTask::Get_Reply_GetSavedImage(int iResult, int iImgLen)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetLogFile(int iResult, int iImgLen, int iCmd)
+s_msg* SenseLockTask::Get_Reply_GetLogFile(s_msg* pSenseMsg, int iResult, int iImgLen, int iCmd)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_get_saved_image_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1408,6 +1461,10 @@ s_msg* SenseLockTask::Get_Reply_GetLogFile(int iResult, int iImgLen, int iCmd)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = iCmd;
@@ -1427,6 +1484,7 @@ s_msg* SenseLockTask::Get_Reply_GetLogFile(int iResult, int iImgLen, int iCmd)
 s_msg* SenseLockTask::Get_Reply_GetOtaStatus(int iStatus, int iPID)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_getotastatus_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1450,9 +1508,10 @@ s_msg* SenseLockTask::Get_Reply_GetOtaStatus(int iStatus, int iPID)
 }
 
 
-s_msg* SenseLockTask::Get_Reply(int iMID, int iResult, unsigned char* pParam, int paramLen)
+s_msg* SenseLockTask::Get_Reply(s_msg* pSenseMsg, int iMID, int iResult, unsigned char* pParam, int paramLen)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + paramLen;
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     if (msg == NULL)
@@ -1465,6 +1524,10 @@ s_msg* SenseLockTask::Get_Reply(int iMID, int iResult, unsigned char* pParam, in
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = iMID;
@@ -1475,9 +1538,10 @@ s_msg* SenseLockTask::Get_Reply(int iMID, int iResult, unsigned char* pParam, in
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_CamError(int iMID, int iResult, int iCamError)
+s_msg* SenseLockTask::Get_Reply_CamError(s_msg* pSenseMsg, int iMID, int iResult, int iCamError)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + 1;
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1485,6 +1549,10 @@ s_msg* SenseLockTask::Get_Reply_CamError(int iMID, int iResult, int iCamError)
     msg->mid = MID_REPLY;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
     msg_reply_data->mid = iMID;
@@ -1500,6 +1568,7 @@ s_msg* SenseLockTask::Get_Note(int iNID)
 {
     s_msg* msg = NULL;
     int iMsgDataLen = sizeof(s_msg_note_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
 #if (USE_READY0_PROTO == 0 || USE_TONGXIN_PROTO)
     if (iNID == NID_READY)
         iMsgDataLen += 1;
@@ -1531,6 +1600,9 @@ s_msg* SenseLockTask::Get_Note(int iNID)
 #if (USE_TONGXIN_PROTO)
         msg_note_data->data[0] = N_MAX_HAND_NUM ? NMT_FACE_HAND : NMT_FACE;
 #endif
+#if (USE_LAIJI_PROTO)
+        msg_note_data->data[0] = NMT_LAIJI_PROTO;
+#endif
     }
 #if (DEFAULT_PROTO_ENC_MODE > 0xf)
 #error "DEFAULT_PROTO_ENC_MODE must be less than 0xf"
@@ -1546,9 +1618,10 @@ s_msg* SenseLockTask::Get_Note(int iNID)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Note_FaceState(int iNID)
+s_msg* SenseLockTask::Get_Note_FaceState(s_msg* pSenseMsg, int iNID)
 {
     int iMsgDataLen = sizeof(s_msg_note_data) + sizeof(s_note_data_face);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1556,6 +1629,10 @@ s_msg* SenseLockTask::Get_Note_FaceState(int iNID)
     msg->mid = MID_NOTE;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_note_data* msg_note_data = (s_msg_note_data*)((unsigned char*)msg + (sizeof(s_msg)));
     msg_note_data->nid = iNID;
@@ -1571,6 +1648,7 @@ s_msg* SenseLockTask::Get_Note_FaceState(int iNID)
 s_msg* SenseLockTask::Get_Note_OtaDone(int iOk)
 {
     int iMsgDataLen = sizeof(s_msg_note_data) + 1;
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1586,9 +1664,10 @@ s_msg* SenseLockTask::Get_Note_OtaDone(int iOk)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Note_EyeState(int iEyeState)
+s_msg* SenseLockTask::Get_Note_EyeState(s_msg* pSenseMsg, int iEyeState)
 {
     int iMsgDataLen = sizeof(s_msg_note_data) + sizeof(s_note_data_eye);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1596,6 +1675,10 @@ s_msg* SenseLockTask::Get_Note_EyeState(int iEyeState)
     msg->mid = MID_NOTE;
     msg->size_heb = HIGH_BYTE(iMsgDataLen);
     msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
 
     s_msg_note_data* msg_note_data = (s_msg_note_data*)((unsigned char*)msg + (sizeof(s_msg)));
     msg_note_data->nid = NID_EYE_STATE;
@@ -1610,6 +1693,7 @@ s_msg* SenseLockTask::Get_Note_EyeState(int iEyeState)
 s_msg* SenseLockTask::Get_Image(unsigned char* pbImage, int iImgLen)
 {
     int iMsgDataLen = iImgLen;
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
     int iMsgLen = sizeof(s_msg) + iMsgDataLen;
     s_msg* msg = (s_msg*)my_malloc(iMsgLen);
     memset(msg, 0, iMsgLen);
@@ -1813,6 +1897,17 @@ int SenseLockTask::Get_MsgLen(s_msg* msg)
         return 0;
 
     return TO_SHORT(msg->size_heb, msg->size_leb);
+}
+
+int SenseLockTask::Get_DataLen(s_msg* msg)
+{
+    if(msg == NULL)
+        return 0;
+
+    int len = TO_SHORT(msg->size_heb, msg->size_leb);
+    if (USE_LAIJI_PROTO)
+        len -= 4;
+    return len;
 }
 
 int SenseLockTask::SendReady()

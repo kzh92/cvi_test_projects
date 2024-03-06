@@ -964,7 +964,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
     float arEngineResult[10] = { 0 };
     int ret = 0;
     SendFaceDetectMsg();
-    FaceEngine::RegisterFace(arEngineResult, g_xSS.msg_enroll_itg_data.face_direction);
+    int retReg = FaceEngine::RegisterFace(arEngineResult, g_xSS.msg_enroll_itg_data.face_direction);
 
     if(g_xSS.iResetFlag == 1)
         return 1;
@@ -1030,6 +1030,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             else if(arEngineResult[0] == ES_DUPLICATED)
             {
                 m_iResult = FACE_RESULT_DUPLICATED_FACE;
+                m_iRecogIndex = retReg;
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_SPOOF_FACE)

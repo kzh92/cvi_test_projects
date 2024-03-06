@@ -171,6 +171,9 @@ typedef struct {
     uint8_t mid;       // the message id
     uint8_t size_heb;  // high eight bits
     uint8_t size_leb;  // low eight bits
+#if (USE_LAIJI_PROTO)
+    uint8_t seq_id[4]; //sequence id
+#endif
     uint8_t data[0];
 } s_msg;
 
@@ -190,6 +193,7 @@ typedef uint8_t s_note_id;
 #define NMT_HAND            1
 #define NMT_IRIS            2
 #define NMT_FACE_HAND       3
+#define NMT_LAIJI_PROTO     0xFE
 
 /* msg face direction */
 typedef uint8_t s_face_dir;

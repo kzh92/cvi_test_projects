@@ -187,6 +187,7 @@ enum E_Baud_Rate
 #define USE_DB_UPDATE_MODE          1
 #define USE_TONGXIN_PROTO           0
 #define USE_EKESI_PROTO             0
+#define USE_LAIJI_PROTO             0
 #define ENROLL_ANGLE_MODE           0
 #define ENGINE_USE_TWO_CAM          EUTC_2V0_MODE
 #define YAOYANG_MODE                0
@@ -483,7 +484,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LAIJI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2312,19 +2313,15 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LAIJI_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.52.0.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.52.0.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.52.0.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.52.0.4_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
-                                            {2, 800, 480, 30, 0, 10240}, \
-                                            {3, 640, 480, 30, 0, 8192}, \
-                                            {4, 480, 320, 30, 0, 6144}, \
-                                            {5, 320, 240, 30, 0, 6144},
+#define UVC_RES_DEFINE                      {1, 1064, 600, 30, 0, 20480},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -2360,6 +2357,8 @@ enum E_Baud_Rate
 #define USE_USB_CHECKFIRM_MODE              0
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
+#undef USE_LAIJI_PROTO
+#define USE_LAIJI_PROTO                     1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_JIZHI_UAC)

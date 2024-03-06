@@ -62,30 +62,31 @@ public:
 
     static s_msg*       Get_Reply_Init_Encryption_Data(int iResult);
     static s_msg*       Get_Reply_PowerDown();
-    static s_msg*       Get_Reply_Enroll(int iResult, int iUserID, int iFaceDirection, int iCmd = -1, unsigned char* pbExtData = NULL, int iExtDataLen = 0);
-    static s_msg*       Get_Reply_Verify(int iResult, int iUserID, int iUnlockState, int iAuthType = 0);
-    static s_msg*       Get_Reply_GetUserInfo(int iResult, int iUserID);
-    static s_msg*       Get_Reply_GetAllUserID(int iResult, int iFmt);
-    static s_msg*       Get_Reply_MxGetAllUserID(int iResult, int iFmt);
-    static s_msg*       Get_Reply_TransFilePacket(int iResult, int iUserCount, uint16_t* pUserIds);
-    static s_msg*       Get_Reply_GetVersion(int iResult);
-    static s_msg*       Get_Reply_GetUID(int iResult);
-    static s_msg*       Get_Reply_GetSN(int iResult);
+    static s_msg*       Get_Reply_Enroll(s_msg* pSenseMsg, int iResult, int iUserID, int iFaceDirection, int iCmd = -1, unsigned char* pbExtData = NULL, int iExtDataLen = 0);
+    static s_msg*       Get_Reply_Verify(s_msg* pSenseMsg, int iResult, int iUserID, int iUnlockState, int iAuthType = 0);
+    static s_msg*       Get_Reply_GetUserInfo(s_msg* pSenseMsg, int iResult, int iUserID);
+    static s_msg*       Get_Reply_GetAllUserID(s_msg* pSenseMsg, int iResult, int iFmt);
+    static s_msg*       Get_Reply_MxGetAllUserID(s_msg* pSenseMsg, int iResult, int iFmt);
+    static s_msg*       Get_Reply_TransFilePacket(s_msg* pSenseMsg, int iResult, int iUserCount, uint16_t* pUserIds);
+    static s_msg*       Get_Reply_GetVersion(s_msg* pSenseMsg, int iResult);
+    static s_msg*       Get_Reply_GetUID(s_msg* pSenseMsg, int iResult);
+    static s_msg*       Get_Reply_GetSN(s_msg* pSenseMsg, int iResult);
     static s_msg*       Get_Reply_GetStatus(int iResult, int iStatus);
-    static s_msg*       Get_Reply_GetSavedImage(int iResult, int iImgLen);
-    static s_msg*       Get_Reply_GetLogFile(int iResult, int iImgLen, int iCmd = MID_GET_LOGFILE);
+    static s_msg*       Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int iImgLen);
+    static s_msg*       Get_Reply_GetLogFile(s_msg* pSenseMsg, int iResult, int iImgLen, int iCmd = MID_GET_LOGFILE);
     static s_msg*       Get_Reply_GetOtaStatus(int iStatus, int iPID);
-    static s_msg*       Get_Reply(int iMID, int iResult, unsigned char* pParam = NULL, int paramLen = 0);
-    static s_msg*       Get_Reply_CamError(int iMID, int iResult, int iCamError);
+    static s_msg*       Get_Reply(s_msg* pSenseMsg, int iMID, int iResult, unsigned char* pParam = NULL, int paramLen = 0);
+    static s_msg*       Get_Reply_CamError(s_msg* pSenseMsg, int iMID, int iResult, int iCamError);
 
     static s_msg*       Get_Note(int iNID);
-    static s_msg*       Get_Note_FaceState(int iNID);
+    static s_msg*       Get_Note_FaceState(s_msg* pSenseMsg, int iNID);
     static s_msg*       Get_Note_OtaDone(int iOk);
-    static s_msg*       Get_Note_EyeState(int iEyeState);
+    static s_msg*       Get_Note_EyeState(s_msg* pSenseMsg, int iEyeState);
 
     static s_msg*       Get_Image(unsigned char* pbImage, int iImgLen);
 
     static int          Get_MsgLen(s_msg* msg);
+    static int          Get_DataLen(s_msg* msg);
     static int          Set_Key(unsigned char* pbSeed, int iSize, int iMode, char* strEncKey);
     static int          Set_KeyPos(unsigned char* pbKeyPos);
     static unsigned char    Get_CheckSum(unsigned char* pbData, int iLen);

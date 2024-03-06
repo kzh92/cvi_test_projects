@@ -39,7 +39,7 @@ public:
 
     static int	ExtractFace(unsigned char* pbRgbData, unsigned char* pbLedOnData, float* prResultArray);
     static int	VerifyFace(float* prResultArray);
-    static void RegisterFace(float* prResultArray, int iFaceDir);
+    static int  RegisterFace(float* prResultArray, int iFaceDir);
     static void RegisterImage(float* prResultArray, unsigned char* pbClrBuffer, int width, int height);
     static void RegisterFeat(float* prResultArray, unsigned char* pbFeat, int length, int isIRImage = 0);
 
