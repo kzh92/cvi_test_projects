@@ -187,10 +187,14 @@ void doCheckFirmware()
     else
     {
         //send otag done success!
+#if (USE_LAIJI_PROTO == 0)
         unsigned char abOtaCmd[] = {0xEF, 0xAA, 0x01, 0x00, 0x02, 0x03, 0x00, 0x00};
+#else
+        unsigned char abOtaCmd[] = {0xEF, 0xAA, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00};
+#endif
         if (iErrorFlag != 0)
-            abOtaCmd[5] = 0x90 + iErrorFlag;
-        abOtaCmd[7] = SenseLockTask_Get_CheckSum(abOtaCmd + 2, sizeof(abOtaCmd) - 3);
+            abOtaCmd[5 + USE_LAIJI_PROTO * 4] = 0x90 + iErrorFlag;
+        abOtaCmd[sizeof(abOtaCmd) - 1] = SenseLockTask_Get_CheckSum(abOtaCmd + 2, sizeof(abOtaCmd) - 3);
 
         if (BR_IS_VALID(iUpgradeBaudrate))
         {
