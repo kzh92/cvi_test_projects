@@ -460,6 +460,26 @@ void FaceRecogTask::run()
     }
 
     memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
+    if (fr_GetEngine2ndLoaded() != 0)
+    {
+        float rOldTime = Now();
+        while(Now() - rOldTime < 1000 && fr_GetEngine2ndLoaded() != 2)
+        {
+            my_usleep(10*1000);
+        }
+        dbug_printf("thread wait time=%0.3f\n", Now() - rOldTime);
+    }
+#if (N_MAX_HAND_NUM)
+    if (fr_GetEngine2ndHandLoaded() != 0)
+    {
+        float rOldTime = Now();
+        while(Now() - rOldTime < 1000 && fr_GetEngine2ndHandLoaded() != 2)
+        {
+            my_usleep(10*1000);
+        }
+        dbug_printf("hthread wait time=%0.3f\n", Now() - rOldTime);
+    }
+#endif // N_MAX_HAND_NUM
 
 #if (DEFAULT_SECURE_MODE == 1)
     unsigned char _tmp_buf_cs[sizeof(g_xCS)];
