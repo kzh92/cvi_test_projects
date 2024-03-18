@@ -117,8 +117,13 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v11           12
 #define ISP_BIN_VER_21v12           13
 #define ISP_BIN_VER_21v13           14
-#define ISP_BIN_VER_22v0            15
-#define ISP_BIN_VER_301v9           16
+#define ISP_BIN_VER_21v15           15
+#define ISP_BIN_VER_21v16           16
+#define ISP_BIN_VER_21v17           17
+#define ISP_BIN_VER_21v18           18
+#define ISP_BIN_VER_21v19           19
+#define ISP_BIN_VER_22v0            20
+#define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
 //isp mono file version
@@ -486,7 +491,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HONGLI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -791,8 +796,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AJISHI_CHANGSI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.7.6_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.6_D"
+#define DEVICE_FIRMWARE_VERSION             "3.7.6.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.7.6.3_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -829,13 +834,15 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v12
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v17
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UVC_CROP_RESIZE
+#define UVC_CROP_RESIZE                     0.851
 
 //----------------------------------------------------------
 
@@ -1086,8 +1093,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.14.13_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.13_D"
+#define DEVICE_FIRMWARE_VERSION             "3.14.13.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.14.13.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1117,7 +1124,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v19
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
@@ -1220,18 +1227,15 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANHAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.18.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.18.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.18.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.18.6_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240}, \
-                                            {3, 800, 480, 30, 0, 10240}, \
-                                            {4, 640, 480, 30, 0, 6144},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
@@ -1253,11 +1257,13 @@ enum E_Baud_Rate
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v0
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JIGAO_UAC)
@@ -2064,19 +2070,22 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.43.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.43.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.43.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.43.6_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         1
+#define USE_3M_MODE                         U3M_SEMI
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef DEFAULT_BOARD_TYPE
@@ -2090,11 +2099,14 @@ enum E_Baud_Rate
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-50)
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)

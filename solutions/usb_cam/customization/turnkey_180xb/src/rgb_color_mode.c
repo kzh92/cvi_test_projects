@@ -30,6 +30,16 @@
 #include "rgb_color_v2.1.0.12.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v13)
 #include "rgb_color_v2.1.0.13.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v15)
+#include "rgb_color_v2.1.0.15.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v16)
+#include "rgb_color_v2.1.0.16.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v17)
+#include "rgb_color_v2.1.0.17.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v18)
+#include "rgb_color_v2.1.0.18.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v19)
+#include "rgb_color_v2.1.0.19.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_22v0)
 #include "rgb_color_v2.2.0.0.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_301v9)
