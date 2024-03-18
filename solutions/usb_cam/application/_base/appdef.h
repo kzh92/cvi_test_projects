@@ -117,8 +117,11 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v11           12
 #define ISP_BIN_VER_21v12           13
 #define ISP_BIN_VER_21v13           14
-#define ISP_BIN_VER_22v0            15
-#define ISP_BIN_VER_301v9           16
+#define ISP_BIN_VER_21v15           15
+#define ISP_BIN_VER_21v16           16
+#define ISP_BIN_VER_21v17           17
+#define ISP_BIN_VER_22v0            18
+#define ISP_BIN_VER_301v9           19
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
 
 //isp mono file version
