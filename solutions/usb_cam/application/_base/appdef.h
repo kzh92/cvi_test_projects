@@ -106,22 +106,24 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_103v8           1   //v1.0.3.8
 #define ISP_BIN_VER_104v1           2   //v1.0.4.1
 #define ISP_BIN_VER_103v9           3   //v1.0.3.9
-#define ISP_BIN_VER_21v0            4
-#define ISP_BIN_VER_21v1            5
-#define ISP_BIN_VER_21v2            6
-#define ISP_BIN_VER_21v4            7
-#define ISP_BIN_VER_21v7            8
-#define ISP_BIN_VER_21v8            9
-#define ISP_BIN_VER_21v9            10
-#define ISP_BIN_VER_21v10           11
-#define ISP_BIN_VER_21v11           12
-#define ISP_BIN_VER_21v12           13
-#define ISP_BIN_VER_21v13           14
-#define ISP_BIN_VER_21v15           15
-#define ISP_BIN_VER_21v16           16
-#define ISP_BIN_VER_21v17           17
-#define ISP_BIN_VER_21v18           18
-#define ISP_BIN_VER_21v19           19
+#define ISP_BIN_VER_21v0            2100
+#define ISP_BIN_VER_21v1            2101
+#define ISP_BIN_VER_21v2            2102
+#define ISP_BIN_VER_21v4            2104
+#define ISP_BIN_VER_21v7            2107
+#define ISP_BIN_VER_21v8            2108
+#define ISP_BIN_VER_21v9            2109
+#define ISP_BIN_VER_21v10           2110
+#define ISP_BIN_VER_21v11           2111
+#define ISP_BIN_VER_21v12           2112
+#define ISP_BIN_VER_21v13           2113
+#define ISP_BIN_VER_21v15           2115
+#define ISP_BIN_VER_21v16           2116
+#define ISP_BIN_VER_21v17           2117
+#define ISP_BIN_VER_21v18           2118
+#define ISP_BIN_VER_21v19           2119
+#define ISP_BIN_VER_21v20           2120
+#define ISP_BIN_VER_21v21           2121
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
