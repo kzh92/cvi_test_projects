@@ -342,15 +342,6 @@ static CVI_S32 cmos_gains_update(VI_PIPE ViPipe, CVI_U32 *pu32Again, CVI_U32 *pu
 	if (g_sc201cs_aec_ctrl == 0)
 		return CVI_SUCCESS;
 
-	if (iSensorPatternMode)
-		return CVI_SUCCESS;
-
-	if (iSensorPatternMode)
-		return CVI_SUCCESS;
-
-	if (iSensorPatternMode)
-		return CVI_SUCCESS;
-
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
 	CMOS_CHECK_POINTER(pu32Again);
@@ -900,7 +891,10 @@ static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 static CVI_S32 sensor_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)
 {
 	if (enablePattern)
+	{
 		iSensorPatternMode = 1;
+		g_sc201cs_aec_ctrl = 0;
+	}
 	else
 		iSensorPatternMode = 0;
 	return sc201cs_pattern_enable(ViPipe, enablePattern);

@@ -493,6 +493,35 @@ void FaceRecogTask::run()
         UpdateHeadInfos2();
 #endif // DEFAULT_SECURE_MODE
 
+    if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && m_iCmd == E_VERIFY)
+    {
+        g_xSS.iDemoVerifyEnd = 1;
+        float rTime = Now();
+        // g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
+        while(g_xSS.iDemoGotClrFrame == 0 && Now() - rTime < 1000)
+        {
+            my_usleep(10000);
+        }
+        dbug_printf("cwait=%0.3f\n", Now() - rTime);
+        int res = CAMERA_ERROR; //failure on default
+        rTime = Now();
+        if (g_xSS.iDemoGotClrFrame)
+        {
+            lockIRBuffer();
+            res = checkCameraPattern(g_irOnData2);
+            unlockIRBuffer();
+        }
+        my_printf("*** check clr cam=%d/%d, %0.3f\n", res, g_xSS.iDemoGotClrFrame, Now() - rTime);
+        if (res)
+        {
+            if (res == CAMERA_ERROR)
+                g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN;
+            else
+                g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN_2;
+        }
+        g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
+    }
+
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
     if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && 0)
     {

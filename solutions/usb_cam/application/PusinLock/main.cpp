@@ -2726,14 +2726,6 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
 #if (USE_VDBTASK)
                     if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
                     {
-                        float _tmpNow = Now();
-                        while(Now() - _tmpNow < 5000)
-                        {
-                            if (g_xSS.iCamError & CAM_ERROR_CLR_CHECKED)
-                                break;
-                            my_usleep(10*1000);
-                        }
-                        my_usleep(50*1000);
                         if (!(g_xSS.iCamError & CAM_ERROR_CLR_CHECKED))
                             g_xSS.iCamError |= CAM_ERROR_DVP2;
                         g_xSS.iCamError &= ~CAM_ERROR_CLR_CHECKED;

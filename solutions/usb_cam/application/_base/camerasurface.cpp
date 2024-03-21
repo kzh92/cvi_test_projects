@@ -735,7 +735,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             continue;
         }
 #if (USE_VDBTASK)
-        if (iClrCheck == 0 && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+        if (iClrCheck == 0 && g_xSS.iDemoVerifyEnd && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
             dev = USE_3M_MODE ? 0 : 1;
         }
@@ -827,8 +827,8 @@ void* ProcessTCMipiCapture(void */*param*/)
         rOld = Now();
 
 #if (USE_VDBTASK)
-        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iClrCheck == 0 && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && 
-            (g_xSS.iAutoUserAdd == 0 || g_xSS.iAutoUserAdd >= 6))
+        if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && iClrCheck == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && 
+            (g_xSS.iAutoUserAdd == 0 || g_xSS.iAutoUserAdd >= 6) && g_xSS.iDemoVerifyEnd)
         {
             lockIRBuffer();
             size_t test_pos = 0;
@@ -840,17 +840,8 @@ void* ProcessTCMipiCapture(void */*param*/)
                     break;
             }
             unlockIRBuffer();
-            float rTime = Now();
-            int res = checkCameraPattern(g_irOnData2);
-            my_printf("*** check clr cam=%d, %0.3f\n", res, Now() - rTime);
-            if (res)
-            {
-                if (res == CAMERA_ERROR)
-                    g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN;
-                else
-                    g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN_2;
-            }
-            g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
+            g_xSS.iDemoGotClrFrame = 1;
+            dbug_printf("got color.\n");
             iClrCheck = 1;
         }
 #endif // USE_VDBTASK
@@ -944,7 +935,6 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (ENGINE_USE_TWO_CAM != EUTC_3V4_MODE && ENGINE_USE_TWO_CAM != EUTC_3M_MODE)
             g_iTwoCamFlag ++;
 #else // ENGINE_USE_TWO_CAM
-            WaitIRCancel();
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
             if (g_xSS.iFirstFlag == 0 && g_iTwoCamFlag == IR_CAMERA_STEP2)
             {
