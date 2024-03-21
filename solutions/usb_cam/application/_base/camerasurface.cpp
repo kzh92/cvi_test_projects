@@ -2189,7 +2189,10 @@ int saveUvcScene()
         return MR_FAILED4_NOMEMORY;
     }
     yuv_to_rgb_shrink(g_irOnData1, vpss_width, vpss_height, imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH);
-    rotate_image_inplace(imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH, 3, g_xPS.x.bCamFlip == USE_3M_MODE ? 270: 90, 0);
+    int iCamFlip = g_xSS.iCameraRotate;
+    if (g_xSS.iUvcDirect == UVC_ROTATION_270)
+        iCamFlip = !iCamFlip;
+    rotate_image_inplace(imgBuf, CAPTURE_HEIGHT, CAPTURE_WIDTH, 3, iCamFlip ? 270: 90, 0);
     int iWriteLen = 0;
     for(int i = 60; i >= 10; i -= 10)
     {
