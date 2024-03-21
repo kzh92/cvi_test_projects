@@ -3176,7 +3176,10 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                 else if(iResult == HAND_RESULT_ENROLL_DUPLICATED)
                 {
                     s_msg* msg = NULL;
-                    msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, MR_FAILED4_HANDENROLLED, -1, 0, g_xSS.iRunningCmd);
+                    int iFindIdx = pFaceTask->GetRecogIndex();
+                    int iID = dbm_GetHandIDOfIndex(iFindIdx);
+                    iID += N_MAX_PERSON_NUM;
+                    msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, MR_FAILED4_HANDENROLLED, iID + 1, 0, g_xSS.iRunningCmd);
                     g_pSenseTask->Send_Msg(msg);
 
                     ResetFaceRegisterStates();

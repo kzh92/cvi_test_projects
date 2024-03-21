@@ -1130,6 +1130,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             {
                 my_usleep(20*1000);
                 m_iResult = HAND_RESULT_ENROLL_DUPLICATED;
+                m_iRecogIndex = retReg;
                 ret = 1;
             }
             else if(arEngineResult[0] == ES_ENEXT)
