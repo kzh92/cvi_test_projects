@@ -2339,8 +2339,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LAIJI_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.52.0.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.52.0.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.52.0.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.52.0.6_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2367,7 +2367,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v20
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v21
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
