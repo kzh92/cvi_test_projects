@@ -1829,7 +1829,7 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
-#define UVC_CLR2IR_THR4ISP                  (-50)
+#define UVC_CLR2IR_THR4ISP                  (-200)
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef USE_ISP_IR_3DNR
