@@ -23,10 +23,10 @@
 #define INTF_DESC_bInterfaceNumber  2 /** Interface number offset */
 #define INTF_DESC_bAlternateSetting 3 /** Alternate setting offset */
 
-#define EP_DESC_bEndpointNumber     2
-
 #define USB_EP_OUT_NUM 8
 #define USB_EP_IN_NUM  8
+
+#define EP_DESC_bEndpointNumber     2
 
 USB_NOCACHE_RAM_SECTION struct usbd_core_cfg_priv {
     /** Setup packet */
@@ -87,7 +87,6 @@ static void usbd_class_event_notify_handler(uint8_t event, void *arg);
 
 static void usbd_print_setup(struct usb_setup_packet *setup)
 {
-#if 0
     USB_LOG_INFO("Setup: "
                  "bmRequestType 0x%02x, bRequest 0x%02x, wValue 0x%04x, wIndex 0x%04x, wLength 0x%04x\r\n",
                  setup->bmRequestType,
@@ -95,11 +94,6 @@ static void usbd_print_setup(struct usb_setup_packet *setup)
                  setup->wValue,
                  setup->wIndex,
                  setup->wLength);
-#else
-#if (UVC_USBD_PRINT)
-    aos_debug_printf("[H] sr\n");
-#endif
-#endif
 }
 
 static bool is_device_configured(void)
@@ -468,15 +462,13 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
                     if_desc = (void *)p;
                 }
 
-                USB_LOG_DBG("Current iface %u alt setting %u",
+                USB_LOG_DBG("Current iface %u alt setting %u\n",
                             cur_iface, cur_alt_setting);
                 break;
 
             case USB_DESCRIPTOR_TYPE_ENDPOINT:
                 if (cur_iface == iface) {
                     ep_desc = (struct usb_endpoint_descriptor *)p;
-
-                    //aos_debug_printf("== %d, %d, %d\n", iface, cur_alt_setting, alt_setting);
 
                     if (cur_alt_setting != alt_setting) {
                         ret = usbd_reset_endpoint(ep_desc);
@@ -1022,23 +1014,12 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
 static void usbd_class_event_notify_handler(uint8_t event, void *arg)
 {
     usb_slist_t *i;
-    struct usb_setup_packet *setup = (struct usb_setup_packet *)arg;
-    // FIXME: why wIndex is wrong when printing
-    uint16_t wInterface = setup ? (setup->wIndex & 0x01) : -1;
-    if (event == USBD_EVENT_SET_INTERFACE) {
-        wInterface = setup ? (setup->wValue & 0xff) : -1;
-    }
-
-    if (setup) {
-        usbd_print_setup(setup);
-    } else {
-        USB_LOG_INFO("NULL ptr\n");
-    }
+    struct usb_interface_descriptor *if_desc = (struct usb_interface_descriptor *)arg;
 
     usb_slist_for_each(i, &usbd_intf_head)
     {
         struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
-        if (event == USBD_EVENT_SET_INTERFACE && intf->intf_num != wInterface) {
+        if (event == USBD_EVENT_SET_INTERFACE && intf->intf_num != if_desc->bInterfaceNumber) {
             continue;
         }
 
@@ -1241,7 +1222,6 @@ void usbd_event_ep_out_complete_handler(uint8_t ep, uint32_t nbytes)
 
                 /*Send status to host*/
                 usbd_ep_start_write(USB_CONTROL_IN_EP0, NULL, 0);
-
             } else {
                 /* Start reading the remain data */
                 usbd_ep_start_read(USB_CONTROL_OUT_EP0, usbd_core_cfg.ep0_data_buf, usbd_core_cfg.ep0_data_buf_residue);

@@ -371,7 +371,6 @@ static void usbh_hub_events(struct usbh_hub *hub)
     uint16_t feat;
     uint8_t speed;
     int ret;
-    (void)speed_table;
 
     if (!hub->connected) {
         return;
@@ -493,6 +492,7 @@ static void usbh_hub_events(struct usbh_hub *hub)
                     child->connected = true;
                     child->port = port + 1;
                     child->speed = speed;
+                    (void)speed_table;
 
                     USB_LOG_INFO("New %s device on Hub %u, Port %u connected\r\n", speed_table[speed], hub->index, port + 1);
 
