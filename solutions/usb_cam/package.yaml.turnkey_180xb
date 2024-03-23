@@ -58,7 +58,7 @@ depends:
   - g711: v0.0.1
   - cvi_test: develop
 #  - mbedtls: develop
-
+  - drv_usbd_class: develop
   - cvi_mmf_sdk_cv180xx: develop
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -202,9 +202,7 @@ def_config:
   CONFIG_SENSOR_SONY_IMX307: 0
   CONFIG_SENSOR_SONY_IMX327: 0
   CONFIG_SUPPORT_NORFLASH: 1
-  CONFIG_SUPPORT_USB_DC: 1
-# CONFIG_APP_UVC_SUPPORT: 1
-  CONFIG_APP_AV_COMP_SUPPORT: 1
+  CONFIG_CHIP_LOW_POWER_COST: 1
 
   CONFIG_SNS0_TYPE: 19
   CONFIG_SNS1_TYPE: 0
@@ -218,17 +216,22 @@ def_config:
   CONFIG_PQBIN_USE_JSON: 0
   CONFIG_ISP_SUPPORT_PROC: 0
   CONFIG_ENABLE_FASTBOOT: 1
+  CONFIG_AOS_NEWLINE_SUPPORT: 1
+
+## USB
   CONFIG_USB_DWC2_PORT: 1
   CONFIG_USB_HS: 1
-  CONFIG_AOS_NEWLINE_SUPPORT: 1
+  CONFIG_SUPPORT_USB_DC: 1
+  CONFIG_SUPPORT_USB_HC: 0
   CONFIG_USB_DWC2_DMA_ENABLE: 1
-  CONFIG_UAC_SAMPLE_RATE: 8000
+  CONFIG_USB_BULK_UVC: 0
+  CONFIG_RNDIS_DEVICE_ETH: 0
 
-  #user defined
-  ENGINE_THREAD_COUNT: 1
-  __RTK_OS__: 1
-  MY_DICT_FLASH: 1
-  __ENCRYPT_ENGINE__: 1
+  CONFIG_USBD_UVC: 1
+  CONFIG_USBD_UAC: 1
+  CONFIG_USBD_CDC_UART: 0
+  CONFIG_USBD_CDC_RNDIS: 0
+  CONFIG_USBD_HID_KEYBOARD: 0
   
 ## 第六部分：安装信息
 # install:

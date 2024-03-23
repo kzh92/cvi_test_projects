@@ -230,6 +230,8 @@ void usbh_video_list_info(struct usbh_video *video_class)
     struct usb_endpoint_descriptor *ep_desc;
     uint8_t mult;
     uint16_t mps;
+    (void)mps;
+    (void)mult;
 
     USB_LOG_INFO("============= Video device information ===================\r\n");
     USB_LOG_INFO("bcdVDC:%04x\r\n", video_class->bcdVDC);

@@ -20,10 +20,10 @@
 #define INTF_DESC_bInterfaceNumber  2 /** Interface number offset */
 #define INTF_DESC_bAlternateSetting 3 /** Alternate setting offset */
 
-#define EP_DESC_bEndpointNumber     2
-
 #define USB_EP_OUT_NUM 8
 #define USB_EP_IN_NUM  8
+
+#define EP_DESC_bEndpointNumber     2
 
 USB_NOCACHE_RAM_SECTION struct usbd_core_cfg_priv {
     /** Setup packet */
@@ -439,7 +439,7 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
                     if_desc = (void *)p;
                 }
 
-                USB_LOG_DBG("Current iface %u alt setting %u",
+                USB_LOG_DBG("Current iface %u alt setting %u\n",
                             cur_iface, cur_alt_setting);
                 break;
 
@@ -912,6 +912,25 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
     return true;
 }
 
+#if (USE_USB_EP_ERR_FIX_MODE == 0)
+static void usbd_class_event_notify_handler(uint8_t event, void *arg)
+{
+    usb_slist_t *i;
+    struct usb_interface_descriptor *if_desc = (struct usb_interface_descriptor *)arg;
+
+    usb_slist_for_each(i, &usbd_intf_head)
+    {
+        struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
+        if (event == USBD_EVENT_SET_INTERFACE && intf->intf_num != if_desc->bInterfaceNumber) {
+            continue;
+        }
+
+        if (intf->notify_handler) {
+            intf->notify_handler(event, arg);
+        }
+    }
+}
+#else
 static void usbd_class_event_notify_handler(uint8_t event, void *arg)
 {
     usb_slist_t *i;
