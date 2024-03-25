@@ -932,7 +932,13 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
 
         if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             fr_SetCameraFlip(!g_xSS.iCameraRotate);
-        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1);
+        int iLandscapeFlag = 1;
+        if (g_xSS.iUvcDirect == UVC_ROTATION_0)
+        {
+            if (w < h)
+                iLandscapeFlag = 0;
+        }
+        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1, iLandscapeFlag);
         if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             fr_SetCameraFlip(g_xSS.iCameraRotate);
         if(iCheck != ES_SUCCESS)
@@ -1039,7 +1045,13 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 
         if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             fr_SetCameraFlip(!g_xSS.iCameraRotate);
-        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1);
+        int iLandscapeFlag = 1;
+        if (g_xSS.iUvcDirect == UVC_ROTATION_0)
+        {
+            if (w < h)
+                iLandscapeFlag = 0;
+        }
+        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1, iLandscapeFlag);
         if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
             fr_SetCameraFlip(g_xSS.iCameraRotate);
         if(iCheck != ES_SUCCESS)
