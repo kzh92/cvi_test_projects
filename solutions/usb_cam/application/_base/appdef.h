@@ -493,7 +493,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LAIJI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI2_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1707,8 +1707,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_AIPAI2_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.29.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.29.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.29.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.29.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1735,7 +1735,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
@@ -1745,6 +1745,8 @@ enum E_Baud_Rate
 #define UAC_SPEAKER_VOL                     4 // 0 ~ 32
 #undef UAC_AUDALGO_USE
 #define UAC_AUDALGO_USE                     1
+#undef USE_TEMP_MODE
+#define USE_TEMP_MODE                       1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JINJIAN_UAC)
