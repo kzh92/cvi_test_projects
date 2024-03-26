@@ -249,16 +249,19 @@ void WatchTask::run()
 #endif // UVC_CLR2IR_THR4ISP
             {
 #ifndef UVC_CLR2IR_THR4ENGINE
-                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR) && g_xSS.iGotUvcEvent)
+                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
                 {
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
                     {
                         if (USE_3M_MODE == U3M_DEFAULT && USE_WHITE_LED != 0)
                         {
-                            gpio_whiteled_on(ON);
-                            //notice that using white led
-                            if (USE_3M_MODE != U3M_SEMI)
-                                fr_SetColorLed(1);
+                            if (g_xSS.rFaceEngineTime != 0 || g_xSS.iGotUvcEvent)
+                            {
+                                gpio_whiteled_on(ON);
+                                //notice that using white led
+                                if (USE_3M_MODE != U3M_SEMI)
+                                    fr_SetColorLed(1);
+                            }
                         }
                         iClrDarkCounter ++;
                     }
@@ -284,7 +287,7 @@ void WatchTask::run()
                 }
 #elif (USE_WHITE_LED == UWL_EN_NORMAL || USE_WHITE_LED == UWL_EN_F0U1) // USE_WHITE_LED
 #if (USE_3M_MODE)
-                if (USE_3M_MODE == U3M_DEFAULT || g_xSS.bUVCRunning)
+                if (USE_3M_MODE == U3M_DEFAULT || (g_xSS.bUVCRunning || g_xSS.rFaceEngineTime != 0))
                 {
                     gpio_whiteled_on(ON);
                     //notice that using white led
