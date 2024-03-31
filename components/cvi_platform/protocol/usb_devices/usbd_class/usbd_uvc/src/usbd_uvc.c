@@ -671,19 +671,6 @@ static void vedio_streaming_send(struct uvc_device_info *uvc)
 			return;
 		}
 
-#if (UVC_ENC_TYPE == 0)
-// 		if (skip_count)
-// 		{
-// 			skip_count--;
-// 			MEDIA_VIDEO_VencReleaseStream(uvc->video.venc_channel, pstStream);
-// #if (USE_WHITE_LED == 0)
-// 			g_xSS.iUVCIRDataReady = 0;
-// #endif
-// 			return;
-// 		}
-#elif (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
-#endif // !UVC_ENC_TYPE
-
 		for (i = 0; i < pstStream->u32PackCount; ++i)
 		{
 			ppack = &pstStream->pstPack[i];
@@ -710,6 +697,7 @@ static void vedio_streaming_send(struct uvc_device_info *uvc)
 			} else {
 				printf("venc buf_len oversize\n");
 				MEDIA_VIDEO_VencReleaseStream(uvc->video.venc_channel, pstStream);
+				aos_msleep(1);
 				return;
 			}
 		}
@@ -798,6 +786,7 @@ static void vedio_streaming_send(struct uvc_device_info *uvc)
 		usbd_ep_start_write(uvc->ep, uvc->packet_buffer_uvc, MAX_PAYLOAD_SIZE);
 		while(uvc->streaming_on && uvc->xfer_flag) {
 			aos_task_yield();
+			aos_msleep(1);
 		}
 	#endif
 	}
