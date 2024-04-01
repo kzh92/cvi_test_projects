@@ -223,7 +223,7 @@ static void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 		g_xSS.iUvcDirect = format_info->frames[bFrameIndex - 1].rotate_flag - 1;
 }
 
-static int uvc_media_update(struct uvc_device_info *info){
+int uvc_media_update(struct uvc_device_info *info){
 	PAYLOAD_TYPE_E enType;
 	PIXEL_FORMAT_E enPixelFormat;
 	PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();

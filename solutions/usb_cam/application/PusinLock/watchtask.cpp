@@ -249,7 +249,7 @@ void WatchTask::run()
 #endif // UVC_CLR2IR_THR4ISP
             {
 #ifndef UVC_CLR2IR_THR4ENGINE
-                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR))
+                if(g_xSS.iCurClrGain > (0xf80 - NEW_CLR_IR_SWITCH_THR) && NEW_CLR_IR_SWITCH_THR > 0)
                 {
                     if (camera_get_actIR() == MIPI_CAM_S2RIGHT)
                     {
@@ -272,7 +272,7 @@ void WatchTask::run()
             }
 
             int iDarkLimit = 3;
-            if (iClrDarkCounter > iDarkLimit || g_xSS.iForceUvcIR)
+            if (iClrDarkCounter > iDarkLimit || (g_xSS.iForceUvcIR && NEW_CLR_IR_SWITCH_THR > 0))
             {
                 iClrDarkCounter = 0;
 #if (USE_WHITE_LED == 0)
