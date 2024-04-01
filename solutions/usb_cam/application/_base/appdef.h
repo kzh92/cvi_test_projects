@@ -208,7 +208,7 @@ enum E_Baud_Rate
 #define USE_WATCHDOG                0
 #define USE_SHENAO_HAND             0
 #define USE_PRINT_TEMP              0
-#define USE_USB_CHECKFIRM_MODE      1
+#define USE_USB_CHECKFIRM_MODE      0
 #define USE_CAM_REINIT              1
 #define USE_ISP_IR_3DNR             0
 #define USE_UAC_DESC_ALT4           0
