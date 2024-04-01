@@ -493,7 +493,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KELINGPU_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_OKEDA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2314,8 +2314,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_OKEDA_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.50.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.50.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.50.7_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.50.7_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2353,9 +2353,20 @@ enum E_Baud_Rate
 #define SPECIFIC_LOG_PRINT                  1
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+
+// 중산금강랑대상일때 설정해야 하는 항목
 // #undef UVC_CROP_RESIZE
 // #define UVC_CROP_RESIZE                     0.88
-#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+
+// 동관비부대상일때 설정해야 하는 항목
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UVC_INIT_WIDTH
+#define UVC_INIT_WIDTH                      1280
+#undef UVC_INIT_HEIGHT
+#define UVC_INIT_HEIGHT                     720
+#undef ENROLL_ANGLE_MODE
+#define ENROLL_ANGLE_MODE                   1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LAIJI_UAC)
