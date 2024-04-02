@@ -159,7 +159,7 @@ int	dbm_LoadPersonDB()
     memset(getDBPtr(), 0, sizeof(DB_INFO));
     int real_file_len;
 
-    LOG_PRINT("[%s] start, %d, %ld, %ld\n", __func__, FILESIZE, sizeof(DB_UNIT), sizeof(g_xDB->aiValid));
+    LOG_PRINT("[%s] start, %ld, %ld\n", __func__, sizeof(DB_UNIT), sizeof(g_xDB->aiValid));
     int read_first_len;
 #ifdef USE_TWIN_ENGINE
     const int blk_size = 1;
