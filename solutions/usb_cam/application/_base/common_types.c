@@ -1324,12 +1324,11 @@ int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, u
     // LOG_PRINT("[%s] %08x, %p, %08x, p=%d, s=%08x, e=%08x\n", __func__, 
     //     offset, buf, length, 
     //     page_count, start_off, end_off);
-    _tmp_buf = (unsigned char*)my_malloc(flash_page_size);
+    _tmp_buf = (unsigned char*)my_malloc(flash_page_size*2);
     if (_tmp_buf == NULL)
         return 0;
     for (; start_off < end_off; start_off += flash_page_size)
     {
-        partition_read(partition, start_off, _tmp_buf, flash_page_size);
         write_len = flash_page_size;
         write_off = 0;
         if (start_off + flash_page_size > offset + length)
@@ -1339,12 +1338,40 @@ int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, u
             write_off = offset - start_off;
             write_len = write_len - write_off;
         }
+        int rcount = 6;
+        int wcount = 0;
+for_retry_one:
+        partition_read(partition, start_off, _tmp_buf, flash_page_size);
+        partition_read(partition, start_off, _tmp_buf + flash_page_size, flash_page_size);
+        if (memcmp(_tmp_buf, _tmp_buf + flash_page_size, flash_page_size))
+        {
+            my_printf("read error %08x\n", start_off);
+            if (rcount > 0)
+            {
+                rcount--;
+                goto for_retry_one;
+            }
+            else
+                return total_len;
+        }
         if (memcmp(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len))
         {
+            if (wcount == 1)
+            {
+                my_printf("write check error %08x\n", start_off);
+            }
             memcpy(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len);
             partition_erase_size(partition, start_off, flash_page_size);
             partition_write(partition, start_off, _tmp_buf, flash_page_size);
+            wcount ++;
+            if (rcount > 0)
+            {
+                rcount--;
+                goto for_retry_one;
+            }
         }
+        else
+            rcount = 0;
         total_len += write_len;
     }
     my_free(_tmp_buf);
