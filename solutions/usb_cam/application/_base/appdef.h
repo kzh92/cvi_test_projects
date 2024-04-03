@@ -495,7 +495,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LAIJI_UAC                     339
 #define FRM_JIZHI_UAC                           340 //동관극지
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINNENG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -688,8 +688,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_KEXIONG_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.5.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.5.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.5.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.5.5_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -720,17 +720,17 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
-#undef USE_USB_EP_ERR_FIX_MODE
-#define USE_USB_EP_ERR_FIX_MODE             1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#undef UAC_SPK_EP
-#define UAC_SPK_EP                          0x83
-#undef ENROLL_DUPLICATION_CHECK
-#define ENROLL_DUPLICATION_CHECK            EDC_DISABLE
-#undef ENROLL_HAND_DUP_CHECK
-#define ENROLL_HAND_DUP_CHECK               0
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UVC_INIT_WIDTH
+#define UVC_INIT_WIDTH                      1280
+#undef UVC_INIT_HEIGHT
+#define UVC_INIT_HEIGHT                     720
+#undef ENROLL_ANGLE_MODE
+#define ENROLL_ANGLE_MODE                   1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
