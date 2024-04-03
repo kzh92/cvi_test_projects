@@ -688,8 +688,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_KEXIONG_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.5.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.5.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.5.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.5.6_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -731,6 +731,8 @@ enum E_Baud_Rate
 #define UVC_INIT_HEIGHT                     720
 #undef ENROLL_ANGLE_MODE
 #define ENROLL_ANGLE_MODE                   1
+#undef USE_WATCHDOG
+#define USE_WATCHDOG                        1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
