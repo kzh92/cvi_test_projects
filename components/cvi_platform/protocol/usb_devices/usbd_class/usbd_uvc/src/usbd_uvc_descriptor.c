@@ -130,7 +130,7 @@ static struct uvc_camera_terminal_descriptor uvc_camera_terminal = {
 };
 
 static struct uvc_processing_unit_descriptor uvc_processing = {
-    .bLength        = UVC_DT_PROCESSING_UNIT_SIZE(2),
+    .bLength        = UVC_DT_PROCESSING_UNIT_SIZE(1),
     .bDescriptorType    = USB_DT_CS_INTERFACE,
     .bDescriptorSubType    = UVC_VC_PROCESSING_UNIT,
     .bUnitID        = 2,
