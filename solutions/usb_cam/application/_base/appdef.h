@@ -1150,6 +1150,10 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef USE_CAM_REINIT
 #define USE_CAM_REINIT                      1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
 
 //----------------------------------------------------------
 
