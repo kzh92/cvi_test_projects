@@ -84,7 +84,7 @@ static s_ds_h264_video_res g_ds_video_res = {
 #endif // USE_USB_XN_PROTO
 
 static void usbd_class_event_notify_handler(uint8_t event, void *arg);
-
+void aos_msleep(int ms);
 static void usbd_print_setup(struct usb_setup_packet *setup)
 {
 #if 0
@@ -97,7 +97,8 @@ static void usbd_print_setup(struct usb_setup_packet *setup)
                  setup->wLength);
 #else
 #if (UVC_USBD_PRINT)
-    aos_debug_printf("[H] sr\n");
+    //aos_debug_printf("[H] sr\n");
+    aos_msleep(1);
 #endif
 #endif
 }
