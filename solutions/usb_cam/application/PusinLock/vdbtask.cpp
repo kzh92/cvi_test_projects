@@ -14,7 +14,7 @@
 #include "jpge.h"
 #include "check_camera_pattern.h"
 #include "sn.h"
-#include "usbd_comp.h"
+#include "uvc_func.h"
 #if (USE_WIFI_MODULE)
 #include "audiotask.h"
 #include "uartcomm.h"
@@ -169,7 +169,7 @@ void VDBTask::Start()
 
     m_iCounter ++;
     m_iRunning = 1;
-    if(my_thread_create_ext(&m_thread, NULL, vdbTask_ThreadProc1, this, (char*)"vdbtask", 8192, MYTHREAD_PRIORITY_HIGH))
+    if(my_thread_create_ext(&m_thread, NULL, vdbTask_ThreadProc1, this, (char*)"vdbtask", 128*1024, MYTHREAD_PRIORITY_HIGH))
         my_printf("[VDBTask]create thread error.\n");
     // Thread::Start();
 }
@@ -201,12 +201,10 @@ int VDBTask::IsStreaming()
 
 void VDBTask::run()
 {
-#if CONFIG_SUPPORT_USB_DC
-    // usb composite device
-    usbd_comp_init();
-#endif
+    // start uvc
+    MEDIA_AV_Init();
     StartCamSurface(0);
-    my_printf("v.\n");
+    my_printf("vdb task end\n");
 }
 
 void VDBTask::ThreadProc()

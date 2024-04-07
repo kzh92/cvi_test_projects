@@ -15,6 +15,7 @@
 #include "wifi_if.h"
 #include "ethernet_init.h"
 #include "fm_main.h"
+#include "uvc_func.h"
 #include "cvi_tpu_interface.h"
 #include "drv_gpio.h"
 #include "common_types.h"

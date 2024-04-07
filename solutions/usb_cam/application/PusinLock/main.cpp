@@ -33,6 +33,7 @@
 #include "check_firmware.h"
 #include "upgrade_firmware.h"
 #include "vdbtask.h"
+#include "uvc_func.h"
 #include "audiotask.h"
 
 #include <fcntl.h>

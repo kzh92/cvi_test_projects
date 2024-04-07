@@ -229,6 +229,7 @@ int uvc_media_update(struct uvc_device_info *info){
 	PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
 	VPSS_CHN_ATTR_S stVpssChnAttr;
 	CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8InitStatus;
+	VENC_RECV_PIC_PARAM_S stRecvParam = {0};
 	int iSensor = g_xSS.iUvcSensor;
 
 	struct uvc_format_info_st uvc_format_info;
@@ -262,9 +263,16 @@ int uvc_media_update(struct uvc_device_info *info){
 	}
 
 	if(u8VencInitStatus == 1) {
-		MEDIA_VIDEO_VencDeInit(pstVencCfg);
+		MEDAI_VIDEO_VencChnDeinit(pstVencCfg, info->video.venc_channel);
 		aos_debug_printf("venc chn %d deinit\n", info->video.venc_channel);
 	}
+#if (UVC_ENC_TYPE == 2)
+	if (pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u8InitStatus)
+	{
+		MEDAI_VIDEO_VencChnDeinit(pstVencCfg, UVC_VENC_H26X_CHN);
+		aos_debug_printf("venc chn %d deinit\n", UVC_VENC_H26X_CHN);
+	}
+#endif
 
 	if (uvc_frame_info.width == 0)
 	{
@@ -385,17 +393,17 @@ int uvc_media_update(struct uvc_device_info *info){
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16EnType = enType;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:UVC_H26X_BITRATE;
+	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u32BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:UVC_H26X_BITRATE;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8ModId = CVI_ID_VPSS;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8DevId = info->video.vpss_group;
    	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8DevChnid = info->video.vpss_channel;
 	if (g_xSS.iUvcBitrate > 0 && enType == PT_MJPEG)
 	{
-		pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
+		pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u32BitRate = g_xSS.iUvcBitrate;
 		if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
 		{
-			pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate = g_xSS.iUvcBitrate / 2;
+			pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u32BitRate = g_xSS.iUvcBitrate / 2;
 		}
 	}
 	if (g_xSS.iUvcFps > 0 && g_xSS.iUvcFps <= 20)
@@ -403,7 +411,7 @@ int uvc_media_update(struct uvc_device_info *info){
 	if (uvc_frame_info.width > 0)
 	{
 		printf("uvc(%dx%d),%dbr\n", uvc_frame_info.width, uvc_frame_info.height, 
-			pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate);
+			pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u32BitRate);
 	}
 
 #if (UVC_ENC_TYPE == 2)	
@@ -411,19 +419,40 @@ int uvc_media_update(struct uvc_device_info *info){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	// pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u16EnType = H26X_TYPE;
-	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stRcParam.u16BitRate = UVC_H26X_BITRATE;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stRcParam.u32BitRate = UVC_H26X_BITRATE;
 	// pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stRcParam.u16RcMode = (H26X_TYPE == PT_H265) ? VENC_RC_MODE_H265CBR : VENC_RC_MODE_H264CBR;
 #endif // UVC_ENC_TYPE
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index) {
-		if (MEDIA_VIDEO_VencInit(pstVencCfg) == CVI_SUCCESS)
+		if (MEDIA_VIDEO_VencChnInit(pstVencCfg, info->video.venc_channel) == CVI_SUCCESS)
 		{
 			aos_debug_printf("venc chn %d init\n", info->video.venc_channel);
+
+			stRecvParam.s32RecvPicNum = -1;
+			if (CVI_VENC_StartRecvFrame(info->video.venc_channel, &stRecvParam) != CVI_SUCCESS)
+				aos_debug_printf("recv fail %d\n", info->video.venc_channel);
+			pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8InitStatus = 1;
 		}
 		else
 		{
 			aos_debug_printf("chn init fail %d\n", info->video.venc_channel);
 		}
+#if (UVC_ENC_TYPE == 2)	
+		if (MEDIA_VIDEO_VencChnInit(pstVencCfg, UVC_VENC_H26X_CHN) == CVI_SUCCESS)
+		{
+			aos_debug_printf("venc chn %d init\n", UVC_VENC_H26X_CHN);
+			stRecvParam.s32RecvPicNum = -1;
+			if (CVI_VENC_StartRecvFrame(UVC_VENC_H26X_CHN, &stRecvParam) != CVI_SUCCESS)
+			{
+				aos_debug_printf("recv fail %d\n", UVC_VENC_H26X_CHN);
+			}
+			pstVencCfg->pstVencChnCfg[UVC_VENC_H26X_CHN].stChnParam.u8InitStatus = 1;
+		}
+		else
+		{
+			aos_debug_printf("chn init fail %d\n", UVC_VENC_H26X_CHN);
+		}
+#endif
     }
     return 0;
 }
