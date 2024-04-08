@@ -508,6 +508,7 @@ static void *send_to_uvc()
         if (tx_flag) {
 			g_xSS.rUvcFrameTime = aos_now_ms();
 			if(uvc_update){
+				print_flag = 0;
 				uvc_media_update();
 				uvc_get_video_format_info(&uvc_format_info);
 #if (UVC_ENC_TYPE == 0)
@@ -612,10 +613,10 @@ static void *send_to_uvc()
 					continue;
 				}
 
-				if (print_flag ++ < 8)
+				//caution: you must print out logs for preventing stuck.
+				if (print_flag ++ < 20)
 				{
-					if (print_flag == 8)
-						printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
+					printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
 #if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
                 if (print_flag < 8)
