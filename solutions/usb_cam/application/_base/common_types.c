@@ -15,6 +15,10 @@
 #include "zstd.h"
 #include "drv/spiflash.h"
 #include "cvi_tempsen.h"
+#if (USE_WATCHDOG)
+#include <drv/wdt.h>
+extern csi_wdt_t g_wdt;
+#endif // USE_WATCHDOG
 
 mymutex_ptr g_FlashReadWriteLock = 0;
 mymutex_ptr g_MyPrintfLock = 0;
@@ -1480,4 +1484,11 @@ float my_get_cpu_temp()
         return ((float)temp / 1000);
     }
     return 0;
+}
+
+void my_wdt_feed()
+{
+#if (USE_WATCHDOG)
+    csi_wdt_feed(&g_wdt);
+#endif
 }

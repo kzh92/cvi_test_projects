@@ -24,10 +24,6 @@
 #include "functestproc.h"
 
 #include <string.h>
-#if (USE_WATCHDOG)
-#include <drv/wdt.h>
-extern "C" csi_wdt_t g_wdt;
-#endif // USE_WATCHDOG
 
 static message_queue g_queue_send;
 //static pthread_t g_thread_send = 0;
@@ -186,9 +182,7 @@ void* senseSendThread_ThreadProc1(void*)
                 dbug_printf("temp=%0.3f, %d\n", temp, (int)Now());
             }
 #endif // USE_TEMP_MODE
-#if (USE_WATCHDOG)
-            csi_wdt_feed(&g_wdt);
-#endif
+            my_wdt_feed();
             my_usleep(5000);
             continue;
 #endif // NOTHREAD_MUL
