@@ -9,6 +9,7 @@
 #include "appdef.h"
 #include "settings.h"
 #include "ds_h264_types.h"
+#include "common_types.h"
 
 /* general descriptor field offsets */
 #define DESC_bLength         0 /** Length offset */
@@ -984,6 +985,7 @@ static int usbd_vendor_request_handler(struct usb_setup_packet *setup, uint8_t *
  */
 static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
 {
+    my_wdt_feed();
     switch (setup->bmRequestType & USB_REQUEST_TYPE_MASK) {
         case USB_REQUEST_STANDARD:
             if (usbd_standard_request_handler(setup, data, len) < 0) {
