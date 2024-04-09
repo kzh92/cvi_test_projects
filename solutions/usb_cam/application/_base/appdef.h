@@ -2238,8 +2238,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LIWEN_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.46.4.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.46.4.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.46.4.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.46.4.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2286,6 +2286,8 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UAC_AUDALGO_USE
 #define UAC_AUDALGO_USE                     1
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
