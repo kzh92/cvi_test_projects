@@ -216,7 +216,7 @@ enum E_Baud_Rate
 #define USE_UAC_DESC_ALT4           0
 #define USE_USB_XN_PROTO            0   //use XinNeng USB Protocol
 #define USE_UVC_FACE_RECT           0
-#define USE_TEMP_MODE               0
+#define USE_TEMP_MODE               1
 
 #define CLR_CAM_WIDTH               1600
 #define CLR_CAM_HEIGHT              1200
