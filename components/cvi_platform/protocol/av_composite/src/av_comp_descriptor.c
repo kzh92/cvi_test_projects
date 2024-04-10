@@ -75,7 +75,7 @@ static const struct uvc_camera_terminal_descriptor uvc_camera_terminal = {
 };
 
 static const struct uvc_processing_unit_descriptor uvc_processing = {
-    .bLength        = UVC_DT_PROCESSING_UNIT_SIZE(2),
+    .bLength        = UVC_DT_PROCESSING_UNIT_SIZE(1),
     .bDescriptorType    = USB_DT_CS_INTERFACE,
     .bDescriptorSubType    = UVC_VC_PROCESSING_UNIT,
     .bUnitID        = 2,
@@ -198,10 +198,10 @@ static const struct uvc_format_mjpeg uvc_format_mjpg = {
     .bCopyProtect        = 0,
 };
 
-DECLARE_UVC_FRAME_MJPEG(1);
+DECLARE_UVC_FRAME_MJPEG(3);
 
-static const struct UVC_FRAME_MJPEG(1) uvc_frame_mjpg_default = {
-    .bLength                = UVC_DT_FRAME_MJPEG_SIZE(1),
+static const struct UVC_FRAME_MJPEG(3) uvc_frame_mjpg_default = {
+    .bLength                = UVC_DT_FRAME_MJPEG_SIZE(3),
     .bDescriptorType        = USB_DT_CS_INTERFACE,
     .bDescriptorSubType     = UVC_VS_FRAME_MJPEG,
     .bFrameIndex            = 0, /* dynamic */
@@ -212,8 +212,10 @@ static const struct UVC_FRAME_MJPEG(1) uvc_frame_mjpg_default = {
     .dwMaxBitRate           = cpu_to_le32(995328000),
     .dwMaxVideoFrameBufferSize  = cpu_to_le32(4147200),
     .dwDefaultFrameInterval     = cpu_to_le32(FRAME_INTERVAL_FPS(30)),
-    .bFrameIntervalType     = 1,
+    .bFrameIntervalType     = 3,
     .dwFrameInterval[0]     = cpu_to_le32(FRAME_INTERVAL_FPS(30)),
+    .dwFrameInterval[1]     = cpu_to_le32(FRAME_INTERVAL_FPS(15)),
+    .dwFrameInterval[2]     = cpu_to_le32(FRAME_INTERVAL_FPS(10)),
 };
 
 struct uvc_format_framebased uvc_format_h264 = {
@@ -468,9 +470,9 @@ struct usb_qualifier_descriptor uvc_qual_descriptor = {
     .bLength             = USB_DT_QUALIFIER_SIZE,
     .bDescriptorType     = USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER,
     .bcdUSB              = cpu_to_le16(USB_2_0),
-    .bDeviceClass        = 0,
-    .bDeviceSubClass     = 0,
-    .bDeviceProtocol     = 0,
+    .bDeviceClass        = USB_CLASS_MISC,
+    .bDeviceSubClass     = 0x02,
+    .bDeviceProtocol     = 0x01,
     .bMaxPacketSize0     = 0x40,
     .bNumConfigurations  = 1,
     .bRESERVED           = 0,
@@ -589,15 +591,14 @@ uvc_alloc_frame_descriptor(uint32_t format_type,
         uvc_frame = (struct uvc_descriptor_header *)malloc(uvc_frame_mjpg_default.bLength);
         if (uvc_frame) {
             memcpy(uvc_frame, &uvc_frame_mjpg_default, uvc_frame_mjpg_default.bLength);
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->bFrameIndex = frame_index;
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->wWidth
-                                                        = cpu_to_le16(width);
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->wHeight
-                                                        = cpu_to_le16(height);
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwDefaultFrameInterval
-                                                        = cpu_to_le32(FRAME_INTERVAL_FPS(fps));
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwFrameInterval[0]
-                                                        = cpu_to_le32(FRAME_INTERVAL_FPS(fps));
+            struct UVC_FRAME_MJPEG(3) * p_frame =  (struct UVC_FRAME_MJPEG(3) *)uvc_frame;
+            p_frame->bFrameIndex = frame_index;
+            p_frame->wWidth = cpu_to_le16(width);
+            p_frame->wHeight = cpu_to_le16(height);
+            p_frame->dwMinBitRate = width * height * 2 * 8 * 10;
+            p_frame->dwMaxBitRate = width * height * 2 * 8 * 30;
+            p_frame->dwMaxVideoFrameBufferSize = width * height * 2;
+            p_frame->dwDefaultFrameInterval = cpu_to_le32(FRAME_INTERVAL_FPS(fps));
         }
         break;
     }
