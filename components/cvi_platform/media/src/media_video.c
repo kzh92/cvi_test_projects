@@ -362,10 +362,10 @@ static int _meida_sensor_init(PARAM_VI_CFG_S * pstViCtx,CVI_U8 *devNum)
         }
         if(pstViCtx->pstSensorCfg[i].u8DisableRst != CVI_TRUE) {
             pSnsObj[i]->pfnGetRxAttr(i, &devAttr);
-            cif_enable_snsr_clk(i, 1);
-            usleep(100);
             cif_reset_snsr_gpio(i, 0);
             udelay(100);
+            cif_enable_snsr_clk(i, 1);
+            usleep(4000);
         }
         if (pSnsObj[i]->pfnSnsProbe) {
             s32Ret = pSnsObj[i]->pfnSnsProbe(i);
@@ -1090,6 +1090,17 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     MEDIA_CHECK_RET(CVI_VENC_CreateChn(VencChn, &stAttr), "CVI_VENC_CreateChn");
 
     MEDIA_CHECK_RET(CVI_VENC_GetModParam(&stModParam), "CVI_VENC_GetModParam");
+
+    stModParam.enVencModType = MODTYPE_JPEGE;
+    stModParam.stJpegeModParam.enJpegeFormat = JPEGE_FORMAT_CUSTOM;
+    stModParam.stJpegeModParam.JpegMarkerOrder[0] = JPEGE_MARKER_SOI;
+    stModParam.stJpegeModParam.JpegMarkerOrder[1] = JPEGE_MARKER_JFIF;
+    stModParam.stJpegeModParam.JpegMarkerOrder[2] = JPEGE_MARKER_DQT_MERGE;
+    stModParam.stJpegeModParam.JpegMarkerOrder[3] = JPEGE_MARKER_SOF0;
+    stModParam.stJpegeModParam.JpegMarkerOrder[4] = JPEGE_MARKER_DHT_MERGE;
+    stModParam.stJpegeModParam.JpegMarkerOrder[5] = JPEGE_MARKER_DRI;
+    stModParam.stJpegeModParam.JpegMarkerOrder[6] = JPEGE_MARKER_BUTT;
+
     MEDIA_CHECK_RET(CVI_VENC_SetModParam(&stModParam), "CVI_VENC_SetModParam");
 
     MEDIA_CHECK_RET(CVI_VENC_GetRcParam(VencChn, &stRcParam), "CVI_VENC_GetRcParam");
