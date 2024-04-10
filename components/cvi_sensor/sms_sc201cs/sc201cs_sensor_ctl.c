@@ -130,8 +130,12 @@ void sc201cs_init(VI_PIPE ViPipe)
 {
 	// sc201cs_i2c_init(ViPipe);
 
+	sc201cs_i2c_addr = 0x30;
 	sc201cs_linear_1200p30_init(ViPipe);
-
+	sc201cs_i2c_addr = 0x32;
+	sc201cs_linear_1200p30_init(ViPipe);
+	sc201cs_write_register(ViPipe, 0x0100,0x01);
+	sc201cs_write_register(ViPipe, 0x3019,0xfe);
 	g_pastSc201cs[ViPipe]->bInit = CVI_TRUE;
 }
 
@@ -149,7 +153,9 @@ static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe)
 	sc201cs_write_register(ViPipe, 0x36eb, 0x25);
 	sc201cs_write_register(ViPipe, 0x36ed, 0x04);
 	sc201cs_write_register(ViPipe, 0x36e9, 0x01);
+	sc201cs_write_register(ViPipe, 0x3019, 0xff);
 	sc201cs_write_register(ViPipe, 0x301f, 0x01);
+	sc201cs_write_register(ViPipe, 0x320e, 0x05);//VTS:0x04e2 -> 0x05e2
 	sc201cs_write_register(ViPipe, 0x3248, 0x02);
 	sc201cs_write_register(ViPipe, 0x3253, 0x0a);
 	sc201cs_write_register(ViPipe, 0x3301, 0xff);
@@ -215,12 +221,13 @@ static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe)
 	sc201cs_write_register(ViPipe, 0x3949, 0xc8);
 	sc201cs_write_register(ViPipe, 0x394b, 0x64);
 	sc201cs_write_register(ViPipe, 0x3952, 0x02);
+	sc201cs_write_register(ViPipe, 0x3650, 0x30); // MIPI LP 0x31 -> 0x30
 	sc201cs_write_register(ViPipe, 0x3e00, 0x00);
 	sc201cs_write_register(ViPipe, 0x3e01, 0x4d);
 	sc201cs_write_register(ViPipe, 0x3e02, 0xe0);
 	sc201cs_write_register(ViPipe, 0x4502, 0x34);
 	sc201cs_write_register(ViPipe, 0x4509, 0x30);
-	sc201cs_write_register(ViPipe, 0x0100, 0x01);
+	sc201cs_write_register(ViPipe, 0x0100, 0x00);
 
 	sc201cs_default_reg_init(ViPipe);
 
