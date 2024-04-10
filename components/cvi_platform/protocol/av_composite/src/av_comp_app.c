@@ -377,7 +377,7 @@ int uvc_media_update(){
 	if (g_xSS.iUvcBitrate > 0 && enType == PT_MJPEG)
 	{
 		pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate;
-		if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+		if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.iUvcBitrate >= 4096)
 		{
 			pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = g_xSS.iUvcBitrate / 2;
 		}
