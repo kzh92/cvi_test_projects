@@ -80,8 +80,8 @@ extern const CVI_CHAR *CVI_SYS_GetModName(MOD_ID_E id);
 	do {                                                   \
 		CVI_S32 LogLevel = (log_levels == NULL) ? CONFIG_CVI_LOG_TRACE_LEVEL : log_levels[enModId];      \
 		if (level <= LogLevel)	       \
-			aos_debug_printf("[%s-%s] " fmt, CVI_SYS_GetModName(enModId), log_name[level],    \
-				##__VA_ARGS__);           \
+			{    \
+							}           \
 	} while (0)
 #else
 	#define CVI_TRACE(level, enModId, fmt, ...) \
