@@ -59,7 +59,7 @@ void usbd_audio_open(uint8_t intf)
     // FIXME: interface number is hard-coded
     if (intf == 3) {
         rx_flag = 1;
-        usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, 16);
+        usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, AUDIO_OUT_PACKET);
         ep_rx_busy_flag = false;
     } else {
         tx_flag = 1;
@@ -97,8 +97,8 @@ void usbd_audio_close(uint8_t intf)
 
 static volatile uint32_t total_len = 0;
 static volatile uint32_t offset = 0;
-uint8_t pcm_output[0x100000];
-uint32_t pcm_output_size =0;
+// uint8_t pcm_output[0x100000];
+// uint32_t pcm_output_size =0;
 
 static aos_sem_t g_audio_write_sem;
 
@@ -111,7 +111,7 @@ void usbd_audio_out_callback(uint8_t ep, uint32_t nbytes)
         aos_sem_signal(&g_audio_write_sem);
     }
 
-    usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, nbytes);
+    usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, AUDIO_OUT_PACKET);
 
 
 }
@@ -172,7 +172,7 @@ static void uac_timer_send_data_cb(void *timer, void *arg)
         ret = ring_buffer_get(g_ring_buf[mic_idx], (void *)in_buffer, AUDIO_IN_PACKET);
         if (ret > 0) {
             ep_tx_busy_flag = true;
-            usbd_ep_start_write(AUDIO_IN_EP, in_buffer, ret);
+            usbd_ep_start_write(AUDIO_IN_EP, in_buffer, AUDIO_IN_PACKET);
         }
     }
 
@@ -285,14 +285,14 @@ int MEDIA_UAC_Init(void)
 	uac_session_init_flag = CVI_TRUE;
 
     if(0 != aos_task_new_ext(&read_handle,"audio_read"
-                    ,audio_read,NULL,6*1024,32)) {
+                    ,audio_read,NULL,16*1024,32)) {
         USB_LOG_ERR("create audio_read thread fail\r\n");
         return -1;
     }
 
    aos_sem_new(&g_audio_write_sem, 0);
    if(0 != aos_task_new_ext(&read_handle,"audio_write"
-                    ,audio_write,NULL,6*1024,32)) {
+                    ,audio_write,NULL,16*1024,32)) {
         aos_debug_printf("create audio_read thread fail\r\n");
         return -1;
     }
