@@ -271,7 +271,7 @@ void WatchTask::run()
 #endif // !UVC_CLR2IR_THR4ENGINE
             }
 
-            int iDarkLimit = 3;
+            int iDarkLimit = UVC_DARK_WATCH_COUNTER;
             if (iClrDarkCounter > iDarkLimit || (g_xSS.iForceUvcIR && NEW_CLR_IR_SWITCH_THR > 0))
             {
                 iClrDarkCounter = 0;

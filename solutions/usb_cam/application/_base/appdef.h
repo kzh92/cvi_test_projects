@@ -286,6 +286,7 @@ enum E_Baud_Rate
 #define H26X_TYPE                   PT_H264
 #define BIN_DATA_SIZE               174513
 #define UVC_USBD_PRINT              0
+#define UVC_DARK_WATCH_COUNTER      3
 
 #define UVC_PIXEL_FMT_NV21          0
 #define UVC_PIXEL_FMT_YUV420P       1
@@ -496,7 +497,7 @@ enum E_Baud_Rate
 #define FRM_JIZHI_UAC                           340 //동관극지
 #define FRM_DBS3M_TOYA_IR_UAC                   341
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LIWEN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2194,8 +2195,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.44.8_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.44.8_D"
+#define DEVICE_FIRMWARE_VERSION             "3.44.9_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.44.9_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2238,6 +2239,8 @@ enum E_Baud_Rate
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HUANGLI_NEW_UAC)
