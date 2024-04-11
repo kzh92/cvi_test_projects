@@ -207,7 +207,7 @@ enum E_Baud_Rate
 #define USE_UAC_MODE                0
 #define USE_USB_EP_ERR_FIX_MODE     0
 #define USE_WHITE_LED               0   //0: 백색레드쓰지 않는 방식, 1: 백색레드를 리용하는 방식, 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
-#define USE_WATCHDOG                0
+#define USE_WATCHDOG                1
 #define USE_SHENAO_HAND             0
 #define USE_PRINT_TEMP              0
 #define USE_USB_CHECKFIRM_MODE      0
