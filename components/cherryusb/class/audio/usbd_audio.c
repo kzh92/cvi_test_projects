@@ -123,7 +123,7 @@ static int audio_class_endpoint_request_handler(struct usb_setup_packet *setup, 
 
 static int audio_class_interface_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
 {
-    USB_LOG_DBG("AUDIO Class request: "
+    USB_LOG_INFO("AUDIO Class request: "
                 "bRequest 0x%02x\r\n",
                 setup->bRequest);
 
@@ -176,11 +176,12 @@ static int audio_class_interface_request_handler(struct usb_setup_packet *setup,
                     case AUDIO_REQUEST_SET_CUR:
                         mute = (*data)[0];
                         current_feature_control->mute[ch] = mute;
-                        USB_LOG_DBG("Set UnitId:%d ch[%d] mute %s\r\n", entity_id, ch, mute_string[mute]);
+                        USB_LOG_WRN("Set UnitId:%d ch[%d] mute %s\r\n", entity_id, ch, mute_string[mute]);
                         usbd_audio_set_mute(entity_id, ch, mute);
                         break;
                     case AUDIO_REQUEST_GET_CUR:
                         (*data)[0] = current_feature_control->mute[ch];
+                        USB_LOG_WRN("AUDIO_REQUEST_GET_CUR\r\n");
                         break;
                     default:
                         USB_LOG_WRN("Unhandled Audio Class bRequest 0x%02x\r\n", setup->bRequest);
@@ -200,32 +201,37 @@ static int audio_class_interface_request_handler(struct usb_setup_packet *setup,
                             volume2db = -0.00390625 * (0xffff - volume + 1);
                         }
 
-                        USB_LOG_DBG("Set UnitId:%d ch[%d] %0.4f dB\r\n", entity_id, ch, volume2db);
+                        USB_LOG_WRN("Set UnitId:%d ch[%d] %0.4f dB\r\n", entity_id, ch, volume2db);
                         usbd_audio_set_volume(entity_id, ch, volume2db);
                         break;
                     case AUDIO_REQUEST_GET_CUR:
                         memcpy(*data, &current_feature_control->volume[ch].vol_current, 2);
                         *len = 2;
+                        USB_LOG_WRN("AUDIO_REQUEST_GET_CUR\r\n");
                         break;
 
                     case AUDIO_REQUEST_GET_MIN:
                         memcpy(*data, &current_feature_control->volume[ch].vol_min, 2);
                         *len = 2;
+                        USB_LOG_WRN("AUDIO_REQUEST_GET_MIN\r\n");
                         break;
 
                     case AUDIO_REQUEST_GET_MAX:
                         memcpy(*data, &current_feature_control->volume[ch].vol_max, 2);
                         *len = 2;
+                        USB_LOG_WRN("AUDIO_REQUEST_GET_MAX\r\n");
                         break;
 
                     case AUDIO_REQUEST_GET_RES:
                         memcpy(*data, &current_feature_control->volume[ch].vol_res, 2);
                         *len = 2;
+                        USB_LOG_WRN("AUDIO_REQUEST_GET_RES\r\n");
                         break;
 
                     case AUDIO_REQUEST_SET_RES:
                         memcpy(&current_feature_control->volume[ch].vol_res, *data, 2);
                         *len = 2;
+                        USB_LOG_WRN("AUDIO_REQUEST_SET_RES\r\n");
                         break;
                     default:
                         USB_LOG_WRN("Unhandled Audio Class bRequest 0x%02x\r\n", setup->bRequest);
