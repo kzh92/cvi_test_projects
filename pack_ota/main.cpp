@@ -13,8 +13,8 @@ s_uf_part_info g_upg_list[] = {
 #if 0
     {"wno_c.bin", 0x003d0000, FN_WNO_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
 #endif
+    {"detect.bin", 0x003d0000 + 3562176, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
 #if 0
-    {"detect.bin", 0x003d0000 + 3557696, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
     {"dlamk.bin", 0x003d0000 + 3687040, FN_DLAMK_DICT_SIZE, UF_PF_NORMAL},
     {"a1.bin", 0x003d0000 + 4311744, FN_A1_DICT_SIZE, UF_PF_NORMAL},
     {"a2.bin", 0x003d0000 + 4754304, FN_A2_DICT_SIZE, UF_PF_NORMAL},
