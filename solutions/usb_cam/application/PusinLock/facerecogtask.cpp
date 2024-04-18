@@ -295,6 +295,10 @@ void FaceRecogTask::run()
             {
                 nProcessModeIndexEnd = 0;
             }
+#if (!N_MAX_PERSON_NUM && N_MAX_HAND_NUM)
+            nProcessModeIndexStart = 1;
+            nProcessModeIndexEnd = 1;
+#endif
         }
         else
         {
