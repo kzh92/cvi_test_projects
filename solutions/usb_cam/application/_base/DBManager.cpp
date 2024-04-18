@@ -779,6 +779,7 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
 {
     LOG_PRINT("[%s] start(%d), uid=%d, %0.1f\n", __func__, nIsHand, nUserID, Now());
 
+#if (N_MAX_PERSON_NUM)
     if ((dbfs_get_cur_part() == DB_PART1 || nUserID == -1) && nIsHand == 0)
     {
         if (nUserID == -1)
@@ -817,9 +818,11 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
             }
         }
         LOG_PRINT("[%s] write end, %0.3f\n", __func__, Now());
+        return 0;
     }
+#endif // N_MAX_PERSON_NUM
 #if (N_MAX_HAND_NUM)
-    else if ((dbfs_get_cur_part() == DB_PART1 || nUserID == -1) && nIsHand == 1)
+    if ((dbfs_get_cur_part() == DB_PART1 || nUserID == -1) && nIsHand == 1)
     {
         int FILESIZE = sizeof(DB_INFO);
         if (nUserID == -1)
@@ -858,12 +861,11 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
             }
         }
         LOG_PRINT("[%s] write end, %0.3f\n", __func__, Now());
+        return 0;
     }
 #endif // N_MAX_HAND_NUM
-    else
-        return 1;
 
-    return 0;
+    return 1;
 }
 
 int CheckFileSystem(int iIndex)
@@ -1131,10 +1133,6 @@ int	dbm_UpdateHandFeatInfo(int nIndex, SHandFeatInfo *pxFeatInfo, int* piBlkNum)
 
 int dbm_GetHandIDOfIndex(int iIndex)
 {
-#ifdef MMAP_MODE
-    if(g_xDB == NULL)
-        return -1;
-#endif
     int iIdx = -1;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
@@ -1151,11 +1149,6 @@ int dbm_GetHandIDOfIndex(int iIndex)
 
 int dbm_GetHandIndexOfID(int iID)
 {
-#ifdef MMAP_MODE
-    if(g_xDB == NULL)
-        return -1;
-#endif
-
     int iIdx = -1;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
@@ -1217,11 +1210,6 @@ int dbm_GetNewHandUserID()
 
 int dbm_GetHandUserCount(int iUserRole)
 {
-#ifdef MMAP_MODE
-    if(!g_xDB)
-        return 0;
-#endif
-
     int iUserCount = 0;
     for(int i = 0; i < N_MAX_HAND_NUM; i ++)
     {
