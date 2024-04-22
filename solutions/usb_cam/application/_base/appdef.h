@@ -1655,7 +1655,7 @@ enum E_Baud_Rate
 #undef ENGINE_USE_TWO_CAM
 #define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
-#define USE_3M_MODE                         1
+#define USE_3M_MODE                         U3M_SEMI
 #undef USE_UAC_MODE
 #define USE_UAC_MODE                        1
 #undef UAC_SPEAKER_VOL
