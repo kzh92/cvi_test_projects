@@ -15,8 +15,8 @@
 
 #define VIDEO_IN_EP 0x81
 
-#define WIDTH  (unsigned int)(1280)
-#define HEIGHT (unsigned int)(720)
+#define WIDTH  (unsigned int)(640)
+#define HEIGHT (unsigned int)(480)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -69,7 +69,7 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 #endif
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 1280, 720, 30, 0},
+    {1, WIDTH, HEIGHT, 30, 0},
 };
 
 #if 0
@@ -234,6 +234,11 @@ void uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
+	if (uvc_frame_info.width * uvc_frame_info.height == 0)
+	{
+		uvc_frame_info.width = WIDTH;
+		uvc_frame_info.height = HEIGHT;
+	}
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
 
