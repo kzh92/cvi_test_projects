@@ -7,10 +7,9 @@
 #include "cvi_comm_aio.h"
 #include "cviaudio_algo_interface.h"
 #include "cv181x_adc_dac.h"
-#define UAC_SAMPLE_RATE             16000
 
 static aos_pcm_t *capture_handle,*playback_handle;
-static unsigned int rate = UAC_SAMPLE_RATE;       //ai ao default 16K
+static unsigned int rate = CONFIG_UAC_SAMPLE_RATE;       //ai ao default 16K
 void *pssp_handle = NULL;
 
 static void audio_capture_init(void)

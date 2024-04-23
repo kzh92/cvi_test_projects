@@ -2,7 +2,6 @@
 #define __UAC_DESCRIPTOR_H__
 
 #include <stdint.h>
-#define UAC_SAMPLE_RATE             16000
 
 #ifdef CONFIG_USB_HS
 #define EP_INTERVAL 0x04
@@ -11,7 +10,7 @@
 #endif
 
 /* AUDIO Class Config */
-#if (UAC_SAMPLE_RATE == 16000)
+#if (CONFIG_UAC_SAMPLE_RATE == 16000)
 #define AUDIO_FREQ 16000U
 #else
 #define AUDIO_FREQ 8000U
