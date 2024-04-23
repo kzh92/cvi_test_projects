@@ -817,6 +817,13 @@ void *aos_zalloc_check(size_t size);
 void *aos_calloc(size_t size, size_t num);
 void *aos_calloc_check(size_t size, size_t num);
 
+void *aos_ion_zalloc(size_t size);
+void *aos_ion_malloc(size_t size);
+void *aos_ion_calloc(size_t nitems, size_t size);
+void *aos_ion_realloc(void *mem, size_t size);
+void *aos_ion_zalloc_check(size_t size);
+void aos_ion_free(void *mem);
+
 /**
  * Trace alloced mems.
  *

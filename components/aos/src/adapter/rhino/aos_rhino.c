@@ -1550,6 +1550,89 @@ void aos_free(void *mem)
     krhino_mm_free(mem);
 }
 
+
+#if 1
+
+void *aos_ion_zalloc(size_t size)
+{
+    void *tmp = NULL;
+
+    if (size == 0) {
+        return NULL;
+    }
+
+    tmp = krhino_mm_alloc_resv(size);
+
+    if (tmp) {
+        memset(tmp, 0, size);
+    }
+
+    return tmp;
+}
+
+void *aos_ion_malloc(size_t size)
+{
+    void *tmp = NULL;
+
+    if (size == 0) {
+        return NULL;
+    }
+
+    tmp = krhino_mm_alloc_resv(size);
+
+    return tmp;
+}
+
+void *aos_ion_calloc(size_t nitems, size_t size)
+{
+    void *tmp = NULL;
+    size_t len = (size_t)nitems*size;
+
+    if (len == 0) {
+        return NULL;
+    }
+
+    tmp = krhino_mm_alloc_resv(len);
+
+    if (tmp) {
+        memset(tmp, 0, len);
+    }
+
+    return tmp;
+}
+
+void *aos_ion_realloc(void *mem, size_t size)
+{
+    void *tmp = NULL;
+
+    tmp = krhino_mm_realloc_resv(mem, size);
+
+    return tmp;
+}
+
+void *aos_ion_zalloc_check(size_t size)
+{
+    void *ptr = aos_ion_malloc(size);
+
+    aos_check_mem(ptr);
+    if (ptr) {
+        memset(ptr, 0, size);
+    }
+
+    return ptr;
+}
+
+void aos_ion_free(void *mem)
+{
+    if (mem == NULL) {
+        return;
+    }
+
+    krhino_mm_free_resv(mem);
+}
+
+#endif
+
 void aos_calendar_time_set(uint64_t now_ms)
 {
     start_time_ms = now_ms - krhino_sys_time_get();

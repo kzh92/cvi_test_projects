@@ -52,6 +52,13 @@ __attribute__((weak)) k_mm_region_t g_mm_region[] = {
 };
 __attribute__((weak)) int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
+#define K_MM_RESV_ADDR 0x82000000
+#define K_MM_RESV_SIZE 0x2000000
+__attribute__((weak)) k_mm_region_t g_mm_region_resv[] = {
+    {(uint8_t *)K_MM_RESV_ADDR, (size_t)K_MM_RESV_SIZE},
+};
+__attribute__((weak)) int g_region_num_resv  = sizeof(g_mm_region_resv)/sizeof(k_mm_region_t);
+
 #if (RHINO_CONFIG_INTRPT_GUARD > 0)
 void soc_intrpt_guard(void)
 {
