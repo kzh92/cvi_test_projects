@@ -106,7 +106,7 @@ static int audio_class_endpoint_request_handler(struct usb_setup_packet *setup, 
                 }
                 break;
             case AUDIO_REQUEST_GET_CUR:
-                sampling_freq = 16000;
+                sampling_freq = CONFIG_UAC_SAMPLE_RATE;
                 memcpy(*data, &sampling_freq, 4);
                 *len = 4;
                 break;
