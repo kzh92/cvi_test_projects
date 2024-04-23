@@ -348,13 +348,13 @@ uint32_t dumpsys_mm_info_func(uint32_t mm_status)
     print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
     dump_kmm_mblk_info(g_kmm_head_resv);
 #endif
-
+#if 0
     print("\r\n");
     print("--------------------------- task allocation statistic ----------------------------- \r\n");
     dump_kmm_task_info(g_kmm_head);
     print("--------------------------- g_kmm_head_resv = %8x\r\n", (unsigned long)g_kmm_head_resv);
     dump_kmm_mblk_info(g_kmm_head_resv);
-
+#endif
     print("\r\n");
     print("----------------------------------------------------------------------------------- \r\n");
 
