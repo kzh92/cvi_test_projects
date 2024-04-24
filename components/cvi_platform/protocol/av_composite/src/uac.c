@@ -104,16 +104,15 @@ static aos_sem_t g_audio_write_sem;
 
 void usbd_audio_out_callback(uint8_t ep, uint32_t nbytes)
 {
-    USB_LOG_DBG("actual out len:%d\r\n", nbytes);
-
-    ring_buffer_put(g_ring_buf[UAC_SPEAKER_INDEX], (void *)out_buffer, nbytes);
-    if (ring_buffer_len(g_ring_buf[UAC_SPEAKER_INDEX]) >= 1024) {
-        aos_sem_signal(&g_audio_write_sem);
+    if (nbytes > 0)
+    {
+        USB_LOG_DBG("actual out len:%d\r\n", nbytes);
+        ring_buffer_put(g_ring_buf[UAC_SPEAKER_INDEX], (void *)out_buffer, nbytes);
+        if (ring_buffer_len(g_ring_buf[UAC_SPEAKER_INDEX]) >= 1024) {
+            aos_sem_signal(&g_audio_write_sem);
+        }
     }
-
     usbd_ep_start_read(AUDIO_OUT_EP, out_buffer, AUDIO_OUT_PACKET);
-
-
 }
 
 void usbd_audio_in_callback(uint8_t ep, uint32_t nbytes)

@@ -737,6 +737,7 @@ static int usbd_class_request_handler(struct usb_setup_packet *setup, uint8_t **
     uint8_t epNum = 0xFF;
     
     if ((setup->bmRequestType & USB_REQUEST_RECIPIENT_MASK) == USB_REQUEST_RECIPIENT_INTERFACE) {
+        aos_debug_printf("[%s]:%d\n", __func__, __LINE__);
         usb_slist_for_each(i, &usbd_intf_head)
         {
             struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
@@ -746,6 +747,7 @@ static int usbd_class_request_handler(struct usb_setup_packet *setup, uint8_t **
             }
         }
     } else if ((setup->bmRequestType & USB_REQUEST_RECIPIENT_MASK) == USB_REQUEST_RECIPIENT_ENDPOINT) {
+        aos_debug_printf("[%s]:%d\n", __func__, __LINE__);
         p = usbd_get_descriptors();
         while (p[DESC_bLength] != 0U)
         {
@@ -882,6 +884,7 @@ static int usbd_vendor_request_handler(struct usb_setup_packet *setup, uint8_t *
  */
 static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
 {
+    usbd_print_setup(setup);
     switch (setup->bmRequestType & USB_REQUEST_TYPE_MASK) {
         case USB_REQUEST_STANDARD:
             if (usbd_standard_request_handler(setup, data, len) < 0) {
@@ -980,7 +983,7 @@ void usbd_event_ep0_setup_complete_handler(uint8_t *psetup)
 
     memcpy(setup, psetup, 8);
 // #ifdef CONFIG_USBDEV_SETUP_LOG_PRINT
-    usbd_print_setup(setup);
+    // usbd_print_setup(setup);
 // #endif
     if (setup->wLength > CONFIG_USBDEV_REQUEST_BUFFER_LEN) {
         if ((setup->bmRequestType & USB_REQUEST_DIR_MASK) == USB_REQUEST_DIR_OUT) {

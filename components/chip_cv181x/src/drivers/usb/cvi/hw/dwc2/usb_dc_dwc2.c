@@ -1278,7 +1278,8 @@ void USBD_IRQHandler(void)
 
                                if(fifo_dma_mode == ON){
                                     if (USB_OTG_OUTEP(ep_idx)->DOEPDMA !=
-                                        roundup((intptr_t)g_dwc2_udc.out_ep[ep_idx].xfer_buf + g_dwc2_udc.out_ep[ep_idx].actual_xfer_len, 4)) {
+                                        roundup((intptr_t)g_dwc2_udc.out_ep[ep_idx].xfer_buf + g_dwc2_udc.out_ep[ep_idx].actual_xfer_len, 4)
+                                        && g_dwc2_udc.out_ep[ep_idx].actual_xfer_len > 0) {
                                         csi_dcache_invalid_range((void *)(uint64_t)USB_OTG_OUTEP(ep_idx)->DOEPDMA,roundup(g_dwc2_udc.out_ep[ep_idx].actual_xfer_len, 64 /* ARCH_DMA_MINALIGN */));
                                         memcpy(g_dwc2_udc.out_ep[ep_idx].xfer_buf, (void *)(uint64_t)USB_OTG_OUTEP(ep_idx)->DOEPDMA,
                                             g_dwc2_udc.out_ep[ep_idx].actual_xfer_len);
@@ -1304,7 +1305,8 @@ void USBD_IRQHandler(void)
                             #if CONFIG_USB_DWC2_DMA_ENABLE
                             if(fifo_dma_mode == ON){
                                 if (USB_OTG_OUTEP(ep_idx)->DOEPDMA !=
-                                    roundup((intptr_t)g_dwc2_udc.out_ep[ep_idx].xfer_buf + g_dwc2_udc.out_ep[ep_idx].actual_xfer_len, 4)) {
+                                    roundup((intptr_t)g_dwc2_udc.out_ep[ep_idx].xfer_buf + g_dwc2_udc.out_ep[ep_idx].actual_xfer_len, 4)
+                                    && g_dwc2_udc.out_ep[ep_idx].actual_xfer_len > 0) {
                                     csi_dcache_invalid_range((void *)(uint64_t)USB_OTG_OUTEP(ep_idx)->DOEPDMA,roundup(g_dwc2_udc.out_ep[ep_idx].actual_xfer_len, 64 /* ARCH_DMA_MINALIGN */));
                                     memcpy(g_dwc2_udc.out_ep[ep_idx].xfer_buf, (void *)(uint64_t)USB_OTG_OUTEP(ep_idx)->DOEPDMA,
                                         g_dwc2_udc.out_ep[ep_idx].actual_xfer_len);
