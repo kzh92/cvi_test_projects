@@ -167,6 +167,7 @@ void StartFirstCam()
     g_irWriteLock2 = my_mutex_init();
     g_captureLock = my_mutex_init();
 
+#if (UVC_ENC_TYPE != 2)
     g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE * 2);
     if (g_irOnData1 == NULL)
     {
@@ -174,6 +175,15 @@ void StartFirstCam()
         return;
     }
     g_irOnData2 = g_irOnData1 + IR_BUFFER_SIZE;
+#else // UVC_ENC_TYPE
+    g_irOnData1 = (unsigned char*)my_malloc(IR_BUFFER_SIZE);
+    if (g_irOnData1 == NULL)
+    {
+        my_printf("malloc fail(%s:%d)", __FILE__, __LINE__);
+        return;
+    }
+    g_irOnData2 = g_irOnData1;
+#endif // UVC_ENC_TYPE
 
     InitCamera(0);
 }
