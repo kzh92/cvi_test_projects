@@ -16,8 +16,8 @@
 
 #define VIDEO_IN_EP 0x81
 
-#define WIDTH  (unsigned int)(1280)
-#define HEIGHT (unsigned int)(720)
+#define WIDTH  (unsigned int)(1600)
+#define HEIGHT (unsigned int)(1200)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -74,18 +74,13 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 #endif
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 1280, 720, 30, 0},
+    {1, WIDTH, HEIGHT, 30, 0},
 };
 
-#if 0
 static struct uvc_frame_info_st h264_frame_info[] = {
-    {1, 800, 600, 30, 0},
-    {2, 1280, 720, 30, 0},
-    {3, 640, 480, 30, 0},
-    {4, 400, 300, 30, 0},
-    {5, 1920, 1080, 30, 0},
+    {1, WIDTH, HEIGHT, 30, 0},
 };
-
+#if 0
 static struct uvc_frame_info_st nv21_frame_info[] = {
     {1, 800, 600, 30, 0},
     {2, 1280, 720, 30, 0},
