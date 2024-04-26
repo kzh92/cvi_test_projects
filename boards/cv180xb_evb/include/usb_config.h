@@ -5,7 +5,7 @@
  */
 #ifndef CHERRYUSB_CONFIG_H
 #define CHERRYUSB_CONFIG_H
-
+extern int aos_debug_printf(const char *fmt, ...);
 /* ================ USB common Configuration ================ */
 #ifndef CONFIG_USB_PRINTF
 #define CONFIG_USB_PRINTF printf
