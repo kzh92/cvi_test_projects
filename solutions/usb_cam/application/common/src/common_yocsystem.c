@@ -1,6 +1,6 @@
 #include "common_yocsystem.h"
 #include <stdbool.h>
-#include <aos/kv.h>
+// #include <aos/kv.h>
 #include <debug/dbg.h>
 #include <aos/cli.h>
 #include <uservice/uservice.h>
@@ -8,12 +8,12 @@
 #include <yoc/init.h>
 #include <drv/dma.h>
 #include "board.h"
-#include "fatfs_vfs.h"
-#include "littlefs_vfs.h"
+// #include "fatfs_vfs.h"
+// #include "littlefs_vfs.h"
 #include "vfs.h"
-#include "disk_sd.h"
+// #include "disk_sd.h"
 #include "vfs_api.h"
-#include "littlefs_vfs.h"
+// #include "littlefs_vfs.h"
 #include "debug/debug_cli_cmd.h"
 
 void YOC_SYSTEM_FsVfsInit()
@@ -26,22 +26,26 @@ void YOC_SYSTEM_FsVfsInit()
 
 
 #if CONFIG_SUPPORT_NORFLASH
-	int fatfs_en = 0;
+	// int fatfs_en = 0;
     ret = partition_init();
     if(ret >= 0)
     {
+#if 0
         fatfs_en = app_sd_detect_check();
         LOGE("app", fatfs_en ? "fatfs enable.\n" : "fatfs disable.\n");
+#endif
         //ret = vfs_lfs_register("spiffs");
         //if (ret != 0) {
         //    LOGE("app", "lfs register failed(%d)", ret);
         //} else
         //    LOGE("app", "lfs register succeed.");
+#if 0
         ret = aos_kv_init("kv");
         if (ret != 0) {
             LOGE("app", "aos_kv_init failed(%d)", ret);
         } else
             LOGE("app", "aos_kv_init succeed.");
+#endif
     }
     else
         printf("partition_init failed! ret = %d\n" , ret);

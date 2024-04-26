@@ -77,6 +77,9 @@ cp -rf ${BASE_PWD}/../../pack/images/* ${MK_GENERATED_PATH}/data/
 [ -f "${MK_BOARD_PATH}/bootimgs/boot0" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/boot0 ${MK_GENERATED_PATH}/data/
 
 [ -f yoc.bin ] && cp -arf yoc.bin ${MK_GENERATED_PATH}/data/prim
+lz4 ${MK_GENERATED_PATH}/data/prim
+mv -f ${MK_GENERATED_PATH}/data/prim.lz4 ${MK_GENERATED_PATH}/data/prim
+
 cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
 
 echo "Creating temp partitions..."

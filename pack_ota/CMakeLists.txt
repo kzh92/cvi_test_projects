@@ -38,6 +38,9 @@ include_directories(
 #    ../solutions/usb_cam/application/_des/openssl
     ../solutions/usb_cam/application/_aes
 #    ../solutions/usb_cam/application/_uart
+    ../solutions/usb_cam/application/_zstd/lib
+    ../solutions/usb_cam/application/_zstd/lib/common
+    ../solutions/usb_cam/application/_zstd/lib/decompress
     )
 
 add_definitions(-D_PACK_OTA_=1)

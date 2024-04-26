@@ -15,6 +15,8 @@
 // #include <stdlib.h>
 // #include <sys/mount.h>
 // #include <unistd.h>
+#include "zstd.h"
+
 
 int mount_tmp(int is_usb)
 {
@@ -135,24 +137,35 @@ int upg_do_ota4mem(unsigned char* ota_buf, unsigned int ota_len)
         dbug_printf("%02x ", ((unsigned char*)ota_buf)[i]);
     dbug_printf("\n===============================================\n");
 
-    extern int extract_7z2mem(void* pInBuffer, int inLength, void** pOutBuffer, int* pOutLength);
     void* extract_buf = NULL;
 
     dbug_printf("7z extract start %0.3f\n", Now());
-    int rc = extract_7z2mem(ota_buf, iFileSize, &extract_buf, &g_xSS.iUpgradeImgLen);
-    if (rc == 0)
-        my_printf("ex_time(%d), %0.3f, %d:", g_xSS.iUpgradeImgLen, Now(), rc);
-    if (extract_buf)
+    unsigned long long const rSize = ZSTD_getFrameContentSize(ota_buf, iFileSize);
+    if (rSize == 0)
     {
-        for (int i = 0; i < 32 && i < g_xSS.iUpgradeImgLen; i++)
-            dbug_printf("%02x ", ((unsigned char*)extract_buf)[i]);
+        my_printf("ota size error\n");
+        return 2;
     }
-    else
+    extract_buf = my_malloc(rSize);
+    if (extract_buf == NULL)
+    {
+        my_printf("ota malloc fail\n");
+        return 3;
+    }
+    float rOldTime = Now();
+    size_t const dSize = ZSTD_decompress(extract_buf, rSize, ota_buf, iFileSize);
+    if (dSize != rSize)
     {
         my_printf("[%s] extract fail\n", __func__);
         return 2;
     }
-    dbug_printf("\n===============================================\n");
+    else
+    {
+        my_printf("ex_time(%d), %0.3f:", g_xSS.iUpgradeImgLen, Now() - rOldTime);
+        for (int i = 0; i < 32 && i < g_xSS.iUpgradeImgLen; i++)
+            dbug_printf("%02x ", ((unsigned char*)extract_buf)[i]);
+    }
+    dbug_printf("\n===============\n");
 
     uf_file_header header;
 

@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include "loadbmp.h"
 #include <math.h>
+#if 0
+
 #include "fatfs_vfs.h"
 #if (CONFIG_DEBUG_CVITEST_CLIMODE == 0)
 #include <fontmod.h>
@@ -640,3 +642,4 @@ CVI_S32 APP_OSD_SetAttr(APP_MEDIAOSD_E OsdType, const APP_OSD_S *pstAppOsd)
     memcpy(&s_APP_OSD_Manager[OsdType], pstAppOsd, sizeof(APP_OSD_S));
     return CVI_SUCCESS;
 }
+#endif

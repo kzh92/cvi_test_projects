@@ -20,18 +20,18 @@ all:
 	$(CPRE) ln -s package.yaml.$(PROJECT) package.yaml
 	$(CPRE) scons $(VERB) --board=$(BOARD) -j4
 	@cp yoc.bin $(MK_GENERATED_IMGS_PATH)/data/prim
-	$(CPRE) lz4 -f yoc.bin
-	$(CPRE) if [ ! -d $(CURDIR)/lz4_out ]; then  mkdir lz4_out; fi
-	$(CPRE) if [ -e $(CURDIR)/lz4_out/yoc.bin ]; then rm -rf $(CURDIR)/lz4_out/yoc.bin; fi
-	$(CPRE) if [ -e $(CURDIR)/yoc.bin.lz4 ]; then echo ULZ4`stat -c "%s" $(CURDIR)/yoc.bin.lz4`  >> $(CURDIR)/lz4_out/yoc.bin; fi
-	$(CPRE) if [ -e $(CURDIR)/lz4_out/yoc.bin ]; then cat  $(CURDIR)/yoc.bin.lz4 >> $(CURDIR)/lz4_out/yoc.bin; fi
+# 	$(CPRE) lz4 -f yoc.bin
+# 	$(CPRE) if [ ! -d $(CURDIR)/lz4_out ]; then  mkdir lz4_out; fi
+# 	$(CPRE) if [ -e $(CURDIR)/lz4_out/yoc.bin ]; then rm -rf $(CURDIR)/lz4_out/yoc.bin; fi
+# 	$(CPRE) if [ -e $(CURDIR)/yoc.bin.lz4 ]; then echo ULZ4`stat -c "%s" $(CURDIR)/yoc.bin.lz4`  >> $(CURDIR)/lz4_out/yoc.bin; fi
+# 	$(CPRE) if [ -e $(CURDIR)/lz4_out/yoc.bin ]; then cat  $(CURDIR)/yoc.bin.lz4 >> $(CURDIR)/lz4_out/yoc.bin; fi
 	@echo YoC SDK Done
-	@echo [INFO] Create bin files
+# 	@echo [INFO] Create bin files
 
-	@echo [INFO] Create imtb bin file
-	$(CPRE) product image $(MK_GENERATED_IMGS_PATH)/images.zip -i $(MK_GENERATED_IMGS_PATH)/data -l -p
-	$(CPRE) product image $(MK_GENERATED_IMGS_PATH)/images.zip -e $(MK_GENERATED_IMGS_PATH) -x
-	$(CPRE) unzip -o generated/images.zip -d generated/images
+# 	@echo [INFO] Create imtb bin file
+# 	$(CPRE) product image $(MK_GENERATED_IMGS_PATH)/images.zip -i $(MK_GENERATED_IMGS_PATH)/data -l -p
+# 	$(CPRE) product image $(MK_GENERATED_IMGS_PATH)/images.zip -e $(MK_GENERATED_IMGS_PATH) -x
+# 	$(CPRE) unzip -o generated/images.zip -d generated/images
 
 .PHONY:flashall
 flashall:

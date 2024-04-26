@@ -114,10 +114,10 @@ int main(int argc, char** argv)
     FolderFile ff(srcdir_path);
     ff.compressDirectory((char*)"", (char*)FN_IMG_PATH, ufh, upexec_path);
 
-    system("rm -f ./upfirm.7z");
-    system("7zr a ./upfirm.7z " FN_IMG_PATH);
+    system("rm -f ./upfirm.img.zst");
+    system("zstd -19 " FN_IMG_PATH);
 
-    fp = fopen("./upfirm.7z", "rb");
+    fp = fopen("./upfirm.img.zst", "rb");
     fseek(fp, 0, SEEK_END);
     int iFileSize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
         fclose(fp);
         char cmd[256];
         system("dd if=/dev/zero of=./upfirm.7z oflag=append conv=notrunc bs=1024 count=4");
-        fp = fopen("./upfirm.7z", "rb");
+        fp = fopen("./upfirm.img.zst", "rb");
         fseek(fp, 0, SEEK_END);
         iFileSize = ftell(fp);
         fseek(fp, 0, SEEK_SET);

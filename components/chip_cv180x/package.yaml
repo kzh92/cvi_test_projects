@@ -156,7 +156,7 @@ source_file:
   - src/drivers/pin/cvi/src/*.c
   - src/drivers/gpio/cvi/src/*.c
   - src/drivers/gpio_pin/cvi/src/*.c
-  - src/drivers/adc/cvi/src/*.c
+  # - src/drivers/adc/cvi/src/*.c
   - src/drivers/tempsen/cvi/src/*.c
   - src/drivers/pwm/cvi/v1.0/src/*.c
   - src/drivers/wdt/cvi/src/*.c
@@ -166,22 +166,22 @@ source_file:
   - src/drivers/spi/dw/v2.0/src/*.c
   - src/drivers/timer/cvi/v1/src/*.c ? <CONFIG_KERNEL_NONE>
   - src/drivers/timer/cvi/v2/src/*.c ? <CONFIG_KERNEL_RHINO>
-  - src/drivers/rtc/cvi/src/cvi_rtc.c
-  - src/drivers/rtc/cvi/src/csi_rtc.c
-  - src/drivers/rtc/cvi/src/rtc_lib.c
+  # - src/drivers/rtc/cvi/src/cvi_rtc.c
+  # - src/drivers/rtc/cvi/src/csi_rtc.c
+  # - src/drivers/rtc/cvi/src/rtc_lib.c
   - src/drivers/dma/cvi/src/sysdma_remap.c
-  - src/drivers/net/ethernet/dw/src/dw_gmac_mars.c
-  - src/drivers/net/phy/src/phy.c
-  - src/drivers/net/phy/src/cvitek.c
+  # - src/drivers/net/ethernet/dw/src/dw_gmac_mars.c
+  # - src/drivers/net/phy/src/phy.c
+  # - src/drivers/net/phy/src/cvitek.c
 #  - src/drivers/pinmux/wj/sparrow_v1.0/pinmux.c
 #  - src/drivers/timer/dw/v1.0/timer.c
   - src/hal/pin/cvi/src/*.c
   - src/hal/gpio/cvi/src/hal_gpio.c
-  - src/hal/adc/cvi/src/hal_adc.c
+  # - src/hal/adc/cvi/src/hal_adc.c
   - src/hal/tempsen/cvi/src/hal_tempsen.c
   - src/hal/dma/cvi/src/hal_dma.c
   - src/hal/timer/cvi/src/hal_timer.c
-  - src/hal/rtc/cvi/src/hal_rtc.c
+  # - src/hal/rtc/cvi/src/hal_rtc.c
   - src/hal/clk/*.c
 
   - src/drivers/i2s/dw/src/dw_i2s.c
@@ -192,10 +192,10 @@ source_file:
   - src/drivers/codec/cvitek/src/codec.c
   - src/drivers/common/ringbuffer.c
   - src/drivers/sdif/dw/v1.0/*.c
-  - src/drivers/sha/cvi/src/*.c
-  - src/drivers/aes/cvi/src/*.c
+  # - src/drivers/sha/cvi/src/*.c
+  # - src/drivers/aes/cvi/src/*.c
   - src/drivers/efuse/wj/cvi/*.c
-  - src/drivers/rng/cvi/src/*.c
+#  - src/drivers/rng/cvi/src/*.c
 
   - src/drivers/usb/cvi/hw/dwc2/usb_dc_dwc2.c ? <CONFIG_SUPPORT_USB_DC>
   - src/drivers/usb/cvi/hw/dwc2/usb_hc_dwc2.c ? <CONFIG_SUPPORT_USB_HC>

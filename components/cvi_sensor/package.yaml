@@ -110,24 +110,24 @@ build_config:
 source_file:
 ## middleware
   - sensor_i2c/*.c
-  - gcore_gc02m1/*.c
-  - gcore_gc02m1_slave/*.c
-  - gcore_gc2053/*.c
-  - gcore_gc2053_1L/*.c
-  - gcore_gc2093/*.c
-  - gcore_gc4653/*.c
-  - opnous_opn8018/*.c
-  - sms_sc200ai/*.c
-  - sms_sc2336/*.c
-  - sms_sc3336/*.c
-  - sms_sc030iot/*.c
+  # - gcore_gc02m1/*.c
+  # - gcore_gc02m1_slave/*.c
+  # - gcore_gc2053/*.c
+  # - gcore_gc2053_1L/*.c
+  # - gcore_gc2093/*.c
+  # - gcore_gc4653/*.c
+  # - opnous_opn8018/*.c
+  # - sms_sc200ai/*.c
+  # - sms_sc2336/*.c
+  # - sms_sc3336/*.c
+  # - sms_sc030iot/*.c
   - sms_sc201cs/*.c
   - sms_sc201cs_slave/*.c
-  - sms_sc031iot/*.c
-  - sony_imx307/*.c
-  - sony_imx327/*.c
-  - byd_bf314a/*.c
-  - sms_sc1336_2L/*.c
+#  - sms_sc031iot/*.c
+#  - sony_imx307/*.c
+#  - sony_imx327/*.c
+#  - byd_bf314a/*.c
+#  - sms_sc1336_2L/*.c
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

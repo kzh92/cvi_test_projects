@@ -114,10 +114,12 @@ int partition_device_read(partition_device_ops_t *dev_ops, off_t offset, void *d
 #if CONFIG_PARTITION_SUPPORT_EMMC
         if (p->storage_info.type == MEM_DEVICE_TYPE_EMMC) {
 #ifndef CONFIG_KERNEL_NONE
+#if (CONFIG_COMP_SDMMC)
             if (rvm_hal_blockdev_mmc_select_area(p->dev_hdl, p->storage_info.area)) {
                 // printf("%s, %d, select area:%d failed.\n", __func__, __LINE__, p->storage_info.area);
                 return -1;
             }
+#endif
 #else
             mmc_card_t *card = (mmc_card_t *)p->dev_hdl;
             if (card->currentPartition != p->storage_info.area) {
@@ -149,10 +151,12 @@ int partition_device_write(partition_device_ops_t *dev_ops, off_t offset, void *
 #if CONFIG_PARTITION_SUPPORT_EMMC
         if (p->storage_info.type == MEM_DEVICE_TYPE_EMMC) {
 #ifndef CONFIG_KERNEL_NONE
+#if CONFIG_COMP_SDMMC
             if (rvm_hal_blockdev_mmc_select_area(p->dev_hdl, p->storage_info.area)) {
                 // printf("%s, %d, select area:%d failed.\n", __func__, __LINE__, p->storage_info.area);
                 return -1;
             }
+#endif
 #else
             mmc_card_t *card = (mmc_card_t *)p->dev_hdl;
             if (card->currentPartition != p->storage_info.area) {
@@ -184,10 +188,12 @@ int partition_device_erase(partition_device_ops_t *dev_ops, off_t offset, size_t
 #if CONFIG_PARTITION_SUPPORT_EMMC
         if (p->storage_info.type == MEM_DEVICE_TYPE_EMMC) {
 #ifndef CONFIG_KERNEL_NONE
+#if (CONFIG_COMP_SDMMC)
             if (rvm_hal_blockdev_mmc_select_area(p->dev_hdl, p->storage_info.area)) {
                 // printf("%s, %d, select area:%d failed.\n", __func__, __LINE__, p->storage_info.area);
                 return -1;
             }
+#endif
 #else
             mmc_card_t *card = (mmc_card_t *)p->dev_hdl;
             if (card->currentPartition != p->storage_info.area) {

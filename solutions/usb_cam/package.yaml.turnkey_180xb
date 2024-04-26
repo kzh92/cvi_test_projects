@@ -182,8 +182,8 @@ source_file:
   - application/_aes/*.c
   - application/_des/*.cpp
   - application/_des/*.c
-  - application/_7zr/*.c
-  - application/_7zr/*.cpp
+  # - application/_7zr/*.c
+  # - application/_7zr/*.cpp
   - application/_keygen/*.cpp
   - application/_keygen/*.c
   - application/_uart/*.cpp
@@ -235,17 +235,8 @@ def_config:
   ULOG_CONFIG_LOG_SIZE: 512
   USE_4K_ERASE_SECTION: 1
   CONFIG_SIMPLE_FONTMOD: 1
-  CONFIG_SENSOR_GCORE_GC2053: 0
-  CONFIG_SENSOR_GCORE_GC2053_1L: 0
-  CONFIG_SENSOR_GCORE_GC2093: 0
-  CONFIG_SENSOR_GCORE_GC4653: 0
-  CONFIG_SENSOR_SMS_SC200AI: 0
-  CONFIG_SENSOR_SMS_SC2336: 0
-  CONFIG_SENSOR_SMS_SC030IOT: 0
   CONFIG_SENSOR_SMS_SC201CS: 1
   CONFIG_SENSOR_SMS_SC201CS_SLAVE: 1
-  CONFIG_SENSOR_SONY_IMX307: 0
-  CONFIG_SENSOR_SONY_IMX327: 0
   CONFIG_SUPPORT_NORFLASH: 1
   CONFIG_SUPPORT_USB_DC: 1
   CONFIG_APP_UVC_SUPPORT: 0
