@@ -49,6 +49,21 @@
 #define FN_OCC_DICT_SIZE                738800
 #define FN_H1_DICT_SIZE                 290964
 #define FN_H2_DICT_SIZE                 4263260
+
+#define FN_WNO_DICT_SIZE_REAL           (USE_RENT_ENGINE ? 3557760: 1821548)
+#define FN_WNOH_DICT_SIZE_REAL          1103149
+#define FN_A1_DICT_SIZE_REAL            (346672)
+#define FN_A2_DICT_SIZE_REAL            (344236)
+#define FN_B_DICT_SIZE_REAL             (346132)
+#define FN_B2_DICT_SIZE_REAL            (113887)
+#define FN_C_DICT_SIZE_REAL             (363272)
+#define FN_CH_DICT_SIZE_REAL            (299161)
+#define FN_DETECT_DICT_SIZE_REAL        (85012)
+#define FN_DETECT_H_DICT_SIZE_REAL      (75455)
+#define FN_DETECT_C_DICT_SIZE_REAL      (841576)
+#define FN_DLAMK_DICT_SIZE_REAL         (392212)
+#define FN_DLAMK_H_DICT_SIZE_REAL       (233658)
+#define FN_H_LIVE_DICT_SIZE_REAL        346011
 #endif
 /*--fast=4
 wno.bin : 52.90%   (3562136 => 1884446 bytes, wno.bin.zst) 
@@ -99,19 +114,23 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define IR_TEST_BIN_HEIGHT      568
 #define IR_TEST_BIN_W_START     424
 #define IR_TEST_BIN_H_START     166
+#define IR_TEST_BIN_WREAL       188
+#define IR_TEST_BIN_HREAL       142
 #define CLR_TEST_BIN_WIDTH      174
 #define CLR_TEST_BIN_HEIGHT     136
 #define CLR_TEST_BIN_W_START    232
 #define CLR_TEST_BIN_H_START    172
 
-#define FN_FACE_BIN_PATH        "/test/face.bin"
-#define FN_FACE_IR_BIN_PATH     "/test/face_ir.bin"
-#define FN_FACE_CLR_BIN_PATH    "/test/face_clr.bin"
+#define FN_FACE_BIN_PATH                "/test/face.bin"
+#define FN_FACE_IR_BIN_PATH             "/test/face_ir.bin"
+#define FN_FACE_CLR_BIN_PATH            "/test/face_clr.bin"
 
-#define FN_FACE_IR_BIN_SIZE     427136
+#define FN_FACE_IR_BIN_SIZE             26696
+#define FN_FACE_IR_BIN_SIZE_REAL        16458
 
-#define FN_TESTAUDIO_PCM_PATH   "/test/audiotest.pcm"
-#define FN_TESTAUDIO_PCM_SIZE   66416
+#define FN_TESTAUDIO_PCM_PATH           "/test/audiotest.pcm"
+#define FN_TESTAUDIO_PCM_SIZE           66416
+#define FN_TESTAUDIO_PCM_SIZE_REAL      66416
 
 #define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
 #define FN_031TTS_WAV_SIZE  250028
@@ -133,6 +152,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 typedef struct {
     char* m_filename;
     int m_filesize;
+    int m_filesize_de;
     int m_checksum;
     int m_flag; //flags for crypto
     int m_cryptosize;

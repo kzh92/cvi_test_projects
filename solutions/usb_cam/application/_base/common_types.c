@@ -70,7 +70,11 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
     {
         //found file
         read_len = my_wx_read(file_offset + u32_offset, buf, g_part_files[idx].m_filesize);
-
+        if (read_len <= 0)
+        {
+            my_printf("read fail.\n");
+            return 0;
+        }
         //decrypt file
         if ((g_part_files[idx].m_flag & FN_CRYPTO_AES) && (g_part_files[idx].m_cryptosize > 0))
         {
@@ -89,7 +93,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
             }
         }
         //decompress file
-        if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
+        if ((g_part_files[idx].m_flag & FN_CRYPTO_ZSTD) && rootfs_is_activated() == 1)
         {
             unsigned char* temp_buf = NULL;
             temp_buf = my_malloc(g_part_files[idx].m_filesize);
@@ -1289,16 +1293,17 @@ int my_flash_part_read(const char* part_name, unsigned int offset, void* buf, un
     if (partition < 0)
     {
         my_printf("[%s]part open fail: %s\n", __func__, part_name);
+        my_mutex_unlock(g_FlashReadWriteLock);
         return 0;
     }
     ret = partition_read(partition, offset, buf, length);
-    if (ret)
-    {
-        my_printf("[%s]part read fail: %s\n", __func__, part_name);
-        return 0;
-    }
     partition_close(partition);
     my_mutex_unlock(g_FlashReadWriteLock);
+    if (ret)
+    {
+        my_printf("[%s]part read fail: %s(%d)\n", __func__, part_name, ret);
+        return 0;
+    }
     if (ret)
         return 0;
     else
@@ -1312,6 +1317,7 @@ int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, u
     if (partition < 0)
     {
         my_printf("[%s]part open fail: %s\n", __func__, part_name);
+        my_mutex_unlock(g_FlashReadWriteLock);
         return 0;
     }
 
@@ -1330,7 +1336,10 @@ int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, u
     //     page_count, start_off, end_off);
     _tmp_buf = (unsigned char*)my_malloc(flash_page_size*2);
     if (_tmp_buf == NULL)
+    {
+        my_mutex_unlock(g_FlashReadWriteLock);
         return 0;
+    }
     for (; start_off < end_off; start_off += flash_page_size)
     {
         write_len = flash_page_size;

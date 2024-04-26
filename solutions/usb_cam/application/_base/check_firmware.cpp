@@ -61,16 +61,16 @@ void doCheckFirmware()
     int idx = 0;
     while(g_part_files[idx].m_filename != NULL)
     {
-        file_data = (int*)my_malloc(g_part_files[idx].m_filesize);
+        file_data = (int*)my_malloc(g_part_files[idx].m_filesize_de);
         if (!file_data)
         {
             my_printf("check firmware, malloc failed.\n");
             iErrorFlag = 15;
             break;
         }
-        fr_ReadFileData(g_part_files[idx].m_filename, 0, file_data, g_part_files[idx].m_filesize);
+        fr_ReadFileData(g_part_files[idx].m_filename, 0, file_data, g_part_files[idx].m_filesize_de);
         int sum = 0;
-        for (int k = 0; k < g_part_files[idx].m_filesize / (int)sizeof(int); k ++)
+        for (int k = 0; k < g_part_files[idx].m_filesize_de / (int)sizeof(int); k ++)
         {
             sum = sum ^ file_data[k];
         }

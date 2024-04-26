@@ -622,17 +622,45 @@ int SaveImage(unsigned char* pbImage, int iSaveIdx, int iRotate,
     return iWriteLen;
 }
 
+void scaleupBuffer(unsigned char* pDstBuffer, int nDstBufferWidth, int nDstBufferHeight, int nPasteX, int nPasteY,
+    unsigned char* pSrcBuffer, int nSrcBufferWidth, int nSrcBufferHeight, int nScale)
+{
+    memset(pDstBuffer, 0, nDstBufferWidth * nDstBufferHeight);
+    int nSrcX, nSrcY;
+    int nOffsetX, nOffsetY;
+    for (nSrcY = 0; nSrcY < nSrcBufferHeight; nSrcY++)
+    {
+        for (nSrcX = 0; nSrcX < nSrcBufferWidth; nSrcX++)
+        {
+            unsigned char nValue = pSrcBuffer[nSrcY * nSrcBufferWidth + nSrcX];
+            for (nOffsetY = 0; nOffsetY < nScale; nOffsetY++)
+            {
+                for (nOffsetX = 0; nOffsetX < nScale; nOffsetX++)
+                {
+                    int nDstY = nSrcY * nScale + nOffsetY + nPasteY;
+                    int nDstX = nSrcX * nScale + nOffsetX + nPasteX;
+
+                    if (nDstX >= 0 && nDstX < nDstBufferWidth &&  nDstY >= 0 && nDstY < nDstBufferHeight)
+                    {
+                        pDstBuffer[nDstY * nDstBufferWidth + nDstX] = nValue;
+                    }
+                }
+            }
+        }
+    }
+}
+
 int FaceRecogTask::ReadStaticIRImage(void* dst, int flip)
 {
-    unsigned char* test_tmp_buff = g_irOnData1;
-    //if (test_tmp_buff)
+    static unsigned char* test_tmp_buff = NULL;
+    if (test_tmp_buff == NULL)
+        test_tmp_buff = (unsigned char*)my_malloc(IR_TEST_BIN_WIDTH * IR_TEST_BIN_HEIGHT);
+    if (test_tmp_buff)
     {
-        fr_ReadFileData(FN_FACE_IR_BIN_PATH, 0, test_tmp_buff, IR_TEST_BIN_WIDTH * IR_TEST_BIN_HEIGHT);
+        fr_ReadFileData(FN_FACE_IR_BIN_PATH, 0, test_tmp_buff, IR_TEST_BIN_WREAL * IR_TEST_BIN_HREAL);
         memset(dst, 0, IR_CAM_WIDTH * IR_CAM_HEIGHT);
-        for (int y = 0; y < IR_TEST_BIN_HEIGHT ; y++)
-        {
-            memcpy(((char*)dst) + (y + IR_TEST_BIN_H_START) * IR_CAM_WIDTH + IR_TEST_BIN_W_START, test_tmp_buff + y * IR_TEST_BIN_WIDTH, IR_TEST_BIN_WIDTH);
-        }
+        scaleupBuffer((unsigned char*)dst, IR_CAM_WIDTH, IR_CAM_HEIGHT, IR_TEST_BIN_W_START, IR_TEST_BIN_H_START,
+            test_tmp_buff, IR_TEST_BIN_WREAL, IR_TEST_BIN_HREAL, 4);
         if (flip)
         {
             int n = IR_CAM_WIDTH * IR_CAM_HEIGHT;

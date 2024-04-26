@@ -100,7 +100,7 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
         {
             sprintf(cmd_, "rm -f %s.zst", file_names[i]);
             system(cmd_);
-            sprintf(cmd_, "zstd --fast=4 %s", file_names[i]);
+            sprintf(cmd_, "zstd -19 %s", file_names[i]);
             system(cmd_);
             sprintf(cmd_, "%s.zst", file_names[i]);
         }
@@ -188,7 +188,6 @@ int main(int /*argc*/, char** /*argv*/)
     #endif // DESMAN_ENC_MODE
     #if (ENGINE_USE_TWO_CAM)
         FACEENGINEDIR "/a1.bin",
-        FACEENGINEDIR "/a2.bin",
         FACEENGINEDIR "/b.bin",
         FACEENGINEDIR "/b2.bin",
         FACEENGINEDIR "/c.bin",
@@ -203,7 +202,6 @@ int main(int /*argc*/, char** /*argv*/)
     #if (N_MAX_HAND_NUM)
         FACEENGINEDIR "/detect_h.bin",
         FACEENGINEDIR "/dlamk_h.bin",
-        FACEENGINEDIR "/ch.bin",
         FACEENGINEDIR "/wnh.bin",
         FACEENGINEDIR "/lh.bin",
     #endif // N_MAX_HAND_NUM

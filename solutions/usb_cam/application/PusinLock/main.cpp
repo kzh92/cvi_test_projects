@@ -3539,9 +3539,9 @@ int ProcessActivation(char* pbUID, int iUniqueID)
 #endif
             NULL};
         const unsigned long szDictLength[] = {
-            FN_WNO_DICT_SIZE,
+            FN_WNO_DICT_SIZE_REAL,
 #if (N_MAX_HAND_NUM)
-            FN_WNOH_DICT_SIZE,
+            FN_WNOH_DICT_SIZE_REAL,
 #endif
             0 };
 
