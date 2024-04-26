@@ -94,8 +94,8 @@ void YOC_SYSTEM_ToolInit()
     cli_reg_cmd_mv();
     cli_reg_cmd_ext4();
 #endif
-    cli_reg_cmd_iperf();
-    cli_reg_cmd_ifconfig();
+    // cli_reg_cmd_iperf();
+    // cli_reg_cmd_ifconfig();
     ulog_init();
     aos_set_log_level(AOS_LL_INFO);
     event_service_init(NULL);

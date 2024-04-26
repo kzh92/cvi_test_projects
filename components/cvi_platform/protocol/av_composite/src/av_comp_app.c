@@ -245,7 +245,7 @@ void uvc_media_update(){
 #define CLR_CAM_WIDTH 1600
 #define CLR_CAM_HEIGHT 1200
 	VPSS_CROP_INFO_S pstCropInfo;
-    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
+    CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo);
     if (stVpssChnAttr.u32Width * 3 / 4 == stVpssChnAttr.u32Height)
     {
     	pstCropInfo.bEnable = CVI_FALSE;
@@ -260,7 +260,7 @@ void uvc_media_update(){
 		pstCropInfo.stCropRect.u32Width = real_width;
 		pstCropInfo.stCropRect.u32Height = real_height;
     }
-	MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
+	CVI_VPSS_SetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo);
 
 	CVI_VPSS_SetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 
