@@ -69,7 +69,7 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 #endif
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 1280, 720, 30, 0},
+    {1, WIDTH, HEIGHT, 30, 0},
 };
 
 #if 0
@@ -234,6 +234,11 @@ void uvc_media_update(){
 
 	CVI_VPSS_GetChnAttr(UVC_VPSS_GRP,UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
+	if (uvc_frame_info.width * uvc_frame_info.height == 0)
+	{
+		uvc_frame_info.width = WIDTH;
+		uvc_frame_info.height = HEIGHT;
+	}
 	stVpssChnAttr.u32Width = uvc_frame_info.width;
 	stVpssChnAttr.u32Height = uvc_frame_info.height;
 
@@ -262,7 +267,7 @@ void uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
-	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?20480:2048;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?10240:2048;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
 	printf("uvc(%dx%d),%dbr\n", uvc_frame_info.width, uvc_frame_info.height, pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate);
 
