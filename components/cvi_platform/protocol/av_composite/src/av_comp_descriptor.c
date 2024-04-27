@@ -41,7 +41,7 @@ struct usb_config_descriptor uvc_config_descriptor = {
     .bConfigurationValue    = 1,
     .iConfiguration         = 0,
     .bmAttributes           = USB_CONFIG_ATT_ONE,
-    .bMaxPower              = 50,
+    .bMaxPower              = 200,
 };
 
 DECLARE_UVC_HEADER_DESCRIPTOR(1);
@@ -341,8 +341,8 @@ static struct usb_endpoint_descriptor uvc_hs_streaming_ep = {
     .bLength            = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType    = USB_DT_ENDPOINT,
     .bEndpointAddress   = VIDEO_IN_EP,
-    .bmAttributes       = USB_ENDPOINT_XFER_ISOC,
-    .wMaxPacketSize     = cpu_to_le16(VIDEO_PACKET_SIZE),
+    .bmAttributes       = USB_ENDPOINT_XFER_ISOC | 0x4,
+    .wMaxPacketSize     = cpu_to_le16(VIDEO_PACKET_SIZE) | 0x800,
     .bInterval          = 1,
 };
 
