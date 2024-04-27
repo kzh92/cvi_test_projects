@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
+	printf("****** uac sampling rate: %d\n", CONFIG_UAC_SAMPLE_RATE);
     MEDIA_AV_Init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
