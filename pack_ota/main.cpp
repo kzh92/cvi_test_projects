@@ -9,11 +9,11 @@
 
 //list of upgrade files
 s_uf_part_info g_upg_list[] = {
-    {"prim", 0x2E000, 0x00390000, UF_PF_APP},
+    {"prim", 0x2E000, 0x001e0000, UF_PF_APP},
 #if 0
     {"wno_c.bin", 0x003d0000, FN_WNO_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
 #endif
-    {"detect.bin", 0x003d0000 + 3562176, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
+    // {"detect.bin", 0x003d0000 + 3562176, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
 #if 0
     {"dlamk.bin", 0x003d0000 + 3687040, FN_DLAMK_DICT_SIZE, UF_PF_NORMAL},
     {"a1.bin", 0x003d0000 + 4311744, FN_A1_DICT_SIZE, UF_PF_NORMAL},
