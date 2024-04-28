@@ -83,7 +83,7 @@ enum E_Baud_Rate
 #define BD_TY_CV181xC_DEMO_V1v0     2
 #define BD_TY_FMDASS_1V0J           3   //D20 3M
 #define BD_TY_FMDBSS_1V0J           4   //D10 3M
-#define DEFAULT_BOARD_TYPE          BD_TY_FSDB_1V0
+#define DEFAULT_BOARD_TYPE          BD_TY_FMDBSS_1V0J
 
 //chip types
 #define MY_CHIP_D10                 0
@@ -186,7 +186,7 @@ enum E_Baud_Rate
 #define CHECK_FIRMWARE              1
 #define USE_WIFI_MODULE             0
 #define USE_READY0_PROTO            0
-#define USE_SANJIANG3_MODE          0       // 범해삼강(암호화있음), 중산칠심, 동관동흔조종기판을 함께 쓰는 방식
+#define USE_SANJIANG3_MODE          1       // 범해삼강(암호화있음), 중산칠심, 동관동흔조종기판을 함께 쓰는 방식
 #define USE_AES_NOENC_MODE          0       // AES with no encryption
 #define USE_NEW_SNAPIMAGE_MODE      1       //0:use Flash, 1:unuse Flash
 #define USE_XISHANG_PROTO           0       //0x93 command
@@ -200,11 +200,11 @@ enum E_Baud_Rate
 #define USE_EKESI_PROTO             0
 #define USE_LAIJI_PROTO             0
 #define ENROLL_ANGLE_MODE           0
-#define ENGINE_USE_TWO_CAM          EUTC_2V0_MODE
+#define ENGINE_USE_TWO_CAM          EUTC_3M_MODE
 #define YAOYANG_MODE                0
 #define SEND_LAST_MSG               0
 #define USE_3M_MODE                 U3M_DISABLE
-#define USE_UAC_MODE                0
+#define USE_UAC_MODE                1
 #define USE_USB_EP_ERR_FIX_MODE     0
 #define USE_WHITE_LED               0   //0: 백색레드쓰지 않는 방식, 1: 백색레드를 리용하는 방식, 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
 #define USE_WATCHDOG                1
@@ -355,7 +355,7 @@ enum E_Baud_Rate
 #define DEFAULT_SECURE_STEP1        8
 #define DEFAULT_SECURE_STEP2        24
 #define DEFAULT_SECURE_MODE         0
-#define DEFAULT_PROTO_ENC_MODE      0  //0: plain text mode, 1: default encryption mode, 2: XOR_1
+#define DEFAULT_PROTO_ENC_MODE      PROTO_EM_ENCRYPT_XOR_LANHENG  //0: plain text mode, 1: default encryption mode, 2: XOR_1
 #define DEFAULT_PROTO_EM_XOR1_KEY   PROTO_EM_XOR1_KEY_LANHENG
 #define DEFAULT_PROTO_ENC_KEY_NO    0   //no default key
 #define DEFAULT_PROTO_ENC_KEY_1     1   //0 1 2 3 4 5 6 7 8 9 a b c d e f
@@ -439,7 +439,7 @@ enum E_Baud_Rate
 #define MMAP_MODE
 
 #define N_MAX_PERSON_NUM                100
-#define N_MAX_HAND_NUM                  0
+#define N_MAX_HAND_NUM                  100
 
 #define FN_FACE_BIN "/mnt/MISC/face.bin"
 
@@ -499,7 +499,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_SAINAO                        342
 #define FRM_DBS3M_SAINAO_TUYA                   343
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -897,35 +897,20 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LANCENS_UAC)
 
+// 3.9.2_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.9.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.9.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.61.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.61.0_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
                                             {2, 864, 480, 30, 0, 10240}, \
                                             {3, 800, 480, 30, 0, 10240}, \
                                             {4, 640, 480, 30, 0, 6144},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
 #undef USE_3M_MODE
 #define USE_3M_MODE                         U3M_SEMI
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
@@ -933,8 +918,12 @@ enum E_Baud_Rate
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
-#undef USE_ISP_IR_3DNR
-#define USE_ISP_IR_3DNR                     0
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HAND_PRIO_UAC)
