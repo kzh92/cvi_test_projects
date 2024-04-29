@@ -614,7 +614,7 @@ static void *send_to_uvc()
 				}
 
 				//caution: you must print out logs for preventing stuck.
-				if (print_flag ++ < 20)
+				if (print_flag ++ < 8 && print_flag == 7)
 				{
 					printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
 				}
