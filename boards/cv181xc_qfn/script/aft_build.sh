@@ -85,6 +85,8 @@ cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
 echo "Creating temp partitions..."
 dd if=/dev/zero of=${MK_GENERATED_PATH}/data/misc bs=1024 count=8
 
+[ -f "${MK_BOARD_PATH}/bootimgs/fip_fsbl.bin" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/fip_fsbl.bin ${MK_GENERATED_PATH}/data/
+
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -e ${MK_GENERATED_PATH} -x
 
@@ -106,6 +108,3 @@ fi
 
 cp -arf $MK_BOARD_PATH/script/mkflash.sh $BASE_PWD
 
-[ -f "${MK_BOARD_PATH}/bootimgs/fip_fsbl.bin" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/fip_fsbl.bin ${MK_GENERATED_PATH}/data/
-[ -f "${MK_BOARD_PATH}/configs/partition_alios_spinor.xml" ] && cp -arf ${MK_BOARD_PATH}/configs/partition_alios_spinor.xml ${MK_GENERATED_PATH}/data/
-[ -f yoc.bin ] && cp -arf yoc.bin ${MK_GENERATED_PATH}/data/
