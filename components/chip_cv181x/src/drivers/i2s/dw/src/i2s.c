@@ -1222,8 +1222,8 @@ int32_t csi_i2s_send(csi_i2s_t *i2s, const void *data, uint32_t size)
             if (!i2s3_start_dma) {
                 avail_size = ringbuffer_len(i2s->tx_buf);
                 if (avail_size >= i2s->tx_period) {
-                    printf("%s avail_size = %d , i2s->tx_buf->buffer addr = %p , i2s->tx_buf->read = %d, i2s->tx_period = %d\n",
-                               __func__, avail_size, i2s->tx_buf->buffer, i2s->tx_buf->read, i2s->tx_period);
+                    // printf("%s avail_size = %d , i2s->tx_buf->buffer addr = %p , i2s->tx_buf->read = %d, i2s->tx_period = %d\n",
+                    //            __func__, avail_size, i2s->tx_buf->buffer, i2s->tx_buf->read, i2s->tx_period);
                     audio_dcache_clean_invalid_range((unsigned long)(i2s->tx_buf->buffer), i2s->tx_buf->size);
                 	csi_dma_ch_start(i2s->tx_dma, i2s->tx_buf->buffer + i2s->tx_buf->read, (void *) &(pi2s_tx->base_address->tx_wr_port_ch0), i2s->tx_period);
                 	i2s3_start_dma = true;
