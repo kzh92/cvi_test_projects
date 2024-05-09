@@ -298,6 +298,7 @@ enum E_Baud_Rate
 #define BIN_DATA_SIZE               174513
 #define UVC_USBD_PRINT              0
 #define UVC_DARK_WATCH_COUNTER      3
+#define UAC_EP_WMAXPCKT_SIZE        64
 
 #define UVC_PIXEL_FMT_NV21          0
 #define UVC_PIXEL_FMT_YUV420P       1
