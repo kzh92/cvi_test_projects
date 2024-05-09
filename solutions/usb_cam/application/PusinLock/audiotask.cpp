@@ -6,7 +6,6 @@
 #include "board.h"
 #include "dirent.h"
 #include "dw_i2s.h"
-#include "fatfs_vfs.h"
 #include "platform.h"
 #include "cv181x_adc_dac.h"
 #include "common_types.h"

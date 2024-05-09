@@ -23,7 +23,7 @@ depends:
   - rhino_arch: develop
   - aos: develop
   - cli: develop
-  - kv: develop
+#  - kv: develop
   - ulog: develop
   - csi: v7.5.1
   - debug: develop
@@ -31,18 +31,18 @@ depends:
   - libc_stub: develop
   - uservice: develop
   - partition: develop
-  - littlefs: v7.6.1
+#  - littlefs: v7.6.1
   - key_mgr: develop
   - sec_crypto: develop
   - posix: develop
-  - drv_sdmmc: v2.0
+#  - drv_sdmmc: v2.0
 #  - lwip: develop
 #  - netmgr: develop
   - devices: develop
   - drivers: develop
 #  - drv_wifi_hi3861l_fnlink: develop
   - cjson: develop
-  - fatfs: cv_dev
+#  - fatfs: cv_dev
   - vfs: develop
 #  - lwext4: develop
   - cv180xb_evb: v0.0.1
@@ -207,7 +207,7 @@ def_config:
   CONFIG_APP_DEBUG_JTAG: 0
   CONFIG_APP_TEST: 0
   CONFIG_SUPPORT_TPU: 1
-  CONFIG_KV_ENABLE_CACHE: 1
+#  CONFIG_KV_ENABLE_CACHE: 1
   CONFIG_INIT_TASK_STACK_SIZE: 196608
 ## Demo APP Func config
   CONFIG_APP_ETHERNET_SUPPORT: 0
