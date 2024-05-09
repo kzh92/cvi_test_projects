@@ -311,7 +311,7 @@ static bool usbd_get_descriptor(uint16_t type_index, uint8_t **data, uint32_t *l
      * see USB Spec. Revision 2.0, 9.4.3 Get Descriptor
      */
     else if ((type == USB_DESCRIPTOR_TYPE_INTERFACE) || (type == USB_DESCRIPTOR_TYPE_ENDPOINT) ||
-#ifndef CONFIG_USB_HS
+#if (!CONFIG_USB_HS)
              (type > USB_DESCRIPTOR_TYPE_ENDPOINT)) {
 #else
              (type > USB_DESCRIPTOR_TYPE_OTHER_SPEED)) {

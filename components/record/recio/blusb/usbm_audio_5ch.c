@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <usbd_core.h>
 #include <usbd_audio.h>
+#include "appdef.h"
 
 #define IN_CHANNEL_NUM 5
 
@@ -29,7 +30,7 @@
 #define USBD_MAX_POWER     100
 #define USBD_LANGID_STRING 1033
 
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
 #define EP_INTERVAL 0x04
 #else
 #define EP_INTERVAL 0x01
@@ -182,7 +183,7 @@ const uint8_t audio_descriptor_5ch[]
         0x00, /* wcChar8 */
         '0',
         (0x30 + AUDIO_FREQ / 8000), 0x00, /* wcChar9 */
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
         ///////////////////////////////////////
         /// device qualifier descriptor
         ///////////////////////////////////////

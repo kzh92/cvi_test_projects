@@ -470,7 +470,7 @@ static const struct usb_descriptor_header * const uvc_string_descriptors[] = {
     NULL,
 };
 
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
 struct usb_qualifier_descriptor uvc_qual_descriptor = {
     .bLength             = USB_DT_QUALIFIER_SIZE,
     .bDescriptorType     = USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER,
@@ -846,7 +846,7 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
     for (src = uvc_string_descriptors; *src; ++src) {
         bytes += (*src)->bLength;
     }
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
     bytes += uvc_qual_descriptor.bLength;
 #endif
 
@@ -869,7 +869,7 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
     mem += audio_desc_len;
 #endif //USE_UAC_MODE
     UVC_COPY_DESCRIPTORS(mem, dst, uvc_string_descriptors);
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
     UVC_COPY_DESCRIPTOR(mem, dst, &uvc_qual_descriptor);
 #endif
     ((uint32_t *)mem)[0] = 0x00;

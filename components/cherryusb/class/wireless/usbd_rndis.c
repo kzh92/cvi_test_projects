@@ -6,6 +6,7 @@
 #include "usbd_core.h"
 #include "usbd_rndis.h"
 #include "rndis_protocol.h"
+#include "appdef.h"
 
 #define RNDIS_OUT_EP_IDX 0
 #define RNDIS_IN_EP_IDX  1
@@ -17,13 +18,13 @@ static struct usbd_endpoint rndis_ep_data[3];
 #define RNDIS_INQUIRY_PUT(src, len)   (memcpy(infomation_buffer, src, len))
 #define RNDIS_INQUIRY_PUT_LE32(value) (*(uint32_t *)infomation_buffer = (value))
 
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
 #define RNDIS_MAX_PACKET_SIZE 512
 #else
 #define RNDIS_MAX_PACKET_SIZE 64
 #endif
 
-#ifndef CONFIG_USB_HS
+#if (!CONFIG_USB_HS)
 #define RNDIS_LINK_SPEED 12000000 /* Link baudrate (12Mbit/s for USB-FS) */
 #else
 #define RNDIS_LINK_SPEED 480000000 /* Link baudrate (480Mbit/s for USB-HS) */

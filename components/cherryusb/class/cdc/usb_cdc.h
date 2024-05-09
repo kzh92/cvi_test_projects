@@ -6,6 +6,8 @@
 #ifndef USB_CDC_H
 #define USB_CDC_H
 
+#include "appdef.h"
+
 /*------------------------------------------------------------------------------
  *      Definitions  based on usbcdc11.pdf (www.usb.org)
  *----------------------------------------------------------------------------*/
@@ -302,7 +304,7 @@ struct cdc_ecm_descriptor {
 /*Length of template descriptor: 66 bytes*/
 #define CDC_ACM_DESCRIPTOR_LEN (8 + 9 + 5 + 5 + 4 + 5 + 7 + 9 + 7 + 7)
 // clang-format off
-#ifndef CONFIG_USB_HS
+#if (!CONFIG_USB_HS)
 #define CDC_ACM_DESCRIPTOR_INIT(bFirstInterface, int_ep, out_ep, in_ep, str_idx)               \
     /* Interface Associate */                                                                  \
     0x08,                                                  /* bLength */                       \
@@ -438,7 +440,7 @@ struct cdc_ecm_descriptor {
 /*Length of template descriptor: 66 bytes*/
 #define CDC_RNDIS_DESCRIPTOR_LEN (8 + 9 + 5 + 5 + 4 + 5 + 7 + 9 + 7 + 7)
 // clang-format off
-#ifndef CONFIG_USB_HS
+#if (!CONFIG_USB_HS)
 #define CDC_RNDIS_DESCRIPTOR_INIT(bFirstInterface, int_ep, out_ep, in_ep, str_idx)             \
     /* Interface Associate */                                                                  \
     0x08,                                                  /* bLength */                       \

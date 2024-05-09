@@ -5,13 +5,14 @@
  */
 #include "usbd_core.h"
 #include "usbd_mtp.h"
+#include "appdef.h"
 
 struct mtp_cfg_priv {
     uint8_t device_status;
 } usbd_mtp_cfg;
 
 /* max USB packet size */
-#ifndef CONFIG_USB_HS
+#if (!CONFIG_USB_HS)
 #define USB_MTP_BULK_EP_MPS 64
 #else
 #define USB_MTP_BULK_EP_MPS 512

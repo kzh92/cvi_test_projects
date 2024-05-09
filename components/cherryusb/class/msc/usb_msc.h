@@ -6,6 +6,8 @@
 #ifndef USB_MSC_H
 #define USB_MSC_H
 
+#include "appdef.h"
+
 /* MSC Subclass Codes */
 #define MSC_SUBCLASS_RBC           0x01 /* Reduced block commands (e.g., flash devices) */
 #define MSC_SUBCLASS_SFF8020I_MMC2 0x02 /* SFF-8020i/MMC-2 (ATAPI) (e.g., C/DVD) */
@@ -61,7 +63,7 @@ struct CSW {
 /*Length of template descriptor: 23 bytes*/
 #define MSC_DESCRIPTOR_LEN (9 + 7 + 7)
 // clang-format off
-#ifndef CONFIG_USB_HS
+#if (!CONFIG_USB_HS)
 #define MSC_DESCRIPTOR_INIT(bFirstInterface, out_ep, in_ep,str_idx) \
     /* Interface */                                              \
     0x09,                          /* bLength */                 \

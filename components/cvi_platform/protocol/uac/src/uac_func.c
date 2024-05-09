@@ -7,6 +7,7 @@
 #include "cvi_type.h"
 #include "ringfifo.h" 
 #include "audio.h"
+#include "appdef.h"
 
 #ifdef DUMP_PCM_RAW_DATA
 #include "fatfs_vfs.h"
@@ -18,7 +19,7 @@
 #define USBD_MAX_POWER     100
 #define USBD_LANGID_STRING 1033
 
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
 #define EP_INTERVAL 0x04
 #else
 #define EP_INTERVAL 0x01
@@ -124,7 +125,7 @@ const uint8_t audio_descriptor[] = {
     '0', 0x00,                  /* wcChar7 */
     '0', 0x00,                  /* wcChar8 */
     '1', 0x00,                  /* wcChar9 */
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
     ///////////////////////////////////////
     /// device qualifier descriptor
     ///////////////////////////////////////
@@ -187,7 +188,7 @@ void usbd_audio_close(uint8_t intf)
     }
 }
 
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
 #define AUDIO_OUT_EP_MPS 512
 #else
 #define AUDIO_OUT_EP_MPS 64

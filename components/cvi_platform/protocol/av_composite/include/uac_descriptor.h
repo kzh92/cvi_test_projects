@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "appdef.h"
 
-#ifdef CONFIG_USB_HS
+#if CONFIG_USB_HS
 #define EP_INTERVAL 0x04
 #else
 #define EP_INTERVAL 0x01

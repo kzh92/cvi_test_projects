@@ -19,6 +19,7 @@
 #include "rtos_types.h"
 #include "usbd_core.h"
 #include "usbd_video.h"
+#include "appdef.h"
 
 /* --------------------------------------------------------------------------
  * UVC constants
@@ -1109,7 +1110,7 @@ struct usb_qualifier_descriptor {
 
 /*-------------------------------------------------------------------------*/
 
-#ifdef CONFIG_USB_HS
+#if (CONFIG_USB_HS)
 #define MAX_PAYLOAD_SIZE_PER_TRANSACTION (512)
 #define TRANSACTION_PER_MICROFRAME (1)
 #else
