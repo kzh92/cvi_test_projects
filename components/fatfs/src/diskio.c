@@ -38,7 +38,7 @@
 /*-----------------------------------------------------------------------*/
 #include "ff.h"     /* FatFs configuration options */
 #include "diskio.h"     /* FatFs lower layer API */
-#define SD_DISK_ENABLE
+//#define SD_DISK_ENABLE
 
 #ifdef RAM_DISK_ENABLE
 #include "ram_disk/fsl_ram_disk.h"

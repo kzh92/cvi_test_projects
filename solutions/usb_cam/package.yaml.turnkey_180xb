@@ -35,9 +35,9 @@ depends:
   - key_mgr: develop
   - sec_crypto: develop
   - posix: develop
-  - drv_sdmmc: v2.0
-  # - lwip: develop
-  # - netmgr: develop
+#  - drv_sdmmc: v2.0
+#  - lwip: develop
+#  - netmgr: develop
   - devices: develop
   - drivers: develop
   # - drv_wifi_hi3861l_fnlink: develop
@@ -56,7 +56,7 @@ depends:
   - cherryusb: develop
   - cvi_platform: develop
   - g711: v0.0.1
-  - cvi_test: develop
+#  - cvi_test: develop
 #  - mbedtls: develop
 
   - cvi_mmf_sdk_cv180xx: develop
@@ -135,8 +135,14 @@ build_config:
 
   internal_include:
 
-  cflag: ""
-  cxxflag: ""
+  cflag: >
+        -Wno-error=unused-variable -Wno-error=class-memaccess -Wno-error=sign-compare
+        -Wno-error=unused-but-set-variable -Wno-error=misleading-indentation -Wno-error=narrowing
+        -Wno-error=unused-function
+  cxxflag: >
+        -Wno-error=unused-variable -Wno-error=class-memaccess -Wno-error=sign-compare
+        -Wno-error=unused-but-set-variable -Wno-error=misleading-indentation -Wno-error=narrowing
+        -Wno-error=unused-function
   asmflag: ""
   define:
   libs:
@@ -181,7 +187,7 @@ def_config:
   CONFIG_BOARD_CV181XH: 0
   CONFIG_BOARD_CV180XB: 1
   CONFIG_BOARD_CV180XC: 0
-  CONFIG_SD_FATFS_MOUNTPOINT: "/mnt/sd"
+  #CONFIG_SD_FATFS_MOUNTPOINT: "/mnt/sd"
   CLI_CONFIG_STACK_SIZE : 8192
   #ULOG_CONFIG_POP_FS: 1
   ULOG_CONFIG_ASYNC: 1   # ulog异步配置项，1表示开启异步打印，0表示同步打印

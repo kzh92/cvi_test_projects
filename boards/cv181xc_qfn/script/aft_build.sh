@@ -71,6 +71,10 @@ fi
 [ -f "${MK_BOARD_PATH}/bootimgs/boot" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/boot ${MK_GENERATED_PATH}/data/
 [ -f "${MK_BOARD_PATH}/bootimgs/boot0" ] && cp -arf ${MK_BOARD_PATH}/bootimgs/boot0 ${MK_GENERATED_PATH}/data/
 
+echo "copying weight file..."
+ls $MK_GENERATED_PATH/../application/
+cp -f $MK_GENERATED_PATH/../application/weight $MK_GENERATED_PATH/data/wgt
+
 [ -f yoc.bin ] && cp -arf yoc.bin ${MK_GENERATED_PATH}/data/prim
 cp -arf ${MK_BOARD_PATH}/configs/config.yaml ${MK_GENERATED_PATH}/data/
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p

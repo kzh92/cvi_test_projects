@@ -37,7 +37,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #     - libs                               #   -Llibs
 build_config:
   include:
-    - disk/sd_disk/include
+  #  - disk/sd_disk/include
     - media/include
     - param/include
     - netctrl/ethernet/include
@@ -58,7 +58,7 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - disk/sd_disk/src/*.c
+#  - disk/sd_disk/src/*.c
   - media/src/*.c
   - param/src/*.c
   - netctrl/ethernet/src/*.c ? <CONFIG_APP_ETHERNET_SUPPORT>

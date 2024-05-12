@@ -11,7 +11,6 @@
 #include "fatfs_vfs.h"
 #include "littlefs_vfs.h"
 #include "vfs.h"
-#include "disk_sd.h"
 #include "vfs_api.h"
 #include "littlefs_vfs.h"
 #include "debug/debug_cli_cmd.h"
@@ -30,8 +29,8 @@ void YOC_SYSTEM_FsVfsInit()
     ret = partition_init();
     if(ret >= 0)
     {
-        fatfs_en = app_sd_detect_check();
-        LOGE("app", fatfs_en ? "fatfs enable.\n" : "fatfs disable.\n");
+        // fatfs_en = app_sd_detect_check();
+        // LOGE("app", fatfs_en ? "fatfs enable.\n" : "fatfs disable.\n");
         //ret = vfs_lfs_register("spiffs");
         //if (ret != 0) {
         //    LOGE("app", "lfs register failed(%d)", ret);
@@ -94,8 +93,8 @@ void YOC_SYSTEM_ToolInit()
     cli_reg_cmd_mv();
     cli_reg_cmd_ext4();
 #endif
-    // cli_reg_cmd_iperf();
-    // cli_reg_cmd_ifconfig();
+//    cli_reg_cmd_iperf();
+//    cli_reg_cmd_ifconfig();
     ulog_init();
     aos_set_log_level(AOS_LL_INFO);
     event_service_init(NULL);

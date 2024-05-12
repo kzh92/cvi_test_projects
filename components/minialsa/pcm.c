@@ -270,7 +270,7 @@ aos_pcm_sframes_t aos_pcm_writei(aos_pcm_t *pcm, const void *buffer, aos_pcm_ufr
             aos_event_get(&pcm->evt, PCM_EVT_WRITE | PCM_EVT_XRUN, AOS_EVENT_OR_CLEAR, &actl_flags, 0);
         }
         if ((actl_flags & PCM_EVT_XRUN) == PCM_EVT_XRUN) {
-            LOGW(TAG,"pcm write PCM_EVT_XRUN\r\n");
+            //LOGW(TAG,"pcm write PCM_EVT_XRUN\r\n");
             ret = -EPIPE;
             break;
         }

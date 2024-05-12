@@ -26,7 +26,9 @@ static int part_blockdev_info_get(void *handle, partition_device_info_t *info)
         info->block_size = mmc_info.block_size;
         info->erase_size = mmc_info.erase_blks * mmc_info.block_size;
         info->device_size = (uint64_t)mmc_info.user_area_blks * mmc_info.block_size;
+    #if CONFIG_PARTITION_SUPPORT_EMMC
         info->boot_area_size = mmc_info.boot_area_blks * mmc_info.block_size;
+    #endif
 #if defined(CONFIG_DEBUG) && CONFIG_DEBUG > 2
         static int iprintflag = 0;
         if (!iprintflag) {
@@ -35,7 +37,9 @@ static int part_blockdev_info_get(void *handle, partition_device_info_t *info)
             MTB_LOGD("info->block_size:0x%x", info->block_size);
             MTB_LOGD("info->erase_size:0x%x", info->erase_size);
             MTB_LOGD("info->device_size:0x%" PRIX64, info->device_size);
+        #if CONFIG_PARTITION_SUPPORT_EMMC
             MTB_LOGD("info->boot_area_size:0x%x", info->boot_area_size);
+        #endif
             iprintflag = 1;
         }
 #endif
