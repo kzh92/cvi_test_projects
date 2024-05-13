@@ -786,25 +786,37 @@ void* dbPartRestore(void*)
 #endif
     int real_file_len;
     int write_file_len;
-    unsigned char *buf = (unsigned char*)my_malloc(FILESIZE);
+    int read_len;
+    int total_len = FILESIZE;
+    int read_offset = 0;
+    read_len = 0x1000;
+    unsigned char *buf = (unsigned char*)my_malloc(read_len);
     if (buf == NULL)
     {
         printf("@@@ dbPartRestore buf malloc fail\n");
         return NULL;
     }
-    real_file_len = my_flash_part_read(dbfs_part_names[DB_PART_BACKUP], 0, buf, FILESIZE);
-    if (real_file_len != FILESIZE)
+    while(total_len > 0)
     {
-        printf("@@@ read backupdb fail\n");
-        my_free(buf);
-        return NULL;
-    }
-    write_file_len = my_flash_part_write(dbfs_part_names[DB_PART1], 0, buf, FILESIZE);
-    if (write_file_len != FILESIZE)
-    {
-        printf("@@@ write userdb fail\n");
-        my_free(buf);
-        return NULL;
+        if (total_len < read_len)
+            read_len = total_len;
+        real_file_len = my_flash_part_read(dbfs_part_names[DB_PART_BACKUP], read_offset, buf, read_len);
+        if (real_file_len != read_len)
+        {
+            printf("@@@ read backupdb fail\n");
+            my_free(buf);
+            return NULL;
+        }
+        write_file_len = my_flash_part_write(dbfs_part_names[DB_PART1], read_offset, buf, read_len);
+        if (write_file_len != read_len)
+        {
+            printf("@@@ write userdb fail\n");
+            my_free(buf);
+            return NULL;
+        }
+        read_offset += read_len;
+        total_len -= read_len;
+        memset(buf, 0, read_len);
     }
 #else
     unsigned int len;
