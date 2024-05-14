@@ -213,6 +213,7 @@ int             my_memstat();
 int             my_userdb_open(int part_no);
 int             my_userdb_read(unsigned int offset, void* buf, unsigned int length);
 int             my_userdb_write(unsigned int offset, void* buf, unsigned int length);
+int             my_userdb_write_real(int p_type, unsigned int offset, void* buf, unsigned int length);
 int             my_backupdb_read(unsigned int offset, void* buf, unsigned int length);
 int             my_backupdb_write(unsigned int offset, void* buf, unsigned int length);
 int             my_settings_read(unsigned int offset, void* buf, unsigned int length);

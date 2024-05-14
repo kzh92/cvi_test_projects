@@ -792,7 +792,7 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
             else
             {
                 my_backupdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
-                my_userdb_write(0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
+                my_userdb_write_real(DB_PART1, 0, g_xDB->aiValid, sizeof(g_xDB->aiValid));
             }
         }
         else
@@ -834,7 +834,7 @@ int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
             }
             else
             {
-                my_userdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
+                my_userdb_write_real(DB_PART1, FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
                 my_backupdb_write(FILESIZE, g_xHandDBPtr->aiHandValid, sizeof(g_xHandDBPtr->aiHandValid));
             }
         }
