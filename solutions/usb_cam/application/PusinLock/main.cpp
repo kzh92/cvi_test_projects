@@ -3567,9 +3567,9 @@ int ProcessActivation(char* pbUID, int iUniqueID)
             dbug_printf("proca: %s\n", szDictNames[i]);
 
             //write with encrypt
-            rootfs_set_activated(1, 0);
+            g_xSS.bIsSysActivated = MY_SYS_FLAG_ACTIVATED;
             fr_WriteFileData(szDictNames[i], 0, pbData, szDictLength[i]);
-            rootfs_set_activated(0, 0);
+            g_xSS.bIsSysActivated = MY_SYS_FLAG_NOT_ACTIVATED;
             my_free(pbData);
         }
 

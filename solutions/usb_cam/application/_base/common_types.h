@@ -110,6 +110,9 @@ typedef void* myi2cdesc_ptr;
 #define MYTHREAD_PRIORITY_HIGH          0
 #define MYTHREAD_PRIORITY_VERY_HIGH     36
 
+#define MY_SYS_FLAG_ACTIVATED           1
+#define MY_SYS_FLAG_NOT_ACTIVATED       2
+
 #ifdef __cplusplus
 extern  "C"
 {
@@ -189,6 +192,7 @@ int             rootfs_is_first();
 int             rootfs_set_first_flag();
 int             rootfs_is_activated();
 int             rootfs_set_activated(int flag, int is_sync);
+int             dic_is_activated();
 
 void            test_led(int n);
 void            test_led2(int n);

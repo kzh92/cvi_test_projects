@@ -80,7 +80,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
         {
             unsigned char* out_buf = NULL;
             int out_len = 0;
-            if (rootfs_is_activated() == 1 && (g_part_files[idx].m_flag & FN_CRYPTO_AES_DYN_ID2))
+            if (g_xSS.bIsSysActivated == MY_SYS_FLAG_ACTIVATED && (g_part_files[idx].m_flag & FN_CRYPTO_AES_DYN_ID2))
                 GetAesKey4ChipID(key_buf);
             else
                 memcpy(key_buf, g_part_crypto_aes_key, AES_BLOCK_SIZE);
@@ -149,7 +149,7 @@ int fr_WriteFileData(const char* filename, unsigned int u32_offset, void* buf, u
         {
             unsigned char* out_buf = NULL;
             int out_len = 0;
-            if (rootfs_is_activated() == 1 && (g_part_files[idx].m_flag & FN_CRYPTO_AES_DYN_ID2))
+            if (g_xSS.bIsSysActivated == MY_SYS_FLAG_ACTIVATED && (g_part_files[idx].m_flag & FN_CRYPTO_AES_DYN_ID2))
                 GetAesKey4ChipID(key_buf);
             else
                 memcpy(key_buf, g_part_crypto_aes_key, AES_BLOCK_SIZE);
@@ -987,10 +987,10 @@ int my_create_empty_file(const char* path, int file_size)
 */
 int rootfs_is_activated()
 {
-    if (g_xPS.x.bIsActivated == 0xAA)
-        return 1;
+    if (g_xPS.x.bIsActivated == 0xAA || dic_is_activated())
+        return MY_SYS_FLAG_ACTIVATED; //activated
     else
-        return 2;
+        return MY_SYS_FLAG_NOT_ACTIVATED; //not activated
 }
 
 /*
@@ -1005,6 +1005,24 @@ int rootfs_set_activated(int flag, int is_sync)
     if (is_sync)
         UpdateMyAllSettings();
     return 0;
+}
+
+int dic_is_activated()
+{
+    int ret = 0;
+    int file_offset = 0;
+    unsigned char wno_header[4];
+#if (USE_RENT_ENGINE == 0)
+    unsigned char wno_origin_header[4] = {0xD3, 0xAE, 0x5F, 0x6C};
+#else
+    unsigned char wno_origin_header[4] = {0xE5, 0x7E, 0x18, 0xC9};
+#endif
+    my_wx_read(file_offset, wno_header, 4);
+    dbug_printf("[%s] %02x %02x %02x %02x\n", __func__, wno_header[0], wno_header[1], wno_header[2], wno_header[3]);
+    if (memcmp(wno_header, wno_origin_header, 4))
+        ret = 1;
+
+    return ret;
 }
 
 unsigned int my_flash_read_write_init(void)

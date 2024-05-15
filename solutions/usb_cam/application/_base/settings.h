@@ -191,8 +191,10 @@ typedef struct _tagSYSTEM_STATE
     int             iVerifyFailedCount;
     int             iFaceImage;
 
-    int             iNoActivated;
-    int             iActivated;
+    unsigned char   iNoActivated:1;
+    unsigned char   iActivated:1;
+    unsigned char   bIsSysActivated:2;
+    unsigned char   bReserved1:4;
 
     int             iVDBCmd;
     int             iVDBStart;
