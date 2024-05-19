@@ -93,7 +93,7 @@ int fr_ReadFileData(const char* filename, unsigned int u32_offset, void* buf, un
             }
         }
         //decompress file
-        if ((g_part_files[idx].m_flag & FN_CRYPTO_ZSTD) && rootfs_is_activated() == 1)
+        if ((g_part_files[idx].m_flag & FN_CRYPTO_ZSTD) && g_xSS.bIsSysActivated == MY_SYS_FLAG_ACTIVATED)
         {
             unsigned char* temp_buf = NULL;
             temp_buf = my_malloc(g_part_files[idx].m_filesize);
