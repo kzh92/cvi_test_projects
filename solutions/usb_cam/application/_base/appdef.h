@@ -500,8 +500,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_SAINAO                        342
 #define FRM_DBS3M_SAINAO_TUYA                   343
 #define FRM_DBS3M_LIWEN_IR                      344
+#define FRM_DBS3M_DUP_DISABLE                   345
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HONGLI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DUP_DISABLE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2636,6 +2637,40 @@ enum E_Baud_Rate
 #define USE_UVC_FACE_RECT                   1
 #undef USE_RENT_ENGINE
 #define USE_RENT_ENGINE                     1
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUP_DISABLE)
+
+// 3.14.14_D
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.66.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.66.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef ENROLL_DUPLICATION_CHECK
+#define ENROLL_DUPLICATION_CHECK            EDC_DISABLE
+#undef ENROLL_HAND_DUP_CHECK
+#define ENROLL_HAND_DUP_CHECK               0
 
 //----------------------------------------------------------
 
