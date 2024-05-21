@@ -1376,14 +1376,15 @@ for_retry_one:
         partition_read(partition, start_off, _tmp_buf + flash_page_size, flash_page_size);
         if (memcmp(_tmp_buf, _tmp_buf + flash_page_size, flash_page_size))
         {
-            my_printf("read error %08x\n", start_off);
+            my_printf("[%d]read error/%d %08x\n", (int)Now(), rcount, start_off);
             if (rcount > 0)
             {
                 rcount--;
+                my_usleep(5000);
                 goto for_retry_one;
             }
             else
-                return total_len;
+                break;
         }
         if (memcmp(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len))
         {
