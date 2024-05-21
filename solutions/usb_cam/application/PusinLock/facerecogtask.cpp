@@ -1188,6 +1188,10 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             else if(arEngineResult[0] == ES_ENEXT)
             {
                 my_usleep(20*1000);
+#if (USE_FUSHI_HAND_PROTO)
+                if (g_xSS.iRegisterMixMode == ENROLL_FACE_HAND_MIX)
+                    m_iResult = HAND_RESULT_ENROLLED;
+#else // USE_FUSHI_HAND_PROTO
 #if (USE_SANJIANG3_MODE)
                 if ((SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG) || (g_xSS.iRegisterMixMode == ENROLL_FACE_HAND_MIX && USE_TONGXIN_PROTO == 1))
                 {
@@ -1213,6 +1217,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
 #else // USE_SANJIANG3_MODE
                 m_iResult = HAND_RESULT_ENROLLED_NEXT;
 #endif // USE_SANJIANG3_MODE
+#endif // USE_FUSHI_HAND_PROTO
                 ret = 1;
             }
         }

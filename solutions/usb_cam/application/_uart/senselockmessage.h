@@ -120,6 +120,14 @@ typedef uint8_t s_msg_id;
 #define MID_UPLOAD_DEBUG_INFO           0xF2    // upload debug information
 #define MID_DEMOMODE                    0xFE    // enter demo mode, verify flow will skip feature comparation step.
 #define MID_SNAPIMAGE2                  0xFF    // snapimage for renthouse
+#if (USE_FUSHI_HAND_PROTO)
+#define MID_FUSHI_HAND_ENROLL 0x80     // to enroll and register the persion in front of the camera, single frame
+#define MID_FUSHI_HAND_VERIFY 0x81     // to verify the person in front of the camera
+#define MID_FUSHI_HAND_DELALL 0x82    // Delete all registerred users
+#define MID_FUSHI_HAND_DELUSER 0x83    // Delete the specified user with user id
+#define MID_FUSHI_HAND_GET_ALL_USERID 0x84   // get all users ID
+#define MID_FUSHI_HAND_ENROLL_ITG 0x85  // Enroll user, extended mode
+#endif // USE_FUSHI_HAND_PROTO
 /* communication message ID definitions end */
 
 /* message result code */
@@ -287,7 +295,10 @@ typedef struct {
 typedef struct {
     uint8_t admin; // the user will be set to admin
     uint8_t user_name[USER_NAME_SIZE];
-    s_face_dir face_direction;
+    union {
+        s_face_dir face_direction;
+        uint8_t enable_fushi_duplicate;
+    };
     uint8_t timeout; // timeout, unit second default 10s
 } s_msg_enroll_data;
 
@@ -314,6 +325,17 @@ enum {
 };
 
 #define IS_FACE_ENROLL_TYPE_VALID(a) ((a) >= FACE_ENROLL_TYPE_INTERACTIVE && (a) < FACE_ENROLL_TYPE_END)
+
+#if (USE_FUSHI_HAND_PROTO)
+enum {
+    FUSHI_ENROLL_ITG_TYPE_MULTI, //0
+    FUSHI_ENROLL_ITG_TYPE_SINGLE, //1
+};
+#define IS_FUSCH_ENROLL_ITG_TYPE_VALID(a) ((a) <= FUSHI_ENROLL_ITG_TYPE_SINGLE)
+#define FUSHI_ENROLL_ITG_DCM_DIS   1
+#define FUSHI_ENROLL_ITG_DCM_EN    2
+#define IS_FUSCH_ENROLL_ITG_DCM_VALID(a) ((a) == FUSHI_ENROLL_ITG_DCM_DIS || (a) == FUSHI_ENROLL_ITG_DCM_EN)
+#endif // USE_FUSHI_HAND_PROTO
 
 //duplication checking mode
 #define FACE_ENROLL_DCM_NFACE_NAME          0   //not allow same face, allow same name

@@ -1190,6 +1190,9 @@ int MsgProcSense(MSG* pMsg)
 #if (USE_LAIJI_PROTO)
         g_xSS.iEnrollFaceDupCheck = 1;
 #endif
+#if (USE_FUSHI_HAND_PROTO)
+        g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_SEPERATE;
+#endif // USE_FUSHI_HAND_PROTO
         g_xSS.iEnrollDupCheckMode = FACE_ENROLL_DCM_NFACE_NAME;
 
         iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER, pSenseMsg);
@@ -1200,6 +1203,93 @@ int MsgProcSense(MSG* pMsg)
         g_xSS.iRegisterHand = 0;
 #endif
     }
+#if (USE_FUSHI_HAND_PROTO)
+    else if(pSenseMsg->mid == MID_FUSHI_HAND_ENROLL)
+    {
+        dbug_printf("MID_FUSHI_HAND_ENROLL\n");
+        // if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(s_msg_enroll_data))
+        // {
+        //     s_msg* reply_msg = SenseLockTask::Get_Reply(MID_FUSHI_HAND_ENROLL, MR_FAILED4_INVALIDPARAM);
+        //     g_pSenseTask->Send_Msg(reply_msg);
+
+        //     my_free(pSenseMsg);
+        //     g_xSS.iMState = MS_STANDBY;
+        //     return -1;
+        // }
+        s_msg_enroll_data d;
+        int len = __min(SenseLockTask::Get_MsgLen(pSenseMsg), (int)sizeof(d));
+        memcpy(&d, pSenseMsg->data, len);
+        g_xSS.iRegisterHand = 1;
+
+        if (d.timeout < 2)
+            d.timeout = SF_DEF_FACE_ENROLL_TIMEOUT;
+
+        SF_ENROLL_NOR2ITG(&d, &g_xSS.msg_enroll_itg_data);
+        g_xSS.msg_enroll_itg_data.enroll_type = FACE_ENROLL_TYPE_SINGLE;
+        g_xSS.msg_enroll_itg_data.enable_duplicate = d.enable_fushi_duplicate;//FACE_ENROLL_DCM_NFACE_NAME;
+
+        //ignores face direction
+        g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_UNDEFINE;
+
+        g_xSS.iEnrollMutiDirMode = 0;
+        g_xSS.iEnrollFaceDupCheck = (d.enable_fushi_duplicate == FACE_ENROLL_DCM_NFACE_NAME);
+        g_xSS.iEnrollDupCheckMode = d.enable_fushi_duplicate;
+
+        g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_SEPERATE;
+
+        iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+//        dbug_printf("Enroll Ret = %d\n", iRet);
+        g_xSS.iEFIFlag = 0;
+        // g_xSS.iGetFeatFlag = 0;
+        g_xSS.iRegisterHand = 0;
+    }
+    else if(pSenseMsg->mid == MID_FUSHI_HAND_ENROLL_ITG)
+    {
+        dbug_printf("MID_FUSHI_HAND_ENROLL_ITG\n");
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_enroll_itg_data))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_ENROLL_ITG, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+
+        memcpy(&g_xSS.msg_enroll_itg_data, pSenseMsg->data, sizeof(g_xSS.msg_enroll_itg_data));
+        if (!IS_FUSCH_ENROLL_ITG_TYPE_VALID(g_xSS.msg_enroll_itg_data.enroll_type) ||
+                !IS_FUSCH_ENROLL_ITG_DCM_VALID(g_xSS.msg_enroll_itg_data.enable_duplicate))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_ENROLL_ITG, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+
+        dbug_printf("data=");
+        for (int i = 0; i < SenseLockTask::Get_MsgLen(pSenseMsg); i++)
+            dbug_printf("%02x ", pSenseMsg->data[i]);
+        dbug_printf("\n%d, %d, \n", SenseLockTask::Get_MsgLen(pSenseMsg),
+                    g_xSS.msg_enroll_itg_data.timeout);
+
+        if (g_xSS.msg_enroll_itg_data.timeout == 0)
+            g_xSS.msg_enroll_itg_data.timeout = SF_DEF_FACE_ENROLL_TIMEOUT;
+
+        g_xSS.iEnrollMutiDirMode = (g_xSS.msg_enroll_itg_data.enroll_type == FUSHI_ENROLL_ITG_TYPE_MULTI);
+        if (g_xSS.iEnrollMutiDirMode && (g_xSS.msg_enroll_itg_data.face_direction == FACE_DIRECTION_UNDEFINE))
+            g_xSS.msg_enroll_itg_data.face_direction = FACE_DIRECTION_MIDDLE;
+        g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
+
+        g_xSS.iEnrollDupCheckMode = (g_xSS.msg_enroll_itg_data.enable_duplicate == FUSHI_ENROLL_ITG_DCM_DIS ? FACE_ENROLL_DCM_NFACE_NAME : FACE_ENROLL_DCM_FACE_NAME);
+        g_xSS.iEnrollFaceDupCheck = (g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_NFACE_NAME);
+
+        iRet = ProcessSenseFace(FaceRecogTask::E_REGISTER);
+        // g_xSS.iGetFeatFlag = 0;
+        g_xSS.iRegisterHand = 0;
+    }
+#endif //USE_FUSHI_HAND_PROTO
 #if (USE_ENROLL_ITG)
     else if(pSenseMsg->mid == MID_ENROLL_ITG)
     {
@@ -1281,6 +1371,9 @@ int MsgProcSense(MSG* pMsg)
         if (SenseLockTask::m_encMode == SenseLockTask::EM_XOR && g_xSS.iProtoMode == PROTO_MODE_SANJIANG)
             g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_MIX;
 #endif // N_MAX_HAND_NUM
+#if (USE_FUSHI_HAND_PROTO)
+        g_xSS.iRegisterMixMode = ENROLL_FACE_HAND_SEPERATE;
+#endif // USE_FUSHI_HAND_PROTO
         g_xSS.iEnrollDupCheckMode = g_xSS.msg_enroll_itg_data.enable_duplicate;
         g_xSS.iEnrollFaceDupCheck = (g_xSS.iEnrollDupCheckMode == FACE_ENROLL_DCM_NFACE_NAME);
 
@@ -1315,6 +1408,27 @@ int MsgProcSense(MSG* pMsg)
         iRet = ProcessSenseFace(FaceRecogTask::E_VERIFY, pSenseMsg);
         ResetFaceRegisterStates();
     }
+#if (USE_FUSHI_HAND_PROTO)
+    else if(pSenseMsg->mid == MID_FUSHI_HAND_VERIFY)
+    {
+        dbug_printf("MID_FUSHI_HAND_VERIFY %f\n", Now());
+
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) < (int)sizeof(g_xSS.msg_verify_data))
+        {
+            s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_VERIFY, MR_FAILED4_INVALIDPARAM);
+            g_pSenseTask->Send_Msg(reply_msg);
+
+            my_free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return -1;
+        }
+
+        ResetFaceRegisterStates();
+
+        memcpy(&g_xSS.msg_verify_data, pSenseMsg->data, SenseLockTask::Get_MsgLen(pSenseMsg));
+        iRet = ProcessSenseFace(FaceRecogTask::E_VERIFY);
+    }
+#endif // USE_FUSHI_HAND_PROTO
     else if(pSenseMsg->mid == MID_FACERESET)
     {
         dbug_printf("MID_FACERESET\n");
@@ -1389,6 +1503,33 @@ int MsgProcSense(MSG* pMsg)
         s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_DELALL, iCode);
         g_pSenseTask->Send_Msg(reply_msg);
     }
+#if (USE_FUSHI_HAND_PROTO)
+    else if(pSenseMsg->mid == MID_FUSHI_HAND_DELUSER)
+    {
+        dbug_printf("MID_FUSHI_HAND_DELUSER\n");
+        memset(&g_xSS.msg_deluser_data, 0, sizeof(g_xSS.msg_deluser_data));
+        if(SenseLockTask::Get_MsgLen(pSenseMsg) > 0)
+        {
+            int len = __min(SenseLockTask::Get_MsgLen(pSenseMsg), (int)sizeof(g_xSS.msg_deluser_data));
+            memcpy(&g_xSS.msg_deluser_data, pSenseMsg->data, len);
+        }
+
+        int iUserID = TO_SHORT(g_xSS.msg_deluser_data.user_id_heb, g_xSS.msg_deluser_data.user_id_leb);
+        int ret = FaceEngine::RemoveUser(iUserID, SM_DEL_USER_TYPE_HAND);
+        ResetFaceRegisterStates();
+        s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_DELUSER, ret);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+    else if(pSenseMsg->mid == MID_FUSHI_HAND_DELALL)
+    {
+        dbug_printf("MID_FUSHI_HAND_DELALL\n");
+        ResetPersonDB(SM_DEL_ALL_TYPE_HAND);
+
+        ResetFaceRegisterStates();
+        s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_DELALL, MR_SUCCESS);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+#endif // USE_FUSHI_HAND_PROTO
     else if(pSenseMsg->mid == MID_GETUSERINFO)
     {
         dbug_printf("MID_GETUSERINFO\n");
@@ -1487,6 +1628,15 @@ int MsgProcSense(MSG* pMsg)
         reply_msg = SenseLockTask::Get_Reply_MxGetAllUserID(pSenseMsg, MR_SUCCESS, 0);
         g_pSenseTask->Send_Msg(reply_msg);
     }
+#if (USE_FUSHI_HAND_PROTO)
+    else if(pSenseMsg->mid == MID_FUSHI_HAND_GET_ALL_USERID)
+    {
+        dbug_printf("MID_FUSHI_HAND_GET_ALL_USERID\n");
+        int fmt = SM_USERID_DATA_FMT_HAND1;
+        s_msg* reply_msg = SenseLockTask::Get_Reply_GetAllUserID(pSenseMsg, MR_SUCCESS, fmt);
+        g_pSenseTask->Send_Msg(reply_msg);
+    }
+#endif // USE_FUSHI_HAND_PROTO
 #if (USE_FUSHI_PROTO)
     else if(pSenseMsg->mid == MID_GET_FREE_USERID)
     {
@@ -2655,7 +2805,11 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
             s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_VERIFY, MR_FAILED4_UNKNOWNUSER);
             g_pSenseTask->Send_Msg(reply_msg);
 #else // DESMAN_ENC_MODE == 0
+#if (USE_FUSHI_HAND_PROTO)
+            s_msg* reply_msg = SenseLockTask::Get_Reply(MID_FUSHI_HAND_VERIFY, MR_ABORTED);
+#else
             s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_VERIFY, MR_ABORTED);
+#endif
             g_pSenseTask->Send_Msg(reply_msg);
 #endif // DESMAN_ENC_MODE == 0
 #if (USE_VDBTASK && IR_LED_ONOFF_MODE == 1)
@@ -2792,6 +2946,11 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                     else
 #endif
                     {
+#if (USE_FUSHI_HAND_PROTO)
+                        if (iResult == HAND_RESULT_FAILED)
+                            msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_VERIFY, MR_FAILED4_UNKNOWNUSER);
+                        else
+#endif
                         msg = SenseLockTask::Get_Reply(pSenseMsg, MID_VERIFY, iResult == FACE_RESULT_FAILED ? MR_FAILED4_UNKNOWNUSER : MR_FAILED4_UNKNOWN_HANDUSER);
                     }
                     my_usleep(20*1000);
@@ -2869,6 +3028,16 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
 
                     if (g_xSS.iEnrollMutiDirMode)
                         g_xSS.iRegisterDir |= g_xSS.msg_enroll_itg_data.face_direction;
+#if (USE_FUSHI_HAND_PROTO)
+                    if (g_xSS.iRunningCmd == MID_FUSHI_HAND_ENROLL_ITG)
+                        g_xSS.iRunningCmd = MID_ENROLL_ITG;
+                    if (g_xSS.iResetFlag)
+                    {
+                        FaceEngine::RemoveUser(g_xSS.iRegisterID, SM_DEL_USER_TYPE_DEFAULT);
+                        msg = SenseLockTask::Get_Reply(pSenseMsg, g_xSS.iRunningCmd, MR_FAILED4_TIMEOUT);
+                    }
+                    else
+#endif // USE_FUSHI_HAND_PROTO
                     msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, iSuccessCode, g_xSS.iRegisterID, g_xSS.iRegisterDir, g_xSS.iRunningCmd, pExtData, iExtDataLen);
                     if(g_xSS.iSendLastMsgMode)
                         g_xSS.pLastMsg = msg;
@@ -2905,6 +3074,10 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
 
                     int iFindIdx = pFaceTask->GetRecogIndex();
                     int iID = dbm_GetIDOfIndex(iFindIdx);
+#if (USE_FUSHI_HAND_PROTO)
+                    if (g_xSS.iRunningCmd == MID_FUSHI_HAND_ENROLL_ITG)
+                        g_xSS.iRunningCmd = MID_ENROLL_ITG;
+#endif // USE_FUSHI_HAND_PROTO
                     s_msg* msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, MR_FAILED4_FACEENROLLED, iID + 1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
 
 #if (ENROLL_DUPLICATION_CHECK == EDC_ENABLE_NO_SKIP)
@@ -3023,6 +3196,10 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                     }
                     else
                     {
+#if (USE_FUSHI_HAND_PROTO)
+                        if (iResult == FACE_RESULT_ENROLLED_NEXT && g_xSS.iRunningCmd == MID_FUSHI_HAND_ENROLL_ITG)
+                            g_xSS.iRunningCmd = MID_ENROLL_ITG;
+#endif
                         s_msg* msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, MR_SUCCESS, -1, g_xSS.iRegisterDir, g_xSS.iRunningCmd);
                         g_pSenseTask->Send_Msg(msg);
                         iflag_NoStopCam = 1;
@@ -3169,6 +3346,14 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                             rDir = FACE_DIRECTION_HAND;
                         }
 #endif // USE_SANJIANG3_MODE
+#if (USE_FUSHI_HAND_PROTO)
+                        if (g_xSS.iResetFlag)
+                        {
+                            FaceEngine::RemoveUser(rID, SM_DEL_USER_TYPE_HAND);
+                            msg = SenseLockTask::Get_Reply(pSenseMsg, g_xSS.iRunningCmd, MR_FAILED4_TIMEOUT);
+                        }
+                        else
+#endif // USE_FUSHI_HAND_PROTO
                         msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, iSuccessCode, rID, rDir, g_xSS.iRunningCmd);
                     }
                     else
@@ -3198,7 +3383,13 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                 else if(iResult == FACE_RESULT_DETECTED || iResult == HAND_RESULT_DETECTED)
                 {
                     ResetFaceRegisterStates();
-                    s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_VERIFY,
+                    s_msg* reply_msg;
+#if (USE_FUSHI_HAND_PROTO)
+                    if (iResult == HAND_RESULT_DETECTED)
+                        reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_FUSHI_HAND_VERIFY, MR_FAILED4_UNKNOWNUSER);
+                    else
+#endif
+                    reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_VERIFY,
                                                                 iResult == FACE_RESULT_DETECTED ? MR_FAILED4_UNKNOWNUSER : MR_FAILED4_UNKNOWN_HANDUSER);
                     g_pSenseTask->Send_Msg(reply_msg);
                 }

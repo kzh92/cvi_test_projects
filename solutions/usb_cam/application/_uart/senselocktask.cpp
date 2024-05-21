@@ -844,6 +844,22 @@ void SenseLockTask::run()
                 //my_printf("******* got ENROLL, skip\n");
             }
         }
+#if (USE_FUSHI_HAND_PROTO)
+        else if(msg->mid == MID_FUSHI_HAND_ENROLL)
+        {
+            if(iLastCmd == MID_FUSHI_HAND_ENROLL && g_xSS.rFaceEngineTime != 0)
+            {
+                //my_printf("******* got MID_FUSHI_HAND_ENROLL, skip\n");
+            }
+            else
+            {
+                SendGlobalMsg(MSG_SENSE, (long)msg, 0, 0);
+#ifdef NOTHREAD_MUL
+                iMsgSent = 1;
+#endif // NOTHREAD_MUL
+            }
+        }
+#endif // USE_FUSHI_HAND_PROTO
         else if(msg->mid == MID_VERIFY)
         {
             g_xSS.iUVCpause = 0;
@@ -1023,6 +1039,11 @@ s_msg* SenseLockTask::Get_Reply_Verify(s_msg* pSenseMsg, int iResult, int iUserI
 #endif
 
     s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+#if (USE_FUSHI_HAND_PROTO)
+    if (iUserID > N_MAX_PERSON_NUM || iAuthType == 1)
+        msg_reply_data->mid = MID_FUSHI_HAND_VERIFY;
+    else
+#endif
     msg_reply_data->mid = MID_VERIFY;
     msg_reply_data->result = iResult;
 
@@ -1206,7 +1227,25 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(s_msg* pSenseMsg, int iResult, int 
             msg->mid = MID_REPLY;
             msg->size_heb = HIGH_BYTE(iMsgDataLen);
             msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_FUSHI_HAND_PROTO)
+            s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+            msg_reply_data->mid = MID_FUSHI_HAND_GET_ALL_USERID;
+            msg_reply_data->result = iResult;
 
+            s_msg_reply_all_userid_data* msg_reply_all_userid_data =
+                    (s_msg_reply_all_userid_data*)(msg_reply_data->data);
+
+            msg_reply_all_userid_data->user_counts = dbm_GetHandCount();
+            for(int i = 0; i < dbm_GetHandCount(); i ++)
+            {
+                PSMetaInfo pxMetaInfo = dbm_GetHandMetaInfoByIndex(i);
+                if(pxMetaInfo == NULL)
+                    continue;
+
+                msg_reply_all_userid_data->users_id[i * 2] = HIGH_BYTE(pxMetaInfo->iID + 1);
+                msg_reply_all_userid_data->users_id[i * 2 + 1] = LOW_BYTE(pxMetaInfo->iID + 1);
+            }
+#else // USE_FUSHI_HAND_PROTO
             s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
             msg_reply_data->mid = MID_GET_ALL_USERID;
             msg_reply_data->result = iResult;
@@ -1225,6 +1264,7 @@ s_msg* SenseLockTask::Get_Reply_GetAllUserID(s_msg* pSenseMsg, int iResult, int 
                 int shift = pxMetaInfo->iID % 8;
                 msg_reply_all_userid_data->users_id[idx] |= 1 << shift;
             }
+#endif // USE_FUSHI_HAND_PROTO
         }
 #endif // !_NO_ENGINE_
 #endif // N_MAX_HAND_NUM
