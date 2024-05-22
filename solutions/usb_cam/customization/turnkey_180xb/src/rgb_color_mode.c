@@ -50,6 +50,10 @@
 #include "rgb_color_v2.1.0.23.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v24)
 #include "rgb_color_v2.1.0.24.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v25)
+#include "rgb_color_v2.1.0.25.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v26)
+#include "rgb_color_v2.1.0.26.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_22v0)
 #include "rgb_color_v2.2.0.0.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_301v9)
