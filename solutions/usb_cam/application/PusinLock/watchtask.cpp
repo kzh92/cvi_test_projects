@@ -287,7 +287,7 @@ void WatchTask::run()
                 }
 #elif (USE_WHITE_LED == UWL_EN_NORMAL || USE_WHITE_LED == UWL_EN_F0U1) // USE_WHITE_LED
 #if (USE_3M_MODE)
-                if (USE_3M_MODE == U3M_DEFAULT || (g_xSS.bUVCRunning || g_xSS.rFaceEngineTime != 0))
+                if (USE_3M_MODE == U3M_DEFAULT || (g_xSS.bUVCRunning || (g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_IR_ONLY)))
                 {
                     gpio_whiteled_on(ON);
                     //notice that using white led
