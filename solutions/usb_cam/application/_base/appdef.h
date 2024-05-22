@@ -101,6 +101,12 @@ enum E_Baud_Rate
 #define EUTC_3M_MODE                2
 #define EUTC_3V4_MODE               3
 
+//used for engine
+#define ISP_Y_LEVEL_0               0   //normal, sc201cs color v2.1.0.11
+#define ISP_Y_LEVEL_1               1   //bright, sc201cs color v2.1.0.13
+#define ISP_Y_LEVEL_2               2   //dark, sc201cs color v2.1.0.26
+#define ISP_Y_LEVEL                 ISP_Y_LEVEL_0
+
 //isp bin file version
 #define ISP_BIN_VER_103v3           0   //v1.0.3.3
 #define ISP_BIN_VER_103v8           1   //v1.0.3.8
@@ -127,6 +133,8 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v22           2122
 #define ISP_BIN_VER_21v23           2123
 #define ISP_BIN_VER_21v24           2124
+#define ISP_BIN_VER_21v25           2125
+#define ISP_BIN_VER_21v26           2126
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
@@ -502,8 +510,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_SAINAO_TUYA                   343
 #define FRM_DBS3M_LIWEN_IR                      344
 #define FRM_DBS3M_DUP_DISABLE                   345
+#define FRM_DBS3M_KEYU_UAC                      346
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DUP_DISABLE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEYU_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2140,6 +2149,40 @@ enum E_Baud_Rate
 #define UAC_AUDALGO_USE                     1
 
 //----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_KEYU_UAC)
+
+// 3.40.1_D
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.67.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.67.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  1
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v26
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef UVC_INIT_WIDTH
+#define UVC_INIT_WIDTH                      1280
+#undef UVC_INIT_HEIGHT
+#define UVC_INIT_HEIGHT                     720
+
+//----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BOLATAIN_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
@@ -2689,6 +2732,14 @@ enum E_Baud_Rate
 #define DB_UPDATE_MAGIC_3 "EasenDB3" // hand
 #define MAGIC_LEN_UPDATE_DB 8
 #endif // USE_DB_UPDATE_MODE
+
+#if (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v13)
+#undef ISP_Y_LEVEL
+#define ISP_Y_LEVEL                 ISP_Y_LEVEL_1
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v26)
+#undef ISP_Y_LEVEL
+#define ISP_Y_LEVEL                 ISP_Y_LEVEL_2
+#endif
 
 //#include "engine_inner_param.h"
 
