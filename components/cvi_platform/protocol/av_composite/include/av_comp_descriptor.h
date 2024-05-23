@@ -1111,7 +1111,7 @@ struct usb_qualifier_descriptor {
 /*-------------------------------------------------------------------------*/
 
 #if (CONFIG_USB_HS)
-#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (512)
+#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (MAX_PSPT_SIZE)
 #define TRANSACTION_PER_MICROFRAME (1)
 #else
 #define MAX_PAYLOAD_SIZE_PER_TRANSACTION (512)
