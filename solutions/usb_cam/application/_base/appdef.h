@@ -517,7 +517,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KEYU_UAC                      346
 #define FRM_DBS3MH_DEFAULT                      347
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3MH_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -696,36 +696,19 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_KEXIONG_UAC)
 
+// 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.5.7_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.5.7_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.0_D"
 
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#define UVC_RES_DEFINE                      {1, 800, 480, 30, 0},
 #undef USE_3M_MODE
 #define USE_3M_MODE                         1
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
 #undef UAC_SAMPLE_RATE
 #define UAC_SAMPLE_RATE                     16000
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     8
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
@@ -735,17 +718,23 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef UVC_INIT_WIDTH
-#define UVC_INIT_WIDTH                      1280
+#define UVC_INIT_WIDTH                      800
 #undef UVC_INIT_HEIGHT
-#define UVC_INIT_HEIGHT                     720
+#define UVC_INIT_HEIGHT                     480
 #undef ENROLL_ANGLE_MODE
 #define ENROLL_ANGLE_MODE                   1
-#undef USE_WATCHDOG
-#define USE_WATCHDOG                        1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
+#undef MAX_PSPT_SIZE
+#define MAX_PSPT_SIZE                       1024 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
+#undef UAC_EP_WMAXPCKT_SIZE
+#define UAC_EP_WMAXPCKT_SIZE                32  //audio ep wMaxPacketSize
+#undef UAC_SPK_EP
+#define UAC_SPK_EP                          0x83
+#undef CONFIG_DWC2_VERSION
+#define CONFIG_DWC2_VERSION                 1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
