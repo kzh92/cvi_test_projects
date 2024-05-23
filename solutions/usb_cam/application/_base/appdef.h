@@ -228,6 +228,7 @@ enum E_Baud_Rate
 #define USE_TEMP_MODE               1
 #define USE_FUSHI_HAND_PROTO        0
 #define CONFIG_USB_HS               1
+#define CONFIG_DWC2_VERSION         0
 
 #define CLR_CAM_WIDTH               1600
 #define CLR_CAM_HEIGHT              1200
