@@ -517,7 +517,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KEYU_UAC                      346
 #define FRM_DBS3MH_DEFAULT                      347
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AJISHI_CHANGSI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -698,8 +698,8 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 800, 480, 30, 0},
