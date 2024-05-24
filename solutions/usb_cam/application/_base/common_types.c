@@ -1380,11 +1380,13 @@ for_retry_one:
             if (rcount > 0)
             {
                 rcount--;
-                my_usleep(5000);
+                my_usleep(1000);
                 goto for_retry_one;
             }
             else
-                break;
+            {
+                my_printf("ftw.\n"); //data may be corrupted,force to write
+            }
         }
         if (memcmp(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len))
         {
