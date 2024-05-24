@@ -10,6 +10,8 @@
 //list of upgrade files
 s_uf_part_info g_upg_list[] = {
     {"prim", 0x2E000, 0x001e0000, UF_PF_APP},
+    {"fip_fsbl.bin", 0x00000000, 0x0000c000, UF_PF_NORMAL},
+    {"imtb", 0x0002c000, 0x00002000, UF_PF_NORMAL},
 #if 0
     {"wno_c.bin", 0x003d0000, FN_WNO_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
 #endif
