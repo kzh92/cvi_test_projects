@@ -21,24 +21,24 @@ static const SC2331_SLAVE_MODE_S g_astSc2331_slave_mode[SC2331_SLAVE_MODE_NUM] =
 		.name = "1920X1080P30",
 		.astImg[0] = {
 			.stSnsSize = {
-				.u32Width = 1920,
-				.u32Height = 1080,
+				.u32Width = 2304,
+				.u32Height = 1296,
 			},
 			.stWndRect = {
 				.s32X = 0,
 				.s32Y = 0,
-				.u32Width = 1920,
-				.u32Height = 1080,
+				.u32Width = 2304,
+				.u32Height = 1296,
 			},
 			.stMaxSize = {
-				.u32Width = 1920,
-				.u32Height = 1080,
+				.u32Width = 2304,
+				.u32Height = 1296,
 			},
 		},
 		.f32MaxFps = 30,
 		.f32MinFps = 2.28, /* 1250 * 30 / 0x3FFF */
 		.u32HtsDef = 2560,
-		.u32VtsDef = 1250,
+		.u32VtsDef = 2010,
 		.stExp[0] = {
 			.u16Min = 1,
 			.u16Max = 1250 - 6,
@@ -100,10 +100,14 @@ struct combo_dev_attr_s sc2331_slave_rx_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
 		.lane_id = {3/*clock*/, 4/*data*/, -1, -1, -1},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
+		.dphy = {
+			.enable = 1,
+			.hs_settle = 8,
+		}
 	},
 	.mclk = {
 		.cam = 1, //mclk
-		.freq = CAMPLL_FREQ_24M,
+		.freq = CAMPLL_FREQ_27M,
 	},
 	.devno = 1, //sensor1
 };

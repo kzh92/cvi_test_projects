@@ -10,9 +10,9 @@
 
 PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
     {
-        .u16width = 1920,
-        .u16height = 1080,
-        .u8VbBlkCnt = 8,
+        .u16width = 2304,
+        .u16height = 1296,
+        .u8VbBlkCnt = 4,
         .fmt = PIXEL_FORMAT_YUV_PLANAR_420,
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,

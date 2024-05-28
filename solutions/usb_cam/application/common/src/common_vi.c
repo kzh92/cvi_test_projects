@@ -231,8 +231,8 @@ CVI_S32 getPicSize(CVI_S32 dev_id, SNS_SIZE_S *pstSize)
 		pstSize->u32Height = 1200;
 		break;
 	case SMS_SC2331_SLAVE_MIPI_2M_30FPS_10BIT:
-		pstSize->u32Width  = 1920;
-		pstSize->u32Height = 1080;
+		pstSize->u32Width  = 2304;
+		pstSize->u32Height = 1296;
 		break;
 	case GCORE_GC1054_MIPI_1M_30FPS_10BIT:
 	case BYD_BF314A_MIPI_720P_30FPS_10BIT:

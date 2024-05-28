@@ -25,9 +25,9 @@
 
 #define DIV_0_TO_1(a)   ((0 == (a)) ? 1 : (a))
 #define DIV_0_TO_1_FLOAT(a) ((((a) < 1E-10) && ((a) > -1E-10)) ? 1 : (a))
-#define SC2331_SLAVE_ID 0xeb2c
+#define SC2331_SLAVE_ID 0xcc41
 #define SC2331_SLAVE_I2C_ADDR_1 0x30
-#define SC2331_SLAVE_I2C_ADDR_2 0x32
+#define SC2331_SLAVE_I2C_ADDR_2 0x30
 #define SC2331_SLAVE_I2C_ADDR_IS_VALID(addr) ((addr) == SC2331_SLAVE_I2C_ADDR_1 || (addr) == SC2331_SLAVE_I2C_ADDR_2)
 
 /****************************************************************************
@@ -76,7 +76,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 
 // #define SC2331_SLAVE_MIRROR_FLIP_ADDR    0x17
 
-#define SC2331_SLAVE_RES_IS_1200P(w, h)      ((w) <= 1920 && (h) <= 1080)
+#define SC2331_SLAVE_RES_IS_1200P(w, h)      ((w) <= 2304 && (h) <= 1296)
 
 static CVI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
