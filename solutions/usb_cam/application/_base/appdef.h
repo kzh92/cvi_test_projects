@@ -516,8 +516,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_DUP_DISABLE                   345
 #define FRM_DBS3M_KEYU_UAC                      346
 #define FRM_DBS3MH_DEFAULT                      347
+#define FRM_DBS3M_XM7258_UAC                    348
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI2_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XM7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2681,6 +2682,39 @@ enum E_Baud_Rate
 #define UVC_USBD_PRINT                      1
 #undef DEFAULT_UVC_DIR
 #define DEFAULT_UVC_DIR                     UVC_ROTATION_270
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XM7258_UAC)
+// 3.55.0
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.73.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.73.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 0},\
+                                            {2, 864, 480, 30, 0, 10240},\
+                                            {3, 800, 480, 30, 0, 9000},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     16
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+#undef CONFIG_USB_HS
+#define CONFIG_USB_HS                       0
+#undef CONFIG_DWC2_VERSION
+#define CONFIG_DWC2_VERSION                 1
 
 //----------------------------------------------------------
 
