@@ -520,15 +520,15 @@ enum E_Baud_Rate
 #define FRM_DBS3M_FANHAI_IR_MODE                349
 #define FRM_DBS3M_LS7258_UAC                    350
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.62.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.62.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
