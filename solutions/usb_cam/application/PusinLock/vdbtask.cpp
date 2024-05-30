@@ -80,7 +80,7 @@ int ConvertYuvToSceneJpeg(unsigned char* pbSrc, int iYUYVMode)
         ConvertYUYV_toYUV420(pbSrc, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, pbYUV);
         pbTmp = pbYUV;
     }
-    rotateYUV420SP_flip(pbTmp, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, g_clrYuvData, g_xPS.x.bCamFlip == 0 ? 270: 90, 1);
+    rotateYUV420SP_flip(pbTmp, CLR_CAM_WIDTH, CLR_CAM_HEIGHT, g_clrYuvData, CAM_ROTATION_MODE == 0 ? 270: 90, 1);
 
     ConvertYUV420_NV21toRGB888(g_clrYuvData, CLR_CAM_HEIGHT, CLR_CAM_WIDTH, g_clrRgbData);
 
