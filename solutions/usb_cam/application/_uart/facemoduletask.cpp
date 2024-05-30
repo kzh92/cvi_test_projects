@@ -622,6 +622,7 @@ void FaceModuleTask::run()
             }
             else if(xRecvCmd.bType == FM_CMD_CAMERA_FLIP)
             {
+#if 0
                 if(xRecvCmd.bP3 == 0)
                 {
                     g_xPS.x.bCamFlip = xRecvCmd.bP2;
@@ -636,6 +637,7 @@ void FaceModuleTask::run()
                 {
                     SendAck(xRecvCmd.bType, GenSeq(1, xRecvCmd.bSeqNum), 0, g_xPS.x.bCamFlip, FM_ACK_SUCCESS);
                 }
+#endif
             }
             else if(xRecvCmd.bType == FM_CMD_SET_LED)
             {

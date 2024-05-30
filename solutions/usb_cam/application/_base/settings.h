@@ -52,7 +52,7 @@ typedef struct _tagMY_ALL_SETTINGS
     // permanance settings
     unsigned char   bIsFirst;         //bDebugEn;
 
-    unsigned char   bCamFlip:1;         //bCamFlip:1
+    unsigned char   bCamFlipReserved:1;         //bCamFlip:1
     unsigned char   bReserved00:1;          // bSendLastMsg:1;
     unsigned char   bEnableLogFile:1;
     unsigned char   bHijackEnable:1;

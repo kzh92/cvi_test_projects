@@ -135,7 +135,7 @@ void ResetPermanenceSettings()
     ///you should not reset dic checksum values.
     //memset(&g_xPS, 0, sizeof(g_xPS));
 
-    g_xPS.x.bCamFlip = CAM_ROTATION_MODE;
+    // g_xPS.x.bCamFlip = CAM_ROTATION_MODE;
     g_xPS.x.bEnableLogFile = 0;
     g_xPS.x.bHijackEnable = 0;
 #if (USE_TWIN_ENGINE)
@@ -343,7 +343,7 @@ void ResetSystemState(int iAppType)
 
     g_xSS.iAppType = iAppType;
     g_xSS.iVerifyFailType = 0xFF;
-    g_xSS.iCameraRotate = g_xPS.x.bCamFlip;
+    g_xSS.iCameraRotate = CAM_ROTATION_MODE;//g_xPS.x.bCamFlip;
     g_xSS.iUsbHostMode = g_xCS.x.bUsbHost;
     g_xSS.iSendLastMsgMode = SEND_LAST_MSG;
     g_xSS.iCapWidth = CAPTURE_WIDTH;

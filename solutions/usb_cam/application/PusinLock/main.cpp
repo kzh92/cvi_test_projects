@@ -2588,11 +2588,13 @@ int MsgProcSense(MSG* pMsg)
             else
             {
                 g_xSS.iCameraRotate = g_xSS.msg_send_msg_data.enable;
+#if 0
                 if (g_xPS.x.bCamFlip != g_xSS.msg_send_msg_data.enable)
                 {
                     g_xPS.x.bCamFlip = g_xSS.msg_send_msg_data.enable;
                     UpdatePermanenceSettings();
                 }
+#endif
                 s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_CAMERA_FLIP, MR_SUCCESS);
                 g_pSenseTask->Send_Msg(reply_msg);
             }
