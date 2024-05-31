@@ -35,6 +35,8 @@
 #endif // DEFAULT_CHIP_TYPE
 
 #define IMAGEDIR            "./pack/images"
+#define PARTITIONDIR        "./boards/cv181xc_qfn/configs/"
+#define BOOTIMG_DIR         "./boards/cv180xb_evb/bootimgs/"
 #if (USE_16M_FLASH == 0)
 #define APP_DIR             "rootfs/test/"
 #define DICT_DIR            "rootfs/test/"
@@ -374,7 +376,11 @@ int main(int argc, char** argv)
 #elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10)
     system("rm -f ./components/chip_cv180x/gcc_flash.ld");
     system("cp -f ./components/chip_cv180x/gcc_flash_64M.ld ./components/chip_cv180x/gcc_flash.ld");
-    system("cp -f ./boards/cv180xb_evb/bootimgs/fip_fsbl_D10.bin ./boards/cv180xb_evb/bootimgs/fip_fsbl.bin");
+#if (CONFIG_BOOT0_VERSION == 0)
+    system("cp -f " IMG_RESOURCEDIR "/boot0/v1/boot0 " BOOTIMG_DIR "/fip_fsbl.bin");
+#elif (CONFIG_BOOT0_VERSION == 1)
+    system("cp -f " IMG_RESOURCEDIR "/boot0/v2_20240426/boot0 " BOOTIMG_DIR "/fip_fsbl.bin");
+#endif
 #elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D20A)
     system("rm -f ./components/chip_cv181x/gcc_flash.ld");
     system("cp -f ./components/chip_cv181x/gcc_flash_128M.ld ./components/chip_cv181x/gcc_flash.ld");
@@ -400,6 +406,7 @@ int main(int argc, char** argv)
     system("cp -f " IMG_RESOURCEDIR "/libs/libcvi_mw_audio.a components/cvi_mmf_sdk_cv180xx/lib/");
     system("cp -f " IMG_RESOURCEDIR "/libs/libcvi_mw_audio.a components/cvi_mmf_sdk_cv181xx/lib/");
 #endif
+    printf("update boot0(fip_fsbl.bin)... version %d\n", CONFIG_BOOT0_VERSION);
 
     int ret = 0;
 #if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)

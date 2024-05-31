@@ -262,6 +262,7 @@ enum E_Baud_Rate
 #define USE_EP0PKGSIZE_PATCH                    0
 #define CONFIG_SPI_NOR_ER_TIME                  2000
 #define CONFIG_USB_BULK_UVC                     0
+#define CONFIG_BOOT0_VERSION                    0       //0: original, 1: 2024/4/26
 
 #define CLR_CAM_WIDTH                           1600
 #define CLR_CAM_HEIGHT                          1200
