@@ -769,11 +769,14 @@ void camera_set_vi_fps(int pipe, int fps)
     CVI_ISP_SetPubAttr(pipe, &stPubAttr);
 }
 
+#if (USE_WHITE_LED != 1)
 extern unsigned char rgb_mono_mode_param[];
+#endif
 extern unsigned char rgb_color_mode_param[];
 
 void camera_set_mono_chrome(int enable)
 {
+#if (USE_WHITE_LED != 1)
     if (enable)
     {
         camera_clr_stop_aec();
@@ -820,4 +823,5 @@ void camera_set_mono_chrome(int enable)
             printf("getm fail\n");
         }
     }
+#endif
 }

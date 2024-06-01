@@ -135,6 +135,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v24           2124
 #define ISP_BIN_VER_21v25           2125
 #define ISP_BIN_VER_21v26           2126
+#define ISP_BIN_VER_21v30           2130
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
@@ -1089,8 +1090,8 @@ enum E_Baud_Rate
 
 // 3.14.14_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.60.1.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.60.1.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.60.1.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.60.1.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1120,7 +1121,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v23
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v30
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
