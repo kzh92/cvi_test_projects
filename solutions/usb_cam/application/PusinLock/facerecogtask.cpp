@@ -244,7 +244,7 @@ void FaceRecogTask::run()
         if(g_xSS.iResetFlag == 1)
             break;
 
-#if (USE_TONGXIN_PROTO == 0 && UVC_ENC_TYPE != 2)
+#if (UVC_ENC_TYPE != 2)
         if (iLoopCount == 0)
             fr_LoadCreateMachine_2(1);
 #endif
@@ -534,14 +534,6 @@ void FaceRecogTask::run()
         camera_clr_start_aec();
     }
 #endif // USE_3M_MODE
-#if (USE_TONGXIN_PROTO)
-    if (m_iCmd == E_VERIFY)
-    {
-        int sleep_count = 8;
-        while(sleep_count-- > 0 && g_xSS.iResetFlag == 0)
-            my_usleep(10*1000);
-    }
-#endif
     SendMsg(MSG_RECOG_FACE, FACE_TASK_FINISHED, 0, m_iCounter);
     dbug_printf("[Recog] Verify Face End!\n");
     g_xSS.rFaceEngineTime = 0;

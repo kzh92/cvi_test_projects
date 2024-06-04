@@ -562,7 +562,7 @@ int main0(int argc, char** argv)
     {
         fr_LoadCreateMachine_1();
         fr_LoadCreateMachine_1after();
-#if (USE_TONGXIN_PROTO == 1 || UVC_ENC_TYPE == 2)
+#if (UVC_ENC_TYPE == 2)
         fr_LoadCreateMachine_2(0);
 #endif
         fr_InitIRCamera_ExpGain();
