@@ -521,7 +521,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_FANHAI_IR_MODE                349
 #define FRM_DBS3M_LS7258_UAC                    350
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE2_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2758,6 +2758,33 @@ enum E_Baud_Rate
 #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE2_UAC)
+
+// 3.1.6_D
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.77.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.77.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v22
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
 
 //----------------------------------------------------------
 
