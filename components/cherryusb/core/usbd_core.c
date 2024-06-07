@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "usbd_core.h"
+#include <aos/kernel.h>
 
 /* general descriptor field offsets */
 #define DESC_bLength         0 /** Length offset */
@@ -69,6 +70,7 @@ static void usbd_class_event_notify_handler(uint8_t event, void *arg);
 
 static void usbd_print_setup(struct usb_setup_packet *setup)
 {
+#if 0
     USB_LOG_INFO("Setup: "
                  "bmRequestType 0x%02x, bRequest 0x%02x, wValue 0x%04x, wIndex 0x%04x, wLength 0x%04x\r\n",
                  setup->bmRequestType,
@@ -76,6 +78,9 @@ static void usbd_print_setup(struct usb_setup_packet *setup)
                  setup->wValue,
                  setup->wIndex,
                  setup->wLength);
+#else
+    aos_msleep(1);
+#endif    
 }
 
 static bool is_device_configured(void)
@@ -425,6 +430,7 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
 #else
     p = (uint8_t *)usbd_core_cfg.descriptors;
 #endif
+    aos_debug_printf("iface %u alt_setting %u\r\n", iface, alt_setting);
     USB_LOG_DBG("iface %u alt_setting %u\r\n", iface, alt_setting);
 
     while (p[DESC_bLength] != 0U) {
