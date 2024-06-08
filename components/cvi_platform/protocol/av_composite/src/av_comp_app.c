@@ -256,7 +256,7 @@ void uvc_media_update(){
 #endif
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
-    if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height)
+    if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height || 1)
     {
     	pstCropInfo.bEnable = CVI_FALSE;
     }
