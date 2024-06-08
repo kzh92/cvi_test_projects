@@ -522,8 +522,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LS7258_UAC                    350
 #define FRM_DBS3M_YIHONG_UAC                    351
 #define FRM_DBS3M_OKD_IR_UAC                    352
+#define FRM_DBS3M_XINAN                         353
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINAN
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2458,6 +2459,38 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UAC_AUDALGO_USE
 #define UAC_AUDALGO_USE                     1
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINAN)
+
+// 3.47.0_D
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.80.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.80.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
+                                            {2, 864, 480, 12, 0, 9000},\
+                                            {3, 800, 480, 12, 0, 9000},\
+                                            {4, 480, 320, 12, 0, 9000},\
+                                            {5, 320, 240, 12, 0, 9000}
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v13
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     16 // 0 ~ 32
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+#undef USE_TONGXIN_PROTO
+#define USE_TONGXIN_PROTO                   1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_DUAL_CAM_AIPAI)
