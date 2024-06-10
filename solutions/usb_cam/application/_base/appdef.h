@@ -706,8 +706,8 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.1.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.1.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 800, 480, 30, 0},
@@ -738,7 +738,7 @@ enum E_Baud_Rate
 #undef MAX_PSPT_SIZE
 #define MAX_PSPT_SIZE                       1024 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
 #undef UAC_EP_WMAXPCKT_SIZE
-#define UAC_EP_WMAXPCKT_SIZE                64  //audio ep wMaxPacketSize
+#define UAC_EP_WMAXPCKT_SIZE                32  //audio ep wMaxPacketSize
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef CONFIG_DWC2_VERSION
