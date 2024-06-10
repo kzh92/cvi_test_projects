@@ -136,6 +136,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v25           2125
 #define ISP_BIN_VER_21v26           2126
 #define ISP_BIN_VER_21v30           2130
+#define ISP_BIN_VER_21v32           2132
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
