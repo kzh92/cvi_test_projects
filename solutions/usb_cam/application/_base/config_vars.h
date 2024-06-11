@@ -54,8 +54,13 @@
 #define FN_WNOH_DICT_SIZE_REAL          1103149
 #define FN_A1_DICT_SIZE_REAL            (346672)
 #define FN_A2_DICT_SIZE_REAL            (344236)
+#ifndef ENGINE_FOR_ABROAD
 #define FN_B_DICT_SIZE_REAL             (346132)
 #define FN_B2_DICT_SIZE_REAL            (113887)
+#else // !ENGINE_FOR_ABROAD
+#define FN_B_DICT_SIZE_REAL             (345748)
+#define FN_B2_DICT_SIZE_REAL            (114194)
+#endif // !ENGINE_FOR_ABROAD
 #define FN_C_DICT_SIZE_REAL             (363272)
 #define FN_CH_DICT_SIZE_REAL            (299161)
 #define FN_DETECT_DICT_SIZE_REAL        (85012)
@@ -93,8 +98,13 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_WNOH_DICT_PATH       "/test/wnh.bin"
 #define FN_A1_DICT_PATH         "/test/a1.bin"
 #define FN_A2_DICT_PATH         "/test/a2.bin"
+#ifndef ENGINE_FOR_ABROAD
 #define FN_B_DICT_PATH          "/test/b.bin"
 #define FN_B2_DICT_PATH         "/test/b2.bin"
+#else // !ENGINE_FOR_ABROAD
+#define FN_B_DICT_PATH          "/test/b_abroad.bin"
+#define FN_B2_DICT_PATH         "/test/b2_abroad.bin"
+#endif // !ENGINE_FOR_ABROAD
 #define FN_CH_DICT_PATH         "/test/ch.bin"
 #define FN_C_DICT_PATH          "/test/c.bin"
 #define FN_DETECT_DICT_PATH     "/test/detect.bin"
