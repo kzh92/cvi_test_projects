@@ -2302,7 +2302,8 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP                  (-50)
 #undef USE_TEMP_MODE
 #define USE_TEMP_MODE                       1
-
+#define ENGINE_FOR_ABROAD
+                                            
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
 
