@@ -528,7 +528,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_YNS_UAC                       354
 #define FRM_DBS3M_SUOFEIWAN_UAC                 355
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_PUXIN
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_SUOFEIWAN_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2303,7 +2303,7 @@ enum E_Baud_Rate
 #undef USE_TEMP_MODE
 #define USE_TEMP_MODE                       1
 #define ENGINE_FOR_ABROAD
-                                            
+
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XIONGMAI_UAC)
 
@@ -2920,8 +2920,8 @@ enum E_Baud_Rate
 
 // 3.61.1_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.83.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.83.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.83.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.83.1_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2947,6 +2947,12 @@ enum E_Baud_Rate
 #define UVC_DARK_WATCH_COUNTER              10
 #undef USE_FUSHI_HAND_PROTO
 #define USE_FUSHI_HAND_PROTO                1
+#undef USE_READY0_PROTO
+#define USE_READY0_PROTO                    1
+#undef ENROLL_FACE_HAND_MODE
+#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#undef DEVICE_NID_READY_VER
+#define DEVICE_NID_READY_VER                0xf0
 #define ENGINE_FOR_ABROAD
 //----------------------------------------------------------
 
