@@ -273,9 +273,6 @@ typedef struct {
     int16_t right;
     int16_t bottom;
 
-    // pose
-    uint8_t user_id_heb; // high eight bits of user_id to be deleted
-    uint8_t user_id_leb; // low eight bits pf user_id to be deleted
     int16_t yaw;   // up and down in vertical orientation
     int16_t pitch; // right or left turned in horizontal orientation
     int16_t roll;  // slope
