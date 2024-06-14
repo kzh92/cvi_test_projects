@@ -438,7 +438,11 @@ static void dwc2_ep0_start_read_setup(uint8_t *psetup)
 
     USB_OTG_OUTEP(0U)->DOEPTSIZ = 0U;
     USB_OTG_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
+#if (USE_EP0PKGSIZE_PATCH == 0)
     USB_OTG_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
+#else
+    USB_OTG_OUTEP(0U)->DOEPTSIZ |= (8U * 8U);
+#endif
     USB_OTG_OUTEP(0U)->DOEPTSIZ |= USB_OTG_DOEPTSIZ_STUPCNT;
 
 #if CONFIG_USB_DWC2_DMA_ENABLE
@@ -1300,6 +1304,9 @@ void USBD_IRQHandler(void)
                     USB_OTG_OUTEP(ep_idx)->DOEPINT = DoepintReg;
                     if ((epint & USB_OTG_DOEPINT_XFRC) == USB_OTG_DOEPINT_XFRC) {
                         if (ep_idx == 0) {
+#if(USE_EP0PKGSIZE_PATCH)
+                            aos_debug_printf("[H]ep_intr=0x%08x\n", dwc2_get_outeps_intstatus());
+#endif
                             if (g_dwc2_udc.out_ep[ep_idx].xfer_len == 0) {
                             //     if((epint & USB_OTG_DOEPINT_STUP) == USB_OTG_DOEPINT_STUP
                             //         || ((epint & USB_OTG_DOEPINT_STUP) != USB_OTG_DOEPINT_STUP && (epint & USB_OTG_DOEPINT_STPKTRX) == USB_OTG_DOEPINT_STPKTRX )){
