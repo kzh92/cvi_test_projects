@@ -532,8 +532,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_SUOFEIWAN_UAC                 355
 #define FRM_DBS3M_SH_UAC                        356
 #define FRM_DBS3M_FUSHI_XM_UAC                  357
+#define FRM_DBS3M_LS7258_IR_UAC                 358
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JINJIAN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3018,6 +3019,37 @@ enum E_Baud_Rate
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEVICE_NID_READY_VER
 #define DEVICE_NID_READY_VER                0xf0
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS7258_IR_UAC)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.88.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 10240},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef CONFIG_USB_HS
+#define CONFIG_USB_HS                       0
+#undef CONFIG_DWC2_VERSION
+#define CONFIG_DWC2_VERSION                 1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
 
 //----------------------------------------------------------
 
