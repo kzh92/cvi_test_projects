@@ -50,7 +50,11 @@ static void audio_algo_init(void)
     pstVqeConfig->stAecCfg.para_aes_std_thrd = 10;
     pstVqeConfig->stAecCfg.para_aes_supp_coeff = 60;
     /* ANR */
+#if (UAC_MIC_VOL != 12)
+    pstVqeConfig->stAnrCfg.para_nr_snr_coeff = 25;
+#else
     pstVqeConfig->stAnrCfg.para_nr_snr_coeff = 15;
+#endif
     pstVqeConfig->stAnrCfg.para_nr_init_sile_time = 50;
 
     /* AGC */
