@@ -533,8 +533,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_SH_UAC                        356
 #define FRM_DBS3M_FUSHI_XM_UAC                  357
 #define FRM_DBS3M_LS7258_IR_UAC                 358
+#define FRM_DBS3M_YIHE2_UAC                     359
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE2_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
