@@ -215,6 +215,13 @@ static void audio_write(void *arg)
         if (ring_buffer_len(g_ring_buf[UAC_SPEAKER_INDEX]) >= play_len) {
             int ret = ring_buffer_get(g_ring_buf[UAC_SPEAKER_INDEX], (void *)write_pcm_buf, play_len);
             if (ret > 0) {
+            #if (UAC_SPK_NR_USE)
+                for (int i = 0; i< play_len; i+=2)
+                {
+                    if (write_pcm_buf[i] == 0x08 && write_pcm_buf[i+1] == 0)
+                        write_pcm_buf[i] = 0;
+                }
+            #endif // UAC_SPK_NR_USE
                 audio_pcm_write(write_pcm_buf, play_len);
             }
         }
