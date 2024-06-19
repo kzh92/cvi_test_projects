@@ -15,8 +15,8 @@
 
 #define VIDEO_IN_EP 0x81
 
-#define WIDTH  (unsigned int)(2304)
-#define HEIGHT (unsigned int)(1296)
+#define WIDTH  (unsigned int)(1280)
+#define HEIGHT (unsigned int)(720)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -70,7 +70,7 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
 #if 1
-    {1, 2304, 1296, 30, 0},
+    {1, WIDTH, HEIGHT, 30, 0},
     // {2, 1280, 720, 30, 0},
     // {3, 640, 480, 30, 0},
     //{4, 1920, 1080, 30, 0},
@@ -256,6 +256,7 @@ void uvc_media_update(){
 #endif
 	VPSS_CROP_INFO_S pstCropInfo;
     MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(UVC_VPSS_GRP, UVC_VPSS_CHN, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
+    printf("uvc(%dx%d)\n", uvc_frame_info.width, uvc_frame_info.height);
     if (uvc_frame_info.width * 3 / 4 == uvc_frame_info.height || 1)
     {
     	pstCropInfo.bEnable = CVI_FALSE;
