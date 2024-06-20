@@ -537,7 +537,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LS7258_IR_UAC                 358
 #define FRM_DBS3M_YIHE2_UAC                     359
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JINJIAN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3MH_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2729,8 +2729,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3MH_DEFAULT)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.68.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.68.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.68.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.68.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -2742,7 +2742,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v35
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
