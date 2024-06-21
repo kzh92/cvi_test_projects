@@ -224,5 +224,10 @@ int main(int /*argc*/, char** /*argv*/)
     system("dd if=/dev/zero of=" IMAGEDIR "/pusr2 bs=1024 count=8");
     system("dd if=/dev/zero of=" IMAGEDIR "/pst bs=1024 count=8");
 
+#if (UAC_SPK_NR_USE == 2)
+    system("cp -f " IMG_RESOURCEDIR "/libs/libcvi_mw_audio.a components/cvi_mmf_sdk_cv180xx/lib/");
+    system("cp -f " IMG_RESOURCEDIR "/libs/libcvi_mw_audio.a components/cvi_mmf_sdk_cv181xx/lib/");
+#endif
+
     return 0;
 }

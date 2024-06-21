@@ -14,6 +14,7 @@
 #include "drv/timer.h"
 #include "appdef.h"
 #include "drv_gpio.h"
+#include "cvi_audio_pp_interface.h"
 
 #define USBD_VID           0xffff
 #define USBD_PID           0xffff
@@ -53,6 +54,7 @@ uac_timer_t  g_utimer;
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t out_buffer[UAC_HOST_OUT_BUF_LEN];
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t in_buffer[AUDIO_IN_PACKET];
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t write_pcm_buf[CAPTURE_SIZE];
+USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t write_pcm_buf_out[CAPTURE_SIZE];
 
 void usbd_audio_open(uint8_t intf)
 {
@@ -191,6 +193,15 @@ static void audio_write(void *arg)
 {
     int play_len = audio_get_pcm_len(UAC_SPEAKER_INDEX);
     int ret = 0;
+#if (UAC_SPK_NR_USE == 2)
+    void *handle = cvi_audio_pp_init(UAC_SAMPLE_RATE, 1);
+    if (handle == NULL)
+    {
+        printf("cvi_audio_pp_init failed\n");
+    }
+    else
+        printf("cvi_audio_pp_init ok\n");
+#endif // UAC_SPK_NR_USE
 
     while (1) {
         ret = aos_sem_wait(&g_audio_write_sem, 1000);
@@ -214,18 +225,36 @@ static void audio_write(void *arg)
         }
         if (ring_buffer_len(g_ring_buf[UAC_SPEAKER_INDEX]) >= play_len) {
             int ret = ring_buffer_get(g_ring_buf[UAC_SPEAKER_INDEX], (void *)write_pcm_buf, play_len);
-            if (ret > 0) {
-            #if (UAC_SPK_NR_USE)
+            if (ret > 0)
+            {
+#if (UAC_SPK_NR_USE == 1)
                 for (int i = 0; i< play_len; i+=2)
                 {
                     if (write_pcm_buf[i] == 0x08 && write_pcm_buf[i+1] == 0)
                         write_pcm_buf[i] = 0;
                 }
-            #endif // UAC_SPK_NR_USE
                 audio_pcm_write(write_pcm_buf, play_len);
+#elif (UAC_SPK_NR_USE == 2)
+                if (handle != NULL)
+                {
+                    cvi_audio_pp_process(handle, write_pcm_buf, write_pcm_buf_out, play_len);
+                    audio_pcm_write(write_pcm_buf_out, play_len);
+                }
+                else
+                    audio_pcm_write(write_pcm_buf, play_len);
+#else // UAC_SPK_NR_USE
+                audio_pcm_write(write_pcm_buf, play_len);
+#endif // UAC_SPK_NR_USE
             }
         }
     }
+#if (UAC_SPK_NR_USE == 2)
+    if (handle)
+    {
+        cvi_audio_pp_deinit(handle);
+        handle = NULL;
+    }
+#endif // UAC_SPK_NR_USE
 }
 
 static void audio_read(void *arg)
