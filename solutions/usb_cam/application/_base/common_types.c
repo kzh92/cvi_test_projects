@@ -1015,7 +1015,7 @@ int dic_is_activated()
 #if (USE_RENT_ENGINE == 0)
     unsigned char wno_origin_header[4] = {0xD3, 0xAE, 0x5F, 0x6C};
 #else
-    unsigned char wno_origin_header[4] = {0xE5, 0x7E, 0x18, 0xC9};
+    unsigned char wno_origin_header[4] = {0x76, 0x6B, 0xDB, 0x32};
 #endif
     my_wx_read(file_offset, wno_header, 4);
     dbug_printf("[%s] %02x %02x %02x %02x\n", __func__, wno_header[0], wno_header[1], wno_header[2], wno_header[3]);

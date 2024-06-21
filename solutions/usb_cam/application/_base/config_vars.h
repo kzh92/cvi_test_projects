@@ -50,7 +50,7 @@
 #define FN_H1_DICT_SIZE                 290964
 #define FN_H2_DICT_SIZE                 4263260
 
-#define FN_WNO_DICT_SIZE_REAL           (USE_RENT_ENGINE ? 3557760: 1821548)
+#define FN_WNO_DICT_SIZE_REAL           (USE_RENT_ENGINE ? 1819013: 1821548)
 #define FN_WNOH_DICT_SIZE_REAL          1103149
 #define FN_A1_DICT_SIZE_REAL            (346672)
 #define FN_A2_DICT_SIZE_REAL            (344236)
