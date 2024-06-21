@@ -538,7 +538,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LS7258_IR_UAC                 358
 #define FRM_DBS3M_YIHE2_UAC                     359
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JINJIAN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_RENT_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2211,70 +2211,33 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_RENT_UAC)
 
+// 3.48.1_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.48.0.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.48.0.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.89.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.89.0_D"
 
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 640, 480, 30, 0, 6144}, \
-                                            {2, 1820, 1080, 30, 0, 20480}, \
-                                            {3, 1280, 800, 30, 0, 10240}, \
-                                            {4, 1280, 720, 30, 0, 10240}, \
-                                            {5, 1024, 768, 30, 0, 8192}, \
-                                            {6, 800, 600, 30, 0, 8192}, \
-                                            {7, 640, 400, 30, 0, 6144}, \
-                                            {8, 1088, 1920, 30, UVC_ROTATION_0 + 1, 20480}, \
-                                            {9, 800, 1280, 30, UVC_ROTATION_0 + 1, 10240}, \
-                                            {10, 608, 800, 30, UVC_ROTATION_0 + 1, 8192}, \
-                                            {11, 480, 640, 30, UVC_ROTATION_0 + 1, 6144}, \
-                                            {12, 640, 480, 30, 0, 6144},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef USE_3M_MODE
 #define USE_3M_MODE                         U3M_SEMI
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-// #undef N_MAX_HAND_NUM
-// #define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v9
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
-#undef USE_ISP_IR_3DNR
-#define USE_ISP_IR_3DNR                     0
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
 #undef USE_RENT_ENGINE
 #define USE_RENT_ENGINE                     1
 #undef USE_DB_UPDATE_MODE
 #define USE_DB_UPDATE_MODE                  1
-// #undef CAPTURE_WIDTH
-// #define CAPTURE_WIDTH                       (480)
-// #undef CAPTURE_HEIGHT
-// #define CAPTURE_HEIGHT                      (640)
-// #undef CAPTURE_MAX_WIDTH
-// #define CAPTURE_MAX_WIDTH                   (480)
-// #undef CAPTURE_MAX_HEIGHT
-// #define CAPTURE_MAX_HEIGHT                  (640)
-#undef UVC_MAX_WIDTH
-#define UVC_MAX_WIDTH                       1920
-#undef UVC_MAX_HEIGHT
-#define UVC_MAX_HEIGHT                      1088
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_PUXIN)
