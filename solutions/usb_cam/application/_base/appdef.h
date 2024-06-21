@@ -143,6 +143,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v35           2135
 #define ISP_BIN_VER_21v36           2136
 #define ISP_BIN_VER_21v37           2137
+#define ISP_BIN_VER_21v38           2138
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
@@ -1762,8 +1763,8 @@ enum E_Baud_Rate
 
 // 3.30.1_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.87.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.87.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.87.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.87.4_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1798,7 +1799,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v37
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v38
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
