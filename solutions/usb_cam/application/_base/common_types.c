@@ -1461,12 +1461,14 @@ int my_settings_write(unsigned int offset, void* buf, unsigned int length)
 
 int my_misc_read(unsigned int offset, void* buf, unsigned int length)
 {
-    return my_flash_part_read(MY_PART_MISC, offset, buf, length);
+    // return my_flash_part_read(MY_PART_MISC, offset, buf, length);
+    return 0;
 }
 
 int my_misc_write(unsigned int offset, void* buf, unsigned int length)
 {
-    return my_flash_part_write(MY_PART_MISC, offset, buf, length);
+    // return my_flash_part_write(MY_PART_MISC, offset, buf, length);
+    return 0;
 }
 
 int my_wx_read(unsigned int offset, void* buf, unsigned int length)
