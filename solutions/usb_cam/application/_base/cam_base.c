@@ -770,7 +770,7 @@ void camera_set_vi_fps(int pipe, int fps)
 }
 
 #if (USE_WHITE_LED != 1)
-extern unsigned char rgb_mono_mode_param[];
+unsigned char rgb_mono_mode_param[BIN_DATA_SIZE] = {0};
 #endif
 extern unsigned char rgb_color_mode_param[];
 
@@ -780,6 +780,10 @@ void camera_set_mono_chrome(int enable)
     if (enable)
     {
         camera_clr_stop_aec();
+        if (rgb_mono_mode_param[0] == 0)
+        {
+            fr_ReadFileData(FN_ISP_IR_BIN_PATH, 0, rgb_mono_mode_param, FN_ISP_IR_BIN_SIZE);
+        }
         CVI_BIN_ImportBinData(rgb_mono_mode_param, BIN_DATA_SIZE);
         ISP_MODULE_CTRL_U xModCtrl;
         if (CVI_ISP_GetModuleControl(0, &xModCtrl) == CVI_SUCCESS)

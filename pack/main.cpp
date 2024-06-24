@@ -217,6 +217,7 @@ int main(int /*argc*/, char** /*argv*/)
     #if (USE_UAC_MODE)
         RESOURCEDIR "/rc/audiotest.pcm",
     #endif // USE_UAC_MODE
+        RESOURCEDIR "/rc/v1.0.0.1.bin",
         NULL
     };
     merge_files(merge_path1, IMAGEDIR "/pwx", FN_DICT_ALIGN_SIZE);

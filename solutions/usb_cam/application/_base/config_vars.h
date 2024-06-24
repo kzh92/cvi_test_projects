@@ -140,7 +140,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 
 #define FN_TESTAUDIO_PCM_PATH           "/test/audiotest.pcm"
 #define FN_TESTAUDIO_PCM_SIZE           66416
-#define FN_TESTAUDIO_PCM_SIZE_REAL      66416
+#define FN_TESTAUDIO_PCM_SIZE_REAL      36360
 
 #define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
 #define FN_031TTS_WAV_SIZE  250028
@@ -156,6 +156,10 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_036TTS_WAV_SIZE  51884
 #define FN_TEST_WAV_PATH    "sound/test.wav"
 #define FN_TEST_WAV_SIZE    91606
+
+#define FN_ISP_IR_BIN_PATH             "/test/v1.0.0.1.bin"
+#define FN_ISP_IR_BIN_SIZE             174513
+#define FN_ISP_IR_BIN_SIZE_REAL        31766
 
 #define MY_32ALIGNED(a) (((a) + 31) / 32 * 32)
 
