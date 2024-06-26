@@ -264,8 +264,8 @@ void* thread_func1(void* arg)
         {
         	//printf("thread1, get camera... %d\n", (int)aos_now_ms());
         	rOldTime = (int)aos_now_ms();
-        	if (iCount++ < 5)
-        		debug_mm_overview(printf);
+        	// if (iCount++ < 5)
+        	// 	debug_mm_overview(printf);
         }
 
         stVideoFrame[0].stVFrame.pu8VirAddr[0] = (CVI_U8 *)stVideoFrame[0].stVFrame.u64PhyAddr[0];
@@ -276,14 +276,145 @@ void* thread_func1(void* arg)
         CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
 
         iFrameCount ++;
+        aos_msleep(30);
     }
 	return NULL;
 }
 
+int my_flash_part_read(const char* part_name, unsigned int offset, void* buf, unsigned int length)
+{
+    int ret;
+    partition_t partition = partition_open(part_name);
+    if (partition < 0)
+    {
+        aos_debug_printf("[%s]part open fail: %s\n", __func__, part_name);
+        return 0;
+    }
+    ret = partition_read(partition, offset, buf, length);
+    partition_close(partition);
+    if (ret)
+    {
+        aos_debug_printf("[%s]part read fail: %s(%d)\n", __func__, part_name, ret);
+        return 0;
+    }
+    if (ret)
+        return 0;
+    else
+        return length;
+}
+
+int my_flash_part_write(const char* part_name, unsigned int offset, void* buf, unsigned int length)
+{
+    partition_t partition = partition_open(part_name);
+    if (partition < 0)
+    {
+        aos_debug_printf("[%s]part open fail: %s\n", __func__, part_name);
+        return 0;
+    }
+
+    const int flash_page_size = 4*1024;
+    unsigned int start_off = offset - (offset % flash_page_size);
+    unsigned int page_count = (((offset + length) - start_off) + (flash_page_size - 1)) / flash_page_size;
+    unsigned int end_off = start_off + page_count * flash_page_size;
+    unsigned char* _tmp_buf;
+    unsigned int write_len;
+    unsigned int write_off;
+    unsigned int total_len = 0;
+    _tmp_buf = (unsigned char*)malloc(flash_page_size*2);
+    if (_tmp_buf == NULL)
+    {
+        return 0;
+    }
+    for (; start_off < end_off; start_off += flash_page_size)
+    {
+        write_len = flash_page_size;
+        write_off = 0;
+        if (start_off + flash_page_size > offset + length)
+            write_len = offset + length - start_off;
+        if (start_off < offset)
+        {
+            write_off = offset - start_off;
+            write_len = write_len - write_off;
+        }
+        int rcount = 6;
+        int wcount = 0;
+for_retry_one:
+        partition_read(partition, start_off, _tmp_buf, flash_page_size);
+        partition_read(partition, start_off, _tmp_buf + flash_page_size, flash_page_size);
+        if (memcmp(_tmp_buf, _tmp_buf + flash_page_size, flash_page_size))
+        {
+            aos_debug_printf("[%d]read error/%d %08x\n", (int)aos_now_ms(), rcount, start_off);
+            if (rcount > 0)
+            {
+                rcount--;
+                aos_msleep(1);
+                goto for_retry_one;
+            }
+            else
+            {
+                aos_debug_printf("ftw.\n"); //data may be corrupted,force to write
+            }
+        }
+        if (memcmp(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len))
+        {
+            if (wcount == 1)
+            {
+                aos_debug_printf("write check error %08x\n", start_off);
+            }
+            memcpy(_tmp_buf + write_off, (void*)((char*)buf + total_len), write_len);
+            partition_erase_size(partition, start_off, flash_page_size);
+            partition_write(partition, start_off, _tmp_buf, flash_page_size);
+            wcount ++;
+            if (rcount > 0)
+            {
+                rcount--;
+                goto for_retry_one;
+            }
+        }
+        else
+            rcount = 0;
+        total_len += write_len;
+    }
+    free(_tmp_buf);
+    partition_close(partition);
+    return total_len;
+}
+
+#define buf_size        (32*1024)
+unsigned char tmp_buf[buf_size];
+unsigned char read_buf[buf_size];
 void* thread_func2(void* arg)
 {
-	printf("[%s] start\n", __func__);
-	int i = 0;
+    int n_max_time = 0;
+    int n_min_time = 999999;
+	aos_debug_printf("[%s] start ok\n", __func__);
+    //flash write test
+    aos_debug_printf("------------ flash test start\n");
+    for (int i = 0x450000; i < 0x570000; i += buf_size)
+    {
+        int n_start_time = aos_now_ms();
+        srand(n_start_time);
+        for (int i = 0; i < buf_size; i ++)
+            tmp_buf[i] = rand();
+        aos_debug_printf("%d", (i / buf_size)+1);
+        my_flash_part_write("misc", i, tmp_buf, buf_size);
+        memset(read_buf, 0, buf_size);
+        my_flash_part_read("misc", i, read_buf, buf_size);
+        if (memcmp(tmp_buf, read_buf, buf_size) == 0)
+            aos_debug_printf(",");
+        else
+            aos_debug_printf("(error),");
+        n_start_time = aos_now_ms() - n_start_time;
+        if (n_start_time > n_max_time)
+            n_max_time = n_start_time;
+        if (n_start_time < n_min_time)
+            n_min_time = n_start_time;
+    }
+    aos_debug_printf("\n------------ flash test end, min=%dms, max=%dms\n", n_min_time, n_max_time);
+
+    return NULL;
+	
+    int i = 0;
 	printf("%s:%d\n", __FILE__, __LINE__);
 	while(1)
 	{
@@ -304,7 +435,7 @@ void* thread_func2(void* arg)
 void* thread_func3(void* arg)
 {
 	printf("[%s] start\n", __func__);
-	MEDIA_AV_Init();
+	//MEDIA_AV_Init();
 	return NULL;
 }
 
@@ -343,14 +474,14 @@ int main(int argc, char *argv[])
 	//cli and ulog init
 	YOC_SYSTEM_ToolInit();
 	#if (CONFIG_PQTOOL_SUPPORT == 1)
-	usleep(12 * 1000);
+	aos_msleep(12);
 	isp_daemon2_init(5566);
 	#endif
 	LOGI(TAG, "app start........\n");
 	cvi_tpu_init();
-	aos_msleep(1000);
+	aos_msleep(100);
 	printf("init tpu ok\n");
-	load_model();
+	// load_model();
 	g_imgBuf = (unsigned char*)malloc(1600*1200);
 	printf("create thread1\n");
 	pthread_create(&thd1, NULL, thread_func1, NULL);
@@ -360,6 +491,6 @@ int main(int argc, char *argv[])
 	pthread_create(&thd3, NULL, thread_func3, NULL);
 	APP_CustomEventStart();
 	while (1) {
-		aos_msleep(3000);
+		aos_msleep(300);
 	};
 }

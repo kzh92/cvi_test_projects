@@ -14,7 +14,7 @@ storages:
     base_address: 0         # 存储基地址，比如FLASH的基地址
     run_base_address: 0x80000000 # base address of Storage
     sector: 4096            # Bytes
-    size: 16777216          # Total Bytes
+    size: 8388608          # Total Bytes
   - name: usb               # eflash/spinor/spinand/emmc_boot1/emmc_boot2/emmc_user/emmc_rpmb/sd/usb
     base_address: 0         # 存储基地址，比如FLASH的基地址
     run_base_address: 0x8000C000 # base address of Storage
@@ -33,5 +33,5 @@ partitions:
   - { name: boot,   address: 0x00C000, size: 0x020000, index: 0, filename: boot, load_addr: 0x8000C000 }          # 128KB
   - { name: imtb,   address: 0x02C000, size: 0x002000, index: 0, filename: imtb}                                 # 8 KB
   - { name: prim,   address: 0x02E000, size: 0x262000, index: 0, filename: yoc.bin, load_addr: 0x80040000, update: FULL, car: xz }          # 4.5 MB
-  - { name: wgt, address: 0x290000, size: 0xB30000, index: 0, filename: wgt }                                 # 8.3125 MB
-  - { name: misc,   address: 0xDC0000, size: 0x240000, index: 0 }                                 # 2.6875 MB
+#  - { name: wgt, address: 0x290000, size: 0xB30000, index: 0, filename: wgt }                                 # 8.3125 MB
+  - { name: misc,   address: 0x290000, size: 0x570000, index: 0 }                                 # 2.6875 MB
