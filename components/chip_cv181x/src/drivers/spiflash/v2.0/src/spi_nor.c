@@ -6,6 +6,7 @@
 #ifndef CONFIG_KERNEL_NONE
 #include "aos/kernel.h"
 #endif
+#include "appdef.h"
 
 /* Used when the "_ext_id" is two bytes at most */
 #define INFO(_jedec_id, _ext_id, _sector_size, _n_sectors, _flags)      \
@@ -679,7 +680,7 @@ struct erase_op {
 const struct erase_op erase_op[4] = {
 	{CVI_SPINOR_OP_SE, 0x10000, 400, "block erase"},
 	{CVI_SPINOR_OP_BE_32K, 0x8000, 200, "half block erase"},
-	{CVI_SPINOR_OP_BE_4K, 0x1000, 80, "sector erase"},
+	{CVI_SPINOR_OP_BE_4K, 0x1000, CONFIG_SPI_NOR_ER_TIME, "sector erase"},
 	{0}
 };
 
