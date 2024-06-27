@@ -293,7 +293,7 @@ void FaceRecogTask::run()
             nProcessModeIndexEnd = (N_MAX_HAND_NUM > 0) ? 1: 0;
             if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
             {
-                nProcessModeIndexEnd = 0;
+                nProcessModeIndexEnd = 1;
             }
 #if (!N_MAX_PERSON_NUM && N_MAX_HAND_NUM)
             nProcessModeIndexStart = 1;
@@ -324,6 +324,10 @@ void FaceRecogTask::run()
                 lockIRBuffer();
                 memcpy(pInputImageBuffer1, g_irOnData1, IR_BUFFER_SIZE);
                 unlockIRBuffer();
+            }
+            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && m_iCmd == E_VERIFY && iLoopCount == 1)
+            {
+                memset(pInputImageBuffer1, 0, IR_BUFFER_SIZE);
             }
             fr_PreExtractCombo(pInputImageBuffer1, nProcessModeIndex);
 
@@ -524,6 +528,11 @@ void FaceRecogTask::run()
                 g_xSS.iCamError |= CAM_ERROR_CLR_PATTERN_2;
         }
         g_xSS.iCamError |= CAM_ERROR_CLR_CHECKED;
+
+        if (fr_CheckAllCheckSum() != 0)
+        {
+            m_iResult = FACE_RESULT_FAILED;
+        }
     }
 
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
