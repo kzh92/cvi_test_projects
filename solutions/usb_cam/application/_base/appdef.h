@@ -543,7 +543,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_JIGAO                      360
 #define FRM_DBS3M_BK7258_UAC                    361
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -725,8 +725,8 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.2.8_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.2.8_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 800, 480, 30, 0, 10240},
@@ -740,8 +740,8 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
-#undef SPECIFIC_LOG_PRINT
-#define SPECIFIC_LOG_PRINT                  1
+// #undef SPECIFIC_LOG_PRINT
+// #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef UVC_INIT_WIDTH
@@ -750,8 +750,8 @@ enum E_Baud_Rate
 #define UVC_INIT_HEIGHT                     480
 #undef ENROLL_ANGLE_MODE
 #define ENROLL_ANGLE_MODE                   1
-#undef UVC_USBD_PRINT
-#define UVC_USBD_PRINT                      1
+// #undef UVC_USBD_PRINT
+// #define UVC_USBD_PRINT                      1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef MAX_PSPT_SIZE
@@ -762,8 +762,8 @@ enum E_Baud_Rate
 #define UAC_SPK_EP                          0x83
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
-#undef USE_EP0PKGSIZE_PATCH
-#define USE_EP0PKGSIZE_PATCH                1
+// #undef USE_EP0PKGSIZE_PATCH
+// #define USE_EP0PKGSIZE_PATCH                1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
