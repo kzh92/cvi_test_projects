@@ -670,7 +670,7 @@ struct erase_op {
 const struct erase_op erase_op[4] = {
 	{CVI_SPINOR_OP_SE, 0x10000, 400, "block erase"},
 	{CVI_SPINOR_OP_BE_32K, 0x8000, 200, "half block erase"},
-	{CVI_SPINOR_OP_BE_4K, 0x1000, 80, "sector erase"},
+	{CVI_SPINOR_OP_BE_4K, 0x1000, 2000, "sector erase"},
 	{0}
 };
 
