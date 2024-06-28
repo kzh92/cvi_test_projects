@@ -1127,7 +1127,7 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef CONFIG_SPI_NOR_ER_TIME
-#define CONFIG_SPI_NOR_ER_TIME              5
+#define CONFIG_SPI_NOR_ER_TIME              2000
 
 //----------------------------------------------------------
 
