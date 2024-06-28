@@ -1084,8 +1084,8 @@ enum E_Baud_Rate
 
 // 3.14.14_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.60.1.6_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.60.1.6_D"
+#define DEVICE_FIRMWARE_VERSION             "3.60.1.8_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.60.1.8_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1127,7 +1127,7 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef CONFIG_SPI_NOR_ER_TIME
-#define CONFIG_SPI_NOR_ER_TIME              10
+#define CONFIG_SPI_NOR_ER_TIME              5
 
 //----------------------------------------------------------
 

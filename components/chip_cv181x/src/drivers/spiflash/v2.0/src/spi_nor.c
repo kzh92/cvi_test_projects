@@ -428,7 +428,7 @@ static int spi_nor_wait_till_ready_with_timeout(struct spi_nor *nor, enum write_
 
 	while (!timeout) {
 
-		if (time_count == time)
+		if (time_count >= time)
 			timeout = 1;
 
 		ret = spi_nor_ready(nor);
@@ -749,7 +749,7 @@ int cvi_spif_erase(struct spi_nor *nor, uint32_t to, uint32_t len)
 			to += erasesize;
 			len -= erasesize;
 
-			ret = spi_nor_wait_till_ready_with_timeout(nor, ERASE, 40, op.time);
+			ret = spi_nor_wait_till_ready_with_timeout(nor, ERASE, 2, op.time);
 			if (ret) {
 				printf("erase a sector failed!\n");
 				return ret;
