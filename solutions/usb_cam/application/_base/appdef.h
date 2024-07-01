@@ -543,7 +543,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_JIGAO                      360
 #define FRM_DBS3M_BK7258_UAC                    361
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2262,8 +2262,8 @@ enum E_Baud_Rate
 
 //3.44.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.63.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.63.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.63.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.63.4_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2308,6 +2308,7 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP                  (-50)
 #undef UVC_DARK_WATCH_COUNTER
 #define UVC_DARK_WATCH_COUNTER              10
+#define ENGINE_FOR_ABROAD
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HUANGLI_NEW_UAC)
