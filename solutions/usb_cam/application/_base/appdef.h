@@ -543,7 +543,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_JIGAO                      360
 #define FRM_DBS3M_BK7258_UAC                    361
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_IR_JIGAO
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2520,10 +2520,10 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_IR_JIGAO)
 
-// 3.51.0_D
+// 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.91.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.91.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.91.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.91.0.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -2535,16 +2535,20 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v29
-#undef SPECIFIC_LOG_PRINT
-#define SPECIFIC_LOG_PRINT                  1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v13
+// #undef SPECIFIC_LOG_PRINT
+// #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
-#undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+// #undef UVC_USBD_PRINT
+// #define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
 #undef UVC_DARK_WATCH_COUNTER
 #define UVC_DARK_WATCH_COUNTER              10
-#undef UVC_CROP_RESIZE
-#define UVC_CROP_RESIZE                     0.85
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef CONFIG_DWC2_VERSION
+#define CONFIG_DWC2_VERSION                 1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LAIJI_UAC)
