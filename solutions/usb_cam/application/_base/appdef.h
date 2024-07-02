@@ -240,6 +240,7 @@ enum E_Baud_Rate
 #define CONFIG_DWC2_VERSION         0
 #define USE_EP0PKGSIZE_PATCH        0
 #define CONFIG_SPI_NOR_ER_TIME      80
+#define CONFIG_USB_BULK_UVC         0
 
 #define CLR_CAM_WIDTH               1600
 #define CLR_CAM_HEIGHT              1200
@@ -544,7 +545,8 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BK7258_UAC                    361
 #define FRM_DBS3M_XINGUOXIN_XIONGMAI_UAC        362
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KELINGPU_MODE
+
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -726,8 +728,8 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.2.8_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.2.8_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.3_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 800, 480, 30, 0, 10240},
@@ -765,6 +767,8 @@ enum E_Baud_Rate
 #define CONFIG_DWC2_VERSION                 1
 // #undef USE_EP0PKGSIZE_PATCH
 // #define USE_EP0PKGSIZE_PATCH                1
+#undef CONFIG_USB_BULK_UVC
+#define CONFIG_USB_BULK_UVC                 1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)

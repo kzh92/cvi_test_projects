@@ -94,6 +94,13 @@ int usbd_deinitialize(void);
 #if (USE_USB_EP_ERR_FIX_MODE)
 uint8_t* usbd_get_descriptors(void);
 #endif
+
+void usbd_event_connect_handler(void);
+void usbd_event_disconnect_handler(void);
+void usbd_event_resume_handler(void);
+void usbd_event_suspend_handler(void);
+void usbd_event_reset_handler(void);
+
 #ifdef __cplusplus
 }
 #endif
