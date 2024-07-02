@@ -543,7 +543,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_JIGAO                      360
 #define FRM_DBS3M_BK7258_UAC                    361
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LIWEN_IR
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1941,8 +1941,8 @@ enum E_Baud_Rate
 
 // 3.35.0_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.64.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.64.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.64.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.64.5_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -1968,6 +1968,8 @@ enum E_Baud_Rate
 #define UAC_SPK_NR_USE                      2
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
+#undef UAC_SAMPLE_RATE
+#define UAC_SAMPLE_RATE                     16000
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TOYO_UAC)
