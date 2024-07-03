@@ -545,7 +545,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BK7258_UAC                    361
 #define FRM_DBS3M_XINGUOXIN_XIONGMAI_UAC        362
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XM7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TOYA_IR_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1998,9 +1998,10 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TOYA_IR_UAC)
 
+// 3.37.4_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.37.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.37.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.96.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.96.0_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2030,12 +2031,17 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v13
 #define UVC_CLR2IR_THR4ISP                  (-50)
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+#define ENGINE_FOR_ABROAD
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TX2_UAC)
