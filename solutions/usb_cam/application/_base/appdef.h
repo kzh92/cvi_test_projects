@@ -3113,8 +3113,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BK7256_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.97.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.97.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.97.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.97.0.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -3136,6 +3136,8 @@ enum E_Baud_Rate
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#undef DEFAULT_UVC_PIXEL_FMT
+#define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
 
 //----------------------------------------------------------
 #endif // FRM_PRODUCT_TYPE
