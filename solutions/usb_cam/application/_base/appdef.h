@@ -544,8 +544,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_IR_JIGAO                      360
 #define FRM_DBS3M_BK7258_UAC                    361
 #define FRM_DBS3M_XINGUOXIN_XIONGMAI_UAC        362
+#define FRM_DBS3M_BK7256_UAC                    363
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE2_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_BK7256_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3055,8 +3056,6 @@ enum E_Baud_Rate
 #define UAC_EP_WMAXPCKT_SIZE                16  //audio ep wMaxPacketSize
 
 //----------------------------------------------------------
-
-//----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINGUOXIN_XIONGMAI_UAC)
 
 //3.63.1_D
@@ -3110,6 +3109,35 @@ enum E_Baud_Rate
 #undef UAC_MIC_VOL
 #define UAC_MIC_VOL                         8
 
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BK7256_UAC)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.97.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.97.0.1_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {3, 800, 480, 30, 0, 8192}, \
+                                            {4, 640, 480, 30, 0, 6144},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef CONFIG_DWC2_VERSION
+#define CONFIG_DWC2_VERSION                 1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef ENROLL_FACE_HAND_MODE
+#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+
+//----------------------------------------------------------
 #endif // FRM_PRODUCT_TYPE
 
 #if (UVC_MAX_WIDTH < UVC_WIDTH && UVC_MAX_HEIGHT < UVC_HEIGHT)
