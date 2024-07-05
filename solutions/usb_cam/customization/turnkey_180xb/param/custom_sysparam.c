@@ -22,7 +22,7 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
         .u16width = UVC_MAX_WIDTH,
         .u16height = UVC_MAX_HEIGHT,
         .u8VbBlkCnt = UVC_VBPOOL1CNT,
-        .fmt = PIXEL_FORMAT_NV21,
+        .fmt = (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21 ? PIXEL_FORMAT_NV21 : PIXEL_FORMAT_YUV_PLANAR_422),
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,
     },

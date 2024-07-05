@@ -316,7 +316,7 @@ enum E_Baud_Rate
 #define MAX_PSPT_SIZE               512 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
 
 #define UVC_PIXEL_FMT_NV21          0
-#define UVC_PIXEL_FMT_YUV420P       1
+#define UVC_PIXEL_FMT_YUV422        1
 
 #define WLED_TEST_TIMEOUT           5 // s
 #define SETTING_TIMEOUT             30
