@@ -14,7 +14,11 @@
 //#define USE_APP_UPGRADE
 
 struct FileHeader {
+#ifdef _PACK_FIRM_
+    char filePath[32];
+#else
     char filePath[256];
+#endif
     unsigned int size;
     unsigned int dataOffset;
     unsigned int mode;

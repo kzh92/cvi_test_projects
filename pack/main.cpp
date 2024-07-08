@@ -8,14 +8,17 @@
 #include "common_types.h"
 #include "config_vars.h"
 #include "aescrypt.h"
+#include "../z_base/folderfile.h"
 
 #define IMG_RESOURCEDIR     "./pack"
 #define RESOURCEDIR         "./pack"
 
 #if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
 #define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D10/"
+#define FIRM_MAGIC          "EASEN8"
 #elif(DEFAULT_CHIP_TYPE == MY_CHIP_D20)
 #define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D20/"
+#define FIRM_MAGIC          "EASEN9"
 #else // DEFAULT_CHIP_TYPE
 #error "Invalid chip type"
 #endif // DEFAULT_CHIP_TYPE
@@ -28,6 +31,8 @@
 #define APP_DIR             "data1/"
 #define DICT_DIR            "data2/"
 #endif // USE_16M_FLASH
+
+#define FIRM_IMG_PATH       "./images.img"
 
 int req_crypto(const char * filename, unsigned char* file_buf)
 {
@@ -159,11 +164,65 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
     return 0;
 }
 
-int main(int /*argc*/, char** /*argv*/)
+int pack_firm()
+{
+    char str_files[1024];
+    const char *pack_file_names[] = {"boot","config.yaml","fip_fsbl.bin","imtb","prim","pst","pusr1","pusr2","pwx"};
+    char str_afile_name[256];
+    //decompress images.zip
+    system("rm -rf ./images");
+    system("mkdir ./images");
+    system("cp -f ../solutions/usb_cam/generated/images.zip ./");
+    system("unzip ./images.zip -d ./images");
+    system("rm -f ./images/misc");
+    system("rm -f ./images/boot0");
+    //check files
+    FILE* fp;
+    fp = popen("ls ./images", "r");
+    if (fp == NULL)
+    {
+        printf("ls failed.\n");
+        return 0;
+    }
+    fgets(str_files, sizeof(str_files)-1, fp);
+    pclose(fp);
+
+    char *str1, *str2, *token, *subtoken;
+    char *saveptr1, *saveptr2;
+    int j;
+
+    for (j = 1, str1 = str_files; ; j++) {
+       token = strtok_r(str1, "  ", &saveptr1);
+       if (token == NULL)
+           break;
+       printf("%d: %s\n", j, token);
+
+       str1 = saveptr1;
+    }
+
+    //make firmware file
+    uf_file_header ufh;
+    memset(&ufh, 0, sizeof(ufh));
+    strcpy(ufh.m_magic, FIRM_MAGIC);
+    FolderFile ff("./images");
+    ff.compressDirectory((char*)"", (char*)FIRM_IMG_PATH, ufh, NULL);
+    return 0;
+}
+
+int main(int argc, char** argv)
 {
     //    char szCmd[256] = { 0 };
     const char* szRoot = ".";
     char szPath[256] = { 0 };
+
+    if (argc == 1)
+    {
+    }
+    else if (strcmp(argv[1], "pack") == 0)
+    {
+        pack_firm();
+        return 0;
+    }
 
     sprintf(szPath, "%s/../", szRoot);
     chdir(szPath);

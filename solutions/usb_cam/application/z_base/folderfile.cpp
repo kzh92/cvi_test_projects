@@ -45,7 +45,12 @@ void FolderFile::addFile(char* path) {
         return;
 
     fh = new FileHeader();
+#ifndef _PACK_FIRM_
     strcpy(fh->filePath, path);
+#else
+    *fh->filePath = '/';
+    strcpy(fh->filePath+1, path);
+#endif
     fh->dataOffset = this->nextOffset;
     fh->size = buffer.st_size;
     fh->mode = buffer.st_mode;
@@ -119,13 +124,34 @@ bool FolderFile::unify(char* path, uf_file_header header, char* upgrade_app_path
     free(encryptApp);
 ///////////////////////////
 #else // USE_APP_UPGRADE
-    fwrite(&header, sizeof(header), 1, fp1);
+
+#ifndef _PACK_FIRM_
+    {
+        //upgrade firmware
+        fwrite(&header, sizeof(header), 1, fp1);
+    }
+#else // !_PACK_FIRM_
+    {
+        int nFiles = headers.getSize();
+        int nDirectories = directories.getSize();
+        //writing firmware
+        fwrite(header.m_magic, sizeof(header.m_magic), 1, fp1);
+        fprintf(fp1, "\x09\xF9\x11\x02");
+        fwrite(&nFiles, sizeof(unsigned int), 1, fp1);
+        fwrite(&nDirectories, sizeof(unsigned int), 1, fp1);
+    }
+#endif // !_PACK_FIRM_
+
 #endif // USE_APP_UPGRADE
 
     headers.moveCursor(HEAD);
     while (p = headers.stepForward()) {
         printf("WRITING\n\tPATH: %s\n\tSIZE: %d\n\tOFFSET: %d\n", p->filePath, p->size, p->dataOffset);
+#ifndef _PACK_FIRM_
         fwrite(p, 1, sizeof(FileHeader), fp1);
+#else
+        fwrite(p, 1, sizeof(FileHeader)-sizeof(p->mode), fp1);//for windows, ignore mode.
+#endif
     }
 
     char *s;
@@ -165,7 +191,8 @@ bool FolderFile::unify(char* path, uf_file_header header, char* upgrade_app_path
         fwrite(s, 1, 1024, fp1);
     }
 
-    fwrite(&checksum, 4, 1, fp1);
+    if (header.m_model[0] != 0)
+        fwrite(&checksum, 4, 1, fp1);
 
     fclose(fp1);
 #endif // _PACK_OTA_
