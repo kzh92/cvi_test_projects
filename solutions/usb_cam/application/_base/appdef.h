@@ -547,7 +547,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_BK7256_UAC                    363
 #define FRM_DBS3M_AP7258_UAC                    364
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JINJIAN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AP7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3172,7 +3172,7 @@ odd version: use_whiteled = 1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     16
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       0
+#define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v13
 #undef USE_USB_EP_ERR_FIX_MODE
