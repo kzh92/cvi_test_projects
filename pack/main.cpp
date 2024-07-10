@@ -170,9 +170,22 @@ int pack_firm()
     const char *pack_file_names[] = {"boot","config.yaml","fip_fsbl.bin","imtb","prim","pst","pusr1","pusr2","pwx"};
     char str_afile_name[256];
     //decompress images.zip
+    system("rm -f ./images.img");
+    system("rm -f ./images.zip");
     system("rm -rf ./images");
     system("mkdir ./images");
+    system("unzip ./images.zip -d ./images");
     system("cp -f ../solutions/usb_cam/generated/images.zip ./");
+
+    FILE* tf = NULL;
+    tf = fopen("./images.zip", "rb");
+    if (tf == NULL)
+    {
+        printf ("ERROR! file not found images.zip\n");
+        return 0;
+    }
+    fclose(tf);
+
     system("unzip ./images.zip -d ./images");
     system("rm -f ./images/misc");
     system("rm -f ./images/boot0");
