@@ -546,8 +546,9 @@ enum E_Baud_Rate
 #define FRM_DBS3M_XINGUOXIN_XIONGMAI_UAC        362
 #define FRM_DBS3M_BK7256_UAC                    363
 #define FRM_DBS3M_AP7258_UAC                    364
+#define FRM_DBS3M_JIARUI_UAC                    365
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AP7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JIARUI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3183,6 +3184,48 @@ odd version: use_whiteled = 1
 #define CONFIG_DWC2_VERSION                 1
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      1
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JIARUI_UAC)
+
+// 3.62.1_D
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.99.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.99.0.1_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
