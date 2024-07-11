@@ -551,7 +551,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AP7258_UAC                    364
 #define FRM_DBS3M_JIARUI_UAC                    365
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -733,25 +733,21 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.4_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 800, 480, 30, 0, 10240},
-#undef USE_3M_MODE
-#define USE_3M_MODE                         1
 #undef UAC_SAMPLE_RATE
 #define UAC_SAMPLE_RATE                     16000
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     8
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
 // #undef SPECIFIC_LOG_PRINT
 // #define SPECIFIC_LOG_PRINT                  1
-#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
-#define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef UVC_INIT_WIDTH
 #define UVC_INIT_WIDTH                      800
 #undef UVC_INIT_HEIGHT
@@ -774,6 +770,23 @@ enum E_Baud_Rate
 // #define USE_EP0PKGSIZE_PATCH                1
 #undef CONFIG_USB_BULK_UVC
 #define CONFIG_USB_BULK_UVC                 1
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_XINNENG_H264)
