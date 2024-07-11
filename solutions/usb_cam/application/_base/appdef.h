@@ -145,6 +145,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v37           2137
 #define ISP_BIN_VER_21v38           2138
 #define ISP_BIN_VER_21v40           2140
+#define ISP_BIN_VER_21v44           2144
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
@@ -2259,8 +2260,8 @@ enum E_Baud_Rate
 
 //3.44.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.63.4.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.63.4.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.63.4.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.63.4.2_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2295,7 +2296,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v40
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v44
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
@@ -3260,7 +3261,7 @@ odd version: use_whiteled = 1
 #define MAGIC_LEN_UPDATE_DB 8
 #endif // USE_DB_UPDATE_MODE
 
-#if (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v13 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v23)
+#if (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v13 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v23 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v44)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_1
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v26)
