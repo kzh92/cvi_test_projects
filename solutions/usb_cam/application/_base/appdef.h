@@ -3207,11 +3207,11 @@ odd version: use_whiteled = 1
 
 // 3.62.1_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.99.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.99.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.99.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.99.0.2_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}
+#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 4096}
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
