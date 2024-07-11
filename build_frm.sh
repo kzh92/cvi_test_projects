@@ -12,6 +12,7 @@ if [ ! -f "./config_app" ]; then
 else
     ./config_app
     cd ../
+	rm -f ./solutions/usb_cam/generated/images.zip
     make -j4 usb_cam PROJECT=turnkey_180xb
     cd pack
     ./config_app pack
