@@ -553,7 +553,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AP7258_UAC                    364
 #define FRM_DBS3M_JIARUI_UAC                    365
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_TX_PROTO_IR
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1892,40 +1892,19 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TX_PROTO_IR)
 
+// 3.33.1_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.33.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.33.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.100.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.100.0_D"
 
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
                                             {2, 864, 480, 12, 0, 9000},\
                                             {3, 800, 480, 12, 0, 9000},\
                                             {4, 480, 320, 12, 0, 9000},\
                                             {5, 320, 240, 12, 0, 9000}
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
-#undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_SEMI
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef UAC_AUDALGO_USE
-#define UAC_AUDALGO_USE                     1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     16
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
@@ -1934,12 +1913,25 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
-#define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef USE_TONGXIN_PROTO
 #define USE_TONGXIN_PROTO                   1
-#undef USE_ISP_IR_3DNR
-#define USE_ISP_IR_3DNR                     0
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LIWEN_IR)
