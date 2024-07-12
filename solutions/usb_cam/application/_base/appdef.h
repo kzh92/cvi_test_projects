@@ -147,6 +147,8 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v40           2140
 #define ISP_BIN_VER_21v43           2143
 #define ISP_BIN_VER_21v44           2144
+#define ISP_BIN_VER_21v45           2145
+#define ISP_BIN_VER_21v46           2146
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
@@ -551,15 +553,15 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AP7258_UAC                    364
 #define FRM_DBS3M_JIARUI_UAC                    365
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.62.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.62.2.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -571,7 +573,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v45
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
@@ -583,7 +585,6 @@ enum E_Baud_Rate
 #define UVC_DARK_WATCH_COUNTER              10
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
-#define ENGINE_FOR_ABROAD
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TONGXIN_UVC)
