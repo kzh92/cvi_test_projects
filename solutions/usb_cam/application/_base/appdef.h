@@ -560,8 +560,8 @@ enum E_Baud_Rate
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.62.2.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.62.2.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -573,7 +573,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v45
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v46
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
