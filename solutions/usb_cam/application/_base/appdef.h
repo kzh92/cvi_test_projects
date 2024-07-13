@@ -319,6 +319,7 @@ enum E_Baud_Rate
 #define UVC_DARK_WATCH_COUNTER      3
 #define UAC_EP_WMAXPCKT_SIZE        64  //audio ep wMaxPacketSize
 #define MAX_PSPT_SIZE               512 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
+#define UVC_IR_FRM_TIMEOUT          60
 
 #define UVC_PIXEL_FMT_NV21          0
 #define UVC_PIXEL_FMT_YUV422        1
@@ -560,11 +561,11 @@ enum E_Baud_Rate
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.62.2.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.62.2.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2.5_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
                                             {2, 864, 480, 30, 0, 10240}, \
                                             {3, 800, 480, 30, 0, 10240}, \
                                             {4, 640, 480, 30, 0, 6144},
@@ -574,19 +575,17 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
-// #undef SPECIFIC_LOG_PRINT
-// #define SPECIFIC_LOG_PRINT                  1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
 #define UVC_CLR2IR_THR4ISP                  (-50)
-// #undef UVC_USBD_PRINT
-// #define UVC_USBD_PRINT                      1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UVC_DARK_WATCH_COUNTER
 #define UVC_DARK_WATCH_COUNTER              10
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
-#undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TONGXIN_UVC)

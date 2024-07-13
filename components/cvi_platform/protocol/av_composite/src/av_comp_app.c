@@ -484,7 +484,7 @@ static uvc_event_callbacks_t uvc_evt_callbks = {
 static void *send_to_uvc()
 {
     uint32_t out_len, i = 0, ret = 0;
-	uint32_t buf_len = 0,buf_len_stride = 0, packets = 0;
+	uint32_t buf_len = 0,buf_len_stride = 0, packets = 0, timeout_flag = 0;
 	uint8_t isOverflow = 0;
 	uint8_t *packet_buffer_media = (uint8_t *)aos_ion_malloc(DEFAULT_FRAME_SIZE);
     memset(packet_buffer_media, 0, DEFAULT_FRAME_SIZE);
@@ -552,13 +552,26 @@ static void *send_to_uvc()
 				}
 #endif // UVC_ENC_TYPE
 				
-		        ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN,pstStream,2000);
+				timeout_flag = 0;
+				int rget_time = (int)aos_now_ms();
+		        ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN,pstStream, g_xSS.iUvcSensor == DEFAULT_SNR4UVC ? 2000 : UVC_IR_FRM_TIMEOUT);
 				if(ret != CVI_SUCCESS){
 	//				printf("MEDIA_VIDEO_VencGetStream failed\n");
-					buf_len = 0;
+					if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+					{
+						timeout_flag = 1;
+						if (print_flag > 0)
+						{
+							rget_time = aos_now_ms() - rget_time;
+							if (rget_time < UVC_IR_FRM_TIMEOUT)
+								aos_msleep(UVC_IR_FRM_TIMEOUT - rget_time);
+							goto send_frame;
+						}
+					}
 					aos_msleep(10);
 					continue;
 				}
+				buf_len = 0;
 #if (UVC_ENC_TYPE == 0)
 				if (skip_count)
 				{
@@ -612,11 +625,11 @@ static void *send_to_uvc()
 					isOverflow = 0;
 					continue;
 				}
-
+send_frame:
 				//caution: you must print out logs for preventing stuck.
 				if (print_flag ++ < 8 && print_flag == 7)
 				{
-					printf("enc data len=%d, %d\n", buf_len, (int)aos_now_ms());
+					printf("enc data len=%d, %d, %s\n", buf_len, (int)aos_now_ms(), timeout_flag ? "timeout" : "ok");
 				}
 #if (UVC_ENC_TYPE == 2 && USE_USB_XN_PROTO)
                 if (print_flag < 8)
@@ -626,9 +639,12 @@ static void *send_to_uvc()
 				if(ret != CVI_SUCCESS)
 					printf("MEDIA_VIDEO_VencReleaseStream failed\n");
 #endif
-				ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
-				if(ret != CVI_SUCCESS)
-					printf("MEDIA_VIDEO_VencReleaseStream failed\n");
+				if (timeout_flag == 0)
+				{
+					ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
+					if(ret != CVI_SUCCESS)
+						printf("MEDIA_VIDEO_VencReleaseStream failed\n");
+				}
 
 				}else 
 			if(YUYV_FORMAT_INDEX == uvc_format_info.format_index){
@@ -683,7 +699,7 @@ static void *send_to_uvc()
 
 			packets = usbd_video_payload_fill(packet_buffer_media, buf_len, packet_buffer_uvc, &out_len);
 
-			buf_len = 0;
+			// buf_len = 0;
 			buf_len_stride = 0;
 
             /* dwc2 must use this method */
