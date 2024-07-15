@@ -1248,16 +1248,16 @@ enum E_Baud_Rate
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
-// #undef SPECIFIC_LOG_PRINT
-// #define SPECIFIC_LOG_PRINT                  1
-// #undef UVC_USBD_PRINT
-// #define UVC_USBD_PRINT                      1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
-#undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+// #undef CONFIG_DWC2_VERSION
+// #define CONFIG_DWC2_VERSION                 1
 #undef N_MAX_HAND_NUM
 #define N_MAX_HAND_NUM                      0
 
