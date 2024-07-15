@@ -15,9 +15,9 @@
 #include "wifi_if.h"
 #include "ethernet_init.h"
 #include <debug/debug_overview.h>
-#include "yoc/netmgr.h"
+// #include "yoc/netmgr.h"
 #include "uservice/uservice.h"
-#include "yoc/netmgr_service.h"
+// #include "yoc/netmgr_service.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"

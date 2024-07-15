@@ -72,9 +72,9 @@ static struct uvc_frame_info_st mjpeg_frame_info[] = {
     {1, WIDTH, HEIGHT, 30, 0},
 };
 
-static struct uvc_frame_info_st h264_frame_info[] = {
-    {1, WIDTH, HEIGHT, 30, 0},
-};
+// static struct uvc_frame_info_st h264_frame_info[] = {
+//     {1, WIDTH, HEIGHT, 30, 0},
+// };
 #if 0
 static struct uvc_frame_info_st nv21_frame_info[] = {
     {1, 800, 600, 30, 0},
