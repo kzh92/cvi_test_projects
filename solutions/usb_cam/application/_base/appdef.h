@@ -554,7 +554,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AP7258_UAC                    364
 #define FRM_DBS3M_JIARUI_UAC                    365
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANHAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2165,9 +2165,10 @@ enum E_Baud_Rate
 #define DEVICE_FIRMWARE_VERSION_INNER       "3.75.1_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 10240},
-#undef USE_3M_MODE
-#define USE_3M_MODE                         1
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {3, 800, 480, 30, 0, 8192}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
@@ -2178,14 +2179,29 @@ enum E_Baud_Rate
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
-#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
-#define UVC_CLR2IR_THR4ENGINE               (-30)
 #undef CONFIG_USB_HS
 #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BOLATAIN_MODE)
@@ -3044,13 +3060,14 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS7258_IR_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.88.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.88.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.2_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 10240},
-#undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_SEMI
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {3, 800, 480, 30, 0, 8192}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
@@ -3061,15 +3078,37 @@ odd version: use_whiteled = 1
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
-#define UVC_CLR2IR_THR4ISP                  (-50)
 #undef CONFIG_USB_HS
 #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#undef USE_FUSHI_HAND_PROTO
+#define USE_FUSHI_HAND_PROTO                1
+#undef USE_READY0_PROTO
+#define USE_READY0_PROTO                    1
+#undef ENROLL_FACE_HAND_MODE
+#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#undef DEVICE_NID_READY_VER
+#define DEVICE_NID_READY_VER                0xf0
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
 #undef UVC_DARK_WATCH_COUNTER
 #define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_BK7258_UAC)
