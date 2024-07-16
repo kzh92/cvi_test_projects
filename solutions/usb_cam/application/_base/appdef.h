@@ -568,8 +568,8 @@ enum E_Baud_Rate
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.62.2.6_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.2.6_D"
+#define DEVICE_FIRMWARE_VERSION             "3.62.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.4_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
