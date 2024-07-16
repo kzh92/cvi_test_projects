@@ -90,6 +90,10 @@ enum E_Baud_Rate
 #define MY_CHIP_D20                 1
 #define DEFAULT_CHIP_TYPE           MY_CHIP_D10
 
+#define MY_SUBCHIP_D10              0
+#define MY_SUBCHIP_D10A             1
+#define DEFAULT_SUBCHIP_TYPE        MY_SUBCHIP_D10
+
 //camera mipi types
 #define CAM_MIPI_TY_121             0 //one sensor on one mipi
 #define CAM_MIPI_TY_122             1 //two sensors on one mipi

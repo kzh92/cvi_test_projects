@@ -15,7 +15,13 @@
 
 #if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
 #define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D10/"
+#if (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10)
 #define FIRM_MAGIC          "EASEN8"
+#elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10A)
+#define FIRM_MAGIC          "EASEN15"
+#else
+#error "INVALID Chip Type"
+#endif
 #elif(DEFAULT_CHIP_TYPE == MY_CHIP_D20)
 #define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D20/"
 #define FIRM_MAGIC          "EASEN9"
@@ -245,6 +251,16 @@ int main(int argc, char** argv)
     printf("----------pwd\n");
     system("pwd");
     printf("--------------\n");
+
+#if (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10A)
+    system("rm -f ./components/chip_cv180x/gcc_flash.ld");
+    system("cp -f ./components/chip_cv180x/gcc_flash_128M.ld ./components/chip_cv180x/gcc_flash.ld");
+    system("cp -f ./boards/cv180xb_evb/bootimgs/fip_fsbl_D10A.bin ./boards/cv180xb_evb/bootimgs/fip_fsbl.bin");
+#else
+    system("rm -f ./components/chip_cv180x/gcc_flash.ld");
+    system("cp -f ./components/chip_cv180x/gcc_flash_64M.ld ./components/chip_cv180x/gcc_flash.ld");
+    system("cp -f ./boards/cv180xb_evb/bootimgs/fip_fsbl_D10.bin ./boards/cv180xb_evb/bootimgs/fip_fsbl.bin");
+#endif
 
 #if (USE_TWIN_ENGINE == 1)
     system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/hdic_1.bin " RESOURCEDIR "/hdic_1_encode.bin");
