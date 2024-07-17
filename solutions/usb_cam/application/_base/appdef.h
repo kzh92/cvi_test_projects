@@ -561,7 +561,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3108,8 +3108,8 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS7258_IR_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.88.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.88.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.4_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -3119,7 +3119,7 @@ odd version: use_whiteled = 1
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v48
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
@@ -3131,7 +3131,9 @@ odd version: use_whiteled = 1
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
+#undef UAC_SPK_NR_USE
+#define UAC_SPK_NR_USE                      2
 #undef USE_FUSHI_HAND_PROTO
 #define USE_FUSHI_HAND_PROTO                1
 #undef USE_READY0_PROTO
@@ -3140,6 +3142,8 @@ odd version: use_whiteled = 1
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEVICE_NID_READY_VER
 #define DEVICE_NID_READY_VER                0xf0
+#undef CONFIG_SPI_NOR_ER_TIME
+#define CONFIG_SPI_NOR_ER_TIME              2000
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
