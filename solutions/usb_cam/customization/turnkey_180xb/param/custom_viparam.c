@@ -6,7 +6,7 @@
  *   ....
  */
 #include "custom_param.h"
-#define BIN_DATA_SIZE       347537
+#define BIN_DATA_SIZE       174513
 extern unsigned char rgb_color_mode_param[];
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
