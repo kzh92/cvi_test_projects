@@ -10,8 +10,6 @@
 #include <mmio.h>
 #include "debug/dbg.h"
 
-#include "usbd_uvc.h"
-
 // clang-format off
 #if defined ( __CC_ARM )
 #ifndef   __UNALIGNED_UINT32_WRITE
