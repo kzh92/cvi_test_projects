@@ -250,7 +250,7 @@ enum E_Baud_Rate
 #define CONFIG_USB_HS               1
 #define CONFIG_DWC2_VERSION         0
 #define USE_EP0PKGSIZE_PATCH        0
-#define CONFIG_SPI_NOR_ER_TIME      80
+#define CONFIG_SPI_NOR_ER_TIME      2000
 #define CONFIG_USB_BULK_UVC         0
 
 #define CLR_CAM_WIDTH               1600
