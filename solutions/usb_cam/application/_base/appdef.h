@@ -563,7 +563,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XINAN
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KELINGPU_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1099,8 +1099,8 @@ enum E_Baud_Rate
 
 // 3.13.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.82.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.82.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.82.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.82.4_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
@@ -1113,7 +1113,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
@@ -1123,11 +1123,11 @@ enum E_Baud_Rate
 #undef USE_TONGXIN_PROTO
 #define USE_TONGXIN_PROTO                   1
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     16 // 0 ~ 32
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 #undef WLED_PWM_DUTY
 #define WLED_PWM_DUTY                       15
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      0
+// #undef N_MAX_HAND_NUM
+// #define N_MAX_HAND_NUM                      0
 #define ENGINE_FOR_ABROAD
 
 //----------------------------------------------------------
