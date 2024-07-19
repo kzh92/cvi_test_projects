@@ -563,7 +563,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KELINGPU_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3124,8 +3124,8 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS7258_IR_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.88.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.88.4.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.4.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
