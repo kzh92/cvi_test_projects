@@ -109,6 +109,7 @@ enum E_Baud_Rate
 #define ISP_Y_LEVEL_0               0   //normal, sc201cs color v2.1.0.11
 #define ISP_Y_LEVEL_1               1   //bright, sc201cs color v2.1.0.13
 #define ISP_Y_LEVEL_2               2   //dark, sc201cs color v2.1.0.26
+#define ISP_Y_LEVEL_3               3   //dark, sc201cs color v2.1.0.50
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_0
 
 //isp bin file version
@@ -3449,6 +3450,9 @@ odd version: use_whiteled = 1
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v26)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_2
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v50)
+#undef ISP_Y_LEVEL
+#define ISP_Y_LEVEL                 ISP_Y_LEVEL_3
 #endif
 
 //#include "engine_inner_param.h"
