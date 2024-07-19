@@ -201,7 +201,7 @@ void* senseSendThread_ThreadProc1(void*)
         if (msg->mid == MID_NOTE)
         {
             s_msg_note_data *note_data = (s_msg_note_data*)(msg->data);
-            if (note_data->nid == NID_READY)
+            if (note_data->nid == NID_READY || note_data->nid == DEVICE_NID_READY_VER)
             {
                 SenseLockTask::m_encMode = SenseLockTask::EM_NOENCRYPT;
             }
