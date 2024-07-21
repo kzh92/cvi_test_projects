@@ -158,6 +158,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v48           2148
 #define ISP_BIN_VER_21v49           2149
 #define ISP_BIN_VER_21v50           2150
+#define ISP_BIN_VER_211v0           21100 //v2.1.1.0
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
 #define DEFAULT_ISP_BIN_VER         ISP_BIN_VER_21v0
@@ -181,12 +182,18 @@ enum E_Baud_Rate
 #define U3M_DEFAULT                 1       //얼굴인식에 색카메라리용, 백색레드리용함
 #define U3M_IR_ONLY                 2       //얼굴인식에 색카메라를 쓰지 않음
 #define U3M_SEMI                    3       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 적외선만 리용, 백색레드쓰지 않음
+#define U3M_SEMI_IR                 4       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 색카메라에서 얻은 적외선화상을 리용, 백색레드쓰지 않음(색카메라에 쌍통려파기를 리용함)
 
 //USE_WHITE_LED               0   //0: , 1: , 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
 #define UWL_DISABLE                 0       // 백색레드쓰지 않는 방식
 #define UWL_EN_NORMAL               1       // 백색레드를 리용하는 방식
 #define UWL_EN_F1U0                 2       // face on, uvc off, 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
 #define UWL_EN_F0U1                 3       // face off, uvc on, 얼굴인식에는 백색레드를 리용하지 않고 화상대화때에만 리용
+
+//DEFAULT_FR_COLOR_MODE
+#define FR_COLOR_MODE_DEF           1       //use whiteled to detect face
+#define FR_COLOR_MODE_SEMI          2       //ignore detecting face in dark mode
+#define FR_COLOR_MODE_IR            3       //use ir image to detect face in dark mode
 
 //batt test
 #define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
@@ -412,6 +419,7 @@ enum E_Baud_Rate
 #define ENROLL_FACE_IMG_MAGIC       "EFIv1"
 #define ENROLL_FACE_IMG_MAGIC2      "EFIv2"
 #define ENROLL_FACE_IMG_MAGIC3      "EFIv3"
+#define DEFAULT_FR_COLOR_MODE       FR_COLOR_MODE_DEF
 
 #define DESMAN_ENC_MODE     2       //0 -> dessmman, 1 -> bom, 2 -> test
 
@@ -564,7 +572,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANHAI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1262,8 +1270,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANHAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.71.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.71.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.71.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.71.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -1271,9 +1279,7 @@ enum E_Baud_Rate
                                             {3, 800, 480, 30, 0, 10240}, \
                                             {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
-#undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define USE_WHITE_LED                       0
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
@@ -1289,16 +1295,20 @@ enum E_Baud_Rate
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_SEMI
+#define USE_3M_MODE                         U3M_SEMI_IR
 #define UVC_CLR2IR_THR4ISP                  (-50)
 #undef UVC_DARK_WATCH_COUNTER
 #define UVC_DARK_WATCH_COUNTER              10
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_211v0
 
 #elif (USE_WHITE_LED == 1)
 #undef USE_3M_MODE
 #define USE_3M_MODE                         U3M_DEFAULT
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
 
 #else // USE_WHITE_LED
 #error "USE_WHITE_LED must be 0 or 1."

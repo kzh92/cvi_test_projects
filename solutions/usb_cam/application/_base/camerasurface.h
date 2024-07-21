@@ -27,6 +27,8 @@
         dbug_printf("wait(%s:%d) %0.3f, ret=%d\n", __FILE__, __LINE__, Now() - rOldTime, ret); \
     } while(0)
 
+#define FR_NEED_RIGHT_IR (USE_3M_MODE == U3M_SEMI_IR && (g_xSS.iUvcSensor != DEFAULT_SNR4UVC || g_xSS.iForceUvcIR == 1))
+
 enum
 {
     FIRST_IR_NONE = 0x0,

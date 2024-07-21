@@ -753,7 +753,11 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE || ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
         if(g_iTwoCamFlag == IR_CAMERA_STEP4 && g_iLedOnStatus == 1)
         {
-#if (!USE_3M_MODE)
+            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+            //주의:camera_switch에서 startpipe하는 부분이 있으므로 stoppipe위치는 반드시 여기에 있어야 한다.
+            if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+                CVI_VI_StopPipe(0);
+#if (USE_3M_MODE == U3M_SEMI_IR)
             if (g_xSS.iTempHighState == 0)
                 gpio_irled_on(ON);
 #endif
@@ -868,7 +872,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
             g_iTwoCamFlag ++;
             camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-#if ((USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI) && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+#if ((USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI || USE_3M_MODE == U3M_SEMI_IR) && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             g_xSS.iFirstFlag = 2; // get first color frame
             WaitIRCancel2();
 #endif // USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122
@@ -945,7 +949,7 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (ENGINE_USE_TWO_CAM != EUTC_3V4_MODE && ENGINE_USE_TWO_CAM != EUTC_3M_MODE)
             g_iTwoCamFlag ++;
 #else // ENGINE_USE_TWO_CAM
-#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI || USE_3M_MODE == U3M_SEMI_IR)
             if (g_xSS.iFirstFlag == 0 && g_iTwoCamFlag == IR_CAMERA_STEP2)
             {
                 g_xSS.iFirstFlag = 1;
@@ -956,7 +960,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             {
                 gpio_irled_on(OFF);
                 g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
-#if (USE_3M_MODE != 1 && USE_WHITE_LED != 1)
+#if (USE_3M_MODE != U3M_DEFAULT && USE_WHITE_LED != UWL_EN_NORMAL)
                 if (g_xSS.bUVCRunning && !g_xSS.iUVCIRDataReady && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 {
 #if 0
@@ -990,9 +994,23 @@ void* ProcessTCMipiCapture(void */*param*/)
 #endif // ENGINE_USE_TWO_CAM == EUTC_3V4_MODE
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
-#if (!USE_3M_MODE || DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)
-            camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
-#endif
+
+            if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+            {
+                camera_switch(TC_MIPI_CAM, MIPI_CAM_S2LEFT);
+            }
+
+            lockIRBuffer();
+            size_t test_pos = 0;
+            for (int k = (int)image_size/8 ; k < (int)image_size; k+=3)
+            {
+                g_irOnData2[test_pos++] = ptr[k];
+                g_irOnData2[test_pos++] = ptr[k+1];
+                if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
+                    break;
+            }
+            unlockIRBuffer();
+
 #if (USE_WHITE_LED != 1)
             g_xSS.iUVCIRDataReady = 0;
 #endif
@@ -1031,17 +1049,20 @@ void CalcNextExposure()
     {
         camera_set_exp_byreg(TC_MIPI_CAM_LEFT, *fr_GetExposure());
     }
-    if(fr_GetExposure2())
-    {
-        camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, *fr_GetExposure2());
-    }
     if(fr_GetGain() && fr_GetFineGain())
     {
         camera_set_gain_byreg(TC_MIPI_CAM_LEFT, *fr_GetGain(), *fr_GetFineGain());
     }
-    if(fr_GetGain2() && fr_GetFineGain2())
+    if (FR_NEED_RIGHT_IR)
     {
-        camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, *fr_GetGain2(), *fr_GetFineGain2());
+        if(fr_GetExposure2())
+        {
+            camera_set_exp_byreg(TC_MIPI_CAM_RIGHT, *fr_GetExposure2());
+        }
+        if(fr_GetGain2() && fr_GetFineGain2())
+        {
+            camera_set_gain_byreg(TC_MIPI_CAM_RIGHT, *fr_GetGain2(), *fr_GetFineGain2());
+        }
     }
 }
 

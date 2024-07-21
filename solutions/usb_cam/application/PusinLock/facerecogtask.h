@@ -85,7 +85,7 @@ protected:
     int     ProcessCheckEye1Step();
     int     ReadStaticIRImage(void* dst, int flip);
     int     GetLeftIrFrame(int* p_iUseFirstFrame);
-    int     GetRightIrFrame(void* pBuffer, int iUseFirstFrame);
+    int     GetRightIrFrame(void* pBuffer, int iUseFirstFrame, int iIsBayer);
     int     GetFaceState();
 
     static int m_iCounter;

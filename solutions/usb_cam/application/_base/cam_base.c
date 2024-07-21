@@ -444,7 +444,9 @@ int camera_clr_set_gain(int value, int nDigGain, int nFineValue)
 
 int camera_clr_stop_aec()
 {
+#if (USE_3M_MODE != U3M_SEMI_IR)
     return 0;
+#endif
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -467,7 +469,9 @@ int camera_clr_stop_aec()
 
 int camera_clr_start_aec()
 {
+#if (USE_3M_MODE != U3M_SEMI_IR)
     return 0;
+#endif
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -673,7 +677,7 @@ int camera_set_exp_byreg(int id, int value)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-#if (USE_3M_MODE)
+#if (USE_3M_MODE && USE_3M_MODE != U3M_SEMI_IR)
     if (id == MIPI_1_CAM)
         return 0;
 #if (DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)
@@ -721,7 +725,7 @@ int camera_set_gain_byreg(int id, int value, int nFineValue)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
 
-#if (USE_3M_MODE)
+#if (USE_3M_MODE && USE_3M_MODE != U3M_SEMI_IR)
     if (id == MIPI_1_CAM)
         return 0;
 #if (DEFAULT_CAM_MIPI_TYPE != CAM_MIPI_TY_122)

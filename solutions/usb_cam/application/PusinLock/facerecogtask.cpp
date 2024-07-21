@@ -86,7 +86,9 @@ void FaceRecogTask::Start(int iCmd)
     }
     fr_SetCameraFlip(g_xSS.iCameraRotate);
 #if (USE_3M_MODE == U3M_SEMI)
-    fr_SetColorLed(2);
+    fr_SetColorLed(FR_COLOR_MODE_SEMI);
+#elif (USE_3M_MODE == U3M_SEMI_IR)
+    fr_SetColorLed(FR_COLOR_MODE_IR);
 #endif
     m_isFaceOcculution = 0;
     memset(m_iFaceNearFar, 0, sizeof(m_iFaceNearFar));
@@ -291,7 +293,7 @@ void FaceRecogTask::run()
         {
             nProcessModeIndexStart = 0;
             nProcessModeIndexEnd = (N_MAX_HAND_NUM > 0) ? 1: 0;
-            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
+            if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE && N_MAX_HAND_NUM > 0)
             {
                 nProcessModeIndexEnd = 1;
             }
@@ -535,7 +537,7 @@ void FaceRecogTask::run()
         }
     }
 
-#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI || USE_3M_MODE == U3M_SEMI_IR)
     if (g_xSS.iUvcSensor == DEFAULT_SNR4UVC && 0)
     {
         camera_clr_set_exp(g_sc201cs_aec_exp);
@@ -815,21 +817,36 @@ int FaceRecogTask::ProcessCheckCamera1Step()
     return 0;
 }
 
-int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame)
+int FaceRecogTask::GetRightIrFrame(void* pBuffer, int iUseFirstFrame, int iIsBayer)
 {
     if (!pBuffer)
         return 0;
+    if (iIsBayer)
+    {
+        camera_set_irled_on(1);
+        g_iTwoCamFlag = IR_CAMERA_STEP4;
+        WAIT_CAM_FRAME(1000, WaitIRTimeout2);
+    }
     //caution: you should not use pInputImageBuffer2 here!!!
     if (g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
     {
-        int buf_len = DumpFromVpss(DEFAULT_SNR4UVC, 0, 1, (unsigned char*)pBuffer, 1);
-        if (buf_len <= 0)
+        if (iIsBayer)
         {
-            my_printf("dump vpss fail\n");
+            lockIRBuffer();
+            memcpy(pBuffer, g_irOnData2, IR_BUFFER_SIZE);
             unlockIRBuffer();
-            return -1;
         }
-        dbug_printf("dump vpss ok\n");
+        else
+        {
+            int buf_len = DumpFromVpss(DEFAULT_SNR4UVC, 0, 1, (unsigned char*)pBuffer, 1);
+            if (buf_len <= 0)
+            {
+                my_printf("dump vpss fail\n");
+                unlockIRBuffer();
+                return -1;
+            }
+            dbug_printf("dump vpss ok\n");
+        }
     }
     else
     {
@@ -942,19 +959,20 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
         return 1;
 
 #if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
-#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
-    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] == 0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC) //face mode only
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI || USE_3M_MODE == U3M_SEMI_IR)
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_UPDATE) && arEngineResult[1] == 0 && (g_xSS.iUvcSensor == DEFAULT_SNR4UVC || USE_3M_MODE == U3M_SEMI_IR)) //face mode only
     {
         unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
         if (g_xSS.iFirstFlag == 2) // use first clr frame
         {
             g_xSS.iFirstFlag = 1;
-            GetRightIrFrame(pInputImageBuffer1, 1);
+            GetRightIrFrame(pInputImageBuffer1, 1, FR_NEED_RIGHT_IR);
         }
         else
-            GetRightIrFrame(pInputImageBuffer1, 0);
-        int w = GetDumpVpssWidth();
-        int h = GetDumpVpssHeight();
+            GetRightIrFrame(pInputImageBuffer1, 0, FR_NEED_RIGHT_IR);
+
+        int w = (!FR_NEED_RIGHT_IR) ? GetDumpVpssWidth() : IR_CAM_WIDTH;
+        int h = (!FR_NEED_RIGHT_IR) ? GetDumpVpssHeight() : IR_CAM_HEIGHT;
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
             memset(pInputImageBuffer1, 0, IR_BUFFER_SIZE);
@@ -963,17 +981,27 @@ int FaceRecogTask::ProcessVerify1Step(int iSecondImageReCheck)
             h = IR_CAM_HEIGHT;
         }
 
-        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && USE_3M_MODE != U3M_SEMI_IR)
             fr_SetCameraFlip(!g_xSS.iCameraRotate);
         int iLandscapeFlag = 1;
-        if (g_xSS.iUvcDirect == UVC_ROTATION_0)
+        if (g_xSS.iUvcDirect == UVC_ROTATION_0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
         {
             if (w < h)
                 iLandscapeFlag = 0;
         }
-        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1, iLandscapeFlag);
-        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        int iCheck = 0;
+        if (!FR_NEED_RIGHT_IR)
+            iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1, iLandscapeFlag);
+        else
+            iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 0, iLandscapeFlag);
+
+        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && USE_3M_MODE != U3M_SEMI_IR)
             fr_SetCameraFlip(g_xSS.iCameraRotate);
+
+#if (USE_WHITE_LED == UWL_DISABLE && USE_3M_MODE == U3M_SEMI_IR)
+        if (fr_GetClrIsDarkGotoIr())
+            g_xSS.iForceUvcIR = 1;
+#endif
         if(iCheck != ES_SUCCESS)
         {
             arEngineResult[0] = ES_PROCESS;
@@ -1061,13 +1089,13 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
     if(g_xSS.iResetFlag == 1)
         return 1;
 #if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
-#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI)
-    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] == 0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC) //face mode only
+#if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI || USE_3M_MODE == U3M_SEMI_IR)
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] == 0 && (g_xSS.iUvcSensor == DEFAULT_SNR4UVC || USE_3M_MODE == U3M_SEMI_IR)) //face mode only
     {
         unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
-        GetRightIrFrame(pInputImageBuffer1, 0);
-        int w = GetDumpVpssWidth();
-        int h = GetDumpVpssHeight();
+        GetRightIrFrame(pInputImageBuffer1, 0, FR_NEED_RIGHT_IR);
+        int w = (!FR_NEED_RIGHT_IR) ? GetDumpVpssWidth() : IR_CAM_WIDTH;
+        int h = (!FR_NEED_RIGHT_IR) ? GetDumpVpssHeight() : IR_CAM_HEIGHT;
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE)
         {
             memset(pInputImageBuffer1, 0, IR_BUFFER_SIZE);
@@ -1076,17 +1104,27 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
             h = IR_CAM_HEIGHT;
         }
 
-        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && USE_3M_MODE != U3M_SEMI_IR)
             fr_SetCameraFlip(!g_xSS.iCameraRotate);
         int iLandscapeFlag = 1;
-        if (g_xSS.iUvcDirect == UVC_ROTATION_0)
+        if (g_xSS.iUvcDirect == UVC_ROTATION_0 && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
         {
             if (w < h)
                 iLandscapeFlag = 0;
         }
-        int iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1, iLandscapeFlag);
-        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE)
+        int iCheck = 0;
+        if (!FR_NEED_RIGHT_IR)
+            iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 1, iLandscapeFlag);
+        else
+            iCheck = fr_PreExtractFaceClr(pInputImageBuffer1, w, h, 0, iLandscapeFlag);
+
+        if (g_xSS.iUvcDirect == UVC_ROTATION_270 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && USE_3M_MODE != U3M_SEMI_IR)
             fr_SetCameraFlip(g_xSS.iCameraRotate);
+
+#if (USE_WHITE_LED == UWL_DISABLE && USE_3M_MODE == U3M_SEMI_IR)
+        if (fr_GetClrIsDarkGotoIr())
+            g_xSS.iForceUvcIR = 1;
+#endif
         if(iCheck != ES_SUCCESS)
         {
             arEngineResult[0] = ES_PROCESS;
