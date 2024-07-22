@@ -228,7 +228,7 @@ static struct audio_ep_descriptor as_iso_out_ep_desc  = {
 	.bDescriptorType =	USB_DESCRIPTOR_TYPE_ENDPOINT,
 	.bEndpointAddress =	AUDIO_OUT_EP,
 	.bmAttributes =		USB_ENDPOINT_TYPE_ISOCHRONOUS,
-	.wMaxPacketSize	=	cpu_to_le16(16),
+	.wMaxPacketSize	=	cpu_to_le16(64),
 	.bInterval =		EP_INTERVAL,
 };
 
@@ -311,7 +311,7 @@ static struct audio_ep_descriptor as_iso_in_ep_desc  = {
 	.bDescriptorType =	USB_DESCRIPTOR_TYPE_ENDPOINT,
 	.bEndpointAddress =	AUDIO_IN_EP,
 	.bmAttributes =		USB_ENDPOINT_TYPE_ISOCHRONOUS,
-	.wMaxPacketSize	=	cpu_to_le16(16),
+	.wMaxPacketSize	=	cpu_to_le16(64),
 	.bInterval =		EP_INTERVAL,
 };
 
