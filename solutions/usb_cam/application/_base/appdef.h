@@ -572,7 +572,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANHAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XM7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2841,36 +2841,51 @@ enum E_Baud_Rate
 
 // 3.55.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.73.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.73.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.73.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.73.2_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 0},\
-                                            {2, 864, 480, 30, 0, 10240},\
-                                            {3, 800, 480, 30, 0, 9000},
-#undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_SEMI
+#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}, \
+                                            {2, 800, 480, 30, 0, 8192}, \
+                                            {3, 480, 320, 30, 0, 4096}, \
+                                            {4, 320, 240, 30, 0, 4096},
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     16
+#define UAC_SPEAKER_VOL                     32
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
-// #undef SPECIFIC_LOG_PRINT
-// #define SPECIFIC_LOG_PRINT                  1
-// #undef UVC_USBD_PRINT
-// #define UVC_USBD_PRINT                      1
-#define UVC_CLR2IR_THR4ISP                  (-50)
-#undef UVC_DARK_WATCH_COUNTER
-#define UVC_DARK_WATCH_COUNTER              10
 #undef CONFIG_USB_HS
 #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      1
+#undef UVC_MAX_WIDTH
+#define UVC_MAX_WIDTH                       864
+#undef UVC_MAX_HEIGHT
+#define UVC_MAX_HEIGHT                      480
+// #undef DEFAULT_UVC_PIXEL_FMT
+// #define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE2_UAC)
