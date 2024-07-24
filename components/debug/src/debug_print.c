@@ -687,7 +687,7 @@ int32_t aos_debug_printf(const char *fmt, ...)
 #if (FRM_PRODUCT_TYPE != FRM_DBS3M_JIASHIBANG_UAC && FRM_PRODUCT_TYPE != FRM_DBS3M_FANHAI_IR_MODE)
     if (!(fmt[0] == '[' && fmt[1] == 'H' && fmt[2] == ']'))
     {
-        aos_msleep(1);
+        // aos_msleep(1);
         return 0;
     }
 #endif
