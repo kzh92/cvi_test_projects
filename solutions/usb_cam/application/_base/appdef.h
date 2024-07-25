@@ -572,7 +572,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FUSHI_XM_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3109,8 +3109,8 @@ odd version: use_whiteled = 1
 */
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.86.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.86.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.86.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.86.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
@@ -3119,11 +3119,11 @@ odd version: use_whiteled = 1
                                             {4, 480, 320, 12, 0, 9000},\
                                             {5, 320, 240, 12, 0, 9000}
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UAC_SPK_EP
