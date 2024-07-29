@@ -40,7 +40,7 @@
 #define FN_C_DICT_SIZE                  (442504)
 #define FN_CH_DICT_SIZE                 (442504)
 #define FN_DETECT_DICT_SIZE             (129320)
-#define FN_DETECT_H_DICT_SIZE           (121464)
+#define FN_DETECT_H_DICT_SIZE           (125328)
 #define FN_DETECT_C_DICT_SIZE           (841576)
 #define FN_DLAMK_DICT_SIZE              (624696)
 #define FN_DLAMK_H_DICT_SIZE            (495328)
@@ -51,7 +51,7 @@
 #define FN_H2_DICT_SIZE                 4263260
 
 #define FN_WNO_DICT_SIZE_REAL           (USE_RENT_ENGINE ? 1819013: 1821548)
-#define FN_WNOH_DICT_SIZE_REAL          1103149
+#define FN_WNOH_DICT_SIZE_REAL          1106620
 #define FN_A1_DICT_SIZE_REAL            (347897)
 #define FN_A2_DICT_SIZE_REAL            (344236)
 #define FN_B_DICT_SIZE_REAL             (345726)
@@ -59,11 +59,11 @@
 #define FN_C_DICT_SIZE_REAL             (362995)
 #define FN_CH_DICT_SIZE_REAL            (299161)
 #define FN_DETECT_DICT_SIZE_REAL        (85012)
-#define FN_DETECT_H_DICT_SIZE_REAL      (75455)
+#define FN_DETECT_H_DICT_SIZE_REAL      (78252)
 #define FN_DETECT_C_DICT_SIZE_REAL      (841576)
 #define FN_DLAMK_DICT_SIZE_REAL         (392212)
-#define FN_DLAMK_H_DICT_SIZE_REAL       (233658)
-#define FN_H_LIVE_DICT_SIZE_REAL        346011
+#define FN_DLAMK_H_DICT_SIZE_REAL       (231113)
+#define FN_H_LIVE_DICT_SIZE_REAL        347165
 #endif
 /*--fast=4
 wno.bin : 52.90%   (3562136 => 1884446 bytes, wno.bin.zst) 
