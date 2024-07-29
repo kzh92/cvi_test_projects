@@ -879,6 +879,15 @@ int FaceEngine::GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag
     return 0;
 }
 
+int FaceEngine::SetLivenessLevel()
+{
+    int s_level = LIVENESS_CHECK_LEVEL_ABROAD;
+    if (g_xSS.iLivenessThrLevel > S_LIVENESS_LEVEL_DEFAULT)
+        s_level = LIVENESS_CHECK_LEVEL_NORMAL;
+    fr_SetLivenessCheckLevel(s_level);
+    return 0;
+}
+
 void feFaceStart(int iCmd)
 {
 #if 0 //kkk

@@ -61,6 +61,7 @@ public:
     static int  DecodeRegisterFileData(unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
     static int  UpdateDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int uid);
     static int  GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int iID, int iOffset);
+    static int SetLivenessLevel();
 private:
     static void* m_irFeatBuffer;
 };

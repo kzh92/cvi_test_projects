@@ -181,7 +181,8 @@ typedef struct _tagSYSTEM_STATE
     int             iRegisterDir;
     int             iRegisterHand;
     int             iRegisterMixMode;
-    unsigned char   iVerifyThrLevel;
+    unsigned char   iVerifyThrLevel:4;
+    unsigned char   iLivenessThrLevel:4;
 
     int             iVerifyRole;
 

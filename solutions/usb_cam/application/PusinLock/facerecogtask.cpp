@@ -90,6 +90,7 @@ void FaceRecogTask::Start(int iCmd)
 #elif (USE_3M_MODE == U3M_SEMI_IR)
     fr_SetColorLed(FR_COLOR_MODE_IR);
 #endif
+    FaceEngine::SetLivenessLevel();
     m_isFaceOcculution = 0;
     memset(m_iFaceNearFar, 0, sizeof(m_iFaceNearFar));
     memset(m_iFacePosition, 0, sizeof(m_iFacePosition));

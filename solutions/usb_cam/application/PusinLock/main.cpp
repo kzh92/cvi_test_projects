@@ -2332,6 +2332,7 @@ int MsgProcSense(MSG* pMsg)
             {
                 //use default camera direction in factory test mode.
                 g_xSS.iCameraRotate = CAM_RM_DEFAULT;
+                g_xSS.iLivenessThrLevel = S_LIVENESS_LEVEL_HIGH;
                 ResetFaceRegisterStates();
 #if 1
                 if (dbm_GetUserCount() == 0)
@@ -2425,6 +2426,19 @@ int MsgProcSense(MSG* pMsg)
                 g_xAS.x.bVerifyThrLevel = g_xSS.iVerifyThrLevel;
                 UpdateMyAllSettings();
 #endif
+            }
+            //set livenesss level
+            if (hdata.liveness_threshold_level > S_LIVENESS_LEVEL_VERY_HIGH)
+            {
+                iSuccCode = MR_FAILED4_INVALIDPARAM;
+            }
+            else
+            {
+                if (hdata.liveness_threshold_level <= S_LIVENESS_LEVEL_DEFAULT)
+                    g_xSS.iLivenessThrLevel = S_LIVENESS_LEVEL_DEFAULT;
+                else
+                    g_xSS.iLivenessThrLevel = S_LIVENESS_LEVEL_HIGH;
+                FaceEngine::SetLivenessLevel();
             }
         }
         s_msg* reply_msg = SenseLockTask::Get_Reply(pSenseMsg, MID_SET_THRESHOLD_LEVEL, iSuccCode);

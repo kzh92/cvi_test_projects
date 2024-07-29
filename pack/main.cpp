@@ -276,13 +276,8 @@ int main(int argc, char** argv)
     #endif // DESMAN_ENC_MODE
     #if (ENGINE_USE_TWO_CAM)
         FACEENGINEDIR "/a1.bin",
-    #ifndef ENGINE_FOR_ABROAD
         FACEENGINEDIR "/b.bin",
         FACEENGINEDIR "/b2.bin",
-    #else // ENGINE_FOR_ABROAD
-        FACEENGINEDIR "/b_abroad.bin",
-        FACEENGINEDIR "/b2_abroad.bin",
-    #endif // ENGINE_FOR_ABROAD
         FACEENGINEDIR "/c.bin",
     #else // ENGINE_USE_TWO_CAM
         FACEENGINEDIR "/a1_onecam.bin",

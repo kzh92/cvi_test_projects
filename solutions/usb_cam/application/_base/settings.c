@@ -356,6 +356,7 @@ void ResetSystemState(int iAppType)
 #else
     g_xSS.iVerifyThrLevel = S_VERIFY_LEVEL_DEFAULT;
 #endif
+    g_xSS.iLivenessThrLevel = DEFAULT_LIVENESS_LEVEL;
     g_xSS.bIsSysActivated = rootfs_is_activated();
 }
 

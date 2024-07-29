@@ -414,6 +414,7 @@ enum E_Baud_Rate
 #define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
 #define DEFAULT_SNAPIMG_CTRL_CNT    3
 #define DEFAULT_CLR_IR_FRAME_RATIO  2
+#define DEFAULT_LIVENESS_LEVEL      S_LIVENESS_LEVEL_DEFAULT
 #define DEFAULT_SNR4UVC             0    //0: use sensor0 for color, 1: use sensor1 for color, 2: no color
 #define FIRMWARE_MAGIC              "DBS"
 #define ENROLL_FACE_IMG_MAGIC       "EFIv1"
@@ -2357,8 +2358,8 @@ enum E_Baud_Rate
 
 //3.44.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.63.4.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.63.4.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.63.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.63.5_D"
 
 #undef DEFAULT_CHIP_TYPE
 #define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
@@ -2378,8 +2379,8 @@ enum E_Baud_Rate
 #define USE_UAC_MODE                        1
 #undef UAC_AUDALGO_USE
 #define UAC_AUDALGO_USE                     1
-#undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     16
+// #undef UAC_SPEAKER_VOL
+// #define UAC_SPEAKER_VOL                     16
 #undef DEFAULT_BOARD_TYPE
 #define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
 #undef DEFAULT_CAM_MIPI_TYPE
@@ -2396,15 +2397,15 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
-// #undef SPECIFIC_LOG_PRINT
-// #define SPECIFIC_LOG_PRINT                  1
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #define UVC_CLR2IR_THR4ISP                  (-50)
 #undef UVC_DARK_WATCH_COUNTER
 #define UVC_DARK_WATCH_COUNTER              10
-#undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+// #undef CONFIG_DWC2_VERSION
+// #define CONFIG_DWC2_VERSION                 1
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_HUANGLI_NEW_UAC)
