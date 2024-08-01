@@ -759,7 +759,10 @@ void* ProcessTCMipiCapture(void */*param*/)
                 CVI_VI_StopPipe(0);
 #if (USE_3M_MODE == U3M_SEMI_IR)
             if (g_xSS.iTempHighState == 0)
+            {
                 gpio_irled_on(ON);
+                gpio_whiteled_on(ON);
+            }
 #endif
             dev = 0;
             g_iLedOnStatus = 0;
@@ -994,6 +997,9 @@ void* ProcessTCMipiCapture(void */*param*/)
 #endif // ENGINE_USE_TWO_CAM == EUTC_3V4_MODE
             g_iLedOnStatus = 0;
             gpio_irled_on(OFF);
+#if (USE_3M_MODE == U3M_SEMI_IR)
+            gpio_whiteled_on(OFF);
+#endif
 
             if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
             {
