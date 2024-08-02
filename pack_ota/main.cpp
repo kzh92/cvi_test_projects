@@ -10,30 +10,29 @@
 //list of upgrade files
 s_uf_part_info g_upg_list[] = {
     {"prim", 0x2E000, 0x001e0000, UF_PF_APP},
-    {"fip_fsbl.bin", 0x00000000, 0x0000c000, UF_PF_NORMAL},
+    // {"fip_fsbl.bin", 0x00000000, 0x0000c000, UF_PF_NORMAL},
     {"imtb", 0x0002c000, 0x00002000, UF_PF_NORMAL},
-    {"v1.0.0.1.bin", 0x0020e000 + 5280256, FN_ISP_IR_BIN_SIZE_REAL, UF_PF_NORMAL},
+    {"v1.0.0.1.bin", 0x0020e000 + 3522752, FN_ISP_IR_BIN_SIZE_REAL, UF_PF_NORMAL},
 #if 0
     {"wno_c.bin", 0x003d0000, FN_WNO_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
 #endif
-    // {"detect.bin", 0x003d0000 + 3562176, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
-#if 0
-    {"dlamk.bin", 0x003d0000 + 3687040, FN_DLAMK_DICT_SIZE, UF_PF_NORMAL},
-    {"a1.bin", 0x003d0000 + 4311744, FN_A1_DICT_SIZE, UF_PF_NORMAL},
-    {"a2.bin", 0x003d0000 + 4754304, FN_A2_DICT_SIZE, UF_PF_NORMAL},
-    {"b.bin", 0x003d0000 + 5196864, FN_B_DICT_SIZE, UF_PF_NORMAL},
-    {"b2.bin", 0x003d0000 + 5639424, FN_B2_DICT_SIZE, UF_PF_NORMAL},
-    {"c.bin", 0x003d0000 + 5792384, FN_C_DICT_SIZE, UF_PF_NORMAL},
-    {"detect_h.bin", 0x003d0000 + 6234944, FN_DETECT_H_DICT_SIZE, UF_PF_NORMAL},
-#endif
+    // {"detect.bin", 0x0020e000 + 3562176, FN_DETECT_DICT_SIZE, UF_PF_NORMAL},
+    // {"dlamk.bin", 0x0020e000 + 3687040, FN_DLAMK_DICT_SIZE, UF_PF_NORMAL},
+    {"a1.bin", 0x0020e000 + 2298880, FN_A1_DICT_SIZE_REAL, UF_PF_NORMAL},
+    // {"a2.bin", 0x0020e000 + 4754304, FN_A2_DICT_SIZE, UF_PF_NORMAL},
+    {"b.bin", 0x0020e000 + 2646784, FN_B_DICT_SIZE_REAL, UF_PF_NORMAL},
+    {"b2.bin", 0x0020e000 + 2992512, FN_B2_DICT_SIZE_REAL, UF_PF_NORMAL},
+    {"c.bin", 0x0020e000 + 3106816, FN_C_DICT_SIZE_REAL, UF_PF_NORMAL},
+    // {"detect_h.bin", 0x003d0000 + 6234944, FN_DETECT_H_DICT_SIZE, UF_PF_NORMAL},
 #if 0
     {"dlamk_h.bin", 0x003d0000 + 6356416, FN_DLAMK_H_DICT_SIZE, UF_PF_NORMAL},
     {"ch.bin", 0x003d0000 + 6851776, FN_CH_DICT_SIZE, UF_PF_NORMAL},
     {"wnh.bin", 0x003d0000 + 7294336, FN_WNOH_DICT_SIZE, UF_PF_WEIGHT_CRYPT},
     {"lh.bin", 0x003d0000 + 9704448, FN_H_LIVE_DICT_SIZE, UF_PF_NORMAL},
-    {"face_ir.bin", 0x003d0000 + 10147008, FN_FACE_IR_BIN_SIZE, UF_PF_NORMAL},
-    {"audiotest.pcm", 0x003d0000 + 10574144, FN_TESTAUDIO_PCM_SIZE, UF_PF_NORMAL},
 #endif
+    {"face_ir.bin", 0x0020e000 + 3469824, FN_FACE_IR_BIN_SIZE_REAL, UF_PF_NORMAL},
+    {"audiotest.pcm", 0x0020e000 + 3486336, FN_TESTAUDIO_PCM_SIZE_REAL, UF_PF_NORMAL},
+    {"v1.0.0.1.bin", 0x0020e000 + 3522752, BIN_DATA_SIZE, UF_PF_NORMAL},
     {"", 0, 0, 0} //terminator
 };
 
