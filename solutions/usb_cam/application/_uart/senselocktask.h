@@ -72,7 +72,7 @@ public:
     static s_msg*       Get_Reply_GetUID(s_msg* pSenseMsg, int iResult);
     static s_msg*       Get_Reply_GetSN(s_msg* pSenseMsg, int iResult);
     static s_msg*       Get_Reply_GetStatus(int iResult, int iStatus);
-    static s_msg*       Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int iImgLen);
+    static s_msg*       Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int iImgLen, int iRotate = 0);
     static s_msg*       Get_Reply_GetLogFile(s_msg* pSenseMsg, int iResult, int iImgLen, int iCmd = MID_GET_LOGFILE);
     static s_msg*       Get_Reply_GetOtaStatus(int iStatus, int iPID);
     static s_msg*       Get_Reply(s_msg* pSenseMsg, int iMID, int iResult, unsigned char* pParam = NULL, int paramLen = 0);

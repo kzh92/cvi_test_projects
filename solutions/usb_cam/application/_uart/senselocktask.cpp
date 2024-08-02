@@ -1459,7 +1459,7 @@ s_msg* SenseLockTask::Get_Reply_GetStatus(int iResult, int iStatus)
     return msg;
 }
 
-s_msg* SenseLockTask::Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int iImgLen)
+s_msg* SenseLockTask::Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int iImgLen, int iRotate)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_get_saved_image_data);
     iMsgDataLen += USE_LAIJI_PROTO * 4;
@@ -1486,6 +1486,7 @@ s_msg* SenseLockTask::Get_Reply_GetSavedImage(s_msg* pSenseMsg, int iResult, int
     msg_reply_get_saved_image_data->image_size[1] = (iImgLen >> 16) & 0xFF;
     msg_reply_get_saved_image_data->image_size[2] = (iImgLen >> 8) & 0xFF;
     msg_reply_get_saved_image_data->image_size[3] = (iImgLen) & 0xFF;
+    msg_reply_get_saved_image_data->ext_flag = iRotate;
 
     return msg;
 }

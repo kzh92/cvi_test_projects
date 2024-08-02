@@ -568,6 +568,7 @@ typedef struct {
 
 typedef struct {
     uint8_t image_size[4];   // image size int -> [s1, s2, s3, s4]
+    uint8_t ext_flag;   // 0x01: rotate 90
 } s_msg_reply_get_saved_image_data;
 
 typedef struct {

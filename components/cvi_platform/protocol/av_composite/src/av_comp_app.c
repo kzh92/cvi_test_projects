@@ -373,6 +373,7 @@ int uvc_media_update(){
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
+	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8ModId = CVI_ID_VPSS;
 	pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:UVC_H26X_BITRATE;
 	if (g_xSS.iUvcBitrate > 0 && enType == PT_MJPEG)
 	{

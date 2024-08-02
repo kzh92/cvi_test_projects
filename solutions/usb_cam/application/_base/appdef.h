@@ -257,6 +257,7 @@ enum E_Baud_Rate
 #define USE_UVC_FACE_RECT           0
 #define USE_TEMP_MODE               1
 #define USE_FUSHI_HAND_PROTO        0
+#define USE_SNAPCLR_VENC            0
 #define CONFIG_USB_HS               1
 #define CONFIG_DWC2_VERSION         0
 #define USE_EP0PKGSIZE_PATCH        0
@@ -573,7 +574,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANHAI_MODE
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2228,7 +2229,7 @@ enum E_Baud_Rate
 #define DEVICE_FIRMWARE_VERSION_INNER       "3.75.4.2_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
                                             {2, 864, 480, 30, 0, 8192}, \
                                             {3, 800, 480, 30, 0, 8192}, \
                                             {4, 640, 480, 30, 0, 6144},
@@ -2252,6 +2253,18 @@ enum E_Baud_Rate
 #define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      2
+#undef USE_SNAPCLR_VENC
+#define USE_SNAPCLR_VENC                    1
+#undef CAPTURE_WIDTH
+#define CAPTURE_WIDTH                       (640)
+#undef CAPTURE_HEIGHT
+#define CAPTURE_HEIGHT                      (360)
+#undef CAPTURE_MAX_WIDTH
+#define CAPTURE_MAX_WIDTH                   (640)
+#undef CAPTURE_MAX_HEIGHT
+#define CAPTURE_MAX_HEIGHT                  (360)
+#undef UVC_MJPEG_BITRATE
+#define UVC_MJPEG_BITRATE                   6144
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE

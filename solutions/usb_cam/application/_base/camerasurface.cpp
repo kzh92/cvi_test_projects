@@ -101,6 +101,8 @@ int             g_nPrevEntireYAVG = 0;
 float           g_rPrevValue = 0;
 int             g_nValueSettenPassed = 0;
 
+extern "C" void uvc_set_reinit_flag();
+
 #define LIMIT_INCREASE_RATE_UPPER       2.0f
 #define LIMIT_INCREASE_RATE_UPPER_FACE  1.5f
 #define LIMIT_DECREASE_RATE_UNDER       0.3f
@@ -2134,6 +2136,7 @@ int DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int i
         if (u32Cnt)
         {
             CVI_VPSS_ReleaseChnFrame(Grp, Chn, &stFrameInfo);
+            my_usleep(5*1000);
             continue;
         }
 #endif
@@ -2178,7 +2181,8 @@ int DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int i
             dbug_printf(" data_len(%d) plane_len(%d)\n",
                       u32DataLen, stFrameInfo.stVFrame.u32Length[i]);
             // aos_write(fd, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
-            memcpy(outBuf + buf_offset, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
+            if (outBuf != NULL)
+                memcpy(outBuf + buf_offset, (CVI_U8 *)stFrameInfo.stVFrame.u64PhyAddr[i], u32DataLen);
             buf_offset += u32DataLen;
             if (iYOnly)
                 break;
@@ -2202,8 +2206,74 @@ int DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int i
 #endif
 }
 
+#define UVC_VENC_CHN   (0)
+
+int uvc_media_update1()
+{
+    PAYLOAD_TYPE_E enType;
+    PIXEL_FORMAT_E enPixelFormat;
+    PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
+    VPSS_CHN_ATTR_S stVpssChnAttr;
+    CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
+    int iSensor = g_xSS.iUvcSensor;
+    int uvc_width = CAPTURE_WIDTH;
+    int uvc_height = CAPTURE_HEIGHT;
+
+    enPixelFormat = PIXEL_FORMAT_NV21;
+    enType = PT_MJPEG;
+
+    if(u8VencInitStatus == 1)
+        MEDIA_VIDEO_VencDeInit(pstVencCfg);
+
+    CVI_VPSS_GetChnAttr(iSensor, 0, &stVpssChnAttr);
+    stVpssChnAttr.enPixelFormat = enPixelFormat;
+
+    stVpssChnAttr.u32Width = uvc_width;
+    stVpssChnAttr.u32Height = uvc_height;
+    CVI_VPSS_SetChnRotation(iSensor, 0, ROTATION_0);
+
+    if (g_xSS.iUvcDirect == UVC_ROTATION_270)
+    {
+        stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
+        stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
+    }
+#if 0
+    VPSS_CROP_INFO_S pstCropInfo;
+    MEDIA_CHECK_RET(CVI_VPSS_GetChnCrop(iSensor, 0, &pstCropInfo), "CVI_VPSS_GetChnCrop failed\n");
+    if (stVpssChnAttr.u32Width * 16 / 9 == stVpssChnAttr.u32Height)
+    {
+        pstCropInfo.bEnable = CVI_FALSE;
+    }
+    else
+    {
+        int real_width = CLR_CAM_WIDTH;
+        int real_height = CLR_CAM_WIDTH * stVpssChnAttr.u32Height / stVpssChnAttr.u32Width;
+        pstCropInfo.bEnable = CVI_TRUE;
+        pstCropInfo.stCropRect.s32X = CLR_CAM_WIDTH > real_width ? ((CLR_CAM_WIDTH - real_width) / 2) : 0;
+        pstCropInfo.stCropRect.s32Y = CLR_CAM_HEIGHT > real_height ? ((CLR_CAM_HEIGHT - real_height) / 2) : 0;
+        pstCropInfo.stCropRect.u32Width = real_width;
+        pstCropInfo.stCropRect.u32Height = real_height;
+    }
+    MEDIA_CHECK_RET(CVI_VPSS_SetChnCrop(iSensor, 0, &pstCropInfo), "CVI_VPSS_SetChnCrop failed\n");
+#endif
+    CVI_VPSS_SetChnAttr(iSensor,0, &stVpssChnAttr);
+
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8DevId = iSensor;
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Width = uvc_width;
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16Height = uvc_height;
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u16EnType = enType;
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8ModId = -1;
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate = (enType == PT_MJPEG)?UVC_MJPEG_BITRATE:4096;
+    pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
+    printf("uvc1(%dx%d),%dbr\n", uvc_width, uvc_height, pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stRcParam.u16BitRate);
+
+    MEDIA_VIDEO_VencInit(pstVencCfg);
+    return 0;
+}
+
 int saveUvcScene()
 {
+#if (USE_SNAPCLR_VENC == 0)
     unsigned char* imgBuf = fr_GetInputImageBuffer1();
     lockIRBuffer();
     camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
@@ -2253,6 +2323,61 @@ int saveUvcScene()
 
     g_iJpgDataLen = iWriteLen;
     unlockIRBuffer();
+#else // ! USE_SNAPCLR_VENC
+    uvc_media_update1();
+    uint32_t buf_len = 0;
+    uint32_t i = 0, ret = 0;
+    VENC_STREAM_S stStream = {0},*pstStream= &stStream;
+    VENC_PACK_S *ppack;
+    if(!g_abJpgData)
+    {
+        g_abJpgData = (unsigned char*)my_malloc(128 * 1024);
+        g_iJpgDataLen = 0;
+    }
+    if (!g_abJpgData)
+    {
+        return MR_FAILED4_NOMEMORY;
+    }
+    camera_switch(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
+    int frame_count = 0;
+    for (i = 0; i < 70; i ++)
+    {
+        ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN, pstStream, 2000);
+        if(ret == CVI_SUCCESS)
+        {
+            if (frame_count++ >= 40)
+                break;
+            my_usleep(5*1000);
+        }
+        else
+            my_usleep(100*1000);
+    }
+    if(ret != CVI_SUCCESS)
+    {
+        printf("MEDIA_VIDEO_VencGetStream failed, %08x\n", ret);
+        return MR_FAILED4_NOMEMORY;
+    }
+    for (i = 0; i < pstStream->u32PackCount; ++i)
+    {
+        if(buf_len < SI_MAX_IMAGE_SIZE)
+        {
+            ppack = &pstStream->pstPack[i];
+            memcpy(g_abJpgData, ppack->pu8Addr + ppack->u32Offset, ppack->u32Len - ppack->u32Offset);
+            buf_len = (ppack->u32Len - ppack->u32Offset);
+        }
+        else
+        {
+            printf("venc buf_len oversize\n");
+            MEDIA_VIDEO_VencReleaseStream(0, pstStream);
+            continue;
+        }
+    }
+    printf("enc data len1=%d, %d\n", buf_len, (int)Now());
+    ret = MEDIA_VIDEO_VencReleaseStream(UVC_VENC_CHN,pstStream);
+    if(ret != CVI_SUCCESS)
+        printf("MEDIA_VIDEO_VencReleaseStream failed\n");
+    g_iJpgDataLen = buf_len;
+#endif // ! USE_SNAPCLR_VENC
     return MR_SUCCESS;
 }
 
