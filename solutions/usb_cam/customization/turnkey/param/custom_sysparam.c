@@ -45,10 +45,10 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
 
 PARAM_SYS_CFG_S  g_stSysCtx = {
     .u8VbPoolCnt = 2,
-    .u8ViCnt = 2,
-    .stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_ONLINE,
+    .u8ViCnt = 1,
+    .stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_OFFLINE,
     .stVIVPSSMode.aenMode[1] = VI_OFFLINE_VPSS_ONLINE,
-    .stVPSSMode.enMode = VPSS_MODE_DUAL,
+    .stVPSSMode.enMode = VPSS_MODE_SINGLE,
     .stVPSSMode.ViPipe[0] = 0,
     .stVPSSMode.aenInput[0] = VPSS_INPUT_MEM,
     .stVPSSMode.ViPipe[1] = 0,

@@ -104,7 +104,7 @@ struct combo_dev_attr_s sc3336_rx_attr = {
 		.cam = 1,
 		.freq = CAMPLL_FREQ_27M,
 	},
-	.devno = 1,
+	.devno = 0,
 };
 
 #ifdef __cplusplus
