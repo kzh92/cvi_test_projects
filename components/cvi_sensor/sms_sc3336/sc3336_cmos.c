@@ -145,7 +145,8 @@ static CVI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSns
 		pstAeSnsDft->u8AeCompensation = 40;
 		pstAeSnsDft->u32InitAESpeed = 64;
 		pstAeSnsDft->u32InitAETolerance = 5;
-		pstAeSnsDft->u32AEResponseFrame = 4;
+		pstAeSnsDft->u32AEResponseFrame = 3;
+//		pstAeSnsDft->u32SnsResponseFrame = 4;
 		pstAeSnsDft->enAeExpMode = AE_EXP_HIGHLIGHT_PRIOR;
 		pstAeSnsDft->u32InitExposure = g_au32InitExposure[ViPipe] ? g_au32InitExposure[ViPipe] : 76151;
 
@@ -314,27 +315,27 @@ static CVI_S32 cmos_again_calc_table(VI_PIPE ViPipe, CVI_U32 *pu32AgainLin, CVI_
 	CMOS_CHECK_POINTER(pu32AgainLin);
 	CMOS_CHECK_POINTER(pu32AgainDb);
 
-	if (again < 1556) {
+	if (again < 1557) {
 		*pu32AgainDb = 0x00;
 		*pu32AgainLin = 1024;
-	} else if (again < 3122) {
+	} else if (again < 3113) {
 		*pu32AgainDb = 0x40;
-		*pu32AgainLin = 1556;
-	} else if (again < 6225) {
+		*pu32AgainLin = 1557;
+	} else if (again < 6226) {
 		*pu32AgainDb = 0x48;
-		*pu32AgainLin = 3122;
-	} else if (again < 12451) {
+		*pu32AgainLin = 3113;
+	} else if (again < 12452) {
 		*pu32AgainDb = 0x49;
-		*pu32AgainLin = 6225;
-	} else if (again < 24903) {
+		*pu32AgainLin = 6226;
+	} else if (again < 24904) {
 		*pu32AgainDb = 0x4b;
-		*pu32AgainLin = 12451;
-	} else if (again < 49807) {
+		*pu32AgainLin = 12452;
+	} else if (again < 49808) {
 		*pu32AgainDb = 0x4f;
-		*pu32AgainLin = 24903;
+		*pu32AgainLin = 24904;
 	} else {
 		*pu32AgainDb = 0x5f;
-		*pu32AgainLin = 49807;
+		*pu32AgainLin = 49808;
 	}
 
 	return CVI_SUCCESS;

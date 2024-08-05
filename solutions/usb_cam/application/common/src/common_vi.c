@@ -155,6 +155,10 @@ ISP_SNS_OBJ_S *getSnsObj(SNS_TYPE_E enSnsType)
 	case SMS_SC2331_SLAVE_MIPI_2M_30FPS_10BIT:
 		return &stSnsSC2331_SLAVE_Obj;
 #endif
+#if CONFIG_SENSOR_SMS_SC3336
+	case SMS_SC3336_MIPI_3M_30FPS_10BIT:
+		return &stSnsSC3336_Obj;
+#endif
 #if CONFIG_SENSOR_SONY_IMX307
 	case SONY_IMX307_MIPI_2M_30FPS_12BIT:
 	case SONY_IMX307_MIPI_2M_30FPS_12BIT_WDR2TO1:
@@ -230,6 +234,7 @@ CVI_S32 getPicSize(CVI_S32 dev_id, SNS_SIZE_S *pstSize)
 		pstSize->u32Width  = 1600;
 		pstSize->u32Height = 1200;
 		break;
+	case SMS_SC3336_MIPI_3M_30FPS_10BIT:
 	case SMS_SC2331_SLAVE_MIPI_2M_30FPS_10BIT:
 		pstSize->u32Width  = 2304;
 		pstSize->u32Height = 1296;

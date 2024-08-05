@@ -97,14 +97,14 @@ struct combo_dev_attr_s sc3336_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
-		.lane_id = {4, 3, 2, -1, -1},
+		.lane_id = {3, 4, -1, -1, -1},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 	},
 	.mclk = {
 		.cam = 1,
 		.freq = CAMPLL_FREQ_27M,
 	},
-	.devno = 0,
+	.devno = 1,
 };
 
 #ifdef __cplusplus
