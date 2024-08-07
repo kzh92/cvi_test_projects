@@ -892,8 +892,8 @@ enum E_Baud_Rate
 
 //3.7.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.70.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.70.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.70.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.70.5_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 15, 0, 20480}, \
@@ -901,12 +901,10 @@ enum E_Baud_Rate
                                             {3, 800, 480, 12, 0, 9000},\
                                             {4, 480, 320, 12, 0, 9000},\
                                             {5, 320, 240, 12, 0, 9000}
-#undef USE_3M_MODE
-#define USE_3M_MODE                         1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef DEFAULT_ISP_BIN_VER
@@ -915,8 +913,23 @@ enum E_Baud_Rate
 #define SPECIFIC_LOG_PRINT                  1
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
 #define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 
