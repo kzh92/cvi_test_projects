@@ -1091,7 +1091,7 @@ int FaceRecogTask::ProcessEnroll1Step(int iSecondImageReCheck)
         return 1;
 #if (ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
 #if (USE_3M_MODE == U3M_DEFAULT || USE_3M_MODE == U3M_SEMI || USE_3M_MODE == U3M_SEMI_IR)
-    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT) && arEngineResult[1] == 0 && (g_xSS.iUvcSensor == DEFAULT_SNR4UVC || USE_3M_MODE == U3M_SEMI_IR)) //face mode only
+    if((arEngineResult[0] == ES_SUCCESS || arEngineResult[0] == ES_ENEXT || arEngineResult[0] == ES_DUPLICATED) && arEngineResult[1] == 0 && (g_xSS.iUvcSensor == DEFAULT_SNR4UVC || USE_3M_MODE == U3M_SEMI_IR)) //face mode only
     {
         unsigned char* pInputImageBuffer1 = fr_GetInputImageBuffer1();
         GetRightIrFrame(pInputImageBuffer1, 0, FR_NEED_RIGHT_IR);
