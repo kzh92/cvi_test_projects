@@ -10,8 +10,8 @@
 
 PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
     {
-        .u16width = 1920,
-        .u16height = 1080,
+        .u16width = 1600,
+        .u16height = 1200,
         .u8VbBlkCnt = 3,
         .fmt = PIXEL_FORMAT_NV21,
         .enBitWidth = DATA_BITWIDTH_8,
@@ -19,7 +19,7 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
     },
     {
         .u16width = 1280,
-        .u16height = 720,
+        .u16height = 960,
         .u8VbBlkCnt = 3,
         .fmt = PIXEL_FORMAT_NV21,
         .enBitWidth = DATA_BITWIDTH_8,
