@@ -1061,8 +1061,8 @@ enum E_Baud_Rate
 
 // 3.11.4_D + 3.1.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.76.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.76.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.76.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.76.5_D"
 
 #undef UVC_RES_DEFINE
 #undef UVC_RES_DEFINE
@@ -1085,8 +1085,8 @@ enum E_Baud_Rate
 #undef MAX_PSPT_SIZE
 #define MAX_PSPT_SIZE                       1024
 
-#undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
+// #undef DEFAULT_UVC_DIR
+// #define DEFAULT_UVC_DIR                     UVC_ROTATION_270
 #undef CAM_ROTATION_MODE
 #define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 
