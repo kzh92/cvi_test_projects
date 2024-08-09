@@ -576,7 +576,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_CS_TUYA_UAC                   366
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -771,19 +771,19 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.4.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.4.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.4.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.4.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 800, 480, 30, 0, 10240},
 #undef UAC_SAMPLE_RATE
 #define UAC_SAMPLE_RATE                     16000
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     8
+#define UAC_SPEAKER_VOL                     32
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 // #undef SPECIFIC_LOG_PRINT
 // #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_INIT_WIDTH
@@ -792,22 +792,22 @@ enum E_Baud_Rate
 #define UVC_INIT_HEIGHT                     480
 #undef ENROLL_ANGLE_MODE
 #define ENROLL_ANGLE_MODE                   1
-// #undef UVC_USBD_PRINT
-// #define UVC_USBD_PRINT                      1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef MAX_PSPT_SIZE
 #define MAX_PSPT_SIZE                       1024 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
-#undef UAC_EP_WMAXPCKT_SIZE
-#define UAC_EP_WMAXPCKT_SIZE                32  //audio ep wMaxPacketSize
+// #undef UAC_EP_WMAXPCKT_SIZE
+// #define UAC_EP_WMAXPCKT_SIZE                32  //audio ep wMaxPacketSize
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
 // #undef USE_EP0PKGSIZE_PATCH
 // #define USE_EP0PKGSIZE_PATCH                1
-#undef CONFIG_USB_BULK_UVC
-#define CONFIG_USB_BULK_UVC                 1
+// #undef CONFIG_USB_BULK_UVC
+// #define CONFIG_USB_BULK_UVC                 1
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
