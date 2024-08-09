@@ -251,6 +251,11 @@ void krhino_mm_free(void *ptr);
  */
 void *krhino_mm_realloc(void *oldmem, size_t newsize);
 
+void *krhino_mm_alloc_resv(size_t size);
+
+void krhino_mm_free_resv(void *ptr);
+
+void *krhino_mm_realloc_resv(void *oldmem, size_t newsize);
 /**
  * Get the max free buffer size.
  *
