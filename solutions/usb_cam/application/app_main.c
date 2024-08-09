@@ -39,7 +39,7 @@ int camera_switch(int camid)
     {
         return -1;
     }
-    pSnsObj->pfnSnsSwitch(0, camid == 1);
+    // pSnsObj->pfnSnsSwitch(0, camid == 1);
     g_iCurCam = camid;
     return 0;
 }
