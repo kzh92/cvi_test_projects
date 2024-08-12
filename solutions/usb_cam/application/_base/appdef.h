@@ -803,7 +803,7 @@ enum E_Baud_Rate
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
 // #undef USE_EP0PKGSIZE_PATCH
 // #define USE_EP0PKGSIZE_PATCH                1
 // #undef CONFIG_USB_BULK_UVC
@@ -2914,7 +2914,7 @@ enum E_Baud_Rate
 // #undef CONFIG_USB_HS
 // #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      1
 #undef MAX_PSPT_SIZE
