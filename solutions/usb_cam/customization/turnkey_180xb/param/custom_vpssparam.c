@@ -14,8 +14,8 @@ PARAM_CLASSDEFINE(PARAM_VPSS_CHN_CFG_S,CHNCFG,GRP0,CHN)[] = {
     {
         .u8Rotation = ROTATION_0,
         .stVpssChnAttr = {
-            .u32Width = UVC_MAX_WIDTH,
-            .u32Height = UVC_MAX_HEIGHT,
+            .u32Width = UVC_INIT_WIDTH,
+            .u32Height = UVC_INIT_HEIGHT,
             .enVideoFormat = VIDEO_FORMAT_LINEAR,
             .enPixelFormat = (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21 ? PIXEL_FORMAT_NV21 : PIXEL_FORMAT_YUV_PLANAR_422),
             .stFrameRate.s32SrcFrameRate = 30,

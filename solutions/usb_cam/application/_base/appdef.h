@@ -576,7 +576,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_CS_TUYA_UAC                   366
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HW7258_TUYA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3064,8 +3064,8 @@ enum E_Baud_Rate
 
 // 3.75.4.2_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.81.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.81.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.81.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.81.4_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
@@ -3102,10 +3102,10 @@ enum E_Baud_Rate
 #undef CAPTURE_MAX_HEIGHT
 #define CAPTURE_MAX_HEIGHT                  (360)
 #undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   6144
+#define UVC_MJPEG_BITRATE                   4096
 
 #undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      0
+#define N_MAX_HAND_NUM                      100
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
