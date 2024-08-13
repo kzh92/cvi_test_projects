@@ -576,7 +576,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_CS_TUYA_UAC                   366
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_HW7258_TUYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_CS_TUYA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3573,14 +3573,14 @@ odd version: use_whiteled = 1
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.101.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.101.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.101.0.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.101.0.1_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240}, \
-                                            {3, 800, 480, 30, 0, 10240}, \
-                                            {4, 640, 480, 30, 0, 6144},
+#define UVC_RES_DEFINE                      {1, 480, 864, 30, UVC_ROTATION_0 + 1, 8192}, \
+                                            {2, 480, 800, 30, UVC_ROTATION_0 + 1, 8192}, \
+                                            {3, 480, 640, 30, UVC_ROTATION_0 + 1, 6144}, \
+                                            {4, 480, 320, 30, 0, 6144},
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
