@@ -577,7 +577,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_CS_TUYA_UAC                   366
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XM7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2894,12 +2894,12 @@ enum E_Baud_Rate
 
 // 3.55.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.73.4.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.73.4.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.73.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.73.6_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
-                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
                                             {3, 800, 480, 30, 0, 8192}, \
                                             {4, 640, 480, 30, 0, 6144},
 #undef UAC_SPEAKER_VOL
@@ -2920,8 +2920,12 @@ enum E_Baud_Rate
 #define CONFIG_DWC2_VERSION                 2
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      1
-#undef MAX_PSPT_SIZE
-#define MAX_PSPT_SIZE                       1024
+// #undef MAX_PSPT_SIZE
+// #define MAX_PSPT_SIZE                       1024
+#undef CONFIG_USB_BULK_UVC
+#define CONFIG_USB_BULK_UVC                 1
+#undef UVC_DELAY_BEFORE_START
+#define UVC_DELAY_BEFORE_START              700
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
