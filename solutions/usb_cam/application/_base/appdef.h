@@ -577,7 +577,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_CS_TUYA_UAC                   366
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XM7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_IR_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3270,8 +3270,8 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS7258_IR_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.88.5.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.5.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.88.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.88.6_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -3279,7 +3279,7 @@ odd version: use_whiteled = 1
                                             {3, 800, 480, 30, 0, 8192}, \
                                             {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef USE_USB_EP_ERR_FIX_MODE
@@ -3288,14 +3288,19 @@ odd version: use_whiteled = 1
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
-#undef CONFIG_USB_HS
-#define CONFIG_USB_HS                       0
+// #undef CONFIG_USB_HS
+// #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 #undef UAC_SPK_NR_USE
-#define UAC_SPK_NR_USE                      2
+#define UAC_SPK_NR_USE                      1
+#undef CONFIG_USB_BULK_UVC
+#define CONFIG_USB_BULK_UVC                 1
+#undef UVC_DELAY_BEFORE_START
+#define UVC_DELAY_BEFORE_START              700
+
 #undef USE_FUSHI_HAND_PROTO
 #define USE_FUSHI_HAND_PROTO                1
 #undef USE_READY0_PROTO
@@ -3304,8 +3309,6 @@ odd version: use_whiteled = 1
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEVICE_NID_READY_VER
 #define DEVICE_NID_READY_VER                0xf0
-#undef CONFIG_SPI_NOR_ER_TIME
-#define CONFIG_SPI_NOR_ER_TIME              2000
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
