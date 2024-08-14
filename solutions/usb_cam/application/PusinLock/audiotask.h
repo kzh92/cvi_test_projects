@@ -4,7 +4,7 @@
 #include "appdef.h"
 
 #if (USE_UAC_MODE)
-void test_Audio();
+int test_Audio();
 #endif
 
 #if (USE_WIFI_MODULE)

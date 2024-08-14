@@ -44,6 +44,7 @@ static aos_event_t _gslUvcEvent;
 static volatile bool g_uvc_event_flag;
 
 static uint8_t *packet_buffer_uvc;
+int g_uac_inited = 0;
 
 CVI_S32 is_media_info_update();
 void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex);
@@ -772,6 +773,7 @@ int MEDIA_AV_Init()
 #if (USE_UAC_MODE)
 	MEDIA_UAC_Init();
 #endif //USE_UAC_MODE
+	g_uac_inited = 1;
 	packet_buffer_uvc = (uint8_t *)usb_iomalloc(MAX_FRAME_SIZE);
 
 	// Wait until configured
@@ -800,6 +802,7 @@ int MEDIA_AV_DeInit()
 	aos_msleep(100);
 	usbd_deinitialize();
 	aos_event_free(&_gslUvcEvent);
+	g_uac_inited = 0;
 #if (USE_UAC_MODE)
 	MEDIA_UAC_deInit();
 #endif // USE_UAC_MODE

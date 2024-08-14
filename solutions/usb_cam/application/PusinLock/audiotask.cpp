@@ -26,7 +26,7 @@ int captured_len = 0;
 int capturing;
 
 unsigned char *capture_buff = NULL;
-
+extern int g_uac_inited;
 
 void audio_capture_test_entry(void)
 {
@@ -219,9 +219,21 @@ void audio_test_vol_cmd(int32_t argc, char **argv)
 }
 #endif
 
-void test_Audio()
+int test_Audio()
 {
+    float rOldTime = Now();
     GPIO_fast_setvalue(AUDIO_EN, OFF);
+    //wait for uac inited, max: 1s
+    while(g_uac_inited == 0 && Now() - rOldTime <= 1000)
+    {
+        my_usleep(10*1000);
+    }
+    if (g_uac_inited == 0)
+    {
+        my_printf("Audio Init Failed!\n");
+        return 1;
+    }
+    my_printf("Audio Init Detected(%d).\n", (int)(Now() - rOldTime));
     capturing = 1;
     if(my_thread_create_ext(&recthread, 0, test_record_thread, NULL, (char*)"record_test", 8192, MYTHREAD_PRIORITY_HIGH))
         printf("[record_thread]create thread error.\n");
@@ -231,6 +243,7 @@ void test_Audio()
     aos_msleep(300);
     my_thread_join(&recthread);
     audio_play_test_entry(0);
+    return 0;
 }
 
 #endif// USE_UAC_MODE

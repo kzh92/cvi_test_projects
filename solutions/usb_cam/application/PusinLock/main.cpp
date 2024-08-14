@@ -3623,11 +3623,12 @@ int MsgProcFM(MSG* pMsg)
 #endif
     else if(pMsg->data1 == FUNC_TEST_HEADER)
     {
+        int ret = 0;
         if (pMsg->data2 == E_FUNC_MIC_SPEAKER)
         {
 #if (USE_UAC_MODE)
             my_printf("[FuncTest] E_FUNC_SPEAKER\n");
-            test_Audio();
+            ret = test_Audio();
 #endif // USE_UAC_MODE
         }
         else
@@ -3640,7 +3641,7 @@ int MsgProcFM(MSG* pMsg)
         xSendCmd.header = FUNC_TEST_HEADER;
         xSendCmd.cmdID = pMsg->data2;
         xSendCmd.dataLen = 1;
-        xSendCmd.dataBuf[0] = 0;    //success
+        xSendCmd.dataBuf[0] = ret;    //0: success
         xSendCmd.chksum = FuncTestProc::CaclFuncTestCheckSum(&xSendCmd);
 
         UART_Send((unsigned char*)&xSendCmd, xSendCmd.dataLen + 7);
