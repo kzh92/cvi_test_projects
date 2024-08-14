@@ -338,6 +338,7 @@ enum E_Baud_Rate
 #define UAC_EP_WMAXPCKT_SIZE        64  //audio ep wMaxPacketSize
 #define MAX_PSPT_SIZE               512 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
 #define UVC_IR_FRM_TIMEOUT          60
+#define UVC_DELAY_BEFORE_START      0
 
 #define UVC_PIXEL_FMT_NV21          0
 #define UVC_PIXEL_FMT_YUV422        1

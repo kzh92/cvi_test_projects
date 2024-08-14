@@ -202,9 +202,10 @@ int VDBTask::IsStreaming()
 void VDBTask::run()
 {
     // start uvc
+    my_usleep(UVC_DELAY_BEFORE_START*1000);
     MEDIA_AV_Init();
     StartCamSurface(0);
-    my_printf("vdb task end\n");
+    my_printf("v.\n");
 }
 
 void VDBTask::ThreadProc()
