@@ -337,6 +337,7 @@ enum E_Baud_Rate
 #define UVC_DARK_WATCH_COUNTER      3
 #define UAC_EP_WMAXPCKT_SIZE        64  //audio ep wMaxPacketSize
 #define MAX_PSPT_SIZE               512 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
+#define USB_TPM_CNT                 1   //TRANSACTION_PER_MICROFRAME
 #define UVC_IR_FRM_TIMEOUT          60
 #define UVC_DELAY_BEFORE_START      0
 
