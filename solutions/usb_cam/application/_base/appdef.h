@@ -578,7 +578,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_CS_TUYA_UAC                   366
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_CS_TUYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -775,11 +775,14 @@ enum E_Baud_Rate
 
 // 3.5.9_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.69.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.69.7_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.69.7_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 800, 480, 30, 0, 10240},
+#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}, \
+                                            {2, 800, 480, 30, 0, 8192}, \
+                                            {3, 640, 480, 30, 0, 6144}, \
+                                            {4, 480, 320, 30, 0, 4096},
 #undef UAC_SAMPLE_RATE
 #define UAC_SAMPLE_RATE                     16000
 #undef UAC_SPEAKER_VOL
@@ -790,10 +793,6 @@ enum E_Baud_Rate
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#undef UVC_INIT_WIDTH
-#define UVC_INIT_WIDTH                      800
-#undef UVC_INIT_HEIGHT
-#define UVC_INIT_HEIGHT                     480
 #undef ENROLL_ANGLE_MODE
 #define ENROLL_ANGLE_MODE                   1
 #undef UVC_USBD_PRINT
@@ -802,16 +801,22 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef MAX_PSPT_SIZE
 #define MAX_PSPT_SIZE                       1024 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
-#undef UAC_EP_WMAXPCKT_SIZE
-#define UAC_EP_WMAXPCKT_SIZE                32  //audio ep wMaxPacketSize
+// #undef UAC_EP_WMAXPCKT_SIZE
+// #define UAC_EP_WMAXPCKT_SIZE                32  //audio ep wMaxPacketSize
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
 // #undef USE_EP0PKGSIZE_PATCH
 // #define USE_EP0PKGSIZE_PATCH                1
 // #undef CONFIG_USB_BULK_UVC
 // #define CONFIG_USB_BULK_UVC                 1
+#undef UVC_MAX_WIDTH
+#define UVC_MAX_WIDTH                       864
+#undef UVC_MAX_HEIGHT
+#define UVC_MAX_HEIGHT                      480
+#undef USB_TPM_CNT
+#define USB_TPM_CNT                         3   //TRANSACTION_PER_MICROFRAME
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
