@@ -2255,8 +2255,8 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.4.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.4.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.4.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.4.5_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192},
@@ -2278,8 +2278,8 @@ enum E_Baud_Rate
 #define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 #undef DEFAULT_UVC_PIXEL_FMT
 #define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
-#undef UAC_SPK_NR_USE
-#define UAC_SPK_NR_USE                      2
+// #undef UAC_SPK_NR_USE
+// #define UAC_SPK_NR_USE                      2
 #undef USE_SNAPCLR_VENC
 #define USE_SNAPCLR_VENC                    1
 #undef CAPTURE_WIDTH
