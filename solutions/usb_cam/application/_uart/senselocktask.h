@@ -115,6 +115,7 @@ protected:
 
     float               m_rActive;
     float               m_rRecvCmdTime;
+    static float        m_rSendReadyTime;
 #if 0
     pthread_mutex_t     m_mutex;
     pthread_cond_t      m_cond;

@@ -43,6 +43,7 @@ unsigned char SenseLockTask::m_encKeyPos[ENC_KEY_SIZE] = {
 };
 
 mymutex_ptr SenseLockTask::CommMutex = my_mutex_init();
+float SenseLockTask::m_rSendReadyTime = 0;
 
 extern void StartVDB();
 extern void StopVDB();
@@ -1953,6 +1954,9 @@ int SenseLockTask::Get_DataLen(s_msg* msg)
 
 int SenseLockTask::SendReady()
 {
+    if (m_rSendReadyTime != 0 && Now() - m_rSendReadyTime < 200)
+        return 0;
+    m_rSendReadyTime = Now();
     s_msg* msg = Get_Note(NID_READY);
     if (msg)
     {
