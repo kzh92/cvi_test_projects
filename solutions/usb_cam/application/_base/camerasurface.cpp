@@ -2216,8 +2216,8 @@ int uvc_media_update1()
     VPSS_CHN_ATTR_S stVpssChnAttr;
     CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
     int iSensor = g_xSS.iUvcSensor;
-    int uvc_width = CAPTURE_WIDTH;
-    int uvc_height = CAPTURE_HEIGHT;
+    int uvc_width = (DEFAULT_UVC_DIR == UVC_ROTATION_90 ? CAPTURE_WIDTH : CAPTURE_HEIGHT);
+    int uvc_height = (DEFAULT_UVC_DIR == UVC_ROTATION_90 ? CAPTURE_HEIGHT : CAPTURE_WIDTH);
 
     enPixelFormat = PIXEL_FORMAT_NV21;
     enType = PT_MJPEG;
@@ -2228,9 +2228,18 @@ int uvc_media_update1()
     CVI_VPSS_GetChnAttr(iSensor, 0, &stVpssChnAttr);
     stVpssChnAttr.enPixelFormat = enPixelFormat;
 
-    stVpssChnAttr.u32Width = uvc_width;
-    stVpssChnAttr.u32Height = uvc_height;
-    CVI_VPSS_SetChnRotation(iSensor, 0, ROTATION_0);
+    if (DEFAULT_UVC_DIR == UVC_ROTATION_90)
+    {
+        stVpssChnAttr.u32Width = uvc_width;
+        stVpssChnAttr.u32Height = uvc_height;
+        CVI_VPSS_SetChnRotation(iSensor, 0, ROTATION_0);
+    }
+    else
+    {
+        stVpssChnAttr.u32Width = uvc_height;
+        stVpssChnAttr.u32Height = uvc_width;
+        CVI_VPSS_SetChnRotation(iSensor, 0, ROTATION_90);
+    }
 
     if (g_xSS.iUvcDirect == UVC_ROTATION_270)
     {

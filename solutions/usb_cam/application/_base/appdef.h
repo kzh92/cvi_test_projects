@@ -577,9 +577,10 @@ enum E_Baud_Rate
 #define FRM_DBS3M_AP7258_UAC                    364
 #define FRM_DBS3M_JIARUI_UAC                    365
 #define FRM_DBS3M_CS_TUYA_UAC                   366
+#define FRM_DBS3M_RENT                          367
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_XIONGMAI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_RENT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3623,6 +3624,53 @@ odd version: use_whiteled = 1
 #else // USE_WHITE_LED
 #error "USE_WHITE_LED must be 0 or 1."
 #endif // USE_WHITE_LED
+
+//----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_RENT)
+
+// 3.89.0_D
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.102.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.102.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 480, 640, 30, 0, 4096},
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       1
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef USE_RENT_ENGINE
+#define USE_RENT_ENGINE                     1
+#undef USE_DB_UPDATE_MODE
+#define USE_DB_UPDATE_MODE                  1
+#undef USE_UAC_MODE
+#define USE_UAC_MODE                        0
+#undef USE_SNAPCLR_VENC
+#define USE_SNAPCLR_VENC                    1
+#undef CAPTURE_WIDTH
+#define CAPTURE_WIDTH                       (640)
+#undef CAPTURE_HEIGHT
+#define CAPTURE_HEIGHT                      (480)
+#undef CAPTURE_MAX_WIDTH
+#define CAPTURE_MAX_WIDTH                   (640)
+#undef CAPTURE_MAX_HEIGHT
+#define CAPTURE_MAX_HEIGHT                  (480)
+#undef UVC_MAX_WIDTH
+#define UVC_MAX_WIDTH                       640
+#undef UVC_MAX_HEIGHT
+#define UVC_MAX_HEIGHT                      480
+#undef UVC_MJPEG_BITRATE
+#define UVC_MJPEG_BITRATE                   2048
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_0
+
+//----------------------------------------------------------
 
 #endif // FRM_PRODUCT_TYPE
 
