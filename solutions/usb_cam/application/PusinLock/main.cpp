@@ -3274,7 +3274,10 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                     }
 
                     if(g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON)
+                    {
+                        my_usleep(20*1000); //delay 20ms for host
                         iID = -2 - N_MAX_PERSON_NUM;
+                    }
 
                     s_msg* msg = NULL;
                     msg = SenseLockTask::Get_Reply_Verify(pSenseMsg, MR_SUCCESS, iID + N_MAX_PERSON_NUM + 1, ST_FACE_MODULE_STATUS_UNLOCK_HAND_OK, 1);
