@@ -580,7 +580,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_RENT                          367
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEXIONG_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2256,31 +2256,31 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.4.7_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.4.7_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.5_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.5_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 864, 480, 15, 0, 6144},
+#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}, \
+                                            {2, 800, 480, 30, 0, 8192}, \
+                                            {3, 640, 480, 30, 0, 4096},
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       0
+#define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
-// #undef SPECIFIC_LOG_PRINT
-// #define SPECIFIC_LOG_PRINT                  1
-// #undef UVC_USBD_PRINT
-// #define UVC_USBD_PRINT                      1
-// #undef CONFIG_USB_HS
-// #define CONFIG_USB_HS                       0
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef CONFIG_USB_HS
+#define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
-#undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 #undef DEFAULT_UVC_PIXEL_FMT
 #define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
 #undef UAC_SPK_NR_USE
-#define UAC_SPK_NR_USE                      2
+#define UAC_SPK_NR_USE                      1
 #undef USE_SNAPCLR_VENC
 #define USE_SNAPCLR_VENC                    1
 #undef CAPTURE_WIDTH
@@ -2292,9 +2292,13 @@ enum E_Baud_Rate
 #undef CAPTURE_MAX_HEIGHT
 #define CAPTURE_MAX_HEIGHT                  (360)
 #undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   6144
-#undef UVC_CROP_RESIZE
-#define UVC_CROP_RESIZE                     0.8875
+#define UVC_MJPEG_BITRATE                   4096
+#undef UVC_MAX_WIDTH
+#define UVC_MAX_WIDTH                       864
+#undef UVC_MAX_HEIGHT
+#define UVC_MAX_HEIGHT                      480
+#undef UVC_DELAY_BEFORE_START
+#define UVC_DELAY_BEFORE_START              700
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
