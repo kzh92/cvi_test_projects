@@ -233,7 +233,14 @@ int uvc_media_update(){
 		printf("PIXEL_FORMAT_NV21-1\n");
 		break;
 	default:
-		enPixelFormat = (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21 ? PIXEL_FORMAT_NV21 : PIXEL_FORMAT_YUV_PLANAR_422);
+#if (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21)
+		enPixelFormat = PIXEL_FORMAT_NV21;
+#else // DEFAULT_UVC_PIXEL_FMT
+		if (uvc_frame_info.width == 800)
+			enPixelFormat = PIXEL_FORMAT_NV21;
+		else
+			enPixelFormat = PIXEL_FORMAT_YUV_PLANAR_422;
+#endif // DEFAULT_UVC_PIXEL_FMT
 		printf("%s\n", (DEFAULT_UVC_PIXEL_FMT == UVC_PIXEL_FMT_NV21 ? "PF_NV21" : "PF_422"));
 		break;
 	}
@@ -259,6 +266,11 @@ int uvc_media_update(){
 		uvc_frame_info.width = UVC_INIT_WIDTH;
 		uvc_frame_info.height = UVC_INIT_HEIGHT;
 	}
+
+	VPSS_GRP_ATTR_S stGrpAttr;
+	CVI_VPSS_GetGrpAttr(0, &stGrpAttr);
+	stGrpAttr.enPixelFormat = enPixelFormat;
+	CVI_VPSS_SetGrpAttr(0, &stGrpAttr);
 
 	CVI_VPSS_GetChnAttr(iSensor, UVC_VPSS_CHN, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
