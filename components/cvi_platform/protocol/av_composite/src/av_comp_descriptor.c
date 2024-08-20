@@ -313,6 +313,55 @@ static struct usb_interface_descriptor uvc_control_intf = {
 //     .wMaxTransferSize    = cpu_to_le16(UVC_STATUS_MAX_PACKET_SIZE),
 // };
 
+static struct usb_interface_assoc_descriptor usb_rent_iad = {
+    .bLength        = sizeof(usb_rent_iad),
+    .bDescriptorType    = USB_DT_INTERFACE_ASSOCIATION,
+    .bFirstInterface    = 0x05,
+    .bInterfaceCount    = 1,
+    .bFunctionClass        = USB_CLASS_VENDOR_SPEC,
+    .bFunctionSubClass    = 0x00,
+    .bFunctionProtocol    = 0x00,
+    .iFunction        = 0,
+};
+
+static struct usb_interface_descriptor usb_rent_control_intf = {
+    .bLength        = USB_DT_INTERFACE_SIZE,
+    .bDescriptorType    = USB_DT_INTERFACE,
+    .bInterfaceNumber    = 0x05,
+    .bAlternateSetting    = 0,
+    .bNumEndpoints        = 0,
+    .bInterfaceClass    = USB_CLASS_VENDOR_SPEC,
+    .bInterfaceSubClass    = 0x00,
+    .bInterfaceProtocol    = 0x00,
+    .iInterface        = 0x00,
+};
+
+static struct usb_interface_descriptor usb_rent_streaming_intf_alt0 = {
+    .bLength        = USB_DT_INTERFACE_SIZE,
+    .bDescriptorType    = USB_DT_INTERFACE,
+    .bInterfaceNumber    = 0x05,
+    .bAlternateSetting    = 0,
+    .bNumEndpoints        = 1,
+    .bInterfaceClass    = USB_CLASS_VENDOR_SPEC,
+    .bInterfaceSubClass    = 0x00,
+    .bInterfaceProtocol    = 0x00,
+    .iInterface        = 0x00,
+};
+
+static struct usb_endpoint_descriptor usb_rent_streaming_ep = {
+    .bLength            = USB_DT_ENDPOINT_SIZE,
+    .bDescriptorType    = USB_DT_ENDPOINT,
+    .bEndpointAddress   = 0x05,
+    .bmAttributes       = USB_ENDPOINT_XFER_BULK,
+    .wMaxPacketSize     = cpu_to_le16(512),
+    .bInterval          = 0,
+};
+
+static const struct usb_descriptor_header * const usb_rent_streaming[] = {
+    (struct usb_descriptor_header *) &usb_rent_streaming_ep,
+    NULL,
+};
+
 static struct usb_interface_descriptor uvc_streaming_intf_alt0 = {
     .bLength        = USB_DT_INTERFACE_SIZE,
     .bDescriptorType    = USB_DT_INTERFACE,
@@ -788,6 +837,66 @@ void uvc_destroy_descriptor(uint8_t *hdr)
     }
 }
 
+uint8_t *
+usb_rent_build_descriptor(struct uvc_format_info_st *format_info,
+                     uint32_t num_formats,
+                     uint32_t *len)
+{
+    struct uvc_input_header_descriptor *uvc_streaming_header;
+    const struct usb_descriptor_header * const *uvc_streaming_std;
+    const struct usb_descriptor_header * const *src;
+    struct usb_descriptor_header **dst;
+    uint8_t *hdr;
+    unsigned int n_desc;
+    unsigned int bytes;
+    void *mem;
+
+    uvc_streaming_std = usb_rent_streaming;
+
+    /* Count descriptors and compute their size. */
+    bytes = usb_rent_iad.bLength + usb_rent_control_intf.bLength + usb_rent_streaming_intf_alt0.bLength;
+    n_desc = 20;
+
+    for (src = uvc_streaming_std; *src; ++src) {
+        bytes += (*src)->bLength;
+        n_desc++;
+    }
+
+    if (len) {
+        *len = bytes;
+    }
+
+    bytes += sizeof(void *);
+
+    mem = malloc(bytes);
+    if (mem == NULL)
+        return NULL;
+
+    hdr = mem;
+    dst = mem + bytes;
+
+    UVC_COPY_DESCRIPTOR(mem, dst, &usb_rent_iad);
+    UVC_COPY_DESCRIPTOR(mem, dst, &usb_rent_control_intf);
+
+    UVC_COPY_DESCRIPTOR(mem, dst, &usb_rent_streaming_intf_alt0);
+    uvc_streaming_header = mem;
+    UVC_COPY_DESCRIPTORS(mem, dst, uvc_streaming_std);
+    uvc_streaming_header->wTotalLength = cpu_to_le16(0);
+    uvc_streaming_header->bEndpointAddress = 0x05;
+
+    ((uint8_t *)mem)[0] = 0x00;
+
+    *dst = NULL;
+    return hdr;
+}
+
+void usb_rent_destroy_descriptor(uint8_t *hdr)
+{
+    if (hdr != NULL) {
+        free (hdr);
+    }
+}
+
 static struct uvc_frame_info_st uvc_frame_info;
 static struct uvc_format_info_st uvc_format_info;
 
@@ -815,6 +924,8 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
     uint32_t av_desc_len = 0;
     uint32_t video_desc_len = 0;
     uint32_t audio_desc_len = 0;
+    uint32_t usb_rent_desc_len = 0;
+    uint8_t* usb_rent_desc = NULL;
     uint32_t bytes = 0;
     uint32_t n_desc = 15;
     void *mem = NULL;
@@ -831,7 +942,9 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
     if (video_desc != NULL
         && video_desc_len > 0) {
     }
-    av_desc_len = video_desc_len + audio_desc_len + uvc_config_descriptor.bLength;
+    usb_rent_desc = usb_rent_build_descriptor(NULL, 0, &usb_rent_desc_len);
+    aos_debug_printf("usb_rent_desc1=%p,%d\n", usb_rent_desc, usb_rent_desc_len);
+    av_desc_len = video_desc_len + audio_desc_len + uvc_config_descriptor.bLength + usb_rent_desc_len;
     bytes += av_desc_len;
     bytes += uvc_device_descriptor.bLength;
     for (src = uvc_string_descriptors; *src; ++src) {
@@ -857,7 +970,11 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
     // Copy uac iad
     memcpy(mem, audio_desc, audio_desc_len);
     mem += audio_desc_len;
-
+    if (usb_rent_desc_len > 0)
+    {
+        memcpy(mem, usb_rent_desc, usb_rent_desc_len);
+        mem += usb_rent_desc_len;
+    }
     UVC_COPY_DESCRIPTORS(mem, dst, uvc_string_descriptors);
 #ifdef CONFIG_USB_HS
     UVC_COPY_DESCRIPTOR(mem, dst, &uvc_qual_descriptor);
@@ -867,6 +984,7 @@ uint8_t *av_comp_build_descriptors(struct uvc_format_info_st *format_info, uint3
 
     uac_destroy_descriptor(audio_desc);
     uvc_destroy_descriptor(video_desc);
+    usb_rent_destroy_descriptor(usb_rent_desc);
 
     return av_desc;
 }
