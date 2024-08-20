@@ -3275,7 +3275,7 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
 
                     if(g_xSS.iDemoMode == N_DEMO_VERIFY_MODE_ON)
                     {
-                        my_usleep(20*1000); //delay 20ms for host
+                        my_usleep(50*1000); //delay 50ms for host
                         iID = -2 - N_MAX_PERSON_NUM;
                     }
 
