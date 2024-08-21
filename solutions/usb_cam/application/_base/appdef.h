@@ -581,7 +581,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_RENT                          367
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2259,15 +2259,15 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.6_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}, \
                                             {2, 800, 480, 30, 0, 8192}, \
                                             {3, 640, 480, 30, 0, 4096},
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef USE_USB_EP_ERR_FIX_MODE
@@ -2302,6 +2302,8 @@ enum E_Baud_Rate
 #define UVC_MAX_HEIGHT                      480
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
