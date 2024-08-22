@@ -581,15 +581,15 @@ enum E_Baud_Rate
 #define FRM_DBS3M_RENT                          367
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_KEYU_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
 
 // 3.1.5_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.62.12.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.12.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.62.12.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.62.12.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -609,7 +609,7 @@ enum E_Baud_Rate
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      2
 #undef UVC_CROP_RESIZE
-#define UVC_CROP_RESIZE                     0.875
+#define UVC_CROP_RESIZE                     0.8
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 
