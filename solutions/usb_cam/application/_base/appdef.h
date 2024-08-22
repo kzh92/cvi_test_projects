@@ -581,7 +581,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_RENT                          367
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AIPAI_TOYA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1075,8 +1075,8 @@ enum E_Baud_Rate
 
 // 3.11.4_D + 3.1.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.76.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.76.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.76.7_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.76.7_D"
 
 #undef UVC_RES_DEFINE
 #undef UVC_RES_DEFINE
@@ -1095,7 +1095,7 @@ enum E_Baud_Rate
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
 #undef MAX_PSPT_SIZE
 #define MAX_PSPT_SIZE                       1024
 
