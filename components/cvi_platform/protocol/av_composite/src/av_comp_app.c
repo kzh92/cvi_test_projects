@@ -479,8 +479,6 @@ static struct usbd_interface uvc_inf1;
 static struct usbd_interface uac_intf0;
 static struct usbd_interface uac_intf1;
 static struct usbd_interface uac_intf2;
-static struct usbd_endpoint usb_rent_ep;
-static struct usbd_interface usb_rent_inf0;
 static uint8_t *av_comp_descriptor = NULL;
 
 void usb_av_comp_init()
@@ -501,9 +499,6 @@ void usb_av_comp_init()
 
     usbd_audio_add_entity(0x02, AUDIO_CONTROL_FEATURE_UNIT);
     usbd_audio_add_entity(0x05, AUDIO_CONTROL_FEATURE_UNIT);
-
-    usbd_add_interface(usbd_video_init_intf(&usb_rent_inf0, INTERVAL, MAX_FRAME_SIZE, MAX_PAYLOAD_SIZE));
-    usbd_add_endpoint(usbd_video_init_ep(&usb_rent_ep, 0x05, NULL));
 
     usbd_initialize();
 }
