@@ -90,7 +90,7 @@ bool usb_device_is_configured(void);
 void usbd_configure_done_callback(void);
 int usbd_initialize(void);
 int usbd_deinitialize(void);
-uint8_t* usbd_get_descriptors(void);
+
 #ifdef __cplusplus
 }
 #endif

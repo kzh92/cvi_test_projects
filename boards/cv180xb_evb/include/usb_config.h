@@ -8,6 +8,7 @@
 
 /* ================ USB common Configuration ================ */
 #ifndef CONFIG_USB_PRINTF
+extern int aos_debug_printf(const char *fmt, ...);
 #define CONFIG_USB_PRINTF aos_debug_printf
 #endif
 
@@ -32,7 +33,7 @@
 /* ================= USB Device Stack Configuration ================ */
 
 /* Ep0 max transfer buffer, specially for receiving data from ep0 out */
-#define CONFIG_USBDEV_REQUEST_BUFFER_LEN 1024
+#define CONFIG_USBDEV_REQUEST_BUFFER_LEN 4096
 
 /* Setup packet log for debug */
 // #define CONFIG_USBDEV_SETUP_LOG_PRINT

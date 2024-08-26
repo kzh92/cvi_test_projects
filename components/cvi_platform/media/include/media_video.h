@@ -33,4 +33,7 @@ int MEDIA_VIDEO_ViSetImageMono(VI_PIPE ViPipe);
 int MEDIA_VIDEO_VoInit(PARAM_VO_CFG_S * pstVoCtx);
 int MEDIA_VIDEO_VoDeinit(PARAM_VO_CFG_S * pstVoCtx);
 
+int MEDAI_VIDEO_VencChnDeinit(PARAM_VENC_CFG_S *pstVencCfg, int VencChn);
+int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn);
+
 #endif

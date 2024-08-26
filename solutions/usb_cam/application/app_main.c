@@ -14,6 +14,7 @@
 #include "cvi_param.h"
 #include "wifi_if.h"
 #include "ethernet_init.h"
+#include "usbd_comp.h"
 
 
 #if CONFIG_PQTOOL_SUPPORT == 1
@@ -40,8 +41,11 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
-	printf("****** uac sampling rate: %d\n", CONFIG_UAC_SAMPLE_RATE);
-    MEDIA_AV_Init();
+	// printf("****** uac sampling rate: %d\n", CONFIG_UAC_SAMPLE_RATE);
+#if CONFIG_SUPPORT_USB_DC
+	// usb composite device
+	usbd_comp_init();
+#endif
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();

@@ -20,8 +20,6 @@
 #define INTF_DESC_bInterfaceNumber  2 /** Interface number offset */
 #define INTF_DESC_bAlternateSetting 3 /** Alternate setting offset */
 
-#define EP_DESC_bEndpointNumber     2
-
 #define USB_EP_OUT_NUM 8
 #define USB_EP_IN_NUM  8
 
@@ -439,7 +437,7 @@ static bool usbd_set_interface(uint8_t iface, uint8_t alt_setting)
                     if_desc = (void *)p;
                 }
 
-                USB_LOG_DBG("Current iface %u alt setting %u",
+                USB_LOG_DBG("Current iface %u alt setting %u\n",
                             cur_iface, cur_alt_setting);
                 break;
 
@@ -644,9 +642,22 @@ static bool usbd_std_endpoint_req_handler(struct usb_setup_packet *setup, uint8_
             break;
         case USB_REQUEST_CLEAR_FEATURE:
             if (setup->wValue == USB_FEATURE_ENDPOINT_HALT) {
+#if CONFIG_USB_BULK_UVC
+                usb_slist_t *i;
+                usb_slist_for_each(i, &usbd_intf_head)
+                {
+                    struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
+                    if (intf->class_interface_handler && (intf->intf_num == (setup->wIndex & 0xF))) {
+                        (*data)[0] = 0x00;
+                        setup->wValue = 0x200;
+                        setup->bRequest = 1;
+                        intf->class_interface_handler(setup, data, len);
+                    }
+                }
+#else
                 USB_LOG_ERR("ep:%02x clear halt\r\n", ep);
-
                 usbd_ep_clear_stall(ep);
+#endif
                 break;
             } else {
                 ret = false;
@@ -732,12 +743,7 @@ static int usbd_standard_request_handler(struct usb_setup_packet *setup, uint8_t
 static int usbd_class_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
 {
     usb_slist_t *i;
-    uint8_t* p;
-    uint8_t intfNum = 0xFF;
-    uint8_t epNum = 0xFF;
-    
     if ((setup->bmRequestType & USB_REQUEST_RECIPIENT_MASK) == USB_REQUEST_RECIPIENT_INTERFACE) {
-        aos_debug_printf("[%s]:%d\n", __func__, __LINE__);
         usb_slist_for_each(i, &usbd_intf_head)
         {
             struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
@@ -747,29 +753,11 @@ static int usbd_class_request_handler(struct usb_setup_packet *setup, uint8_t **
             }
         }
     } else if ((setup->bmRequestType & USB_REQUEST_RECIPIENT_MASK) == USB_REQUEST_RECIPIENT_ENDPOINT) {
-        aos_debug_printf("[%s]:%d\n", __func__, __LINE__);
-        p = usbd_get_descriptors();
-        while (p[DESC_bLength] != 0U)
-        {
-            if (p[DESC_bDescriptorType] == USB_DESCRIPTOR_TYPE_INTERFACE)
-            {
-                intfNum = p[INTF_DESC_bInterfaceNumber];
-            }
-            else if (p[DESC_bDescriptorType] == USB_DESCRIPTOR_TYPE_ENDPOINT)
-            {
-                epNum = p[EP_DESC_bEndpointNumber];
-                if (epNum == setup->wIndex)
-                {
-                    break;
-                }
-            }
-            p += p[DESC_bLength];
-        }
         usb_slist_for_each(i, &usbd_intf_head)
         {
             struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
 
-            if (intf->class_endpoint_handler && (intf->intf_num == intfNum)) {
+            if (intf && intf->class_endpoint_handler) {
                 return intf->class_endpoint_handler(setup, data, len);
             }
         }
@@ -884,7 +872,6 @@ static int usbd_vendor_request_handler(struct usb_setup_packet *setup, uint8_t *
  */
 static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
 {
-    usbd_print_setup(setup);
     switch (setup->bmRequestType & USB_REQUEST_TYPE_MASK) {
         case USB_REQUEST_STANDARD:
             if (usbd_standard_request_handler(setup, data, len) < 0) {
@@ -918,19 +905,17 @@ static bool usbd_setup_request_handler(struct usb_setup_packet *setup, uint8_t *
 static void usbd_class_event_notify_handler(uint8_t event, void *arg)
 {
     usb_slist_t *i;
-    struct usb_interface_descriptor *intf = (struct usb_interface_descriptor *)arg;
-    // FIXME: why wIndex is wrong when printing
-    uint16_t wInterface = intf ? intf->bInterfaceNumber : -1;
+    struct usb_interface_descriptor *if_desc = (struct usb_interface_descriptor *)arg;
 
     usb_slist_for_each(i, &usbd_intf_head)
     {
-        struct usbd_interface *dIntf = usb_slist_entry(i, struct usbd_interface, list);
-        if (event == USBD_EVENT_SET_INTERFACE && dIntf->intf_num != wInterface) {
+        struct usbd_interface *intf = usb_slist_entry(i, struct usbd_interface, list);
+        if (event == USBD_EVENT_SET_INTERFACE && intf->intf_num != if_desc->bInterfaceNumber) {
             continue;
         }
 
-        if (dIntf->notify_handler) {
-            dIntf->notify_handler(event, arg);
+        if (intf->notify_handler) {
+            intf->notify_handler(event, arg);
         }
     }
 }
@@ -983,7 +968,7 @@ void usbd_event_ep0_setup_complete_handler(uint8_t *psetup)
 
     memcpy(setup, psetup, 8);
 // #ifdef CONFIG_USBDEV_SETUP_LOG_PRINT
-    // usbd_print_setup(setup);
+    usbd_print_setup(setup);
 // #endif
     if (setup->wLength > CONFIG_USBDEV_REQUEST_BUFFER_LEN) {
         if ((setup->bmRequestType & USB_REQUEST_DIR_MASK) == USB_REQUEST_DIR_OUT) {
@@ -1184,10 +1169,4 @@ int usbd_deinitialize(void)
     usb_slist_init(&usbd_intf_head);
     usb_dc_deinit();
     return 0;
-}
-
-uint8_t* usbd_get_descriptors(void)
-{
-    uint8_t* p = (uint8_t *)usbd_core_cfg.descriptors;
-    return p;
 }
