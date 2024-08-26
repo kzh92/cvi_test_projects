@@ -582,7 +582,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_RENT                          367
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_D10A_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3566,25 +3566,24 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_D10A_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.150.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.150.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.150.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.150.0.2_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 4096}
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {3, 800, 480, 30, 0, 8192}, \
+                                            {4, 640, 480, 30, 0, 4096},
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
-#undef UVC_DARK_WATCH_COUNTER
-#define UVC_DARK_WATCH_COUNTER              10
-#undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 #undef DEFAULT_SUBCHIP_TYPE
 #define DEFAULT_SUBCHIP_TYPE                MY_SUBCHIP_D10A
 
