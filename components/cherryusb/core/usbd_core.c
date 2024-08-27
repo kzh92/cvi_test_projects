@@ -651,6 +651,7 @@ static bool usbd_std_endpoint_req_handler(struct usb_setup_packet *setup, uint8_
                         (*data)[0] = 0x00;
                         setup->wValue = 0x200;
                         setup->bRequest = 1;
+                        setup->wIndex = intf->intf_num;
                         intf->class_interface_handler(setup, data, len);
                     }
                 }

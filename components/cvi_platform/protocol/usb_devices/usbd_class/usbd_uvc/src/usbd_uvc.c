@@ -435,9 +435,9 @@ static uint32_t uvc_payload_fill(struct uvc_device_info *uvc, uint8_t *input, ui
     uint32_t size_per_packet = MAX_PAYLOAD_SIZE;
     uint32_t size_payload = size_per_packet - size_uvc_header;
 
-    if (size_payload > 10240) {
-        USB_LOG_ERR("the size of payload is too long!!!!\n");
-    }
+    // if (size_payload > 10240) {
+    //     USB_LOG_ERR("the size of payload is too long!!!!\n");
+    // }
 
 	if (input_len + size_uvc_header > DEFAULT_FRAME_SIZE) {
 		USB_LOG_ERR("input_len + size_uvc_header (%u) > DEFAULT_FRAME_SIZE (%u)\n",

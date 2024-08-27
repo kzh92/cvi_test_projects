@@ -665,7 +665,7 @@ struct UVC_FRAME_FRAMEBASED(n) {		\
 #if CONFIG_USB_HS
 	#if CONFIG_USB_BULK_UVC
 		#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (512)
-		#define TRANSACTION_PER_MICROFRAME (8)  //the payload number for each URB
+		#define TRANSACTION_PER_MICROFRAME (1024)  //the payload number for each URB
 	#else
 		#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (1024)
 		#if (USBD_UVC_NUM > 1)
