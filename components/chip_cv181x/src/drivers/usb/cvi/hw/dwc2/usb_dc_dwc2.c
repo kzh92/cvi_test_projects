@@ -154,7 +154,7 @@ int fifo_dma_mode = OFF;
 #if (CONFIG_USBD_UVC && CONFIG_USBD_CDC_RNDIS)
 #define CONFIG_USB_DWC2_TX4_FIFO_SIZE (3072)
 #else
-#define CONFIG_USB_DWC2_TX4_FIFO_SIZE (256)
+#define CONFIG_USB_DWC2_TX4_FIFO_SIZE (3072)
 #endif
 #endif
 

@@ -274,7 +274,7 @@ void cdc_uart_init(void)
     USB_LOG_INFO("interface_nums:%d\n", cdc_uart_info.interface_nums);
 
     cdc_uart_descriptor = cdc_uart_build_descriptor(&cdc_uart_info, &desc_len);
-    comp_register_descriptors(USBD_TYPE_CDC_UART, cdc_uart_descriptor, desc_len, 2, cdc_uart_desc_register_cb);
+    comp_register_descriptors(USBD_TYPE_CDC_UART, cdc_uart_descriptor, desc_len, 1, cdc_uart_desc_register_cb);
     comp_register_cfg_done(USBD_TYPE_CDC_UART, cdc_uart_configure_done_callback);
 
     usbd_add_interface(usbd_cdc_acm_init_intf(&cdc_uart_info.cdc_uart_intf0));

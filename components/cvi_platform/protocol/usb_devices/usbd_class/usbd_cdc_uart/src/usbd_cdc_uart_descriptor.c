@@ -30,10 +30,10 @@ acm_iad_descriptor = {
 	.bLength =		sizeof acm_iad_descriptor,
 	.bDescriptorType =	USB_DESCRIPTOR_TYPE_INTERFACE_ASSOCIATION,
 	/* .bFirstInterface =	DYNAMIC, */
-	.bInterfaceCount = 	2,	// control + data
-	.bFunctionClass =	USB_DEVICE_CLASS_CDC,
-	.bFunctionSubClass =	CDC_ABSTRACT_CONTROL_MODEL,
-	.bFunctionProtocol =	CDC_COMMON_PROTOCOL_AT_COMMANDS,
+	.bInterfaceCount = 	1,	// control + data
+	.bFunctionClass =	USB_DEVICE_CLASS_VEND_SPECIFIC,
+	.bFunctionSubClass =	CDC_SUBCLASS_NONE,
+	.bFunctionProtocol =	CDC_COMMON_PROTOCOL_NONE,
     .iFunction = 0,
 };
 
@@ -43,9 +43,9 @@ static struct usb_interface_descriptor acm_control_interface_desc = {
 	/* .bInterfaceNumber = DYNAMIC */
     .bAlternateSetting = 0,
 	.bNumEndpoints =	1,
-	.bInterfaceClass =	USB_DEVICE_CLASS_CDC,
-	.bInterfaceSubClass =	CDC_ABSTRACT_CONTROL_MODEL,
-	.bInterfaceProtocol =	CDC_COMMON_PROTOCOL_AT_COMMANDS,
+	.bInterfaceClass =	USB_DEVICE_CLASS_VEND_SPECIFIC,
+	.bInterfaceSubClass =	CDC_SUBCLASS_NONE,
+	.bInterfaceProtocol =	CDC_COMMON_PROTOCOL_NONE,
 	.iInterface = 0,
 };
 
@@ -120,21 +120,49 @@ static struct usb_endpoint_descriptor acm_out_desc = {
 	/* .bEndpointAddress =	DYNAMIC */
 	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
     .bInterval          = 0,
-    .wMaxPacketSize     = cpu_to_le16(CDC_UART_MPS),
+    .wMaxPacketSize     = cpu_to_le16(512),
+};
+
+struct usb_data_descriptor {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint8_t bData1;
+    uint8_t bData2;
+    uint8_t bData3;
+    uint8_t bData4;
+    uint8_t bData5;
+    uint8_t bData6;
+    uint8_t bData7;
+    uint8_t bData8;
+} __PACKED;
+
+static struct usb_data_descriptor
+acm_data_descriptor = {
+	.bLength =		sizeof acm_data_descriptor,
+	.bDescriptorType =	0xFF,
+	.bData1 = 2,
+	.bData2 =	1,
+	.bData3 =	2,
+	.bData4 =	0,
+	.bData5 = 0,
+	.bData6 = 0,
+	.bData7 = 0,
+	.bData8 = 0,
 };
 
 static const struct usb_desc_header *acm_function[] = {
 	(struct usb_desc_header *) &acm_iad_descriptor,
+	(struct usb_desc_header *) &acm_data_descriptor,
 	(struct usb_desc_header *) &acm_control_interface_desc,
+	(struct usb_desc_header *) &acm_out_desc,
+	NULL,
 	(struct usb_desc_header *) &acm_header_desc,
 	(struct usb_desc_header *) &acm_call_mgmt_descriptor,
 	(struct usb_desc_header *) &acm_descriptor,
 	(struct usb_desc_header *) &acm_union_desc,
 	(struct usb_desc_header *) &acm_notify_desc,
 	(struct usb_desc_header *) &acm_data_interface_desc,
-    (struct usb_desc_header *) &acm_out_desc,
 	(struct usb_desc_header *) &acm_in_desc,
-	NULL,
 };
 
 static uint8_t *__cdc_uart_build_descriptor(uint32_t *len, uint8_t in_ep,  uint8_t out_ep, uint8_t int_ep, uint8_t *interface_total)
