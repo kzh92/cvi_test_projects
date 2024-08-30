@@ -293,21 +293,23 @@ static const struct uvc_format_mjpeg uvc_format_mjpg = {
     .bCopyProtect        = 0,
 };
 
-DECLARE_UVC_FRAME_MJPEG(1);
-static const struct UVC_FRAME_MJPEG(1) uvc_frame_mjpg_default = {
-    .bLength                = UVC_DT_FRAME_MJPEG_SIZE(1),
+DECLARE_UVC_FRAME_MJPEG(3);
+static const struct UVC_FRAME_MJPEG(3) uvc_frame_mjpg_default = {
+    .bLength                = UVC_DT_FRAME_MJPEG_SIZE(3),
     .bDescriptorType        = USB_DT_CS_INTERFACE,
     .bDescriptorSubType     = UVC_VS_FRAME_MJPEG,
     .bFrameIndex            = 0, /* dynamic */
     .bmCapabilities         = 0,
     .wWidth                 = cpu_to_le16(1920),
     .wHeight                = cpu_to_le16(1080),
-    .dwMinBitRate           = cpu_to_le32(995328000),
-    .dwMaxBitRate           = cpu_to_le32(995328000),
-    .dwMaxVideoFrameBufferSize  = cpu_to_le32(4147200),
+    .dwMinBitRate           = cpu_to_le32(147456000),
+    .dwMaxBitRate           = cpu_to_le32(442368000),
+    .dwMaxVideoFrameBufferSize  = cpu_to_le32(1843200),
     .dwDefaultFrameInterval     = cpu_to_le32(FRAME_INTERVAL_FPS(30)),
-    .bFrameIntervalType     = 1,
+    .bFrameIntervalType     = 3,
     .dwFrameInterval[0]     = cpu_to_le32(FRAME_INTERVAL_FPS(30)),
+    .dwFrameInterval[1]     = cpu_to_le32(FRAME_INTERVAL_FPS(15)),
+    .dwFrameInterval[2]     = cpu_to_le32(FRAME_INTERVAL_FPS(10)),
 };
 
 struct uvc_format_framebased uvc_format_h264 = {
@@ -500,14 +502,14 @@ uvc_alloc_frame_descriptor(uint32_t format_type,
         uvc_frame = (struct uvc_descriptor_header *)malloc(uvc_frame_mjpg_default.bLength);
         if (uvc_frame) {
             memcpy(uvc_frame, &uvc_frame_mjpg_default, uvc_frame_mjpg_default.bLength);
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->bFrameIndex = frame_index;
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->wWidth
+            ((struct UVC_FRAME_MJPEG(3) *)uvc_frame)->bFrameIndex = frame_index;
+            ((struct UVC_FRAME_MJPEG(3) *)uvc_frame)->wWidth
                                                         = cpu_to_le16(width);
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->wHeight
+            ((struct UVC_FRAME_MJPEG(3) *)uvc_frame)->wHeight
                                                         = cpu_to_le16(height);
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwDefaultFrameInterval
+            ((struct UVC_FRAME_MJPEG(3) *)uvc_frame)->dwDefaultFrameInterval
                                                         = cpu_to_le32(FRAME_INTERVAL_FPS(fps));
-            ((struct UVC_FRAME_MJPEG(1) *)uvc_frame)->dwFrameInterval[0]
+            ((struct UVC_FRAME_MJPEG(3) *)uvc_frame)->dwFrameInterval[0]
                                                         = cpu_to_le32(FRAME_INTERVAL_FPS(fps));
         }
         break;

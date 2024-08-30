@@ -14,8 +14,8 @@
 #include "usbd_comp.h"
 #include "usbd_uvc_descriptor.h"
 
-#define WIDTH  (unsigned int)(864)
-#define HEIGHT (unsigned int)(480)
+#define WIDTH  (unsigned int)(1280)
+#define HEIGHT (unsigned int)(720)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -59,7 +59,10 @@ static struct uvc_frame_info_st yuy2_frame_info[] = {
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
 #if 1
 	{1, WIDTH, HEIGHT, 30, 0},
-#else	
+	{2, 864, 480, 30, 0},
+	{3, 800, 480, 30, 0},
+	{4, 640, 480, 30, 0},
+#else
 	{1, 240, 320, 30, 0},
 	{2, 320, 240, 30, 0},
 	{3, 480, 320, 30, 0},

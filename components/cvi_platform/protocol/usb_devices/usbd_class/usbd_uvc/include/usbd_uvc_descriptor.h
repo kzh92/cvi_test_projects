@@ -667,11 +667,11 @@ struct UVC_FRAME_FRAMEBASED(n) {		\
 		#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (512)
 		#define TRANSACTION_PER_MICROFRAME (1024)  //the payload number for each URB
 	#else
-		#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (1024)
+		#define MAX_PAYLOAD_SIZE_PER_TRANSACTION (512)
 		#if (USBD_UVC_NUM > 1)
 			#define TRANSACTION_PER_MICROFRAME (2)
 		#else
-			#define TRANSACTION_PER_MICROFRAME (3)
+			#define TRANSACTION_PER_MICROFRAME (1)
 		#endif
 	#endif
 #else
