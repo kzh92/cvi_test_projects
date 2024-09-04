@@ -3766,8 +3766,8 @@ odd version: use_whiteled = 1
 
 // 3.75.8_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.106.0.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.106.0.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.106.0.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.106.0.2_D"
 
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_AES_XLAN
@@ -3785,8 +3785,6 @@ odd version: use_whiteled = 1
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
-#undef CONFIG_USB_HS
-#define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
 #define CONFIG_DWC2_VERSION                 1
 #undef DEFAULT_UVC_PIXEL_FMT
