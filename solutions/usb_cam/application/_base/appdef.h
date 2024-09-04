@@ -588,7 +588,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JUNLI_UAC                     369
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JUNLI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3766,8 +3766,8 @@ odd version: use_whiteled = 1
 
 // 3.75.8_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.106.0.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.106.0.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.106.0.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.106.0.3_D"
 
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_AES_XLAN
@@ -3786,7 +3786,11 @@ odd version: use_whiteled = 1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
+#undef MAX_PSPT_SIZE
+#define MAX_PSPT_SIZE                       1024 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
+#undef USB_TPM_CNT
+#define USB_TPM_CNT                         3   //TRANSACTION_PER_MICROFRAME
 #undef DEFAULT_UVC_PIXEL_FMT
 #define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
 #undef UAC_SPK_NR_USE
