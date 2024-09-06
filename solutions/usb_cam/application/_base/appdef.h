@@ -588,7 +588,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JUNLI_UAC                     369
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JUNLI_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2282,8 +2282,8 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.8.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.8.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.8.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.8.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}, \
@@ -2325,8 +2325,8 @@ enum E_Baud_Rate
 #define UVC_MAX_HEIGHT                      480
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
-#undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
+#undef ENROLL_FACE_HAND_MODE
+#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
