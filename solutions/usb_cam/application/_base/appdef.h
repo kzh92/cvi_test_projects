@@ -588,7 +588,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JUNLI_UAC                     369
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANHAI_IR_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1378,8 +1378,8 @@ enum E_Baud_Rate
 
 // 3.18.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.74.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.74.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.74.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.74.3_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
@@ -1388,11 +1388,13 @@ enum E_Baud_Rate
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v1
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
 #undef UAC_SPK_EP
 #define UAC_SPK_EP                          0x83
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
@@ -3858,7 +3860,7 @@ odd version: use_whiteled = 1
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v26)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_2
-#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v50 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v57 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v58)
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v50 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v57 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v58 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v60)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_3
 #endif
