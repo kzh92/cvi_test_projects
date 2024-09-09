@@ -1378,8 +1378,8 @@ enum E_Baud_Rate
 
 // 3.18.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.74.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.74.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.74.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.74.4_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0},
@@ -1393,8 +1393,8 @@ enum E_Baud_Rate
 #define UAC_SPK_EP                          0x83
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
+// #undef DEFAULT_UVC_DIR
+// #define DEFAULT_UVC_DIR                     UVC_ROTATION_270
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
