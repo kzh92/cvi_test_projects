@@ -588,7 +588,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JUNLI_UAC                     369
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JUNLI_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3768,8 +3768,8 @@ odd version: use_whiteled = 1
 
 // 3.75.8_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.106.0.3_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.106.0.3_D"
+#define DEVICE_FIRMWARE_VERSION             "3.106.0.4_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.106.0.4_D"
 
 #undef DEFAULT_PROTO_ENC_MODE
 #define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_AES_XLAN
@@ -3780,19 +3780,17 @@ odd version: use_whiteled = 1
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
 #define UVC_USBD_PRINT                      1
+#undef CONFIG_USB_HS
+#define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 2
-#undef MAX_PSPT_SIZE
-#define MAX_PSPT_SIZE                       1024 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
-#undef USB_TPM_CNT
-#define USB_TPM_CNT                         3   //TRANSACTION_PER_MICROFRAME
+#define CONFIG_DWC2_VERSION                 1
 #undef DEFAULT_UVC_PIXEL_FMT
 #define DEFAULT_UVC_PIXEL_FMT               UVC_PIXEL_FMT_YUV422
 #undef UAC_SPK_NR_USE
@@ -3814,7 +3812,7 @@ odd version: use_whiteled = 1
 #undef UVC_MAX_HEIGHT
 #define UVC_MAX_HEIGHT                      480
 #undef UVC_DELAY_BEFORE_START
-#define UVC_DELAY_BEFORE_START              700
+#define UVC_DELAY_BEFORE_START              200
 #undef ENROLL_FACE_HAND_MODE
 #define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 #undef UAC_SAMPLE_RATE
