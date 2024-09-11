@@ -2288,10 +2288,10 @@ enum E_Baud_Rate
 #define DEVICE_FIRMWARE_VERSION_INNER       "3.75.10_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
                                             {2, 864, 480, 30, 0, 8192}, \
                                             {3, 800, 480, 30, 0, 8192}, \
-                                            {4, 640, 480, 30, 0, 4096},
+                                            {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
