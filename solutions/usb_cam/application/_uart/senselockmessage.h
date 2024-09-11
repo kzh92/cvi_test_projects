@@ -7,13 +7,14 @@
 // #include <stdarg.h>
 #include "appdef.h"
 
-#define USER_NAME_SIZE                  32
-#define USER_NAME_SIZE_EXT              256
-#define VERSION_INFO_BUFFER_SIZE        32
-#define UID_INFO_BUFFER_SIZE            32
-#define MAX_USER_COUNTS                 (N_MAX_PERSON_NUM > N_MAX_HAND_NUM ? N_MAX_PERSON_NUM : N_MAX_HAND_NUM)
-#define MAX_IMAGE_SIZE                  (4000)
-#define TRANS_FILE_MAX_SIZE             (1024*1024)
+#define USER_NAME_SIZE                      32
+#define USER_NAME_SIZE_EXT                  256
+#define VERSION_INFO_BUFFER_SIZE            32
+#define VERSION_LIBINFO_BUFFER_SIZE         20
+#define UID_INFO_BUFFER_SIZE                32
+#define MAX_USER_COUNTS                     (N_MAX_PERSON_NUM > N_MAX_HAND_NUM ? N_MAX_PERSON_NUM : N_MAX_HAND_NUM)
+#define MAX_IMAGE_SIZE                      (4000)
+#define TRANS_FILE_MAX_SIZE                 (1024*1024)
 
 #if (USE_FUSHI_PROTO)
 #define FUSHI_HEAD1     0x53
@@ -118,6 +119,7 @@ typedef uint8_t s_msg_id;
 #define MID_DEBUG_MODE                  0xF0
 #define MID_GET_DEBUG_INFO              0xF1    // get size of debug information
 #define MID_UPLOAD_DEBUG_INFO           0xF2    // upload debug information
+#define MID_GETLIBRARY_VERSION          0xF3    // get library version information
 #define MID_DEMOMODE                    0xFE    // enter demo mode, verify flow will skip feature comparation step.
 #define MID_SNAPIMAGE2                  0xFF    // snapimage for renthouse
 #if (USE_FUSHI_HAND_PROTO)
@@ -511,6 +513,10 @@ typedef struct {
 typedef struct {
     uint8_t version_info[VERSION_INFO_BUFFER_SIZE];
 } s_msg_reply_version_data;
+
+typedef struct {
+    uint8_t version_info[VERSION_LIBINFO_BUFFER_SIZE];
+} s_msg_reply_library_version_data;
 
 typedef struct {
     uint8_t uid_info[UID_INFO_BUFFER_SIZE];

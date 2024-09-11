@@ -69,6 +69,7 @@ public:
     static s_msg*       Get_Reply_MxGetAllUserID(s_msg* pSenseMsg, int iResult, int iFmt);
     static s_msg*       Get_Reply_TransFilePacket(s_msg* pSenseMsg, int iResult, int iUserCount, uint16_t* pUserIds);
     static s_msg*       Get_Reply_GetVersion(s_msg* pSenseMsg, int iResult);
+    static s_msg*       Get_Reply_GetLibraryVersion(s_msg* pSenseMsg, int iResult);
     static s_msg*       Get_Reply_GetUID(s_msg* pSenseMsg, int iResult);
     static s_msg*       Get_Reply_GetSN(s_msg* pSenseMsg, int iResult);
     static s_msg*       Get_Reply_GetStatus(int iResult, int iStatus);

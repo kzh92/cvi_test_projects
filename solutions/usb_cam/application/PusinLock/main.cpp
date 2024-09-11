@@ -1667,6 +1667,20 @@ int MsgProcSense(MSG* pMsg)
         else
             g_pSenseTask->Send_Msg(reply_msg);
     }
+    else if(pSenseMsg->mid == MID_GETLIBRARY_VERSION)
+    {
+        dbug_printf("MID_GETLIBRARY_VERSION\n");
+        s_msg* reply_msg = SenseLockTask::Get_Reply_GetLibraryVersion(pSenseMsg, MR_SUCCESS);
+        if(g_xSS.iSendLastMsgMode)
+        {
+            g_xSS.pLastMsg = reply_msg;
+            my_free(pSenseMsg);
+            g_xSS.iMState = MS_STANDBY;
+            return 0;
+        }
+        else
+            g_pSenseTask->Send_Msg(reply_msg);
+    }
     else if(pSenseMsg->mid == MID_GET_UID)
     {
         dbug_printf("MID_GET_UID\n");

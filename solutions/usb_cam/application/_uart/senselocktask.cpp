@@ -1378,6 +1378,32 @@ s_msg* SenseLockTask::Get_Reply_GetVersion(s_msg* pSenseMsg, int iResult)
     return msg;
 }
 
+s_msg* SenseLockTask::Get_Reply_GetLibraryVersion(s_msg* pSenseMsg, int iResult)
+{
+    int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_library_version_data);
+    iMsgDataLen += USE_LAIJI_PROTO * 4;
+    int iMsgLen = sizeof(s_msg) + iMsgDataLen;
+    s_msg* msg = (s_msg*)my_malloc(iMsgLen);
+    memset(msg, 0, iMsgLen);
+
+    msg->mid = MID_REPLY;
+    msg->size_heb = HIGH_BYTE(iMsgDataLen);
+    msg->size_leb = LOW_BYTE(iMsgDataLen);
+#if (USE_LAIJI_PROTO)
+    if (pSenseMsg)
+        memcpy(msg->seq_id, pSenseMsg->seq_id, sizeof(msg->seq_id));
+#endif
+    s_msg_reply_data* msg_reply_data = (s_msg_reply_data*)(msg->data);
+    msg_reply_data->mid = MID_GETLIBRARY_VERSION;
+    msg_reply_data->result = iResult;
+
+    s_msg_reply_library_version_data* msg_reply_version_data =
+            (s_msg_reply_library_version_data*)(msg_reply_data->data);
+    const char *str_version = fr_GetEngineVersion();
+    strncpy((char*)msg_reply_version_data->version_info, str_version, VERSION_LIBINFO_BUFFER_SIZE - 1);
+    return msg;
+}
+
 s_msg* SenseLockTask::Get_Reply_GetUID(s_msg* pSenseMsg, int iResult)
 {
     int iMsgDataLen = sizeof(s_msg_reply_data) + sizeof(s_msg_reply_uid_data);
