@@ -588,7 +588,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JUNLI_UAC                     369
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2284,17 +2284,18 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.8.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.8.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.10_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.10_D"
 
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 864, 480, 30, 0, 8192}, \
-                                            {2, 800, 480, 30, 0, 8192}, \
-                                            {3, 640, 480, 30, 0, 4096},
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
+                                            {2, 864, 480, 30, 0, 8192}, \
+                                            {3, 800, 480, 30, 0, 8192}, \
+                                            {4, 640, 480, 30, 0, 4096},
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
@@ -2322,13 +2323,11 @@ enum E_Baud_Rate
 #undef UVC_MJPEG_BITRATE
 #define UVC_MJPEG_BITRATE                   4096
 #undef UVC_MAX_WIDTH
-#define UVC_MAX_WIDTH                       864
+#define UVC_MAX_WIDTH                       1280
 #undef UVC_MAX_HEIGHT
-#define UVC_MAX_HEIGHT                      480
+#define UVC_MAX_HEIGHT                      720
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
-#undef ENROLL_FACE_HAND_MODE
-#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
