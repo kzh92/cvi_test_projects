@@ -2386,6 +2386,7 @@ int saveUvcScene()
     if(ret != CVI_SUCCESS)
         printf("MEDIA_VIDEO_VencReleaseStream failed\n");
     g_iJpgDataLen = buf_len;
+    uvc_media_update();
 #endif // ! USE_SNAPCLR_VENC
     return MR_SUCCESS;
 }
