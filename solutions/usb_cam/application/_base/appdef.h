@@ -589,7 +589,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LS7258_UVC270_UAC             370
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UVC270_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3852,7 +3852,7 @@ odd version: use_whiteled = 1
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
