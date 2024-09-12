@@ -3840,7 +3840,6 @@ odd version: use_whiteled = 1
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_LS7258_UVC270_UAC)
 
-// 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
 #define DEVICE_FIRMWARE_VERSION             "3.107.0_D"
 #define DEVICE_FIRMWARE_VERSION_INNER       "3.107.0_D"
