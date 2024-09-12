@@ -1972,7 +1972,8 @@ int MsgProcSense(MSG* pMsg)
             }
             else
             {
-                s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(pSenseMsg, MR_SUCCESS, g_iJpgDataLen, (USE_SNAPCLR_VENC && DEFAULT_UVC_DIR==UVC_ROTATION_90) ? 1 : 0);
+                s_msg* reply_msg = SenseLockTask::Get_Reply_GetSavedImage(pSenseMsg, MR_SUCCESS, g_iJpgDataLen, 
+                    (USE_SNAPCLR_VENC && (DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270)) ? 1 : 0);
                 g_pSenseTask->Send_Msg(reply_msg);
             }
         }

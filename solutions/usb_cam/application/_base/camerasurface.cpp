@@ -2211,24 +2211,24 @@ int DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int i
 int uvc_media_update1()
 {
     PAYLOAD_TYPE_E enType;
-    PIXEL_FORMAT_E enPixelFormat;
+    // PIXEL_FORMAT_E enPixelFormat;
     PARAM_VENC_CFG_S *pstVencCfg = PARAM_getVencCtx();
     VPSS_CHN_ATTR_S stVpssChnAttr;
     CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
     int iSensor = g_xSS.iUvcSensor;
-    int uvc_width = (DEFAULT_UVC_DIR == UVC_ROTATION_90 ? CAPTURE_WIDTH : CAPTURE_HEIGHT);
-    int uvc_height = (DEFAULT_UVC_DIR == UVC_ROTATION_90 ? CAPTURE_HEIGHT : CAPTURE_WIDTH);
+    int uvc_width = ((DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270) ? CAPTURE_WIDTH : CAPTURE_HEIGHT);
+    int uvc_height = ((DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270) ? CAPTURE_HEIGHT : CAPTURE_WIDTH);
 
-    enPixelFormat = PIXEL_FORMAT_NV21;
+    // enPixelFormat = PIXEL_FORMAT_NV21;
     enType = PT_MJPEG;
 
     if(u8VencInitStatus == 1)
         MEDIA_VIDEO_VencDeInit(pstVencCfg);
 
     CVI_VPSS_GetChnAttr(iSensor, 0, &stVpssChnAttr);
-    stVpssChnAttr.enPixelFormat = enPixelFormat;
+    // stVpssChnAttr.enPixelFormat = enPixelFormat;
 
-    if (DEFAULT_UVC_DIR == UVC_ROTATION_90)
+    if (DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270)
     {
         stVpssChnAttr.u32Width = uvc_width;
         stVpssChnAttr.u32Height = uvc_height;
@@ -2243,8 +2243,8 @@ int uvc_media_update1()
 
     if (g_xSS.iUvcDirect == UVC_ROTATION_270)
     {
-        stVpssChnAttr.bFlip = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
-        stVpssChnAttr.bMirror = (DEFAULT_SNR4UVC == 0 ? CVI_TRUE : CVI_FALSE);
+        stVpssChnAttr.bFlip = CVI_FALSE;
+        stVpssChnAttr.bMirror = CVI_FALSE;
     }
 #if 0
     VPSS_CROP_INFO_S pstCropInfo;
