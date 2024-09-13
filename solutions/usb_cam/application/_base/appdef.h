@@ -589,7 +589,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LS7258_UVC270_UAC             370
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UVC270_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2285,8 +2285,8 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.10.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.10.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.10.2_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.10.2_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
@@ -2329,8 +2329,14 @@ enum E_Baud_Rate
 #define UVC_MAX_HEIGHT                      720
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
-#undef USE_TONGXIN_PROTO
-#define USE_TONGXIN_PROTO                   1
+#undef DEFAULT_PROTO_ENC_MODE
+#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_AES_DEFAULT
+#undef USE_AES_NOENC_MODE
+#define USE_AES_NOENC_MODE                  1
+#undef DEFAULT_PROTO_ENC_KEY_ORD
+#define DEFAULT_PROTO_ENC_KEY_ORD           DEFAULT_PROTO_ENC_KEY_1
+#undef USE_SANJIANG3_MODE
+#define USE_SANJIANG3_MODE                  0
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
@@ -3930,6 +3936,10 @@ odd version: use_whiteled = 1
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v50 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v57 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v58 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v60)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_3
+#endif
+
+#if (USE_AES_NOENC_MODE && USE_SANJIANG3_MODE)
+#error "USE_AES_NOENC_MODE & USE_SANJIANG3_MODE must be set exclusive."
 #endif
 
 //#include "engine_inner_param.h"
