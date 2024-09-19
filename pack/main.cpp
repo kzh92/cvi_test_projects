@@ -12,6 +12,7 @@
 
 #define IMG_RESOURCEDIR     "./pack"
 #define RESOURCEDIR         "./pack"
+#define APPDIR              "./solutions/usb_cam/application/"
 
 #if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
 #define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D10/"
@@ -40,6 +41,10 @@
 
 #define FIRM_IMG_PATH       "./images.img"
 
+#define AUTO_CONFIG_HEADER_SIZE     8192
+char g_auto_config_string[8192];
+unsigned char g_wno_origin_values[4] = {0};
+
 int req_crypto(const char * filename, unsigned char* file_buf)
 {
     int idx = 0;
@@ -59,6 +64,18 @@ int req_crypto(const char * filename, unsigned char* file_buf)
                     free(out_buf);
                 }
                 printf("crypt(len=%d): %s, %d\n", g_part_files[idx].m_cryptosize, filename, g_part_files[idx].m_filesize);
+                if (N_MAX_PERSON_NUM && strstr(filename, "/wno.bin"))
+                {
+                    memcpy(g_wno_origin_values, file_buf, sizeof(g_wno_origin_values));
+                }
+                else if (N_MAX_PERSON_NUM && USE_RENT_ENGINE && strstr(filename, "/wno_c.bin"))
+                {
+                    memcpy(g_wno_origin_values, file_buf, sizeof(g_wno_origin_values));
+                }
+                else if (!N_MAX_PERSON_NUM && strstr(filename, "/wnh.bin"))
+                {
+                    memcpy(g_wno_origin_values, file_buf, sizeof(g_wno_origin_values));
+                }
                 return 1;
             }
             else
@@ -83,11 +100,69 @@ int req_compress(const char * filename)
         {
             if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
             {
+                int file_size = 0;
+                FILE* fp = fopen(filename, "rb");
+                if (fp)
+                {
+                    fseek(fp, 0, SEEK_END);
+                    file_size = ftell(fp);
+                    g_part_files[idx].m_filesize_de = file_size;
+                    fclose(fp);
+                }
+                char cmd_[1024];
+                sprintf(cmd_, "rm -f %s.zst", filename);
+                system(cmd_);
+                sprintf(cmd_, "zstd -19 %s", filename);
+                system(cmd_);
+                sprintf(cmd_, "%s.zst", filename);
+                fp = fopen(cmd_, "rb");
+                if (fp)
+                {
+                    fseek(fp, 0, SEEK_END);
+                    file_size = ftell(fp);
+                    g_part_files[idx].m_filesize = file_size;
+                    fclose(fp);
+                }
                 return 1;
             }
         }
 
         idx ++;
+    }
+    return 0;
+}
+
+int gen_auto_config_header(void)
+{
+    int idx = 0;
+    char aline[256];
+    g_auto_config_string[0] = 0;
+    strcat(g_auto_config_string, "#ifndef _AUTO_CONFIG_VARS_H\n");
+    strcat(g_auto_config_string, "#define _AUTO_CONFIG_VARS_H\n");
+    while(g_part_files[idx].m_filename != NULL)
+    {
+        sprintf(aline, "#define %s_SIZE\t%d\n", g_part_files[idx].m_macro_prefix, g_part_files[idx].m_filesize_de);
+        strcat(g_auto_config_string, aline);
+        sprintf(aline, "#define %s_SIZE_REAL\t%d\n", g_part_files[idx].m_macro_prefix, g_part_files[idx].m_filesize);
+        strcat(g_auto_config_string, aline);
+
+        idx ++;
+    }
+    sprintf(aline, "#define DICT_ACT_ORIGN_VALUES\t{0x%02x, 0x%02x, 0x%02x, 0x%02x}\n",
+        g_wno_origin_values[0], g_wno_origin_values[1], g_wno_origin_values[2], g_wno_origin_values[3]);
+    strcat(g_auto_config_string, aline);
+    strcat(g_auto_config_string, "#endif\n");
+    FILE* fp = NULL;
+    fp = fopen(APPDIR "/_base/auto_config_vars.h", "wb");
+    if (fp)
+    {
+        fprintf(fp, "%s", g_auto_config_string);
+        fclose(fp);
+        printf("GENERATED auto_config_vars.h!!!\n");
+    }
+    else
+    {
+        printf("ERROR! failed to open file: auto_config_vars.h\n");
     }
     return 0;
 }
@@ -109,10 +184,6 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
         char cmd_[1024];
         if (req_compress(file_names[i]))
         {
-            sprintf(cmd_, "rm -f %s.zst", file_names[i]);
-            system(cmd_);
-            sprintf(cmd_, "zstd -19 %s", file_names[i]);
-            system(cmd_);
             sprintf(cmd_, "%s.zst", file_names[i]);
         }
         else
@@ -167,6 +238,7 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
     fclose(fp_out);
     printf("created file: %s, size=%d, 0x%08x\n", dest_file, total_size, total_size);
     system("mv -f " FACEENGINEDIR "/*.out ./pack/");
+    gen_auto_config_header();
     return 0;
 }
 
@@ -288,9 +360,14 @@ int main(int argc, char** argv)
         // FACEENGINEDIR "/detect_c.bin",
     #endif
     #if (N_MAX_HAND_NUM)
+    #if (!N_MAX_PERSON_NUM)
+        FACEENGINEDIR "/wnh.bin",
+    #endif
         FACEENGINEDIR "/detect_h.bin",
         FACEENGINEDIR "/dlamk_h.bin",
+    #if (N_MAX_PERSON_NUM)
         FACEENGINEDIR "/wnh.bin",
+    #endif
         FACEENGINEDIR "/lh.bin",
     #endif // N_MAX_HAND_NUM
     #if (USE_TWIN_ENGINE)

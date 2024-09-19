@@ -1012,11 +1012,7 @@ int dic_is_activated()
     int ret = 0;
     int file_offset = 0;
     unsigned char wno_header[4];
-#if (USE_RENT_ENGINE == 0)
-    unsigned char wno_origin_header[4] = {0xD3, 0xAE, 0x5F, 0x6C};
-#else
-    unsigned char wno_origin_header[4] = {0x76, 0x6B, 0xDB, 0x32};
-#endif
+    unsigned char wno_origin_header[4] = DICT_ACT_ORIGN_VALUES;
     my_wx_read(file_offset, wno_header, 4);
     dbug_printf("[%s] %02x %02x %02x %02x\n", __func__, wno_header[0], wno_header[1], wno_header[2], wno_header[3]);
     if (memcmp(wno_header, wno_origin_header, 4))

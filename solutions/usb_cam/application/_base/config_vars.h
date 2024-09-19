@@ -8,29 +8,7 @@
 #define DICT_PART_SIZE                  (8*1024*1024) //8MB
 #define USERDB_START_ADDR               (DICT_START_ADDR + DICT_PART_SIZE)
 #define USERDB_SIZE                     0x00100000
-#if (DEFAULT_CHIP_TYPE == MY_CHIP_D20)
-#if (USE_RENT_ENGINE == 1)
-#define FN_WNO_DICT_SIZE                2563072
-#else
-#define FN_WNO_DICT_SIZE                2565736
-#endif
-#define FN_WNOH_DICT_SIZE               1929144
-#define FN_A1_DICT_SIZE                 (434304)
-#define FN_A2_DICT_SIZE                 (434304)
-#define FN_B_DICT_SIZE                  (434304)
-#define FN_B2_DICT_SIZE                 (153392)
-#define FN_C_DICT_SIZE                  (434304)
-#define FN_CH_DICT_SIZE                 (434304)
-#define FN_DETECT_DICT_SIZE             (122720)
-#define FN_DETECT_H_DICT_SIZE           (121224)
-#define FN_DETECT_C_DICT_SIZE           (617920)
-#define FN_DLAMK_DICT_SIZE              (603448)
-#define FN_DLAMK_H_DICT_SIZE            (477480)
-#define FN_ESN_DICT_SIZE                230360
-#define FN_OCC_DICT_SIZE                729040
-#define FN_H1_DICT_SIZE                 290964
-#define FN_H2_DICT_SIZE                 4263260
-#elif (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
+#ifdef _PACK_FIRM_
 #define FN_WNO_DICT_SIZE                (USE_RENT_ENGINE ? 3557760: 3562136)
 #define FN_WNOH_DICT_SIZE               2410080
 #define FN_A1_DICT_SIZE                 (442504)
@@ -64,7 +42,16 @@
 #define FN_DLAMK_DICT_SIZE_REAL         (392212)
 #define FN_DLAMK_H_DICT_SIZE_REAL       (231113)
 #define FN_H_LIVE_DICT_SIZE_REAL        347165
+
+#define FN_FACE_IR_BIN_SIZE             26696
+#define FN_FACE_IR_BIN_SIZE_REAL        16458
+#define FN_TESTAUDIO_PCM_SIZE           66416
+#define FN_TESTAUDIO_PCM_SIZE_REAL      36360
+
+#else
+#include "auto_config_vars.h"
 #endif
+
 /*--fast=4
 wno.bin : 52.90%   (3562136 => 1884446 bytes, wno.bin.zst) 
 detect.bin : 62.97%   (129320 =>  81430 bytes, detect.bin.zst) 
@@ -124,13 +111,10 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_FACE_BIN_PATH                "/test/face.bin"
 #define FN_FACE_IR_BIN_PATH             "/test/face_ir.bin"
 #define FN_FACE_CLR_BIN_PATH            "/test/face_clr.bin"
-
-#define FN_FACE_IR_BIN_SIZE             26696
-#define FN_FACE_IR_BIN_SIZE_REAL        16458
-
 #define FN_TESTAUDIO_PCM_PATH           "/test/audiotest.pcm"
-#define FN_TESTAUDIO_PCM_SIZE           66416
-#define FN_TESTAUDIO_PCM_SIZE_REAL      36360
+
+#define FN_FACE_IR_BIN_CHKSUM           0x47866b35
+
 
 #define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
 #define FN_031TTS_WAV_SIZE  250028
@@ -160,6 +144,7 @@ typedef struct {
     int m_checksum;
     int m_flag; //flags for crypto
     int m_cryptosize;
+    char m_macro_prefix[128];
 } st_file_offsize;
 
 //flags for crypto
