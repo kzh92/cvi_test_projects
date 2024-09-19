@@ -250,10 +250,10 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
             char wpath[64];
             snprintf(wpath, 64, "/test/%s", u_header->m_part_infos[idx].m_partname);
             dbug_printf("write crypt:%s\n", wpath);
-            rootfs_set_activated(0, 0);
+            g_xSS.bIsSysActivated = MY_SYS_FLAG_NOT_ACTIVATED;
             fr_ReadFileData(wpath, 0, u_buffer, u_size);
             //write with encrypt
-            rootfs_set_activated(1, 0);
+            g_xSS.bIsSysActivated = MY_SYS_FLAG_ACTIVATED;
             fr_WriteFileData(wpath, 0, u_buffer, u_size);
         }
         dbug_printf("write ok\n");
