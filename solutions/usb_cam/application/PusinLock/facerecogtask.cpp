@@ -869,6 +869,13 @@ int FaceRecogTask::GetFaceState()
     SEngineParam* pxEngineParam = fr_GetEngineParam();
     memset(&g_xSS.xFaceRect, 0, sizeof(g_xSS.xFaceRect));
     memset(&g_xSS.note_data_face, 0, sizeof(g_xSS.note_data_face));
+    if (m_iCmd == E_REGISTER)
+    {
+        memset(&m_isFaceDetected, 0, sizeof(m_isFaceDetected));
+        memset(&m_iFaceNearFar, 0, sizeof(m_iFaceNearFar));
+        memset(&m_iFacePosition, 0, sizeof(m_iFacePosition));
+        memset(&m_rDetectTime, 0, sizeof(m_rDetectTime));
+    }
     m_isFaceDetected[nProcessMode] = FDS_NONE;
     m_isFaceOcculution = 0;
     m_iFaceNearFar[nProcessMode] = 0;
