@@ -106,6 +106,8 @@
 #include "rgb_color_v2.1.0.59.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v60)
 #include "rgb_color_v2.1.0.60.inc"
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v61)
+#include "rgb_color_v2.1.0.61.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_211v0)
 #include "rgb_color_v2.1.1.0.inc"
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_22v0)
