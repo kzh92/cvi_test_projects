@@ -591,7 +591,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LC7258_UAC                    371
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_IR_JIGAO
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -999,8 +999,8 @@ enum E_Baud_Rate
 
 // 3.9.2_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.61.4_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.61.4_D"
+#define DEVICE_FIRMWARE_VERSION             "3.61.4.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.61.4.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -1019,6 +1019,10 @@ enum E_Baud_Rate
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UAC_SPEAKER_VOL
 #define UAC_SPEAKER_VOL                     32 // 0 ~ 32
+#undef DEFAULT_UVC_DIR
+#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
+#undef CAM_ROTATION_MODE
+#define CAM_ROTATION_MODE                   CAM_RM_180DEGREE
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
