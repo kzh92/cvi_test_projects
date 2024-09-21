@@ -180,7 +180,7 @@ int merge_files(const char* dest_file, int pad_size)
     while(g_part_files[i].m_filename != NULL)
     {
         if (g_part_files[i].m_filename[0] == '/')
-            snprintf(afilename, sizeof(afilename), FACEENGINEDIR "/Dic/D10/%s", g_part_files[i].m_filename);
+            snprintf(afilename, sizeof(afilename), FACEENGINEDIR "%s", g_part_files[i].m_filename);
         else
             snprintf(afilename, sizeof(afilename), RESOURCEDIR "/rc/%s", g_part_files[i].m_filename);
         FILE* fp_in;
