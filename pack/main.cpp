@@ -50,8 +50,7 @@ int req_crypto(const char * filename, unsigned char* file_buf)
     int idx = 0;
     while(g_part_files[idx].m_filename != NULL)
     {
-        if (strlen(g_part_files[idx].m_filename) > 6 && 
-            strstr(filename, g_part_files[idx].m_filename + 5))
+        if (strstr(filename, g_part_files[idx].m_filename))
         {
             if (g_part_files[idx].m_flag & FN_CRYPTO_AES)
             {
@@ -95,8 +94,7 @@ int req_compress(const char * filename)
     int idx = 0;
     while(g_part_files[idx].m_filename != NULL)
     {
-        if (strlen(g_part_files[idx].m_filename) > 6 && 
-            strstr(filename, g_part_files[idx].m_filename + 6))
+        if (strstr(filename, g_part_files[idx].m_filename))
         {
             if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
             {
@@ -167,33 +165,40 @@ int gen_auto_config_header(void)
     return 0;
 }
 
-int merge_files(const char** file_names, const char* dest_file, int pad_size)
+int merge_files(const char* dest_file, int pad_size)
 {
     FILE* fp_out;
     int total_size = 0;
+    char afilename[1024];
+    int i = 0;
     fp_out = fopen(dest_file, "wb");
     if (fp_out == NULL)
     {
         printf("failed to create file: %s\n", dest_file);
         return 1;
     }
-    for (int i = 0; file_names[i] != NULL; i++)
+    while(g_part_files[i].m_filename != NULL)
     {
+        if (g_part_files[i].m_filename[0] == '/')
+            snprintf(afilename, sizeof(afilename), FACEENGINEDIR "/Dic/D10/%s", g_part_files[i].m_filename);
+        else
+            snprintf(afilename, sizeof(afilename), RESOURCEDIR "/rc/%s", g_part_files[i].m_filename);
         FILE* fp_in;
         int file_size = 0;
         char cmd_[1024];
-        if (req_compress(file_names[i]))
+        if (req_compress(afilename))
         {
-            sprintf(cmd_, "%s.zst", file_names[i]);
+            sprintf(cmd_, "%s.zst", afilename);
         }
         else
         {
-            sprintf(cmd_, "%s", file_names[i]);
+            sprintf(cmd_, "%s", afilename);
         }
         fp_in = fopen(cmd_, "rb");
         if (fp_in == NULL)
         {
-            printf("failed to open file:%s\n", file_names[i]);
+            printf("failed to open file:%s\n", afilename);
+            i++;
             continue;
         }
         fseek(fp_in, 0, SEEK_END);
@@ -204,18 +209,18 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
             char* file_data = (char*)malloc(malloc_len);
             if (file_data == NULL)
             {
-                printf("failed to malloc(%s), len=%d\n", file_names[i], malloc_len);
+                printf("failed to malloc(%s), len=%d\n", afilename, malloc_len);
                 continue;
             }
             memset(file_data, 0, malloc_len);
             fseek(fp_in, 0, SEEK_SET);
             fread(file_data, 1, file_size, fp_in);
-            req_crypto(file_names[i], (unsigned char*)file_data);
+            req_crypto(afilename, (unsigned char*)file_data);
             int cur_off = (int)ftell(fp_out);
             fwrite(file_data, 1, malloc_len, fp_out);
 
             char temp_path[1024];
-            sprintf(temp_path, "%s.out", file_names[i]);
+            sprintf(temp_path, "%s.out", afilename);
 
             FILE* fp_one = NULL;
             fp_one = fopen(temp_path, "wb");
@@ -230,6 +235,7 @@ int merge_files(const char** file_names, const char* dest_file, int pad_size)
             total_size += malloc_len;
         }
         fclose(fp_in);
+        i++;
     }
     //write null buffer for empty file.
     char buf[64] = {0};
@@ -338,49 +344,7 @@ int main(int argc, char** argv)
     system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/hdic_1.bin " RESOURCEDIR "/hdic_1_encode.bin");
 #endif
 
-    const char* merge_path1[] = {
-        USE_RENT_ENGINE ? (FACEENGINEDIR "/wno_c.bin") : (FACEENGINEDIR "/wno.bin"),
-        FACEENGINEDIR "/detect.bin",
-        FACEENGINEDIR "/dlamk.bin",
-    #if (DESMAN_ENC_MODE == 0)
-        FACEENGINEDIR "/occ.bin",
-        FACEENGINEDIR "/esn.bin",
-    #endif // DESMAN_ENC_MODE
-    #if (ENGINE_USE_TWO_CAM)
-        FACEENGINEDIR "/a1.bin",
-        FACEENGINEDIR "/b.bin",
-        FACEENGINEDIR "/b2.bin",
-        FACEENGINEDIR "/c.bin",
-    #else // ENGINE_USE_TWO_CAM
-        FACEENGINEDIR "/a1_onecam.bin",
-        FACEENGINEDIR "/a2_onecam.bin",
-        FACEENGINEDIR "/c_onecam.bin",
-    #endif // ENGINE_USE_TWO_CAM
-    #if (USE_RENT_ENGINE)
-        // FACEENGINEDIR "/detect_c.bin",
-    #endif
-    #if (N_MAX_HAND_NUM)
-    #if (!N_MAX_PERSON_NUM)
-        FACEENGINEDIR "/wnh.bin",
-    #endif
-        FACEENGINEDIR "/detect_h.bin",
-        FACEENGINEDIR "/dlamk_h.bin",
-    #if (N_MAX_PERSON_NUM)
-        FACEENGINEDIR "/wnh.bin",
-    #endif
-        FACEENGINEDIR "/lh.bin",
-    #endif // N_MAX_HAND_NUM
-    #if (USE_TWIN_ENGINE)
-        FACEENGINEDIR "/hdic_2.bin",
-    #endif
-        RESOURCEDIR "/rc/face_ir.bin",
-    #if (USE_UAC_MODE)
-        RESOURCEDIR "/rc/audiotest.pcm",
-    #endif // USE_UAC_MODE
-        RESOURCEDIR "/rc/v1.0.0.1.bin",
-        NULL
-    };
-    merge_files(merge_path1, IMAGEDIR "/pwx", FN_DICT_ALIGN_SIZE);
+    merge_files(IMAGEDIR "/pwx", FN_DICT_ALIGN_SIZE);
     system("dd if=/dev/zero of=" IMAGEDIR "/pusr1 bs=1024 count=8");
     system("dd if=/dev/zero of=" IMAGEDIR "/pusr2 bs=1024 count=8");
     system("dd if=/dev/zero of=" IMAGEDIR "/pst bs=1024 count=8");

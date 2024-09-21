@@ -248,7 +248,7 @@ int upg_update_part(const char* u_filepath, unsigned char* u_buffer, unsigned in
         if (u_header->m_part_infos[idx].m_flags == UF_PF_WEIGHT_CRYPT)
         {
             char wpath[64];
-            snprintf(wpath, 64, "/test/%s", u_header->m_part_infos[idx].m_partname);
+            snprintf(wpath, 64, "/%s", u_header->m_part_infos[idx].m_partname);
             dbug_printf("write crypt:%s\n", wpath);
             g_xSS.bIsSysActivated = MY_SYS_FLAG_NOT_ACTIVATED;
             fr_ReadFileData(wpath, 0, u_buffer, u_size);

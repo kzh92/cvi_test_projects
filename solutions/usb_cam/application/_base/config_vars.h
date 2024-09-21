@@ -76,24 +76,24 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define UPGRADER_INFO_SIZE              64
 #define IR_ERROR_SAVE_ADDR              (16*1024*1024 - 1024*1024)
 
-#define FN_WNO_DICT_PATH        (USE_RENT_ENGINE ? "/test/wno_c.bin" : "/test/wno.bin")
-#define FN_WNOH_DICT_PATH       "/test/wnh.bin"
-#define FN_A1_DICT_PATH         "/test/a1.bin"
-#define FN_A2_DICT_PATH         "/test/a2.bin"
-#define FN_B_DICT_PATH          "/test/b.bin"
-#define FN_B2_DICT_PATH         "/test/b2.bin"
-#define FN_CH_DICT_PATH         "/test/ch.bin"
-#define FN_C_DICT_PATH          "/test/c.bin"
-#define FN_DETECT_DICT_PATH     "/test/detect.bin"
-#define FN_DETECT_H_DICT_PATH   "/test/detect_h.bin"
-#define FN_DETECT_C_DICT_PATH   "/test/detect_c.bin"
-#define FN_DLAMK_DICT_PATH      "/test/dlamk.bin"
-#define FN_DLAMK_H_DICT_PATH    "/test/dlamk_h.bin"
-#define FN_ESN_DICT_PATH        "/test/esn.bin"
-#define FN_OCC_DICT_PATH        "/test/occ.bin"
-#define FN_H_LIVE_DICT_PATH     "/test/lh.bin"
-#define FN_H1_DICT_PATH         "/test/hdic_1.bin"
-#define FN_H2_DICT_PATH         "/test/hdic_2.bin"
+#define FN_WNO_DICT_PATH        (USE_RENT_ENGINE ? "/wno_c.bin" : "/wno.bin")
+#define FN_WNOH_DICT_PATH       "/wnh.bin"
+#define FN_A1_DICT_PATH         "/a1.bin"
+#define FN_A2_DICT_PATH         "/a2.bin"
+#define FN_B_DICT_PATH          "/b.bin"
+#define FN_B2_DICT_PATH         "/b2.bin"
+#define FN_CH_DICT_PATH         "/ch.bin"
+#define FN_C_DICT_PATH          "/c.bin"
+#define FN_DETECT_DICT_PATH     "/detect.bin"
+#define FN_DETECT_H_DICT_PATH   "/detect_h.bin"
+#define FN_DETECT_C_DICT_PATH   "/detect_c.bin"
+#define FN_DLAMK_DICT_PATH      "/dlamk.bin"
+#define FN_DLAMK_H_DICT_PATH    "/dlamk_h.bin"
+#define FN_ESN_DICT_PATH        "/esn.bin"
+#define FN_OCC_DICT_PATH        "/occ.bin"
+#define FN_H_LIVE_DICT_PATH     "/lh.bin"
+#define FN_H1_DICT_PATH         "/hdic_1.bin"
+#define FN_H2_DICT_PATH         "/hdic_2.bin"
 
 #define FN_DICT_ALIGN_SIZE      64
 
@@ -108,30 +108,14 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define CLR_TEST_BIN_W_START    232
 #define CLR_TEST_BIN_H_START    172
 
-#define FN_FACE_BIN_PATH                "/test/face.bin"
-#define FN_FACE_IR_BIN_PATH             "/test/face_ir.bin"
-#define FN_FACE_CLR_BIN_PATH            "/test/face_clr.bin"
-#define FN_TESTAUDIO_PCM_PATH           "/test/audiotest.pcm"
+#define FN_FACE_BIN_PATH                "face.bin"
+#define FN_FACE_IR_BIN_PATH             "face_ir.bin"
+#define FN_FACE_CLR_BIN_PATH            "face_clr.bin"
+#define FN_TESTAUDIO_PCM_PATH           "audiotest.pcm"
 
 #define FN_FACE_IR_BIN_CHKSUM           0x47866b35
 
-
-#define FN_031TTS_WAV_PATH  "sound/031TTS.wav"
-#define FN_031TTS_WAV_SIZE  250028
-#define FN_032TTS_WAV_PATH  "sound/032TTS.wav"
-#define FN_032TTS_WAV_SIZE  80684
-#define FN_033TTS_WAV_PATH  "sound/033TTS.wav"
-#define FN_033TTS_WAV_SIZE  53036
-#define FN_034TTS_WAV_PATH  "sound/034TTS.wav"
-#define FN_034TTS_WAV_SIZE  148652
-#define FN_035TTS_WAV_PATH  "sound/035TTS.wav"
-#define FN_035TTS_WAV_SIZE  156716
-#define FN_036TTS_WAV_PATH  "sound/036TTS.wav"
-#define FN_036TTS_WAV_SIZE  51884
-#define FN_TEST_WAV_PATH    "sound/test.wav"
-#define FN_TEST_WAV_SIZE    91606
-
-#define FN_ISP_IR_BIN_PATH             "/test/v1.0.0.1.bin"
+#define FN_ISP_IR_BIN_PATH             "v1.0.0.1.bin"
 #define FN_ISP_IR_BIN_SIZE             174513
 #define FN_ISP_IR_BIN_SIZE_REAL        31766
 
