@@ -591,7 +591,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LC7258_UAC                    371
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_CS_TUYA_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2009,23 +2009,39 @@ enum E_Baud_Rate
 
 // 3.32.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.90.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.90.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.90.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.90.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
                                             {2, 640, 480, 30, 0, 4096},
 #undef DEFAULT_UVC_DIR
 #define DEFAULT_UVC_DIR                     UVC_ROTATION_270
-#undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_SEMI
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v11
-#define UVC_CLR2IR_THR4ISP                  (-200)
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+// #undef UAC_SPEAKER_VOL
+// #define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_TX_PROTO_IR)
