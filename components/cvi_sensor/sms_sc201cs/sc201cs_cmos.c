@@ -27,7 +27,9 @@
 
 #define DIV_0_TO_1(a)   ((0 == (a)) ? 1 : (a))
 #define DIV_0_TO_1_FLOAT(a) ((((a) < 1E-10) && ((a) > -1E-10)) ? 1 : (a))
-#define SC201CS_ID 0xeb2c
+#define SC201CS_ID 0xcb5c
+#define SC201CS_I2C_ADDR_1 0x30
+#define SC201CS_I2C_ADDR_2 0x30
 #define SC201CS_I2C_ADDR_IS_VALID(addr)      ((addr) == SC201CS_I2C_ADDR_1 || (addr) == SC201CS_I2C_ADDR_2)
 
 /****************************************************************************
@@ -67,14 +69,14 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 #define SC201CS_SHS1_0_ADDR		0x3E00
 #define SC201CS_SHS1_1_ADDR		0x3E01
 #define SC201CS_SHS1_2_ADDR		0x3E02
-#define SC201CS_AGAIN_ADDR		0x3E09
+#define SC201CS_AGAIN_ADDR		0x3E08
 #define SC201CS_DGAIN_ADDR		0x3E06
 #define SC201CS_DGAIN_ADDR2		0x3E07
 #define SC201CS_VMAX_ADDR		0x320E
 
 // #define SC201CS_MIRROR_FLIP_ADDR    0x17
 
-#define SC201CS_RES_IS_1200P(w, h)      ((w) <= 1600 && (h) <= 1200)
+#define SC201CS_RES_IS_1200P(w, h)      ((w) <= 1920 && (h) <= 1080)
 
 static CVI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {

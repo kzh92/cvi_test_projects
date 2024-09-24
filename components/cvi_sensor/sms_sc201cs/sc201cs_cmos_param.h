@@ -21,18 +21,18 @@ static const SC201CS_MODE_S g_astSc201cs_mode[SC201CS_MODE_NUM] = {
 		.name = "1600X1200P30",
 		.astImg[0] = {
 			.stSnsSize = {
-				.u32Width = 1600,
-				.u32Height = 1200,
+				.u32Width = 1920,
+				.u32Height = 1080,
 			},
 			.stWndRect = {
 				.s32X = 0,
 				.s32Y = 0,
-				.u32Width = 1600,
-				.u32Height = 1200,
+				.u32Width = 1920,
+				.u32Height = 1080,
 			},
 			.stMaxSize = {
-				.u32Width = 1600,
-				.u32Height = 1200,
+				.u32Width = 1920,
+				.u32Height = 1080,
 			},
 		},
 		.f32MaxFps = 30,
@@ -98,7 +98,7 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
-		.lane_id = {3, 4, -1, -1, -1},
+		.lane_id = {3/*clock*/, 4/*data*/, -1, -1, -1},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 		.dphy = {
 			.enable = CVI_TRUE,

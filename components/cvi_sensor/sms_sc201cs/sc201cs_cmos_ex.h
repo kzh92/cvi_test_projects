@@ -22,7 +22,7 @@ extern "C" {
 #define syslog(level, fmt, ...)	printf(fmt, ##__VA_ARGS__)
 
 #define SC201CS_I2C_ADDR_1 0x30
-#define SC201CS_I2C_ADDR_2 0x32
+#define SC201CS_I2C_ADDR_2 0x30
 
 enum sc201cs_linear_regs_e {
 	LINEAR_SHS1_0_ADDR,

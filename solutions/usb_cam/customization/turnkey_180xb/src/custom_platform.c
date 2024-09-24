@@ -15,6 +15,9 @@
 #define WHITE_LED               422 /* PWR_GPIO[22] Group:4 Num:22 */
 #define PSENSE_DET              423 /* PWR_GPIO[23] Group:4 Num:22 */
 #define AUDIO_EN                15 /* XGPIOA[15] Group:0 Num:15*/
+#define CAM_MIPI1_RST           208 /* XGPIOC[8] Group:2 Num:8*/
+#define IR_CUT_IN1              422 /* PWR_GPIO[22] Group:4 Num:22 */
+#define IR_CUT_IN2              420 /* PWR_GPIO[20] Group:4 Num:20 */
 
 static csi_gpio_t gpio[5] = {0};
 static int g_csi_gpio_inited = 0;
@@ -145,7 +148,7 @@ static void _UsbIoInit(void)
 }
 
 #endif
-
+void aos_msleep(int ms);
 void PLATFORM_IoInit(void)
 {
 //pinmux 切换接口
@@ -163,9 +166,20 @@ void PLATFORM_IoInit(void)
     GPIO_fast_init();
     //camera power
     GPIO_fast_config(CAM_MIPI1_PWDN, OUT);
-    GPIO_fast_config(CAM_MIPI0_PWDN, OUT);
-    GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);    
-    GPIO_fast_setvalue(CAM_MIPI0_PWDN, 1);
+    GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);
+
+    PINMUX_CONFIG(SD1_CMD, PWR_GPIO_22); //IR_CUT_IN1 pin
+    PINMUX_CONFIG(SD1_D1, PWR_GPIO_20); //IR_CUT_IN2 pin
+    GPIO_fast_config(IR_CUT_IN2, OUT);
+    GPIO_fast_config(IR_CUT_IN1, OUT);
+    GPIO_fast_setvalue(IR_CUT_IN1, 0);
+    GPIO_fast_setvalue(IR_CUT_IN2, 1);
+    aos_msleep(200);
+    GPIO_fast_setvalue(IR_CUT_IN1, 0);
+    GPIO_fast_setvalue(IR_CUT_IN2, 0);
+
+	GPIO_fast_config(CAM_MIPI1_RST, OUT);
+	GPIO_fast_setvalue(CAM_MIPI1_RST, 1);
 }
 
 void PLATFORM_PowerOff(void)

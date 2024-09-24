@@ -227,7 +227,7 @@ CVI_S32 getPicSize(CVI_S32 dev_id, SNS_SIZE_S *pstSize)
 	switch (sensor_type) {
 	case GCORE_GC02M1_MIPI_2M_30FPS_10BIT:
 	case GCORE_GC02M1_SLAVE_MIPI_2M_30FPS_10BIT:
-	case SMS_SC201CS_MIPI_2M_30FPS_10BIT:
+	// case SMS_SC201CS_MIPI_2M_30FPS_10BIT:
 	case SMS_SC201CS_SLAVE_MIPI_2M_30FPS_10BIT:
 		pstSize->u32Width  = 1600;
 		pstSize->u32Height = 1200;
