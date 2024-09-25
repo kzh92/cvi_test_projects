@@ -25,7 +25,11 @@
 #endif
 #elif(DEFAULT_CHIP_TYPE == MY_CHIP_D20)
 #define FACEENGINEDIR       "./solutions/usb_cam/application/FaceEngine/Dic/D20/"
+#if (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D20A)
+#define FIRM_MAGIC          "EASEN10"
+#else
 #define FIRM_MAGIC          "EASEN9"
+#endif
 #else // DEFAULT_CHIP_TYPE
 #error "Invalid chip type"
 #endif // DEFAULT_CHIP_TYPE
