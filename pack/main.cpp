@@ -43,6 +43,7 @@
 
 #define AUTO_CONFIG_HEADER_SIZE     8192
 char g_auto_config_string[8192];
+char g_auto_config_read[8192];
 unsigned char g_wno_origin_values[4] = {0};
 
 int req_crypto(const char * filename, unsigned char* file_buf)
@@ -135,6 +136,7 @@ int gen_auto_config_header(void)
     int idx = 0;
     char aline[256];
     g_auto_config_string[0] = 0;
+    strcat(g_auto_config_string, "//This file is generated automatically. Do not edit!!!\n");
     strcat(g_auto_config_string, "#ifndef _AUTO_CONFIG_VARS_H\n");
     strcat(g_auto_config_string, "#define _AUTO_CONFIG_VARS_H\n");
     while(g_part_files[idx].m_filename != NULL)
@@ -151,16 +153,34 @@ int gen_auto_config_header(void)
     strcat(g_auto_config_string, aline);
     strcat(g_auto_config_string, "#endif\n");
     FILE* fp = NULL;
-    fp = fopen(APPDIR "/_base/auto_config_vars.h", "wb");
+    fp = fopen(APPDIR "/_base/auto_config_vars.h", "rb");
+    int len = 0;
     if (fp)
     {
-        fprintf(fp, "%s", g_auto_config_string);
+        fseek(fp, 0, SEEK_END);
+        len = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+        fread(g_auto_config_read, 1, len, fp);
         fclose(fp);
-        printf("GENERATED auto_config_vars.h!!!\n");
+        fp = NULL;
+    }
+    if (len > 0 && strlen(g_auto_config_string) == len && strcmp(g_auto_config_string, g_auto_config_read) == 0)
+    {
+        printf("auto_config_vars.h: already created!!!\n");
     }
     else
     {
-        printf("ERROR! failed to open file: auto_config_vars.h\n");
+        fp = fopen(APPDIR "/_base/auto_config_vars.h", "wb");
+        if (fp)
+        {
+            fwrite(g_auto_config_string, 1, strlen(g_auto_config_string), fp);
+            fclose(fp);
+            printf("GENERATED auto_config_vars.h!!!\n");
+        }
+        else
+        {
+            printf("ERROR! failed to open file: auto_config_vars.h\n");
+        }
     }
     return 0;
 }
