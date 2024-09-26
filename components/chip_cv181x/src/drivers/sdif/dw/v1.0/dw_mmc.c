@@ -1567,22 +1567,17 @@ uint32_t csi_sdif_set_clock(sdif_handle_t handle, uint32_t target_hz)
 	uint32_t source_clock_hz;
 	uint32_t idx;
 	uint32_t ret;
-	if (target_hz > 50000000) {
-		target_hz = 50000000;
-	}
 
 	SDIF_TYPE *base = (SDIF_TYPE *)handle;
 
 	idx = csi_sdif_get_idx(handle);
-
-	// soc_set_sdio_freq(idx, 50000000);
-
 	source_clock_hz = csi_sdif_get_clock(idx);
 	if (target_hz <= 400000)
 		ret = SDIF_SetCardClock(base, source_clock_hz, target_hz);
 	else
 		ret = SDIF_ChangeCardClock(base, source_clock_hz, target_hz);
 
+	//printf("BASE: 0x%lx, clk reg: 0x%x, freq: %u\n", (uintptr_t)base, mmio_read_32(BASE + SDIF_CLK_CTRL), target_hz);
 	return ret;
 }
 

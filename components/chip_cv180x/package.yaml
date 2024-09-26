@@ -87,7 +87,8 @@ build_config:
 # cflag: -DARCH_CV182X
   asmflag: -D__ASSEMBLY__
   internal_include:
-
+  libpath:
+    - <CONFIG_DRAM_CFG>_cfg/
   include:
     - src/sys
     - include
@@ -106,6 +107,7 @@ build_config:
     - src/drivers/uart/dw/v2.0/include
     - src/drivers/iic/dw/include
     - src/drivers/adc/cvi/include
+    - src/drivers/tempsen/cvi/include
     - src/drivers/pwm/cvi/v1.0/include
     - src/drivers/sha/cvi/include
     - src/drivers/net/ethernet/dw/include
@@ -120,6 +122,7 @@ build_config:
     - src/hal/timer/cvi/include
     - src/hal/rtc/cvi/include
     - src/hal/adc/cvi/include
+    - src/hal/tempsen/cvi/include
     - src/drivers/sdif/dw/v1.0
 
     - src/drivers/codec/cvitek/include
@@ -155,6 +158,7 @@ source_file:
   - src/drivers/gpio/cvi/src/*.c
   - src/drivers/gpio_pin/cvi/src/*.c
   - src/drivers/adc/cvi/src/*.c
+  - src/drivers/tempsen/cvi/src/*.c
   - src/drivers/pwm/cvi/v1.0/src/*.c
   - src/drivers/wdt/cvi/src/*.c
   - src/drivers/dma/cvi/src/cvi_dma.c
@@ -175,6 +179,7 @@ source_file:
   - src/hal/pin/cvi/src/*.c
   - src/hal/gpio/cvi/src/hal_gpio.c
   - src/hal/adc/cvi/src/hal_adc.c
+  - src/hal/tempsen/cvi/src/hal_tempsen.c
   - src/hal/dma/cvi/src/hal_dma.c
   - src/hal/timer/cvi/src/hal_timer.c
   - src/hal/rtc/cvi/src/hal_rtc.c
@@ -209,7 +214,7 @@ def_config:
   CONFIG_CSI: "csi2"
   CONFIG_CPU_C906: y
   CONFIG_ARCH_INTERRUPTSTACK: 4096
-
+  CONFIG_DRAM_CFG: "64m"
   CVI_SOC_NAME: "cv180x"
   CVI_SOC_CV181XC: 1
 
