@@ -249,6 +249,7 @@ enum E_Baud_Rate
 #define USE_LAIJI_PROTO             0
 #define ENROLL_ANGLE_MODE           0
 #define ENGINE_USE_TWO_CAM          EUTC_3M_MODE
+#define DIC_CHSUM_ERROR_IGNO        1
 #define YAOYANG_MODE                0
 #define SEND_LAST_MSG               0
 #define USE_3M_MODE                 U3M_DISABLE
