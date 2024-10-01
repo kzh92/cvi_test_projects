@@ -19,6 +19,7 @@
 //#include <fcntl.h>
 FaceRecogTask xFaceTask;
 void* FaceEngine::m_irFeatBuffer = NULL;
+int FaceEngine::m_iRegUserCount = 0;
 
 int FaceEngine::Create(int iDupCheck, int iCamFlip, int nDnnCheckSum, int nHCheckSum)
 {
@@ -457,195 +458,116 @@ int FaceEngine::CreateHand(int /*iDupCheck*/, int /*iCamFlip*/, int /*nDnnCheckS
 
 #endif // N_MAX_HAND_NUM
 
-int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids)
+int FaceEngine::DecodeRegisterFileDataOne(s_feat_data_v2* fd, unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids)
 {
+    dbug_printf("[%s] start\n", __func__);
     int ret = -(MR_FAILED4_INVALIDPARAM);
-#if (USE_RENT_ENGINE || USE_DB_UPDATE_MODE)
-    s_feat_data_v3* fd = (s_feat_data_v3*)*pBuffer;
-#if (USE_RENT_ENGINE)
-    s_feat_data_v2* fd_v2 = (s_feat_data_v2*)*pBuffer;
-#endif
+    m_iRegUserCount = 0;
+    if (puser_ids)
+    {
+        *puser_ids = (uint16_t*)malloc(sizeof(uint16_t));
+        if (*puser_ids == NULL)
+        {
+            return -(MR_FAILED4_NOMEMORY);
+        }
+        else
+        {
+            memset(*puser_ids, 0, sizeof(uint16_t));
+        }
+    }
+    else
+        return -(MR_FAILED4_NOMEMORY);
+    if ((int)sizeof(*fd) > file_len)
+        return ret;
+    dbug_printf("size=%d,%d\n", (int)sizeof(*fd), file_len);
+    char str_magic[32];
+    GetFeatMagic(str_magic);
+    if (strncmp(fd->m_magic, str_magic, sizeof(fd->m_magic)) == 0)
+    {
+        dbug_printf("magic[0]=%s,%d\n", fd[0].m_magic, (int)sizeof(fd->m_magic));
+        ret = DecodeRegisterFileFeat(fd, pBuffer, file_len, puser_count, puser_ids);
+    }
+    else if (file_len == sizeof(*fd) * 2)
+    {
+        dbug_printf("magic[1]=%s,%d\n", fd[1].m_magic, (int)sizeof(fd->m_magic));
+        if (strncmp(fd[1].m_magic, str_magic, sizeof(fd->m_magic)) == 0)
+        {
+            ret = DecodeRegisterFileFeat(&fd[1], pBuffer, file_len, puser_count, puser_ids);
+        }
+    }
+    return ret;
+}
+
+int FaceEngine::DecodeRegisterFileFeat(s_feat_data_v2* pFeat, unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids)
+{
+    dbug_printf("[%s] start\n", __func__);
     int reg_user_id = 0;
     if (*puser_count > 0)
     {
         reg_user_id = *puser_count;
-        *puser_count = 0;
     }
-#endif
-#if (USE_RENT_ENGINE)
-    if (memcmp(fd->m_header.m_magic, ENROLL_FACE_IMG_MAGIC3, sizeof(ENROLL_FACE_IMG_MAGIC3)) == 0)
+    float arEngineResult[10] = { 0 };
+    int keySize = strlen(pFeat->m_magic) + 1;
+    xor_encrypt(pFeat->feat_data, sizeof(pFeat->feat_data),
+                (unsigned char*)pFeat->m_magic, keySize);
+    if (memcmp(pFeat->m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0 && pFeat->m_magic[sizeof(ENROLL_FACE_IMG_MAGIC2)] == '1') //IR feature
     {
-        dbug_printf("decode multi feat\n");
-        //decode multi feat data
-        if (fd->m_header.m_size < (int)FEAT_DATA_V3_EXPECT_SIZE(fd))
+        FaceEngine::RegisterFeat(arEngineResult, pFeat->feat_data, sizeof(pFeat->feat_data), 1);
+    }
+    else // Color feature
+    {
+        FaceEngine::RegisterFeat(arEngineResult, pFeat->feat_data, sizeof(pFeat->feat_data));
+    }
+    if (arEngineResult[0] != ES_SUCCESS)
+    {
+        dbug_printf("reg fail, get feat\n");
+        return -(MR_FAILED4_UNKNOWNREASON);
+    }
+
+    int iUserID = -1;
+    if (m_iRegUserCount == 0 && reg_user_id > 0)
+    {
+        if (reg_user_id > N_MAX_PERSON_NUM)
         {
-            dbug_printf("size mismatch %d, %d\n", fd->m_header.m_size, file_len);
             return -(MR_FAILED4_INVALIDPARAM);
         }
-        printf("fcount=%d\n", fd->m_header.m_count);
-        if (fd->m_header.m_count)
+        if (dbm_GetPersonMetaInfoByID(reg_user_id - 1))
         {
-            int n_reg_user_count = 0;
-            if (puser_ids)
-            {
-                *puser_ids = (uint16_t*)malloc(sizeof(uint16_t)*fd->m_header.m_count);
-                if (*puser_ids == NULL)
-                {
-                    return -(MR_FAILED4_NOMEMORY);
-                }
-                else
-                {
-                    memset(*puser_ids, 0, sizeof(uint16_t)*fd->m_header.m_count);
-                }
-            }
-            else
-                return -(MR_FAILED4_NOMEMORY);
-            FaceEngine::UnregisterFace(-1, 0);
-            for (int i = 0; i < fd->m_header.m_count; i++)
-            {
-                if (memcmp(fd->m_feat[i].m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0)
-                {
-                    float arEngineResult[10] = { 0 };
-                    xor_encrypt(fd->m_feat[i].feat_data, sizeof(fd->m_feat[i].feat_data),
-                                (unsigned char*)ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2));
-                    FaceEngine::RegisterFeat(arEngineResult, fd->m_feat[i].feat_data, sizeof(fd->m_feat[i].feat_data));
-                    if (arEngineResult[0] != ES_SUCCESS)
-                    {
-                        dbug_printf("reg fail %d, get feat\n", i);
-                        return -(MR_FAILED4_UNKNOWNREASON);
-                    }
-
-                    int iUserID = -1;
-                    if (i == 0 && reg_user_id > 0)
-                    {
-                        if (reg_user_id > N_MAX_PERSON_NUM)
-                        {
-                            return -(MR_FAILED4_INVALIDPARAM);
-                        }
-                        if (dbm_GetPersonMetaInfoByID(reg_user_id - 1))
-                        {
-                            return -(MR_FAILED4_INVALIDPARAM);
-                        }
-                        iUserID = reg_user_id - 1;
-                    }
-                    if (iUserID < 0)
-                        iUserID = dbm_GetNewUserID();
-                    if(iUserID == -1)
-                    {
-                        dbug_printf("reg fail %d, max user\n", i);
-                        return -(MR_FAILED4_MAXUSER);
-                    }
-
-                    SMetaInfo xMetaInfo;
-                    SFeatInfo xFeatInfo;
-                    memset(&xMetaInfo, 0, sizeof(xMetaInfo));
-                    memset(&xFeatInfo, 0, sizeof(xFeatInfo));
-                    xMetaInfo.iID = iUserID;
-
-                    FaceEngine::GetRegisteredFeatInfo(&xFeatInfo);
-
-                    SetModifyUser(1);
-
-                    int iBackupState = mount_backup_db(0);
-                    if (iBackupState < 0)
-                    {
-                        dbug_printf("reg fail %d, write fail\n", i);
-                        SetModifyUser(0);
-                        return -(MR_FAILED4_WRITE_FILE);
-                    }
-                    else
-                    {
-                        int ret = FaceEngine::SavePerson(&xMetaInfo, &xFeatInfo, &iBackupState);
-                        umount_backup_db();
-                        if (ret != ES_SUCCESS)
-                        {
-                            dbug_printf("reg fail %d, write fail\n", i);
-                            SetModifyUser(0);
-                            return -(MR_FAILED4_WRITE_FILE);
-                        }
-                        else
-                        {
-                            UpdateUserCount();
-                            (*puser_ids)[n_reg_user_count++] = iUserID + 1;
-                            *puser_count = n_reg_user_count;
-                        }
-                    }
-
-                    dbug_printf("reg ok fidx=%d, %d\n", i, iUserID);
-                }
-                else
-                {
-                    dbug_printf("header mismatch fidx=%d\n", i);
-                }
-            }
-            return 1;
+            return -(MR_FAILED4_INVALIDPARAM);
         }
+        iUserID = reg_user_id - 1;
     }
-    else if (memcmp(fd_v2->m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0)
+    if (iUserID < 0)
+        iUserID = dbm_GetNewUserID();
+    if(iUserID == -1)
     {
-        float arEngineResult[10] = { 0 };
-        int n_reg_user_count = 0;
-        if (puser_ids)
-        {
-            *puser_ids = (uint16_t*)malloc(sizeof(uint16_t));
-            if (*puser_ids == NULL)
-            {
-                return -(MR_FAILED4_NOMEMORY);
-            }
-            else
-            {
-                memset(*puser_ids, 0, sizeof(uint16_t));
-            }
-        }
-        else
-            return -(MR_FAILED4_NOMEMORY);
-        FaceEngine::UnregisterFace(-1, 0);
-        xor_encrypt(fd_v2->feat_data, sizeof(fd_v2->feat_data),
-                    (unsigned char*)ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2));
-        if (fd_v2->m_magic[sizeof(ENROLL_FACE_IMG_MAGIC2)] == '1')
-            FaceEngine::RegisterFeat(arEngineResult, fd_v2->feat_data, sizeof(fd_v2->feat_data), 1);
-        else
-            FaceEngine::RegisterFeat(arEngineResult, fd_v2->feat_data, sizeof(fd_v2->feat_data));
-        if (arEngineResult[0] != ES_SUCCESS)
-        {
-            dbug_printf("reg fail, get feat\n");
-            return -(MR_FAILED4_UNKNOWNREASON);
-        }
+        dbug_printf("reg fail, max user\n");
+        return -(MR_FAILED4_MAXUSER);
+    }
+    my_printf("userid=%d,%d\n", iUserID, reg_user_id);
 
-        int iUserID = -1;
-        if (reg_user_id > 0)
-        {
-            if (reg_user_id > N_MAX_PERSON_NUM)
-            {
-                return -(MR_FAILED4_INVALIDPARAM);
-            }
-            if (dbm_GetPersonMetaInfoByID(reg_user_id - 1))
-            {
-                return -(MR_FAILED4_INVALIDPARAM);
-            }
-            iUserID = reg_user_id - 1;
-        }
+    SMetaInfo xMetaInfo;
+    SFeatInfo xFeatInfo;
+    memset(&xMetaInfo, 0, sizeof(xMetaInfo));
+    memset(&xFeatInfo, 0, sizeof(xFeatInfo));
+    xMetaInfo.iID = iUserID;
 
-        if (iUserID < 0)
-            iUserID = dbm_GetNewUserID();
-        if(iUserID == -1)
-        {
-            dbug_printf("reg fail, max user\n");
-            return -(MR_FAILED4_MAXUSER);
-        }
+    FaceEngine::GetRegisteredFeatInfo(&xFeatInfo);
 
-        SMetaInfo xMetaInfo;
-        SFeatInfo xFeatInfo;
-        memset(&xMetaInfo, 0, sizeof(xMetaInfo));
-        memset(&xFeatInfo, 0, sizeof(xFeatInfo));
-        xMetaInfo.iID = iUserID;
+    SetModifyUser(1);
 
-        FaceEngine::GetRegisteredFeatInfo(&xFeatInfo);
-
-        SetModifyUser(1);
-
-        int iBackupState = mount_backup_db(0);
-        if (iBackupState < 0)
+    int iBackupState = mount_backup_db(0);
+    if (iBackupState < 0)
+    {
+        dbug_printf("reg fail, write fail\n");
+        SetModifyUser(0);
+        return -(MR_FAILED4_WRITE_FILE);
+    }
+    else
+    {
+        int ret = FaceEngine::SavePerson(&xMetaInfo, &xFeatInfo, &iBackupState);
+        umount_backup_db();
+        if (ret != ES_SUCCESS)
         {
             dbug_printf("reg fail, write fail\n");
             SetModifyUser(0);
@@ -653,24 +575,132 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         }
         else
         {
-            int ret = FaceEngine::SavePerson(&xMetaInfo, &xFeatInfo, &iBackupState);
-            umount_backup_db();
-            if (ret != ES_SUCCESS)
+            UpdateUserCount();
+            (*puser_ids)[m_iRegUserCount++] = iUserID + 1;
+            *puser_count = m_iRegUserCount;
+        }
+    }
+
+    dbug_printf("reg ok %d\n", iUserID);
+    return MR_SUCCESS;
+}
+
+void FaceEngine::GetFeatSuffix(char* str_suffix)
+{
+#if 0
+    char str_ver[20];
+    snprintf(str_ver, sizeof(str_ver), "%s", fr_GetEngineVersion());
+    char* pos = strstr(str_ver, "_M");
+    dbug_printf("[%s]%s:%s\n", __func__, fr_GetEngineVersion(), pos);
+    if (pos)
+    {
+        pos ++;
+        int i = 0;
+        while(*pos != 0 && *pos != '_')
+        {
+            str_suffix[i++] = *pos;
+            pos ++;
+        }
+        str_suffix[i] = 0;
+    }
+#else
+    if (str_suffix)
+        sprintf(str_suffix, "M%d", fr_GetFaceFeatID());
+#endif
+}
+
+void FaceEngine::GetFeatMagic(char* str_magic)
+{
+    char str_suffix[16];
+    GetFeatSuffix(str_suffix);
+    sprintf(str_magic, "%s%s", ENROLL_FACE_IMG_MAG_PREFIX, str_suffix);
+    dbug_printf("magic:%s\n", str_magic);
+}
+
+int FaceEngine::DecodeRegisterFileDataMulti(s_feat_data_v3* fd, unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids)
+{
+    int ret = -(MR_FAILED4_INVALIDPARAM);
+    //decode multi feat data
+    if (fd->m_header.m_size < (int)FEAT_DATA_V3_EXPECT_SIZE(fd))
+    {
+        dbug_printf("size mismatch %d, %d\n", fd->m_header.m_size, file_len);
+        return -(MR_FAILED4_INVALIDPARAM);
+    }
+    printf("fcount=%d\n", fd->m_header.m_count);
+    if (fd->m_header.m_count)
+    {
+        m_iRegUserCount = 0;
+        if (puser_ids)
+        {
+            *puser_ids = (uint16_t*)malloc(sizeof(uint16_t)*fd->m_header.m_count);
+            if (*puser_ids == NULL)
             {
-                dbug_printf("reg fail, write fail\n");
-                SetModifyUser(0);
-                return -(MR_FAILED4_WRITE_FILE);
+                return -(MR_FAILED4_NOMEMORY);
             }
             else
             {
-                UpdateUserCount();
-                (*puser_ids)[n_reg_user_count++] = iUserID + 1;
-                *puser_count = n_reg_user_count;
+                memset(*puser_ids, 0, sizeof(uint16_t)*fd->m_header.m_count);
             }
         }
-
-        dbug_printf("reg ok %d\n", iUserID);
+        else
+            return -(MR_FAILED4_NOMEMORY);
+        FaceEngine::UnregisterFace(-1, 0);
+        char str_magic[32];
+        int i = 0;
+        int cnt = fd->m_header.m_count;
+        GetFeatMagic(str_magic);
+        if (fd->m_header.m_size > (int)FEAT_DATA_V3_EXPECT_SIZE(fd))
+        {
+            i = fd->m_header.m_count;
+            cnt = fd->m_header.m_count * 2;
+        }
+        for (; i < cnt; i++)
+        {
+            if (memcmp(fd->m_feat[i].m_magic, str_magic, sizeof(fd->m_feat[i].m_magic)) == 0)
+            {
+                ret = DecodeRegisterFileFeat(&fd->m_feat[i], pBuffer, file_len, puser_count, puser_ids);
+                if (ret != MR_SUCCESS)
+                    return ret;
+            }
+            else
+            {
+                dbug_printf("header mismatch fidx=%d\n", i);
+            }
+        }
         return 1;
+    }
+    return ret;
+}
+
+int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids)
+{
+    int ret = -(MR_FAILED4_INVALIDPARAM);
+#if (USE_RENT_ENGINE || USE_DB_UPDATE_MODE)
+    s_feat_data_v3* fd = (s_feat_data_v3*)*pBuffer;
+    char str_magic[32];
+    GetFeatMagic(str_magic);
+#if (USE_RENT_ENGINE)
+    s_feat_data_v2* fd_v2 = (s_feat_data_v2*)*pBuffer;
+#endif
+    int reg_user_id = 0;
+    if (*puser_count > 0)
+    {
+        reg_user_id = *puser_count;
+    }
+#endif
+#if (USE_RENT_ENGINE)
+    if (memcmp(fd->m_header.m_magic, ENROLL_FACE_IMG_MAGIC3, sizeof(ENROLL_FACE_IMG_MAGIC3)) == 0)
+    {
+        dbug_printf("decode multi feat\n");
+        return DecodeRegisterFileDataMulti(fd, pBuffer, file_len, puser_count, puser_ids);
+    }
+    else if (memcmp(fd_v2->m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0)
+    {
+        return DecodeRegisterFileDataOne(fd_v2, pBuffer, file_len, puser_count, puser_ids);
+    }
+    else if (strncmp(fd_v2->m_magic, str_magic, sizeof(fd_v2->m_magic)) == 0)
+    {
+        return DecodeRegisterFileDataOne(fd_v2, pBuffer, file_len, puser_count, puser_ids);
     } else
 #endif // USE_RENT_ENGINE
 #if (USE_DB_UPDATE_MODE)

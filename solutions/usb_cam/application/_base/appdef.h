@@ -430,9 +430,10 @@ enum E_Baud_Rate
 #define DEFAULT_LIVENESS_LEVEL      S_LIVENESS_LEVEL_DEFAULT
 #define DEFAULT_SNR4UVC             0    //0: use sensor0 for color, 1: use sensor1 for color, 2: no color
 #define FIRMWARE_MAGIC              "DBS"
-#define ENROLL_FACE_IMG_MAGIC       "EFIv1"
-#define ENROLL_FACE_IMG_MAGIC2      "EFIv2"
-#define ENROLL_FACE_IMG_MAGIC3      "EFIv3"
+#define ENROLL_FACE_IMG_MAGIC                   "EFIv1"
+#define ENROLL_FACE_IMG_MAGIC2                  "EFIv2"
+#define ENROLL_FACE_IMG_MAGIC3                  "EFIv3"
+#define ENROLL_FACE_IMG_MAG_PREFIX              "EFIv"
 #define DEFAULT_FR_COLOR_MODE       FR_COLOR_MODE_DEF
 
 #define DESMAN_ENC_MODE     2       //0 -> dessmman, 1 -> bom, 2 -> test

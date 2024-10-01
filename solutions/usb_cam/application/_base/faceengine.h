@@ -6,6 +6,7 @@
 #if (N_MAX_HAND_NUM)
 #include "hand/HandRetrival_.h"
 #endif
+#include "upgradebase.h"
 
 #define FE_TASK_MAX_CMD_ARGS    2
 typedef enum _tagFE_TASK_CMD_TYPE{
@@ -59,11 +60,17 @@ public:
     static int SaveHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* piBlkNum);
 #endif // N_MAX_HAND_NUM
     static int  DecodeRegisterFileData(unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
+    static int  DecodeRegisterFileDataOne(s_feat_data_v2* fd, unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
+    static int  DecodeRegisterFileDataMulti(s_feat_data_v3* fd, unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
+    static int  DecodeRegisterFileFeat(s_feat_data_v2* pFeat, unsigned char** pBuffer, int file_len, int * puser_count, uint16_t** puser_ids);
+    static void GetFeatSuffix(char* str_suffix);
+    static void GetFeatMagic(char* str_magic);
     static int  UpdateDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int uid);
     static int  GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag, int iID, int iOffset);
     static int SetLivenessLevel();
 private:
     static void* m_irFeatBuffer;
+    static int m_iRegUserCount;
 };
 
 #endif // FACEENGINE_H
