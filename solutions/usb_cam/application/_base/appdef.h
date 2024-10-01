@@ -3986,9 +3986,9 @@ odd version: use_whiteled = 1
 #endif // uvc max
 
 #if (USE_DB_UPDATE_MODE)
-#define DB_UPDATE_MAGIC "EasenDB1"
-#define DB_UPDATE_MAGIC_2 "EasenDB2" // face
-#define DB_UPDATE_MAGIC_3 "EasenDB3" // hand
+#define DB_UPDATE_MAGIC_ALL             "EasenDB1"
+#define DB_UPDATE_MAGIC_FACE            "EasenDB2" // face
+#define DB_UPDATE_MAGIC_HAND            "EasenDB3" // hand
 #define MAGIC_LEN_UPDATE_DB 8
 #endif // USE_DB_UPDATE_MODE
 

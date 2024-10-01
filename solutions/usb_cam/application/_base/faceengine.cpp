@@ -674,7 +674,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
     } else
 #endif // USE_RENT_ENGINE
 #if (USE_DB_UPDATE_MODE)
-    if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC, strlen(DB_UPDATE_MAGIC)) == 0)
+    if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_ALL, strlen(DB_UPDATE_MAGIC_ALL)) == 0)
     {
         mount_backup_db(0);
         if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 1, reg_user_id))
@@ -685,7 +685,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         }
         umount_backup_db();
     }
-    else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_2, strlen(DB_UPDATE_MAGIC_2)) == 0)
+    else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_FACE, strlen(DB_UPDATE_MAGIC_FACE)) == 0)
     {
         mount_backup_db(0);
         if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 2, reg_user_id))
@@ -696,7 +696,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
         }
         umount_backup_db();
     }
-    else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_3, strlen(DB_UPDATE_MAGIC_3)) == 0)
+    else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_HAND, strlen(DB_UPDATE_MAGIC_HAND)) == 0)
     {
         mount_backup_db(0);
         if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 3, reg_user_id))
@@ -791,14 +791,14 @@ int FaceEngine::GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag
         if (iOffset == 0)
         {
             if (iUpdateFlag == 1)
-                memcpy(pBuffer, DB_UPDATE_MAGIC, MAGIC_LEN_UPDATE_DB);
+                memcpy(pBuffer, DB_UPDATE_MAGIC_ALL, MAGIC_LEN_UPDATE_DB);
             else if (iUpdateFlag == 2)
             {
                 if (iID < N_MAX_PERSON_NUM)
-                    memcpy(pBuffer, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
+                    memcpy(pBuffer, DB_UPDATE_MAGIC_FACE, MAGIC_LEN_UPDATE_DB);
 #if (N_MAX_HAND_NUM)
                 else
-                    memcpy(pBuffer, DB_UPDATE_MAGIC_3, MAGIC_LEN_UPDATE_DB);
+                    memcpy(pBuffer, DB_UPDATE_MAGIC_HAND, MAGIC_LEN_UPDATE_DB);
 #endif
             }
             if (iID < N_MAX_PERSON_NUM)
@@ -857,14 +857,14 @@ int FaceEngine::GetPersonDbBin(unsigned char* pBuffer, int iLen, int iUpdateFlag
         //encoding data
         unsigned char check_buf[MAGIC_LEN_UPDATE_DB] = {0};
         if (iUpdateFlag == 1)
-            memcpy(check_buf, DB_UPDATE_MAGIC, MAGIC_LEN_UPDATE_DB);
+            memcpy(check_buf, DB_UPDATE_MAGIC_ALL, MAGIC_LEN_UPDATE_DB);
         else if (iUpdateFlag == 2)
         {
             if (iID < N_MAX_PERSON_NUM)
-                memcpy(check_buf, DB_UPDATE_MAGIC_2, MAGIC_LEN_UPDATE_DB);
+                memcpy(check_buf, DB_UPDATE_MAGIC_FACE, MAGIC_LEN_UPDATE_DB);
 #if (N_MAX_HAND_NUM)
             else
-                memcpy(check_buf, DB_UPDATE_MAGIC_3, MAGIC_LEN_UPDATE_DB);
+                memcpy(check_buf, DB_UPDATE_MAGIC_HAND, MAGIC_LEN_UPDATE_DB);
 #endif
         }
         for (int i = 0 ; i < iLen; i++)
