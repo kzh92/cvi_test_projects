@@ -32,9 +32,9 @@ partitions:
   - { name: boot0,  address: 0x000000, size: 0x00C000, index: 0, filename: fip_fsbl.bin}                                 # 48 KB
   - { name: boot,   address: 0x00C000, size: 0x020000, index: 0, filename: boot, load_addr: 0x8000C000 }          # 128KB
   - { name: imtb,   address: 0x02C000, size: 0x002000, index: 0, filename: imtb}                                 # 8 KB
-  - { name: prim,   address: 0x02E000, size: 0x1E0000, index: 0, filename: prim, load_addr: 0x80040000, car: xz }          # 3 MB
+  - { name: prim,   address: 0x02E000, size: 0x1D6000, index: 0, filename: prim, load_addr: 0x80040000, car: xz }          # 3 MB
 #  - { name: misc,   address: 0x22E000, size: 0x2000, index: 0, filename: misc }                                 # 0.5 MB
-  - { name: pwx,   address: 0x20E000, size: 0x520000, index: 0, filename: pwx }                                 # 4 MB
+  - { name: pwx,   address: 0x204000, size: 0x52A000, index: 0, filename: pwx }                                 # 4 MB
   - { name: pusr1,   address: 0x72E000, size: 0x68000, index: 0, filename: pusr1 }                                 # 
   - { name: pusr2,   address: 0x796000, size: 0x68000, index: 0, filename: pusr2 }                                 # 
   - { name: pst,   address: 0x7FE000, size: 0x2000, index: 0, filename: pst }                                   # 
