@@ -329,6 +329,7 @@ int FaceEngine::SavePerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* pi
         return ES_FAILED;
 
     int iFindIdx = dbm_GetIndexOfID(pxUserInfo->iID);
+    pxUserInfo->iFeatVer = fr_GetFaceFeatID();
     if(iFindIdx < 0)
     {
         return dbm_AddPerson(pxUserInfo, pxFeatInfo, piBlkNum);
@@ -434,6 +435,7 @@ int FaceEngine::SaveHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* 
         return ES_FAILED;
 
     int iFindIdx = dbm_GetHandIndexOfID(pxUserInfo->iID);
+    pxUserInfo->iFeatVer = fr_GetHandFeatID();
     if(iFindIdx < 0)
     {
         return dbm_AddHand(pxUserInfo, pxFeatInfo, piBlkNum);
@@ -475,7 +477,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
     {
         dbug_printf("decode multi feat\n");
         //decode multi feat data
-        if (fd->m_header.m_size != file_len)
+        if (fd->m_header.m_size < (int)FEAT_DATA_V3_EXPECT_SIZE(fd))
         {
             dbug_printf("size mismatch %d, %d\n", fd->m_header.m_size, file_len);
             return -(MR_FAILED4_INVALIDPARAM);
@@ -501,7 +503,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
             FaceEngine::UnregisterFace(-1, 0);
             for (int i = 0; i < fd->m_header.m_count; i++)
             {
-                if (memcmp(fd->m_feat->m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0)
+                if (memcmp(fd->m_feat[i].m_magic, ENROLL_FACE_IMG_MAGIC2, sizeof(ENROLL_FACE_IMG_MAGIC2)) == 0)
                 {
                     float arEngineResult[10] = { 0 };
                     xor_encrypt(fd->m_feat[i].feat_data, sizeof(fd->m_feat[i].feat_data),

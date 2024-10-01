@@ -3,6 +3,7 @@
 #include "DBManager.h"
 #include "appdef.h"
 #include "FaceRetrievalSystem.h"
+#include "FaceRetrievalSystem_base.h"
 #include "sha1.h"
 #include "common_types.h"
 
@@ -45,14 +46,6 @@ void dbm_SetEmptyHandDB(int* piBlkNum);
 #define g_xHandDBPtr (&g_xHandDB)
 #endif
 
-int             g_iTmpLogCount = 0;
-SLogInfo*       g_pxTmpLogs = NULL;
-
-int             g_anLogMaxNum[LOG_FILTER_NUM] = {N_MAX_FACE_LOG_NUM};
-const char*     g_aszLogPrefix[LOG_FILTER_NUM] = {PREFIX_USER_LOG_DB_NAME};
-int             g_anLogCount[LOG_FILTER_NUM] = { 0 };
-int             g_anLogStartIndex[LOG_FILTER_NUM] = { 0 };
-
 #define DB_FLUSH_FLAG_DATA          1
 #define DB_FLUSH_FLAG_BIT           2
 #define DB_FLUSH_FLAG_BACKUP        4
@@ -92,12 +85,6 @@ void deinitDBPtr()
 }
 
 #endif // __RTK_OS__
-
-UserPosInfo CreateNewUserPosInfo()
-{
-    UserPosInfo xPosInfo = { 0 };
-    return xPosInfo;
-}
 
 int m_fd = -1;
 void dbm_Init(char* szDataPath)
@@ -364,6 +351,11 @@ int dbm_LoadPersonDBValid(int fd)
                 g_xDB->aiValid[i] = 0;
             }
         }
+        else if (dbm_CheckFaceFeatVer(g_xDB->ax[i].xM.iFeatVer))
+        {
+            g_aiDBValid[i] = 0;
+            g_xDB->aiValid[i] = 0;
+        }
 
         iCheckSum = GetIntCheckSum((int*)&g_xDB->ax[i].xF, sizeof(SFeatInfo));
         if(iCheckSum != g_xDB->ax[i].iFeatCheckSum)
@@ -401,6 +393,10 @@ int dbm_LoadHandDBValid(int fd)
             {
                 g_xHandDB.aiHandValid[i] = 0;
             }
+        }
+        else if (dbm_CheckHandFeatVer(g_xHandDB.ax[i].xHM.iFeatVer))
+        {
+            g_xHandDB.aiHandValid[i] = 0;
         }
 
         iCheckSum = GetIntCheckSum((int*)&g_xHandDB.ax[i].xHF, sizeof(SHandFeatInfo));
@@ -453,6 +449,9 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
             return ES_INVALID;
 
         dbug_printf("new ID = %d\n", iID);
+        dbug_printf("Face Feat Version: %04x, %04x\n", ((DB_UNIT*)pData)->xM.iFeatVer, fr_GetFaceFeatID());
+        if (dbm_CheckFaceFeatVer(((DB_UNIT*)pData)->xM.iFeatVer))
+            return ES_INVALID;
         memcpy(&g_xDB->ax[iID], pData, sizeof(g_xDB->ax[iID]));
         g_xDB->aiValid[iID] = 1;
         g_aiDBValid[iID] = 1;
@@ -492,6 +491,9 @@ int dbm_UpdatePersonBin(int iFlag, unsigned char* pData, int iLen, int iUserID)
             return ES_INVALID;
 
         dbug_printf("new ID = %d\n", iID);
+        dbug_printf("Hand Feat Version: %04x, %04x\n", ((DB_HAND_UNIT*)pData)->xHM.iFeatVer, fr_GetHandFeatID());
+        if (dbm_CheckHandFeatVer(((DB_HAND_UNIT*)pData)->xHM.iFeatVer))
+            return ES_INVALID;
         memcpy(&g_xHandDB.ax[iID], pData, sizeof(g_xHandDB.ax[iID]));
         g_xHandDB.aiHandValid[iID] = 1;
 
@@ -773,6 +775,29 @@ int dbm_RemovePersonByPrivilege(int iPrivilege, int* piBlkNum)
     dbm_FlushUserDB(-1, DB_FLUSH_FLAG_BIT | DB_FLUSH_FLAG_BACKUP_BIT);
 
     return ES_SUCCESS;
+}
+
+/*
+* returns 0 on success, on-zero on failure
+*/
+int dbm_CheckFaceFeatVer(unsigned short iVer)
+{
+    if (iVer == 0)
+    {
+#if (USE_RENT_ENGINE == 1)
+        if (fr_GetFaceFeatID() == FACE_FEATURE_MODEL_ID_cir01nq)
+            return 0;
+#else
+        if (fr_GetFaceFeatID() == FACE_FEATURE_MODEL_ID_ir01nq)
+            return 0;
+#endif
+        return 1;
+    }
+    else if (iVer != fr_GetFaceFeatID())
+    {
+        return 2;
+    }
+    return 0;
 }
 
 int dbm_FlushUserDB(int nUserID, int nFlushData, int nIsHand)
@@ -1397,6 +1422,24 @@ int dbm_CheckHandBackupDBInfos()
 
     fclose(fp);
 #endif
+    return 0;
+}
+
+/*
+* returns 0 on success, on-zero on failure
+*/
+int dbm_CheckHandFeatVer(unsigned short iVer)
+{
+    if (iVer == 0)
+    {
+        if (fr_GetHandFeatID() <= HAND_FEATURE_MODEL_ID_hf1_6)
+            return 0;
+        return 1;
+    }
+    else if (iVer != fr_GetHandFeatID())
+    {
+        return 2;
+    }
     return 0;
 }
 

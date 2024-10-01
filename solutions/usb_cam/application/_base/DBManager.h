@@ -28,6 +28,32 @@ extern int  g_iDebugEn;
 
 #pragma pack(push, 1)
 
+typedef struct _tagDATETIME_32
+{
+    unsigned int iSec:6;        //[0, 59]
+    unsigned int iMin:6;        //[0, 59]
+    unsigned int iHour:5;       //[0,23]
+    unsigned int iDay:5;        //[1, 31]
+    unsigned int iMon:4;        //[0,11]
+    unsigned int iYear:6;       //2000 +
+} DATETIME_32__;
+
+typedef union _taguDATETIME_32
+{
+    unsigned int    i;
+    DATETIME_32__   x;
+} DATETIME_32;
+
+typedef struct _tagMetaInfo
+{
+    int             iID;                                        //4byte
+    int             fPrivilege;                                 //4byte
+    char            szName[N_MAX_NAME_LEN];                     //32byte
+
+    unsigned short  iFeatVer;
+    unsigned char   bReserved[6];
+} SMetaInfo, *PSMetaInfo;                                       //2120
+
 typedef struct _tagDB_UNIT
 {
     SMetaInfo  xM;
@@ -104,6 +130,7 @@ LIBFOO_DLL_EXPORTED  PSFeatInfo	dbm_GetPersonFeatInfoByIndex(int nPos);
 LIBFOO_DLL_EXPORTED  int		dbm_RemovePersonByID(int nID, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int		dbm_RemovePersonByIndex(int nIndex, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int        dbm_RemovePersonByPrivilege(int iPrivilege, int* piBlkNum);
+LIBFOO_DLL_EXPORTED  int        dbm_CheckFaceFeatVer(unsigned short iVer);
 
 //hand userinfo
 #if (N_MAX_HAND_NUM)
@@ -124,6 +151,7 @@ LIBFOO_DLL_EXPORTED  void       dbm_SetEmptyHandDB(int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int        dbm_RemoveHandByID(int nID, int* piBlkNum);
 LIBFOO_DLL_EXPORTED  int        dbm_CheckHandBackupDBInfos();
 LIBFOO_DLL_EXPORTED  int        dbm_CheckHandBackupDB();
+LIBFOO_DLL_EXPORTED  int        dbm_CheckHandFeatVer(unsigned short iVer);
 #endif // N_MAX_HAND_NUM
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

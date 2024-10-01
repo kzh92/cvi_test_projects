@@ -2,7 +2,7 @@
 #define FACEENGINE_H
 
 #include <stdint.h>
-#include "EngineStruct.h"
+#include "DBManager.h"
 #if (N_MAX_HAND_NUM)
 #include "hand/HandRetrival_.h"
 #endif

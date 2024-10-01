@@ -74,6 +74,8 @@ typedef struct {
 
 #define UF_HEADER_MAGIC_SIZE 8 /* sizeof m_magic */
 
+#define FEAT_DATA_V3_EXPECT_SIZE(a) (sizeof(*(a)) + sizeof(s_feat_data_v2) * (a)->m_header.m_count)
+
 #ifdef __cplusplus
 extern  "C"
 {
