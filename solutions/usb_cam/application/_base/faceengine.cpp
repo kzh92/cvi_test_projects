@@ -683,6 +683,8 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
     s_feat_data_v2* fd_v2 = (s_feat_data_v2*)*pBuffer;
 #endif
     int reg_user_id = 0;
+    if (puser_count == NULL)
+        return ret;
     if (*puser_count > 0)
     {
         reg_user_id = *puser_count;
@@ -706,6 +708,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
 #if (USE_DB_UPDATE_MODE)
     if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_ALL, strlen(DB_UPDATE_MAGIC_ALL)) == 0)
     {
+        *puser_count = 0;
         mount_backup_db(0);
         if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 1, reg_user_id))
         {
@@ -717,6 +720,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
     }
     else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_FACE, strlen(DB_UPDATE_MAGIC_FACE)) == 0)
     {
+        *puser_count = 0;
         mount_backup_db(0);
         if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 2, reg_user_id))
         {
@@ -728,6 +732,7 @@ int FaceEngine::DecodeRegisterFileData(unsigned char** pBuffer, int file_len, in
     }
     else if(memcmp(fd->m_header.m_magic, DB_UPDATE_MAGIC_HAND, strlen(DB_UPDATE_MAGIC_HAND)) == 0)
     {
+        *puser_count = 0;
         mount_backup_db(0);
         if (FaceEngine::UpdateDbBin(*pBuffer, file_len, 3, reg_user_id))
         {
