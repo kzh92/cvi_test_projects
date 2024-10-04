@@ -358,11 +358,21 @@ int main(int argc, char** argv)
     system("rm -f ./components/chip_cv180x/gcc_flash.ld");
     system("cp -f ./components/chip_cv180x/gcc_flash_128M.ld ./components/chip_cv180x/gcc_flash.ld");
     system("cp -f ./boards/cv180xb_evb/bootimgs/fip_fsbl_D10A.bin ./boards/cv180xb_evb/bootimgs/fip_fsbl.bin");
-#else
+#elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10)
     system("rm -f ./components/chip_cv180x/gcc_flash.ld");
     system("cp -f ./components/chip_cv180x/gcc_flash_64M.ld ./components/chip_cv180x/gcc_flash.ld");
     system("cp -f ./boards/cv180xb_evb/bootimgs/fip_fsbl_D10.bin ./boards/cv180xb_evb/bootimgs/fip_fsbl.bin");
-#endif
+#elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D20A)
+    system("rm -f ./components/chip_cv181x/gcc_flash.ld");
+    system("cp -f ./components/chip_cv181x/gcc_flash_128M.ld ./components/chip_cv181x/gcc_flash.ld");
+    system("rm -f ./boards/cv181xc_qfn/bootimgs/fip_fsbl.bin");
+    system("cp -f ./boards/cv181xc_qfn/fip_fsbl_D20A.bin ./boards/cv181xc_qfn/bootimgs/fip_fsbl.bin");
+#else // D20
+    system("rm -f ./components/chip_cv181x/gcc_flash.ld");
+    system("cp -f ./components/chip_cv181x/gcc_flash_64M.ld ./components/chip_cv181x/gcc_flash.ld");
+    system("rm -f ./boards/cv181xc_qfn/bootimgs/fip_fsbl.bin");
+    system("cp -f ./boards/cv181xc_qfn/fip_fsbl_D20.bin ./boards/cv181xc_qfn/bootimgs/fip_fsbl.bin");
+#endif // DEFAULT_SUBCHIP_TYPE
 
 #if (USE_TWIN_ENGINE == 1)
     system("" RESOURCEDIR "/utils/Encoder " FACEENGINEDIR "/hdic_1.bin " RESOURCEDIR "/hdic_1_encode.bin");
