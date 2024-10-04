@@ -213,7 +213,7 @@ typedef uint8_t s_face_dir;
 #define FACE_DIRECTION_RIGHT    0x02        // face right
 #define FACE_DIRECTION_MIDDLE   0x01        // face middle
 #define FACE_DIRECTION_UNDEFINE 0x00        // face undefine
-#define FACE_DIRECTION_RENT     0xFC        // register face for rent
+//#define FACE_DIRECTION_RENT     0xFC        // register face for rent
 #define FACE_DIRECTION_HAND     0xFD        // register hand
 #define FACE_DIRECTION_PICTURE  0xFE        // register face with picture
 

@@ -1133,9 +1133,11 @@ int MsgProcSense(MSG* pMsg)
         if (d.face_direction == FACE_DIRECTION_HAND)
             g_xSS.iRegisterHand = 1;
 #endif // N_MAX_HAND_NUM
+#ifdef FACE_DIRECTION_RENT
 #if (USE_RENT_ENGINE)
         if (d.face_direction == FACE_DIRECTION_RENT)
             g_xSS.iGetFeatFlag = 1;
+#endif
 #endif
         //ignores face direction
         if (d.face_direction != FACE_DIRECTION_PICTURE)
