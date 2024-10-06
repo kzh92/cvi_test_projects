@@ -92,6 +92,8 @@ enum E_Baud_Rate
 
 #define MY_SUBCHIP_D10              0
 #define MY_SUBCHIP_D10A             1
+#define MY_SUBCHIP_D20              2
+#define MY_SUBCHIP_D20A             3
 #define DEFAULT_SUBCHIP_TYPE        MY_SUBCHIP_D10
 
 //camera mipi types

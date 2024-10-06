@@ -101,32 +101,41 @@ int req_compress(const char * filename)
     {
         if (strstr(filename, g_part_files[idx].m_filename))
         {
-            if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
+            int file_size = 0;
+            char cmd_[1024];
+            FILE* fp = fopen(filename, "rb");
+            if (fp)
             {
-                int file_size = 0;
-                FILE* fp = fopen(filename, "rb");
-                if (fp)
+                fseek(fp, 0, SEEK_END);
+                file_size = ftell(fp);
+                g_part_files[idx].m_filesize_de = file_size;
+                fclose(fp);
+                if (g_part_files[idx].m_flag & FN_CRYPTO_ZSTD)
                 {
-                    fseek(fp, 0, SEEK_END);
-                    file_size = ftell(fp);
-                    g_part_files[idx].m_filesize_de = file_size;
-                    fclose(fp);
+                    sprintf(cmd_, "rm -f %s.zst", filename);
+                    system(cmd_);
+                    sprintf(cmd_, "zstd -19 %s", filename);
+                    system(cmd_);
+                    sprintf(cmd_, "%s.zst", filename);
+                    fp = fopen(cmd_, "rb");
+                    if (fp)
+                    {
+                        fseek(fp, 0, SEEK_END);
+                        file_size = ftell(fp);
+                        g_part_files[idx].m_filesize = file_size;
+                        fclose(fp);
+                    }
+                    return 1;
                 }
-                char cmd_[1024];
-                sprintf(cmd_, "rm -f %s.zst", filename);
-                system(cmd_);
-                sprintf(cmd_, "zstd -19 %s", filename);
-                system(cmd_);
-                sprintf(cmd_, "%s.zst", filename);
-                fp = fopen(cmd_, "rb");
-                if (fp)
+                else
                 {
-                    fseek(fp, 0, SEEK_END);
-                    file_size = ftell(fp);
                     g_part_files[idx].m_filesize = file_size;
-                    fclose(fp);
+                    return 0;
                 }
-                return 1;
+            }
+            else
+            {
+                printf("file not found: %s\n", filename);
             }
         }
 
@@ -221,7 +230,7 @@ int merge_files(const char* dest_file, int pad_size)
         fp_in = fopen(cmd_, "rb");
         if (fp_in == NULL)
         {
-            printf("failed to open file:%s\n", afilename);
+            printf("failed to open file:%s, %s(%d)\n", afilename, strerror(errno), errno);
             i++;
             continue;
         }
@@ -388,5 +397,13 @@ int main(int argc, char** argv)
     system("cp -f " IMG_RESOURCEDIR "/libs/libcvi_mw_audio.a components/cvi_mmf_sdk_cv181xx/lib/");
 #endif
 
-    return 0;
+    int ret = 0;
+#if (DEFAULT_CHIP_TYPE == MY_CHIP_D10)
+    ret = 1;
+#elif (DEFAULT_CHIP_TYPE == MY_CHIP_D20)
+    ret = 2;
+#else
+    printf("Invalid chip type!\n");
+#endif
+    return ret;
 }
