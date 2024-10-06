@@ -1003,8 +1003,8 @@ enum E_Baud_Rate
 
 // 3.9.2_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.61.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.61.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.61.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.61.6_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -1022,7 +1022,7 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
+#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
