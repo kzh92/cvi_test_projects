@@ -14,7 +14,9 @@
 #include "cvi_sys.h"
 #include "zstd.h"
 #include "drv/spiflash.h"
+#if USE_TEMP_MODE
 #include "cvi_tempsen.h"
+#endif
 #if (USE_WATCHDOG)
 #include <drv/wdt.h>
 extern csi_wdt_t g_wdt;
@@ -26,8 +28,10 @@ mymutex_ptr g_MyPrintfLock = 0;
 csi_spiflash_t spiflash_handle;
 unsigned int flash_read_write_init = 0;
 
+#if USE_TEMP_MODE
 cvi_tempsen_t tps;
 int tps_inited = 0;
+#endif
 
 const char* dbfs_part_names[DB_PART_END+1] =
 {
@@ -1498,6 +1502,7 @@ int xor_encrypt(unsigned char* buf, int length, unsigned char* key, int key_leng
 
 float my_get_cpu_temp()
 {
+#if USE_TEMP_MODE
     if (tps_inited == 0)
     {
         cvi_tempsen_init(&tps);
@@ -1511,6 +1516,7 @@ float my_get_cpu_temp()
         //my_printf("******* temper(%08d): %u\n", (int)Now(), temp);
         return ((float)temp / 1000);
     }
+#endif // USE_TEMP_MODE
     return 0;
 }
 
