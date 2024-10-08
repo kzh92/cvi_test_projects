@@ -782,6 +782,7 @@ int dbm_RemovePersonByPrivilege(int iPrivilege, int* piBlkNum)
 */
 int dbm_CheckFaceFeatVer(unsigned short iVer)
 {
+#ifdef FACE_FEATURE_MODEL_ID_ir01nq
     if (iVer == 0)
     {
 #if (USE_RENT_ENGINE == 1)
@@ -797,6 +798,7 @@ int dbm_CheckFaceFeatVer(unsigned short iVer)
     {
         return 2;
     }
+#endif // FACE_FEATURE_MODEL_ID_ir01nq
     return 0;
 }
 
@@ -1430,6 +1432,7 @@ int dbm_CheckHandBackupDBInfos()
 */
 int dbm_CheckHandFeatVer(unsigned short iVer)
 {
+#ifdef HAND_FEATURE_MODEL_ID_hf1_6
     if (iVer == 0)
     {
         if (fr_GetHandFeatID() <= HAND_FEATURE_MODEL_ID_hf1_6)
@@ -1440,6 +1443,7 @@ int dbm_CheckHandFeatVer(unsigned short iVer)
     {
         return 2;
     }
+#endif // HAND_FEATURE_MODEL_ID_hf1_6
     return 0;
 }
 

@@ -330,7 +330,9 @@ int FaceEngine::SavePerson(PSMetaInfo pxUserInfo, PSFeatInfo pxFeatInfo, int* pi
         return ES_FAILED;
 
     int iFindIdx = dbm_GetIndexOfID(pxUserInfo->iID);
+#ifdef FACE_FEATURE_MODEL_ID_ir01nq
     pxUserInfo->iFeatVer = fr_GetFaceFeatID();
+#endif
     if(iFindIdx < 0)
     {
         return dbm_AddPerson(pxUserInfo, pxFeatInfo, piBlkNum);
@@ -436,7 +438,9 @@ int FaceEngine::SaveHand(PSMetaInfo pxUserInfo, SHandFeatInfo* pxFeatInfo, int* 
         return ES_FAILED;
 
     int iFindIdx = dbm_GetHandIndexOfID(pxUserInfo->iID);
+#ifdef HAND_FEATURE_MODEL_ID_hf1_6
     pxUserInfo->iFeatVer = fr_GetHandFeatID();
+#endif
     if(iFindIdx < 0)
     {
         return dbm_AddHand(pxUserInfo, pxFeatInfo, piBlkNum);
@@ -605,7 +609,13 @@ void FaceEngine::GetFeatSuffix(char* str_suffix)
     }
 #else
     if (str_suffix)
+    {
+#ifdef FACE_FEATURE_MODEL_ID_ir01nq
         sprintf(str_suffix, "M%d", fr_GetFaceFeatID());
+#else
+        sprintf(str_suffix, "M%d", 0);
+#endif
+    }
 #endif
 }
 

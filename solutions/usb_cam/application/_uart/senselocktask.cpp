@@ -1400,7 +1400,11 @@ s_msg* SenseLockTask::Get_Reply_GetLibraryVersion(s_msg* pSenseMsg, int iResult)
     s_msg_reply_library_version_data* msg_reply_version_data =
             (s_msg_reply_library_version_data*)(msg_reply_data->data);
     const char *str_version = fr_GetEngineVersion();
+#ifdef FACE_FEATURE_MODEL_ID_ir01nq
     snprintf((char*)msg_reply_version_data->version_info, VERSION_LIBINFO_BUFFER_SIZE, "%s_M%d", str_version, fr_GetFaceFeatID());
+#else
+    snprintf((char*)msg_reply_version_data->version_info, VERSION_LIBINFO_BUFFER_SIZE, "%s_M%d", str_version, 0);
+#endif
     return msg;
 }
 
