@@ -2803,7 +2803,7 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
 
             // 아태천능조종기판규약방식일 때 MID_ENROLL_SINGLE명령으로 단방향등록하면 비정상동작하는 문제를 대책하였음.
             // 등록한후 자료복귀되면서 사용자수가 0으로 되고 기동하지 못함.
-            if (g_xSS.iRegisterID == 0)
+            //if (g_xSS.iRegisterID == 0) // 얼굴,손바닥을 엇바꾸어 등록하는 경우 문제가 있어 막았음. 2024/10/8
                 g_xSS.iRegisterID = iUserID + 1;
 
             g_xSS.iRegsterAuth = g_xSS.msg_enroll_itg_data.admin;
