@@ -148,6 +148,7 @@ int gen_auto_config_header(void)
 {
     int idx = 0;
     char aline[256];
+    int n_offset = 0;
     g_auto_config_string[0] = 0;
     strcat(g_auto_config_string, "//This file is generated automatically. Do not edit!!!\n");
     strcat(g_auto_config_string, "#ifndef _AUTO_CONFIG_VARS_H\n");
@@ -158,7 +159,10 @@ int gen_auto_config_header(void)
         strcat(g_auto_config_string, aline);
         sprintf(aline, "#define %s_SIZE_REAL\t%d\n", g_part_files[idx].m_macro_prefix, g_part_files[idx].m_filesize);
         strcat(g_auto_config_string, aline);
+        sprintf(aline, "#define %s_OFFSET\t%d\n", g_part_files[idx].m_macro_prefix, n_offset);
+        strcat(g_auto_config_string, aline);
 
+        n_offset += (g_part_files[idx].m_filesize + 63) / 64 * 64;
         idx ++;
     }
     sprintf(aline, "#define DICT_ACT_ORIGN_VALUES\t{0x%02x, 0x%02x, 0x%02x, 0x%02x}\n",
