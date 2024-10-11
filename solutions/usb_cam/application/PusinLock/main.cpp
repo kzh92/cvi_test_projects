@@ -3106,7 +3106,11 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
 #endif // ENROLL_DUPLICATION_CHECK
 
                     int iFindIdx = pFaceTask->GetRecogIndex();
-                    int iID = dbm_GetIDOfIndex(iFindIdx);
+                    int iID = -1;
+                    if (iFindIdx > -1)
+                    {
+                        iID = dbm_GetIDOfIndex(iFindIdx);
+                    }
 #if (USE_FUSHI_HAND_PROTO)
                     if (g_xSS.iRunningCmd == MID_FUSHI_HAND_ENROLL_ITG)
                         g_xSS.iRunningCmd = MID_ENROLL_ITG;
@@ -3407,8 +3411,12 @@ int ProcessSenseFace(int iCmd, s_msg* pSenseMsg)
                 {
                     s_msg* msg = NULL;
                     int iFindIdx = pFaceTask->GetRecogIndex();
-                    int iID = dbm_GetHandIDOfIndex(iFindIdx);
-                    iID += N_MAX_PERSON_NUM;
+                    int iID = -1;
+                    if (iFindIdx > -1)
+                    {
+                        iID = dbm_GetHandIDOfIndex(iFindIdx);
+                        iID += N_MAX_PERSON_NUM;
+                    }
                     msg = SenseLockTask::Get_Reply_Enroll(pSenseMsg, MR_FAILED4_HANDENROLLED, iID + 1, 0, g_xSS.iRunningCmd);
                     g_pSenseTask->Send_Msg(msg);
 
