@@ -36,15 +36,15 @@ depends:
   - sec_crypto: develop
   - posix: develop
   - drv_sdmmc: v2.0
-  - lwip: develop
-  - netmgr: develop
+#  - lwip: develop
+#  - netmgr: develop
   - devices: develop
   - drivers: develop
-  - drv_wifi_hi3861l_fnlink: develop
+#  - drv_wifi_hi3861l_fnlink: develop
   - cjson: develop
-  - fatfs: cv_dev
+#  - fatfs: cv_dev
   - vfs: develop
-  - lwext4: develop
+#  - lwext4: develop
   - cv181xc_qfn: v0.0.1
   - chip_cv181x: v0.0.1
   - minialsa: v7.5.1
@@ -148,14 +148,25 @@ build_config:
     - application/FaceEngine/HEngineLib
     - application/FaceEngine/AEngineLib
     - application/FaceEngine/_dnn
-    - application/FaceEngine/enn
-    - application/FaceEngine/ennq
     - application/FaceEngine/hand
+    # - application/_boofcv
+    # - application/_boofcv/org
 
   internal_include:
 
   cflag: ""
   cxxflag: ""
+  # cflag: >
+  #       -Wno-error=unused-variable -Wno-error=class-memaccess -Wno-error=sign-compare
+  #       -Wno-error=unused-but-set-variable -Wno-error=misleading-indentation -Wno-error=narrowing
+  #       -Wno-error=unused-function -Wparentheses -Wno-error=parentheses -Wno-error=logical-not-parentheses -Wno-error=implicit-function-declaration
+  #       -Wno-error=pointer-sign
+  # cxxflag: >
+  #       -Wno-error=unused-variable -Wno-error=class-memaccess -Wno-error=sign-compare
+  #       -Wno-error=unused-but-set-variable -Wno-error=misleading-indentation -Wno-error=narrowing
+  #       -Wno-error=unused-function -Wparentheses -Wno-error=parentheses -Wno-error=logical-not-parentheses -Wno-error=implicit-function-declaration
+  #       -Wno-error=pointer-sign
+
   asmflag: ""
   define:
   libs:
@@ -198,6 +209,10 @@ source_file:
   - application/z_base/*.cpp
   - application/_zstd/lib/common/*.c
   - application/_zstd/lib/decompress/*.c
+  # - application/_boofcv/*.cpp
+  # - application/_boofcv/*.c
+  # - application/_boofcv/org/*.cpp
+  # - application/_boofcv/org/*.c
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
@@ -208,7 +223,7 @@ def_config:
   __CV181X__: 1
   AOS_COMP_CLI: 1
   CONFIG_DEBUG: 0
-  CONFIG_DEBUG_MM: 0
+#  CONFIG_DEBUG_MM: 0
   CONFIG_APP_DEBUG_JTAG: 0
   CONFIG_APP_TEST: 0
   CONFIG_SUPPORT_TPU: 1
@@ -246,18 +261,18 @@ def_config:
   CONFIG_SENSOR_SMS_SC2336: 0
   CONFIG_SENSOR_SMS_SC030IOT: 0
   CONFIG_SENSOR_SMS_SC201CS: 1
-  CONFIG_SENSOR_SMS_SC201CS_SLAVE: 1
+  CONFIG_SENSOR_SMS_SC201CS_SLAVE: 0
   CONFIG_SENSOR_SONY_IMX307: 0
   CONFIG_SENSOR_SONY_IMX327: 0
   CONFIG_SUPPORT_NORFLASH: 1
   CONFIG_SUPPORT_USB_DC: 1
-  CONFIG_APP_UVC_SUPPORT: 0
+  #CONFIG_APP_UVC_SUPPORT: 0
   CONFIG_APP_UAC_SUPPORT: 0
   CONFIG_APP_AV_COMP_SUPPORT: 1
   CONFIG_CHIP_LOW_POWER_COST: 1
 
   CONFIG_SNS0_TYPE: 19
-  CONFIG_SNS1_TYPE: 20
+  CONFIG_SNS1_TYPE: 0
 
   CONFIG_PANEL_HX8394: 0
   CONFIG_PANEL_ILI9488: 0
@@ -268,7 +283,6 @@ def_config:
   CONFIG_ISP_SUPPORT_PROC: 0
   CONFIG_ENABLE_FASTBOOT: 1
   CONFIG_USB_DWC2_PORT: 1
-  CONFIG_USB_HS: 1
   CONFIG_AOS_NEWLINE_SUPPORT: 1
   CONFIG_USB_DWC2_DMA_ENABLE: 1
 

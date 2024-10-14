@@ -524,7 +524,11 @@ void* my_malloc_real(unsigned int nSize)
 
 void* my_tpu_malloc_real(unsigned int nSize)
 {
+#if (DEFAULT_SUBCHIP_TYPE != MY_SUBCHIP_D20A)
     return aos_ion_malloc(nSize);
+#else
+    return my_malloc_real(nSize);
+#endif
 }
 
 void* my_malloc_real_debug(unsigned int nSize, const char* strFile, int nLine)
@@ -558,7 +562,11 @@ void my_free_real(void* pPtr)
 
 void my_tpu_free_real(void* pPtr)
 {
+#if (DEFAULT_SUBCHIP_TYPE != MY_SUBCHIP_D20A)
     aos_ion_free(pPtr);
+#else
+    my_free_real(pPtr);
+#endif
 }
 
 void my_free_real_debug(void* pPtr, const char* strFile, int nLine)

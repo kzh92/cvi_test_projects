@@ -187,7 +187,9 @@ static void uac_timer_send_data_cb(void *timer, void *arg)
 
 #define AUDIO_AEC_LENGTH 160
 
+#ifdef AUDIO_EN
 static uint8_t g_fAudioEnabled = 0;
+#endif
 
 static void audio_write(void *arg)
 {

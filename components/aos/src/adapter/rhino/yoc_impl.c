@@ -52,8 +52,19 @@ __attribute__((weak)) k_mm_region_t g_mm_region[] = {
 };
 __attribute__((weak)) int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
+#if (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10)
 #define K_MM_RESV_ADDR 0x82000000
 #define K_MM_RESV_SIZE 0x2000000
+#elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D10A)
+#define K_MM_RESV_ADDR 0x84000000
+#define K_MM_RESV_SIZE 0x4000000
+#elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D20)
+#define K_MM_RESV_ADDR 0x82000000
+#define K_MM_RESV_SIZE 0x2000000
+#elif (DEFAULT_SUBCHIP_TYPE == MY_SUBCHIP_D20A)
+#define K_MM_RESV_ADDR 0x84000000
+#define K_MM_RESV_SIZE 0x4000000
+#endif
 __attribute__((weak)) k_mm_region_t g_mm_region_resv[] = {
     {(uint8_t *)K_MM_RESV_ADDR, (size_t)K_MM_RESV_SIZE},
 };
