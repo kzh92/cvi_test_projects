@@ -131,24 +131,14 @@ PARAM_CLASSDEFINE(PARAM_VPSS_GRP_CFG_S,GRPCFG,CTX,GRP)[] = {
         .u8ViRotation = 0,
         .s32BindVidev = 0,
         .stVpssGrpAttr = {
-            .u8VpssDev = 0,
+            .u8VpssDev = 1,
             .u32MaxW = -1,
             .u32MaxH = -1,
             .enPixelFormat = PIXEL_FORMAT_NV21,
             .stFrameRate.s32SrcFrameRate = -1,
             .stFrameRate.s32DstFrameRate = -1,
         },
-        .bBindMode = CVI_TRUE,
-        .astChn[0] = {
-            .enModId = CVI_ID_VI,
-            .s32DevId = 0,
-            .s32ChnId = 1,
-        },
-        .astChn[1] = {
-            .enModId = CVI_ID_VPSS,
-            .s32DevId = 0,
-            .s32ChnId = 0,
-        }
+        .bBindMode = CVI_FALSE,
     },
     {
         .VpssGrp = 1,
@@ -169,7 +159,7 @@ PARAM_CLASSDEFINE(PARAM_VPSS_GRP_CFG_S,GRPCFG,CTX,GRP)[] = {
 };
 
 PARAM_VPSS_CFG_S  g_stVpssCtx = {
-    .u8GrpCnt = 1,
+    .u8GrpCnt = 2,
     .pstVpssGrpCfg = PARAM_CLASS(GRPCFG,CTX,GRP),
 };
 

@@ -15,8 +15,8 @@
 
 #define VIDEO_IN_EP 0x81
 
-#define WIDTH  (unsigned int)(1280)
-#define HEIGHT (unsigned int)(720)
+#define WIDTH  (unsigned int)(2304)
+#define HEIGHT (unsigned int)(1296)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
