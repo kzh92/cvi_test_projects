@@ -19,20 +19,44 @@ unsigned int g_ViDmaBufSize = 13 * 1024 * 1024;
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
-        .s32I2cAddr = -1,
+        .s32I2cAddr = 0x30,
         .s8I2cDev = 2,
         .u32Rst_port_idx = 2,//GPIOC_13
         .u32Rst_pin = 13,
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+        .bSetDevAttrMipi = CVI_TRUE,
+        .as16LaneId = {0, 1, 2, -1, -1},
+        .as8PNSwap = {1, 1, 1, 0, 0},
+
+        .bSetDevAttr = CVI_TRUE,
+        .s16MacClk = RX_MAC_CLK_200M,
+        .u8MclkCam = 0,
+        .u8MclkFreq = CAMPLL_FREQ_27M,
     },
     {
         .enSnsType = CONFIG_SNS1_TYPE,
-        .s32I2cAddr = -1,
+        .s32I2cAddr = 0x30,
         .s8I2cDev = 2,
-        //.u32Rst_port_idx = 2,//GPIOC_13
-        //.u32Rst_pin = 13,
-        //.u32Rst_pol = OF_GPIO_ACTIVE_LOW,
-    }
+        .u32Rst_port_idx = 2,//GPIOC_13
+        .u32Rst_pin = 13,
+        .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+        .bSetDevAttrMipi = CVI_TRUE,
+        .as16LaneId = {3, 4, -1, -1, -1},
+        .as8PNSwap = {0, 0, 0, 0, 0},
+
+        .bSetDevAttr = CVI_TRUE,
+        .s16MacClk = RX_MAC_CLK_200M,
+        .u8MclkCam = 1,
+        .u8MclkFreq = CAMPLL_FREQ_27M,
+    },
+    // {
+    //     .enSnsType = CONFIG_SNS1_TYPE,
+    //     .s32I2cAddr = -1,
+    //     .s8I2cDev = 2,
+    //     //.u32Rst_port_idx = 2,//GPIOC_13
+    //     //.u32Rst_pin = 13,
+    //     //.u32Rst_pol = OF_GPIO_ACTIVE_LOW,
+    // }
 };
 
 PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
