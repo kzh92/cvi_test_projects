@@ -713,6 +713,10 @@ void* ProcessTCMipiCapture(void */*param*/)
 
     while (g_xSS.iRunningCamSurface)
     {
+        if (UVC_IRLED_ON == 1 && g_xSS.rFaceEngineTime == 0 && (g_xSS.iUvcSensor == DEFAULT_SNR4UVC || !g_xSS.bUVCRunning))
+        {
+            gpio_irled_on(OFF);
+        }
         if (g_xSS.iDemoMode == N_DEMO_FACTORY_MODE/* && pat_set == 0*/)
         {
             // pat_set = 1;
