@@ -77,6 +77,7 @@ int camera_set_regval(int id, int regaddr, int regval);
 int camera_get_regval(int id, int regaddr);
 int camera_set_irled(int enable, int count);
 int camera_set_pattern_mode(int cam_id, int enable);
+int camera_set_exptime_isp(int nValue);
 void my_mi_use_lock();
 void my_mi_use_unlock();
 void lockIRBuffer();

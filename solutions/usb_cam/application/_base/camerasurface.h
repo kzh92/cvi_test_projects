@@ -76,6 +76,7 @@ void*   ProcessDVPCapture(void *param);
 void*   ProcessTCMipiCapture(void *param);
 
 void    CalcNextExposure();
+void    SetNextExposureISP();
 int     DumpFromVpss(int Grp, int Chn, int u32FrameCnt, unsigned char* outBuf, int iYOnly);
 int     GetDumpVpssWidth();
 int     GetDumpVpssHeight();

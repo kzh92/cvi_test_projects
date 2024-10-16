@@ -47,6 +47,8 @@
 #define FN_FACE_IR_BIN_SIZE_REAL        16458
 #define FN_TESTAUDIO_PCM_SIZE           66416
 #define FN_TESTAUDIO_PCM_SIZE_REAL      36360
+#define FN_ISP_IR_BIN_SIZE              174513
+#define FN_ISP_IR_BIN_SIZE_REAL         31766
 
 #else
 #include "auto_config_vars.h"
@@ -112,12 +114,8 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_FACE_IR_BIN_PATH             "face_ir.bin"
 #define FN_FACE_CLR_BIN_PATH            "face_clr.bin"
 #define FN_TESTAUDIO_PCM_PATH           "audiotest.pcm"
-
 #define FN_FACE_IR_BIN_CHKSUM           0x47866b35
-
-#define FN_ISP_IR_BIN_PATH             "v1.0.0.1.bin"
-#define FN_ISP_IR_BIN_SIZE             174513
-#define FN_ISP_IR_BIN_SIZE_REAL        31766
+#define FN_ISP_IR_BIN_PATH              (UVC_IRLED_ON == 0 ? "v1.0.0.1.bin" : "v2.1.6.2.bin")
 
 #define MY_32ALIGNED(a) (((a) + 31) / 32 * 32)
 

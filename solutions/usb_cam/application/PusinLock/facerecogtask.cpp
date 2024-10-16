@@ -236,6 +236,11 @@ void FaceRecogTask::run()
     m_iCaptureCount = 0;
     m_iHasIrError = 0;
 
+#if (UVC_IRLED_ON)
+    fr_InitIRCamera_ExpGain();
+    CalcNextExposure();
+#endif // UVC_IRLED_ON
+
 #if (NOTE_INTERVAL_MS)
     g_xSS.note_data_face.state = FACE_STATE_NOFACE;
     SendMsg(MSG_RECOG_FACE, FACE_TASK_DETECTED, 0, m_iCounter);

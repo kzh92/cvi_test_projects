@@ -918,10 +918,11 @@ void* ProcessTCMipiCapture(void */*param*/)
         {
 #if (USE_3M_MODE)
 #if (USE_WHITE_LED != 1)
-            if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+            if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC && UVC_IRLED_ON == 0)
                 CVI_VI_StopPipe(0);
 #endif // USE_WHITE_LED
-            gpio_irled_on(OFF);
+            if ((UVC_IRLED_ON == 0 && g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC) || g_xSS.rFaceEngineTime != 0)
+                gpio_irled_on(OFF);
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
             {
@@ -947,7 +948,11 @@ void* ProcessTCMipiCapture(void */*param*/)
             if (g_xSS.rFaceEngineTime == 0 && g_xSS.iDemoMode != N_DEMO_FACTORY_MODE && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
             {
                 fr_CalcScreenValue(g_irOnData1, IR_SCREEN_CAMERAVIEW_MODE);
+#if (UVC_IRLED_ON == 0)
                 CalcNextExposure();
+#else
+                SetNextExposureISP();
+#endif
             }
 #endif // USE_VDBTASK
             WaitIRCancel();
@@ -963,7 +968,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             else
 #endif // USE_3M_MODE
             {
-                gpio_irled_on(OFF);
+                if ((UVC_IRLED_ON == 0 && g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC) || g_xSS.rFaceEngineTime != 0)
+                    gpio_irled_on(OFF);
                 g_iTwoCamFlag = IR_CAMERA_STEP_IDLE;
 #if (USE_3M_MODE != U3M_DEFAULT && USE_WHITE_LED != UWL_EN_NORMAL)
                 if (g_xSS.bUVCRunning && !g_xSS.iUVCIRDataReady && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
@@ -998,7 +1004,8 @@ void* ProcessTCMipiCapture(void */*param*/)
             }
 #endif // ENGINE_USE_TWO_CAM == EUTC_3V4_MODE
             g_iLedOnStatus = 0;
-            gpio_irled_on(OFF);
+            if ((UVC_IRLED_ON == 0 && g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC) || g_xSS.rFaceEngineTime != 0)
+                gpio_irled_on(OFF);
 #if (USE_3M_MODE == U3M_SEMI_IR)
             gpio_whiteled_on(OFF);
 #endif
@@ -1046,6 +1053,14 @@ void* ProcessTCMipiCapture(void */*param*/)
     my_thread_exit(NULL);
 
     return NULL;
+}
+
+void SetNextExposureISP()
+{
+    if(fr_GetExpTimeForISP())
+    {
+        camera_set_exptime_isp(*fr_GetExpTimeForISP());
+    }
 }
 
 void CalcNextExposure()

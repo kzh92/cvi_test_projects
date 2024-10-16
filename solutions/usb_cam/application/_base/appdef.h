@@ -323,6 +323,7 @@ enum E_Baud_Rate
 #define USB_TPM_CNT                             1   //TRANSACTION_PER_MICROFRAME
 #define UVC_IR_FRM_TIMEOUT                      60
 #define UVC_DELAY_BEFORE_START                  0
+#define UVC_IRLED_ON                            0 //0: flickering, 1: non-flickering
 
 #define UVC_PIXEL_FMT_NV21                      0
 #define UVC_PIXEL_FMT_YUV422                    1
@@ -336,7 +337,7 @@ enum E_Baud_Rate
 
 #define N_MAX_FAILED_TIME                       (2.4) //second
 #define N_MAX_DNN_FAILED_TIME                   6 //second
-#define N_MAX_EYE_FAILED_TIME		            5 //second
+#define N_MAX_EYE_FAILED_TIME                   5 //second
 #define N_SECURE_CHK_CNT                        1000
 
 //기본설정값
@@ -485,9 +486,10 @@ enum E_Baud_Rate
 #define FRM_DBS3M_LS7258_AES_UAC                372
 #define FRM_DBS3M_LC7916_UAC                    373
 #define FRM_DBS3M_TX_LS7258_UAC                 374
+#define FRM_DBS3M_UVC_IRLED_ON                  375
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_UVC_IRLED_ON
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -4045,6 +4047,49 @@ odd version: use_whiteled = 1
 #endif // USE_WHITE_LED
 
 //----------------------------------------------------------
+#elif (FRM_PRODUCT_TYPE == FRM_DBS3M_UVC_IRLED_ON)
+
+#define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
+#define DEVICE_FIRMWARE_VERSION             "3.114.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.114.0_D"
+
+#undef UVC_RES_DEFINE
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
+#undef USE_WHITE_LED
+#define USE_WHITE_LED                       0
+#undef DEFAULT_ISP_BIN_VER
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
+#undef SPECIFIC_LOG_PRINT
+#define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef UVC_IRLED_ON
+#define UVC_IRLED_ON                        1 //0: flickering, 1: non-flickering
+#define IR_SCREEN_CAMERAVIEW_ISP_MODE
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
+#define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
+
+//----------------------------------------------------------
 
 #endif // FRM_PRODUCT_TYPE
 
@@ -4074,6 +4119,12 @@ odd version: use_whiteled = 1
 
 #if (USE_AES_NOENC_MODE && USE_SANJIANG3_MODE)
 #error "USE_AES_NOENC_MODE & USE_SANJIANG3_MODE must be set exclusive."
+#endif
+
+#ifndef IR_SCREEN_CAMERAVIEW_ISP_MODE
+#if (UVC_IRLED_ON != 0)
+#error "IR_SCREEN_CAMERAVIEW_ISP_MODE must be defined."
+#endif
 #endif
 
 //#include "engine_inner_param.h"

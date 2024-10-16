@@ -54,6 +54,7 @@ ISP_SNS_MIRRORFLIP_TYPE_E g_aeSc201cs_MirrorFip[VI_MAX_PIPE_NUM] = {ISP_SNS_NORM
 
 CVI_U16 g_au16Sc201cs_GainMode[VI_MAX_PIPE_NUM] = {0};
 CVI_U16 g_au16Sc201cs_UseHwSync[VI_MAX_PIPE_NUM] = {0};
+ISP_SNS_SYNC_INFO_S *g_pstSnsSyncInfo = NULL;
 
 /****************************************************************************
  * local variables and functions                                            *
@@ -534,6 +535,7 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 	ISP_I2C_DATA_S *pstI2c_data = CVI_NULL;
 
 	CMOS_CHECK_POINTER(pstSnsSyncInfo);
+	g_pstSnsSyncInfo = pstSnsSyncInfo;
 	SC201CS_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
 	pstSnsRegsInfo = &pstSnsSyncInfo->snsCfg;
@@ -601,6 +603,31 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 	memcpy(&pstSnsState->astSyncInfo[1], &pstSnsState->astSyncInfo[0], sizeof(ISP_SNS_SYNC_INFO_S));
 	pstSnsState->au32FL[1] = pstSnsState->au32FL[0];
 
+	return CVI_SUCCESS;
+}
+
+CVI_S32 cmos_update_sns_regs_info()
+{
+	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
+	ISP_SNS_SYNC_INFO_S *pstCfg0 = CVI_NULL;
+	ISP_I2C_DATA_S *pstI2c_data = CVI_NULL;
+	ISP_SNS_SYNC_INFO_S *pstSnsSyncInfo = g_pstSnsSyncInfo;
+	if (g_pstSnsSyncInfo == NULL)
+		return CVI_SUCCESS;
+
+	CMOS_CHECK_POINTER(pstSnsSyncInfo);
+	SC201CS_SENSOR_GET_CTX(0, pstSnsState);
+	CMOS_CHECK_POINTER(pstSnsState);
+	pstCfg0 = &pstSnsState->astSyncInfo[0];
+	pstI2c_data = pstCfg0->snsCfg.astI2cData;
+
+	for (int i = 0; i < pstCfg0->snsCfg.u32RegNum; i++) {
+		pstI2c_data[i].bUpdate = CVI_TRUE;
+		pstI2c_data[i].u8DevAddr = sc201cs_i2c_addr;
+	}
+
+	// pstSnsState->bSyncInit = CVI_TRUE;
+	pstCfg0->snsCfg.need_update = CVI_TRUE;
 	return CVI_SUCCESS;
 }
 
@@ -885,7 +912,9 @@ static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 
 static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 {
-	return sc201cs_switch(ViPipe, switchCam);
+	int ret = sc201cs_switch(ViPipe, switchCam);
+	cmos_update_sns_regs_info();
+	return ret;
 }
 
 static CVI_S32 sensor_pattern_enable(VI_PIPE ViPipe, CVI_U8 enablePattern)

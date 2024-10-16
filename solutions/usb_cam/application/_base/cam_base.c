@@ -22,6 +22,8 @@
 #include "cvi_isp.h"
 #include "cvi_vi.h"
 #include "cvi_bin.h"
+#include "cvi_ae.h"
+#include "cvi_ae_comm.h"
 #include <inttypes.h>
 
 // pthread_mutex_t g_i2c0_reg_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -447,6 +449,7 @@ int camera_clr_stop_aec()
 #if (USE_3M_MODE != U3M_SEMI_IR)
     return 0;
 #endif
+#if 0
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -464,6 +467,13 @@ int camera_clr_stop_aec()
 
     my_mi_use_unlock();
 #endif // USE_3M_MODE
+#else
+    ISP_EXPOSURE_ATTR_S stExpAttr;
+    memset(&stExpAttr, 0, sizeof(ISP_EXPOSURE_ATTR_S));
+    CVI_ISP_GetExposureAttr(0, &stExpAttr);
+    stExpAttr.bByPass = 1;
+    CVI_ISP_SetExposureAttr(0, &stExpAttr);
+#endif
     return 0;
 }
 
@@ -472,6 +482,7 @@ int camera_clr_start_aec()
 #if (USE_3M_MODE != U3M_SEMI_IR)
     return 0;
 #endif
+#if 0
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -489,6 +500,13 @@ int camera_clr_start_aec()
 
     my_mi_use_unlock();
 #endif // USE_3M_MODE
+#else
+    ISP_EXPOSURE_ATTR_S stExpAttr;
+    memset(&stExpAttr, 0, sizeof(ISP_EXPOSURE_ATTR_S));
+    CVI_ISP_GetExposureAttr(0, &stExpAttr);
+    stExpAttr.bByPass = 0;
+    CVI_ISP_SetExposureAttr(0, &stExpAttr);
+#endif
     return 0;
 }
 
@@ -585,9 +603,11 @@ int camera_switch(int id, int camid)
         return -1;
     }
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+#if (UVC_IRLED_ON == 0)
     if(camid == MIPI_CAM_S2LEFT)
         CVI_VI_StopPipe(0);
     else
+#endif
         CVI_VI_StartPipe(0);
 #endif
     pSnsObj->pfnSnsSwitch(0, camid == MIPI_CAM_S2LEFT);
@@ -754,6 +774,18 @@ int camera_set_gain_byreg(int id, int value, int nFineValue)
     return 0;
 }
 
+int camera_set_exptime_isp(int nValue)
+{
+    ISP_EXPOSURE_ATTR_S stExpAttr;
+    memset(&stExpAttr, 0, sizeof(ISP_EXPOSURE_ATTR_S));
+    CVI_ISP_GetExposureAttr(0, &stExpAttr);
+    // int nT = stExpAttr.stManual.u32ExpTime;
+    // dbug_printf("stExpAttr.stManual.u32ExpTime %d,%d\n", nT, nValue);
+    stExpAttr.stManual.u32ExpTime = nValue;
+    CVI_ISP_SetExposureAttr(0, &stExpAttr);
+    return 0;
+}
+
 int camera_set_irled(int enable, int count)
 {
     int ret = -1;
@@ -777,18 +809,28 @@ void camera_set_vi_fps(int pipe, int fps)
 unsigned char rgb_mono_mode_param[BIN_DATA_SIZE] = {0};
 #endif
 extern unsigned char rgb_color_mode_param[];
+int g_cam_mono = 0;
 
 void camera_set_mono_chrome(int enable)
 {
+    if (g_cam_mono == enable)
+        return;
+    g_cam_mono = enable;
 #if (USE_WHITE_LED != 1)
     if (enable)
     {
+#if (UVC_IRLED_ON == 0)
         camera_clr_stop_aec();
+#else
+        extern void fr_InitExpTimeForISP();
+        fr_InitExpTimeForISP();
+#endif
         if (rgb_mono_mode_param[0] == 0)
         {
             fr_ReadFileData(FN_ISP_IR_BIN_PATH, 0, rgb_mono_mode_param, FN_ISP_IR_BIN_SIZE);
         }
         CVI_BIN_ImportBinData(rgb_mono_mode_param, BIN_DATA_SIZE);
+#if (UVC_IRLED_ON == 0)
         ISP_MODULE_CTRL_U xModCtrl;
         if (CVI_ISP_GetModuleControl(0, &xModCtrl) == CVI_SUCCESS)
         {
@@ -807,6 +849,7 @@ void camera_set_mono_chrome(int enable)
         {
             printf("getm fail\n");
         }
+#endif // UVC_IRLED_ON
     }
     else
     {
