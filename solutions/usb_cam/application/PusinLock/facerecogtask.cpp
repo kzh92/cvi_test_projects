@@ -19,12 +19,10 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
-#if (USE_FP16_ENGINE)
 #if (N_MAX_HAND_NUM)
 #include "hand/HandRetrival_.h"
 #endif // N_MAX_HAND_NUM
 #include "ComboRetrievalSystem.h"
-#endif // USE_FP16_ENGINE
 #include "senselocktask.h"
 #include "upgradebase.h"
 

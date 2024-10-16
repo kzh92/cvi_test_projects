@@ -1,47 +1,9 @@
 #ifndef APPDEF
 #define APPDEF
 
-#define PACK_FOR_X5S        0 // 0: V3s, 1: X5S
 
-#define USE_222MODE         1
-#define USE_SSD210          0
-
-#define PT_SEMI_AUTO        0
-#define PT_AUTO             1
-#define PRODUCT_TYPE        PT_AUTO
-
-#define SAMPLE_AIPAI        0
-#define SAMPLE_TONGXIN      1
-#define SAMPLE_NAME         SAMPLE_TONGXIN
-
-#define USE_IRSNR_SC2355    1
-
-#define LM_AUTO             0
-#define LM_SEMI_AUTO        1
-
-//zigbee mode
-#define ZIGBEE_BASE         0x10
-#define WIFI_BASE           0x20
-#define ZIGBEE_MAX_NUM      5
-
-#define ZIGBEE_DISABLE      0
-#define ZIGBEE_OUR          (ZIGBEE_BASE + 0)
-#define WIFI_YINGHUA_JIWEI  (WIFI_BASE + 0)
-#define WIFI_YINGHUA_SIGE   (WIFI_BASE + 1)
-#define WIFI_GESANG_SIGE    (WIFI_BASE + 2)
-
-#define TOUCH_GT9XX         0
-#define TOUCH_FT            1
-#define TOUCH_MODE          TOUCH_FT
-
-#define FP_NONE             0
-#define FP_ZHIAN            1
-#define FP_TUZHENG          2
-#define FP_GOWEI            3
-
-#define FM_EASEN            0
-#define FM_DESMAN           1
-#define FM_PROTOCOL         FM_DESMAN
+//camera sensor
+#define USE_IRSNR_SC2355                        1
 
 //uart baud rate
 enum E_Baud_Rate
@@ -60,59 +22,52 @@ enum E_Baud_Rate
 
 #define BR_IS_VALID(b) ((b) > Baud_Rate_Min && (b) < Baud_Rate_End)
 
-//protocol encryption mode
-#define PROTO_EM_NOENCRYPT              0
-#define PROTO_EM_ENCRYPT                1
-#define PROTO_EM_ENCRYPT_XOR_LANHENG    2
-#define PROTO_EM_ENCRYPT_AES_DEFAULT    3
-#define PROTO_EM_ENCRYPT_AES_XLAN       4   //AES, XOR lanheng
-#define PROTO_EM_ENCRYPT_END            5
+#define FM_EASEN            0
+#define FM_DESMAN           1
+#define FM_PROTOCOL         FM_DESMAN
 
-#define PROTO_EM_XOR1_KEY_LANHENG       "ee71535357ad9bb4" //XOR key for 심전람항
-#define PROTO_EM_XOR1_KEY_SANJIANG      "eb62f6b9306db575" //XOR key for 범해삼강
+//protocol encryption mode
+#define PROTO_EM_NOENCRYPT                      0
+#define PROTO_EM_ENCRYPT                        1
+#define PROTO_EM_ENCRYPT_XOR_LANHENG            2
+#define PROTO_EM_ENCRYPT_AES_DEFAULT            3
+#define PROTO_EM_ENCRYPT_AES_XLAN               4   //AES, XOR lanheng
+#define PROTO_EM_ENCRYPT_END                    5
+
+#define PROTO_EM_XOR1_KEY_LANHENG               "ee71535357ad9bb4" //XOR key for 심전람항
+#define PROTO_EM_XOR1_KEY_SANJIANG              "eb62f6b9306db575" //XOR key for 범해삼강
 
 //protocol mode
-#define PROTO_MODE_NONE                 0
-#define PROTO_MODE_SANJIANG             1
-#define PROTO_MODE_QIXIN                2
-#define PROTO_MODE_LANHENG              3
+#define PROTO_MODE_NONE                         0
+#define PROTO_MODE_SANJIANG                     1
+#define PROTO_MODE_QIXIN                        2
+#define PROTO_MODE_LANHENG                      3
 
 //board types
-#define BD_TY_CV180xB_DEMO_V1v0     0
-#define BD_TY_FSDB_1V0              1   //D10 2.0
-#define BD_TY_CV181xC_DEMO_V1v0     2
-#define BD_TY_FMDASS_1V0J           3   //D20 3M
-#define BD_TY_FMDBSS_1V0J           4   //D10 3M
-#define DEFAULT_BOARD_TYPE          BD_TY_FMDBSS_1V0J
+#define BD_TY_CV180xB_DEMO_V1v0                 0
+#define BD_TY_FSDB_1V0                          1   //D10 2.0
+#define BD_TY_CV181xC_DEMO_V1v0                 2
+#define BD_TY_FMDASS_1V0J                       3   //D20 3M
+#define BD_TY_FMDBSS_1V0J                       4   //D10 3M
+#define DEFAULT_BOARD_TYPE                      BD_TY_FMDBSS_1V0J
 
 //chip types
-#define MY_CHIP_D10                 0
-#define MY_CHIP_D20                 1
-#define DEFAULT_CHIP_TYPE           MY_CHIP_D10
+#define MY_CHIP_D10                             0
+#define MY_CHIP_D20                             1
+#define DEFAULT_CHIP_TYPE                       MY_CHIP_D10
 
-#define MY_SUBCHIP_D10              0
-#define MY_SUBCHIP_D10A             1
-#define MY_SUBCHIP_D20              2
-#define MY_SUBCHIP_D20A             3
-#define DEFAULT_SUBCHIP_TYPE        MY_SUBCHIP_D10
+#define MY_SUBCHIP_D10                          0
+#define MY_SUBCHIP_D10A                         1
+#define MY_SUBCHIP_D20                          2
+#define MY_SUBCHIP_D20A                         3
+#define DEFAULT_SUBCHIP_TYPE                    MY_SUBCHIP_D10
 
 //camera mipi types
-#define CAM_MIPI_TY_121             0 //one sensor on one mipi
-#define CAM_MIPI_TY_122             1 //two sensors on one mipi
-#define DEFAULT_CAM_MIPI_TYPE       CAM_MIPI_TY_122
+#define CAM_MIPI_TY_121                         0 //one sensor on one mipi
+#define CAM_MIPI_TY_122                         1 //two sensors on one mipi
+#define DEFAULT_CAM_MIPI_TYPE                   CAM_MIPI_TY_122
 
-//macros for ENGINE_USE_TWO_CAM
-#define EUTC_2D_MODE                0
-#define EUTC_2V0_MODE               1
-#define EUTC_3M_MODE                2
-#define EUTC_3V4_MODE               3
-
-//used for engine
-#define ISP_Y_LEVEL_0               0   //normal, sc201cs color v2.1.0.11
-#define ISP_Y_LEVEL_1               1   //bright, sc201cs color v2.1.0.13
-#define ISP_Y_LEVEL_2               2   //dark, sc201cs color v2.1.0.26
-#define ISP_Y_LEVEL_3               3   //dark, sc201cs color v2.1.0.50
-#define ISP_Y_LEVEL                 ISP_Y_LEVEL_0
+/////////////////////////////////////////////////////////////////////////////////////////
 
 //isp bin file version
 #define ISP_BIN_VER_103v3           0   //v1.0.3.3
@@ -179,265 +134,239 @@ enum E_Baud_Rate
 #define ISP_BINM_VER_100v1          0   //v1.0.0.1
 #define DEFAULT_ISP_BINM_VER        ISP_BINM_VER_100v1
 
-//uvc direction
-#define UVC_ROTATION_0              0
-#define UVC_ROTATION_90             1
-#define UVC_ROTATION_270            2       //180degree of UVC_ROTATION_90
+/////////////////////////////////////////////////////////////////////////////////////////
 
-//uvc dwFrameInterval
-#define UVC_FI_FPS0                 30
-#define UVC_FI_FPS1                 15
-#define UVC_FI_FPS2                 10
+//macros for ENGINE
 
-//USE_3M_MODE
-#define U3M_DISABLE                 0
-#define U3M_DEFAULT                 1       //얼굴인식에 색카메라리용, 백색레드리용함
-#define U3M_IR_ONLY                 2       //얼굴인식에 색카메라를 쓰지 않음
-#define U3M_SEMI                    3       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 적외선만 리용, 백색레드쓰지 않음
-#define U3M_SEMI_IR                 4       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 색카메라에서 얻은 적외선화상을 리용, 백색레드쓰지 않음(색카메라에 쌍통려파기를 리용함)
+//macros for ENGINE_USE_TWO_CAM
+#define EUTC_2D_MODE                            0
+#define EUTC_2V0_MODE                           1
+#define EUTC_3M_MODE                            2
+#define EUTC_3V4_MODE                           3
+#define ENGINE_USE_TWO_CAM                      EUTC_3M_MODE
 
-//USE_WHITE_LED               0   //0: , 1: , 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
-#define UWL_DISABLE                 0       // 백색레드쓰지 않는 방식
-#define UWL_EN_NORMAL               1       // 백색레드를 리용하는 방식
-#define UWL_EN_F1U0                 2       // face on, uvc off, 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
-#define UWL_EN_F0U1                 3       // face off, uvc on, 얼굴인식에는 백색레드를 리용하지 않고 화상대화때에만 리용
+//used for engine
+#define ISP_Y_LEVEL_0                           0   //normal, sc201cs color v2.1.0.11
+#define ISP_Y_LEVEL_1                           1   //bright, sc201cs color v2.1.0.13
+#define ISP_Y_LEVEL_2                           2   //dark, sc201cs color v2.1.0.26
+#define ISP_Y_LEVEL_3                           3   //dark, sc201cs color v2.1.0.50
+#define ISP_Y_LEVEL                             ISP_Y_LEVEL_0
 
 //DEFAULT_FR_COLOR_MODE
-#define FR_COLOR_MODE_DEF           1       //use whiteled to detect face
-#define FR_COLOR_MODE_SEMI          2       //ignore detecting face in dark mode
-#define FR_COLOR_MODE_IR            3       //use ir image to detect face in dark mode
+#define FR_COLOR_MODE_DEF                       1       //use whiteled to detect face
+#define FR_COLOR_MODE_SEMI                      2       //ignore detecting face in dark mode
+#define FR_COLOR_MODE_IR                        3       //use ir image to detect face in dark mode
+#define DEFAULT_FR_COLOR_MODE                   FR_COLOR_MODE_DEF
 
-//batt test
-#define AUTO_TEST                   0     //0 -> normal, 1 -> auto test
-#define CAPTURE_SCENE               0
+// Camera Lens Setting
+#define ENGINE_LENS_40143                       0 //default lens
+#define ENGINE_LENS_M277_2409                   1
+#define ENGINE_LENS_TYPE                        ENGINE_LENS_M277_2409
+
+// Enroll Mode
+#define ENROLL_FACE_HAND_SEPERATE               0
+#define ENROLL_FACE_HAND_MIX                    1
+#define ENROLL_FACE_HAND_MODE                   ENROLL_FACE_HAND_SEPERATE
+
+#define HAND_VERIFY_PRIORITY_NORMAL             0
+#define HAND_VERIFY_PRIORITY_HIGH               1
+#define HAND_VERIFY_PRIORITY                    HAND_VERIFY_PRIORITY_NORMAL
+
+#define FAKE_DETECTION                          1
+#define ENROLL_FAKE                             1
+#define CHECK_FAKE_USER                         1
+#define DIC_CHSUM_ERROR_IGNO                    1   //reorder dicts
+#define ENROLL_ANGLE_MODE                       0
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+//uvc direction
+#define UVC_ROTATION_0                          0
+#define UVC_ROTATION_90                         1
+#define UVC_ROTATION_270                        2       //180degree of UVC_ROTATION_90
+
+//uvc dwFrameInterval
+#define UVC_FI_FPS0                             30
+#define UVC_FI_FPS1                             15
+#define UVC_FI_FPS2                             10
+
+//USE_3M_MODE
+#define U3M_DISABLE                             0
+#define U3M_DEFAULT                             1       //얼굴인식에 색카메라리용, 백색레드리용함
+#define U3M_IR_ONLY                             2       //얼굴인식에 색카메라를 쓰지 않음
+#define U3M_SEMI                                3       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 적외선만 리용, 백색레드쓰지 않음
+#define U3M_SEMI_IR                             4       //밝을때는 얼굴인식에 색카메라를 리용, 어두운 환경에서는 색카메라에서 얻은 적외선화상을 리용, 백색레드쓰지 않음(색카메라에 쌍통려파기를 리용함)
+
+//USE_WHITE_LED
+#define UWL_DISABLE                             0       // 백색레드쓰지 않는 방식
+#define UWL_EN_NORMAL                           1       // 백색레드를 리용하는 방식
+#define UWL_EN_F1U0                             2       // face on, uvc off, 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
+#define UWL_EN_F0U1                             3       // face off, uvc on, 얼굴인식에는 백색레드를 리용하지 않고 화상대화때에만 리용
+#define USE_WHITE_LED                           UWL_DISABLE   //0: 백색레드쓰지 않는 방식, 1: 백색레드를 리용하는 방식, 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
+
 // Enroll Duplication Check Mode
-#define EDC_DISABLE                 0   //disable duplication check
-#define EDC_ENABLE_WITH_SKIP        1   //enable duplication check, but registering possible on dup error
-#define EDC_ENABLE_NO_SKIP          2   //enable duplication check, registering impossible on dup error
-#define ENROLL_DUPLICATION_CHECK    EDC_ENABLE_WITH_SKIP
-#define ENROLL_HAND_DUP_CHECK       1
-#define DEBUG_EN                    0
-#define FAKE_DETECTION              1
-#define ENROLL_FAKE                 1
-#define FAKE_UNIT_COUNT             3
-#define FAKE_TOTAL_COUNT            4
-#define TEST_ENGINE_MAP             0
-#define CHECK_FAKE_USER             1
-#define USE_ENROLL_ITG              1
-#define AUTO_CTRL_CLR_CAM           1
-#define USE_DEMOMODE2               1
-#define USE_DEMOMODE4HAND           1
-#define USE_WAEL_VDB                0       //10fps, jpg size must be less than 50KB
-#define USE_SHENAO_VDB              0
-#define USE_SHENAO_NEW_VDB          0
-#define USE_WAEL_PROTO              0
-#define NOTE_INTERVAL_MS            0
-#define USE_VDBTASK                 1
-#define USE_SMP_CORE1               1
-#define CHECK_FIRMWARE              1
-#define USE_WIFI_MODULE             0
-#define USE_READY0_PROTO            0
-#define USE_SANJIANG3_MODE          1       // 범해삼강(암호화있음), 중산칠심, 동관동흔조종기판을 함께 쓰는 방식
-#define USE_AES_NOENC_MODE          0       // AES with no encryption
-#define USE_NEW_SNAPIMAGE_MODE      1       //0:use Flash, 1:unuse Flash
-#define USE_XISHANG_PROTO           0       //0x93 command
-#define USE_AUTO_50_REPLY           0
-#define USE_FP16_ENGINE             1
-#define USE_NEW_RST_PROTO           1
-#define USE_16M_FLASH               1
-#define USE_RENT_ENGINE             0
-#define USE_DB_UPDATE_MODE          1
-#define USE_TONGXIN_PROTO           0
-#define USE_EKESI_PROTO             0
-#define USE_LAIJI_PROTO             0
-#define ENROLL_ANGLE_MODE           0
-#define ENGINE_USE_TWO_CAM          EUTC_3M_MODE
-#define DIC_CHSUM_ERROR_IGNO        1
-#define YAOYANG_MODE                0
-#define SEND_LAST_MSG               0
-#define USE_3M_MODE                 U3M_DISABLE
-#define USE_UAC_MODE                1
-#define USE_USB_EP_ERR_FIX_MODE     0
-#define USE_WHITE_LED               0   //0: 백색레드쓰지 않는 방식, 1: 백색레드를 리용하는 방식, 2: 얼굴인식에서는 백색레드켜고 화상대화에서는 적외선화상을 현시하는 방식
-#define USE_WATCHDOG                1
-#define USE_SHENAO_HAND             0
-#define USE_PRINT_TEMP              0
-#define USE_USB_CHECKFIRM_MODE      0
-#define USE_CAM_REINIT              1
-#define USE_ISP_IR_3DNR             0
-#define USE_UAC_DESC_ALT4           0
-#define USE_USB_XN_PROTO            0   //use XinNeng USB Protocol
-#define USE_UVC_FACE_RECT           0
-#define USE_TEMP_MODE               1
-#define USE_FUSHI_HAND_PROTO        0
-#define USE_SNAPCLR_VENC            0
-#define CONFIG_USB_HS               1
-#define CONFIG_DWC2_VERSION         0
-#define USE_EP0PKGSIZE_PATCH        0
-#define CONFIG_SPI_NOR_ER_TIME      2000
-#define CONFIG_USB_BULK_UVC         0
+#define EDC_DISABLE                             0   //disable duplication check
+#define EDC_ENABLE_WITH_SKIP                    1   //enable duplication check, but registering possible on dup error
+#define EDC_ENABLE_NO_SKIP                      2   //enable duplication check, registering impossible on dup error
+#define ENROLL_DUPLICATION_CHECK                EDC_ENABLE_WITH_SKIP
 
-#define CLR_CAM_WIDTH               1600
-#define CLR_CAM_HEIGHT              1200
-#define IR_CAM_WIDTH                1600
-#define IR_CAM_HEIGHT               900
-#define CAPTURE_WIDTH               (180)
-#define CAPTURE_HEIGHT              (320)
-#define CAPTURE_MAX_WIDTH           (180)
-#define CAPTURE_MAX_HEIGHT          (320)
+#define ENROLL_HAND_DUP_CHECK                   1
+#define DEBUG_EN                                0
+#define USE_ENROLL_ITG                          1
+#define USE_DEMOMODE2                           1
+#define USE_DEMOMODE4HAND                       1
+#define USE_WAEL_PROTO                          0
+#define NOTE_INTERVAL_MS                        0
+#define USE_VDBTASK                             1
+#define CHECK_FIRMWARE                          1
+#define USE_WIFI_MODULE                         0
+#define USE_READY0_PROTO                        0
+#define USE_SANJIANG3_MODE                      1       // 범해삼강(암호화있음), 중산칠심, 동관동흔조종기판을 함께 쓰는 방식
+#define USE_AES_NOENC_MODE                      0       // AES with no encryption
+#define USE_NEW_SNAPIMAGE_MODE                  1       //0:use Flash, 1:unuse Flash
+#define USE_XISHANG_PROTO                       0       //0x93 command
+#define USE_AUTO_50_REPLY                       0
+#define USE_NEW_RST_PROTO                       1
+#define USE_16M_FLASH                           1
+#define USE_RENT_ENGINE                         0
+#define USE_DB_UPDATE_MODE                      1
 
-#define UVC_MAX_WIDTH               1280
-#define UVC_MAX_HEIGHT              720
-#define UVC_MIN_WIDTH               320
-#define UVC_MIN_HEIGHT              240
-#define UVC_INIT_WIDTH              640
-#define UVC_INIT_HEIGHT             480
-#define CHECK_CLR_IR_SWITCH_THR     0
-#define NEW_CLR_IR_SWITCH_THR       0x20
-#define UVC_CLR2IR_THR4ISP          (-150) //threshold value for turning white led on.
+#define USE_TONGXIN_PROTO                       0
+#define USE_EKESI_PROTO                         0
+#define USE_LAIJI_PROTO                         0
+#define USE_FUSHI_HAND_PROTO                    0
+
+#define SEND_LAST_MSG                           0
+#define USE_3M_MODE                             U3M_DISABLE
+#define USE_UAC_MODE                            1
+#define USE_USB_EP_ERR_FIX_MODE                 0
+#define USE_WATCHDOG                            1
+#define USE_SHENAO_HAND                         0
+#define USE_PRINT_TEMP                          0
+#define USE_USB_CHECKFIRM_MODE                  0
+#define USE_CAM_REINIT                          1
+#define USE_ISP_IR_3DNR                         0
+#define USE_UAC_DESC_ALT4                       0
+#define USE_USB_XN_PROTO                        0   //use XinNeng USB Protocol
+#define USE_UVC_FACE_RECT                       0
+#define USE_TEMP_MODE                           1
+#define USE_SNAPCLR_VENC                        0
+#define CONFIG_USB_HS                           1
+#define CONFIG_DWC2_VERSION                     0
+#define USE_EP0PKGSIZE_PATCH                    0
+#define CONFIG_SPI_NOR_ER_TIME                  2000
+#define CONFIG_USB_BULK_UVC                     0
+
+#define CLR_CAM_WIDTH                           1600
+#define CLR_CAM_HEIGHT                          1200
+#define IR_CAM_WIDTH                            1600
+#define IR_CAM_HEIGHT                           900
+#define CAPTURE_WIDTH                           (180)
+#define CAPTURE_HEIGHT                          (320)
+#define CAPTURE_MAX_WIDTH                       (180)
+#define CAPTURE_MAX_HEIGHT                      (320)
+
+#define UVC_MAX_WIDTH                           1280
+#define UVC_MAX_HEIGHT                          720
+#define UVC_MIN_WIDTH                           320
+#define UVC_MIN_HEIGHT                          240
+#define UVC_INIT_WIDTH                          640
+#define UVC_INIT_HEIGHT                         480
+#define CHECK_CLR_IR_SWITCH_THR                 0
+#define NEW_CLR_IR_SWITCH_THR                   0x20
+#define UVC_CLR2IR_THR4ISP                      (-150) //threshold value for turning white led on.
 #undef UVC_CLR2IR_THR4ISP
-#define UVC_CLR2IR_THR4ISP_TH       (100) //threshold value for returning to color mode
-#define UVC_CLR2IR_THR4ENGINE       (-100) //threshold value for turning white led on for face engine.
+#define UVC_CLR2IR_THR4ISP_TH                   (100) //threshold value for returning to color mode
+#define UVC_CLR2IR_THR4ENGINE                   (-100) //threshold value for turning white led on for face engine.
 #undef UVC_CLR2IR_THR4ENGINE
-#define UVC_CLR_LUMINANCE           0x80
-#define UVC_CLR_SAT_Gl              0x50
-#define UVC_CLR_SAT_Cb              0x42
-#define UVC_CLR_SAT_Cr              0x42
-#define UVC_CLR_SHARP               0x85
-#define UVC_CLR_AWB_EN              0
-#define UVC_CLR_R_GAIN              0x50
-#define UVC_CLR_G_GAIN              0x40
-#define UVC_CLR_B_GAIN              0x54
-#define UVC_UNIQ_COMPRESS           1
-#define UVC_RES_720P                1       //1280x720
-#define UVC_RES_480P                2       //640x480
-#define UVC_RES_432x240             4
-#define UVC_RES_480x320             8       //480x320
-#define UVC_RES_240P                16      //320x240
-#define UVC_RES_320x480             32      //320x480
-#define UVC_RES_FLAG                UVC_RES_480P
-#define UVC_RES_DEFINE              {1, 1280, 720, 30, 0},
-#define UVC_RES_COUNT               1
-#define UVC_MAX_FRAME_SIZE          0
-#define UVC_PAUSE_LIMIT_TIME        0
-#define UVC_MAX_FPS_TIME            40      //25fps
-#define UVC_FIX_COMPRATE            0
-#define UVC_MJPEG_BITRATE           20480
-#define UVC_H26X_BITRATE            2048
-#define UVC_CROP_RESIZE             1
-#define ISP_FPS_FOR_UVC             0
-#define WLED_PWM_DUTY               100     // %
-#define UAC_AUDALGO_USE             1
-#define UAC_SPK_NR_USE              0 //0: do not use, 1: manual, 2: use lib
-#define UAC_SPEAKER_VOL             32 // 0 ~ 32
-#define UAC_MIC_VOL                 12 // 0 ~ 24
-#define UAC_SAMPLE_RATE             8000
-#define SPECIFIC_LOG_PRINT          0
-#define UAC_SPK_EP                  0x82
-#define UAC_MIC_EP                  2
-#define UVC_VBPOOL1CNT              5
-#define UVC_LANDSCAPE               0
-#define UVC_ENC_TYPE                0 // 0:mjpeg 1:h264 2:dual
-#define UVC_H26X_GOP                20
-#define UVC_H26X_MAXIQP             36
-#define UVC_H26X_MAXQP              36
-#define UVC_H26X_WIDTH              1280
-#define UVC_H26X_HEIGHT             720
-#define H26X_TYPE                   PT_H264
-#define BIN_DATA_SIZE               174513
-#define UVC_USBD_PRINT              0
-#define UVC_DARK_WATCH_COUNTER      3
-#define UAC_EP_WMAXPCKT_SIZE        64  //audio ep wMaxPacketSize
-#define MAX_PSPT_SIZE               512 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
-#define USB_TPM_CNT                 1   //TRANSACTION_PER_MICROFRAME
-#define UVC_IR_FRM_TIMEOUT          60
-#define UVC_DELAY_BEFORE_START      0
 
-#define UVC_PIXEL_FMT_NV21          0
-#define UVC_PIXEL_FMT_YUV422        1
+#define UVC_RES_720P                            1       //1280x720
+#define UVC_RES_480P                            2       //640x480
+#define UVC_RES_432x240                         4
+#define UVC_RES_480x320                         8       //480x320
+#define UVC_RES_240P                            16      //320x240
+#define UVC_RES_320x480                         32      //320x480
+#define UVC_RES_FLAG                            UVC_RES_480P
+#define UVC_RES_DEFINE                          {1, 1280, 720, 30, 0},
 
-#define WLED_TEST_TIMEOUT           5 // s
-#define SETTING_TIMEOUT             30
-#define RESET_TIMEOUT               9
-#define MSG_SHOW_TIMEOUT            3
-#define ENROLL_CARD_TIMEOUT         10
-#define ENROLL_FP_TIMEOUT           10
-#define GUOGU_RECV_TIMEOUT          4
-#define PASSCODE_NO_ENTER_TIMEOUT   3 * 60
-#define GROUP_TIMEOUT 1.5
-#define DETECTION_TIMEOUT           10
-#define PASSCODE_TIMEOUT            8
-#define VIEW_TIMEOUT                5//second
-#define USB_UPGRADE_TIMEOUT         8
-#define USB_DETECT_TIMEOUT          3
-#define MOUNT_RETRY_COUNT           15
-#define DEVICE_NID_READY_VER        0 //'C'=0x43, for desman, else 0=NID_READY
+#define UVC_MAX_FRAME_SIZE                      0
+#define UVC_PAUSE_LIMIT_TIME                    0
+#define UVC_MAX_FPS_TIME                        40      //25fps
+#define UVC_FIX_COMPRATE                        0
+#define UVC_MJPEG_BITRATE                       20480
+#define UVC_H26X_BITRATE                        2048
+#define UVC_CROP_RESIZE                         1
+#define ISP_FPS_FOR_UVC                         0
+#define WLED_PWM_DUTY                           100     // %
+#define UAC_AUDALGO_USE                         1
+#define UAC_SPK_NR_USE                          0 //0: do not use, 1: manual, 2: use lib
+#define UAC_SPEAKER_VOL                         32 // 0 ~ 32
+#define UAC_MIC_VOL                             12 // 0 ~ 24
+#define UAC_SAMPLE_RATE                         8000
+#define SPECIFIC_LOG_PRINT                      0
+#define UAC_SPK_EP                              0x82
+#define UAC_MIC_EP                              2
+#define UVC_VBPOOL1CNT                          5
+#define UVC_LANDSCAPE                           0
+#define UVC_ENC_TYPE                            0 // 0:mjpeg 1:h264 2:dual
+#define UVC_H26X_GOP                            20
+#define UVC_H26X_MAXIQP                         36
+#define UVC_H26X_MAXQP                          36
+#define UVC_H26X_WIDTH                          1280
+#define UVC_H26X_HEIGHT                         720
+#define H26X_TYPE                               PT_H264
+#define BIN_DATA_SIZE                           174513
+#define UVC_USBD_PRINT                          0
+#define UVC_DARK_WATCH_COUNTER                  3
+#define UAC_EP_WMAXPCKT_SIZE                    64  //audio ep wMaxPacketSize
+#define MAX_PSPT_SIZE                           512 //MAX_PAYLOAD_SIZE_PER_TRANSACTION
+#define USB_TPM_CNT                             1   //TRANSACTION_PER_MICROFRAME
+#define UVC_IR_FRM_TIMEOUT                      60
+#define UVC_DELAY_BEFORE_START                  0
 
-#define N_MAX_FACE_FAILED_COUNT     5
-#define N_MAX_PASS_FAILED_COUNT     5
-#define N_MAX_FP_FAILED_COUNT       5
-#define N_MAX_FAILED_TIME           (2.4)//second
-#define N_MAX_DNN_FAILED_TIME       6//second
-#define N_MAX_EYE_FAILED_TIME		5//second
-#define N_SECURE_CHK_CNT            1000
+#define UVC_PIXEL_FMT_NV21                      0
+#define UVC_PIXEL_FMT_YUV422                    1
+
+#define WLED_TEST_TIMEOUT                       5 // s
+#define DETECTION_TIMEOUT                       10
+#define USB_UPGRADE_TIMEOUT                     8
+#define USB_DETECT_TIMEOUT                      3
+#define MOUNT_RETRY_COUNT                       15
+#define DEVICE_NID_READY_VER                    0 //'C'=0x43, for desman, else 0=NID_READY
+
+#define N_MAX_FAILED_TIME                       (2.4) //second
+#define N_MAX_DNN_FAILED_TIME                   6 //second
+#define N_MAX_EYE_FAILED_TIME		            5 //second
+#define N_SECURE_CHK_CNT                        1000
 
 //기본설정값
-#define DEFAULT_THEME               0
-#define DEFAULT_SHOW_CAM            2
-#define DEFAULT_LANGUAGE            0
-#define DEFAULT_SOUND               10
-#define DEFAULT_PRESENATATION       0
-#define DEFAULT_KEEP_OPEN           0
-#define DEFAULT_LOCK_TYPE           1
-#define DEFAULT_ZIGBEE              0
-#define DEFAULT_MOTOR_TYPE          0
-#define DEFAULT_MOTOR_POLARITY      0
-#define DEFAULT_HOUR_FORMAT         0
-#define DEFAULT_DATE_FORMAT         0
-#define DEFAULT_GYROSCOPE_ANGLE     1
-#define DEFAULT_FINGERPRINT         (FP_MODE > 0 ? 1 : 0)       //대상에 맞게 설정
-#define DEFAULT_HUMANSENSOR         HUMAN_SENSOR       //대상에 맞게 설정
-#define DEFAULT_LOGO                0
-#define DEFAULT_ZIGBEE_MODE         ZIGBEE_MODE
-#define DEFAULT_SHOW_DATETIME       1
-#define DEFAULT_PINYIN_MODE         1
-#define DEFAULT_SEMI_MOTOR_TYPE     0
-#define DEFAULT_SEMI_MOTOR_POLARITY 0
-#define DEFAULT_SEMI_MOTOR_TIME     30
-#define DEFAULT_HUMANSENSOR_PARAM   5       // 1~10까지 파라메터변경방법
-#define DEFAULT_GYROSCOPE_TIME      1       // [1,2,3] = [10, 20, 30]
-#define DEFAULT_MOTOR_OPEN_TIME     26      //대상에 맞게 설정
-#define DEFAULT_MOTOR_BACK_TIME     7
-#define DEFAULT_UVC_DIR             UVC_ROTATION_90       // 0: not rotate 90, 1: rotate 90
-#define DEFAULT_UVC_COMP_PARAM_IMQ  100
-#define DEFAULT_UVC_COMP_PARAM_BT_MAX   6
-#define DEFAULT_UVC_COMP_PARAM_BT_DEF   4
-#define DEFAULT_UVC_COMP_PARAM_RPFR     1
-#define DEFAULT_UVC_PIXEL_FMT       UVC_PIXEL_FMT_NV21
-#define DEFAULT_LIVENESS_MODE       0   //engine state for liveness, for special use only
-#define DEFAULT_SECURE_VALUE        75  //caution!!! DO NOT MODIFY this value.
-#define DEFAULT_SECURE_FALSE_VAL    5  //caution!!! DO NOT MODIFY this value.
-#define DEFAULT_SECURE_STEP1        8
-#define DEFAULT_SECURE_STEP2        24
-#define DEFAULT_SECURE_MODE         0
-#define DEFAULT_PROTO_ENC_MODE      PROTO_EM_ENCRYPT_XOR_LANHENG  //0: plain text mode, 1: default encryption mode, 2: XOR_1
-#define DEFAULT_PROTO_EM_XOR1_KEY   PROTO_EM_XOR1_KEY_LANHENG
-#define DEFAULT_PROTO_ENC_KEY_NO    0   //no default key
-#define DEFAULT_PROTO_ENC_KEY_1     1   //0 1 2 3 4 5 6 7 8 9 a b c d e f
-#define DEFAULT_PROTO_ENC_KEY_ORD   DEFAULT_PROTO_ENC_KEY_NO
-#define DEFAULT_MI_AO_VOLUME        (0)   // -60~30
-#define DEFAULT_MI_AI_VOLUME        20      // 0~21
-#define DEFAULT_UART0_BAUDRATE      Baud_Rate_115200
-#define DEFAULT_SNAPIMG_CTRL_CNT    3
-#define DEFAULT_CLR_IR_FRAME_RATIO  2
-#define DEFAULT_LIVENESS_LEVEL      S_LIVENESS_LEVEL_DEFAULT
-#define DEFAULT_SNR4UVC             0    //0: use sensor0 for color, 1: use sensor1 for color, 2: no color
-#define FIRMWARE_MAGIC              "DBS"
+#define DEFAULT_UVC_DIR                         UVC_ROTATION_90       // 0: not rotate 90, 1: rotate 90
+#define DEFAULT_UVC_COMP_PARAM_IMQ              100
+#define DEFAULT_UVC_COMP_PARAM_BT_MAX           6
+#define DEFAULT_UVC_COMP_PARAM_BT_DEF           4
+#define DEFAULT_UVC_COMP_PARAM_RPFR             1
+#define DEFAULT_UVC_PIXEL_FMT                   UVC_PIXEL_FMT_NV21
+#define DEFAULT_LIVENESS_MODE                   0   //engine state for liveness, for special use only
+#define DEFAULT_SECURE_VALUE                    75  //caution!!! DO NOT MODIFY this value.
+#define DEFAULT_SECURE_FALSE_VAL                5  //caution!!! DO NOT MODIFY this value.
+#define DEFAULT_SECURE_STEP1                    8
+#define DEFAULT_SECURE_STEP2                    24
+#define DEFAULT_SECURE_MODE                     0
+#define DEFAULT_PROTO_ENC_MODE                  PROTO_EM_ENCRYPT_XOR_LANHENG  //0: plain text mode, 1: default encryption mode, 2: XOR_1
+#define DEFAULT_PROTO_EM_XOR1_KEY               PROTO_EM_XOR1_KEY_LANHENG
+#define DEFAULT_PROTO_ENC_KEY_NO                0   //no default key
+#define DEFAULT_PROTO_ENC_KEY_1                 1   //0 1 2 3 4 5 6 7 8 9 a b c d e f
+#define DEFAULT_PROTO_ENC_KEY_ORD               DEFAULT_PROTO_ENC_KEY_NO
+#define DEFAULT_UART0_BAUDRATE                  Baud_Rate_115200
+#define DEFAULT_SNAPIMG_CTRL_CNT                3
+#define DEFAULT_CLR_IR_FRAME_RATIO              2
+#define DEFAULT_LIVENESS_LEVEL                  S_LIVENESS_LEVEL_DEFAULT
+#define DEFAULT_SNR4UVC                         0    //0: use sensor0 for color, 1: use sensor1 for color, 2: no color
+#define FIRMWARE_MAGIC                          "DBS"
 #define ENROLL_FACE_IMG_MAGIC                   "EFIv1"
 #define ENROLL_FACE_IMG_MAGIC2                  "EFIv2"
 #define ENROLL_FACE_IMG_MAGIC3                  "EFIv3"
 #define ENROLL_FACE_IMG_MAG_PREFIX              "EFIv"
-#define DEFAULT_FR_COLOR_MODE       FR_COLOR_MODE_DEF
 
 #define DESMAN_ENC_MODE     2       //0 -> dessmman, 1 -> bom, 2 -> test
 
@@ -462,54 +391,13 @@ enum E_Baud_Rate
 
 #define DB_BAK3
 #define ROOTFS_BAK          0
-#define TEST_GYROSCORE_TIME 1
-#define TEST_DUTY_CYCLE     0
-#define USE_CARD_ENCRYPT    1
 
-#define NFS_DEBUG_EN        0
-#define UBOOT_LOAD_SPOOF    0
 #define ENGINE_DATA_PACKET_SIZE 128
-
-//////////////////TTF Font////////////////////
-#define MY_LINUX
-#define USE_BUFFER2
-#define USE_FB_FOR_CAP
-
-//////////////////Camera Lens Setting////////////////////
-#define ENGINE_LENS_40143       0 //default lens
-#define ENGINE_LENS_M277_2409   1
-#define ENGINE_LENS_TYPE        ENGINE_LENS_M277_2409
-
-///////////////////   Enroll Mode      //////////////////////////
-#define ENROLL_FACE_HAND_SEPERATE   0
-#define ENROLL_FACE_HAND_MIX        1
-#define ENROLL_FACE_HAND_MODE       ENROLL_FACE_HAND_SEPERATE
-
-#define HAND_VERIFY_PRIORITY_NORMAL 0
-#define HAND_VERIFY_PRIORITY_HIGH   1
-#define HAND_VERIFY_PRIORITY        HAND_VERIFY_PRIORITY_NORMAL
-
-//#define USE_DEBUG
-#define USE_LCD             0
-
-#define my_debug printf
-
-#ifdef USE_DEBUG
-
-#define USE_DEBUG_TRACE
-
-#ifdef USE_DEBUG_TRACE
-#endif //USE_DEBUG_TRACE
-
-#endif //USE_DEBUG
-///////////////////////////////////////////////
 
 #define MMAP_MODE
 
 #define N_MAX_PERSON_NUM                100
 #define N_MAX_HAND_NUM                  100
-
-#define FN_FACE_BIN "/mnt/MISC/face.bin"
 
 //////////////////////////////////////////////////////////////
 /// products
