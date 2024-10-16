@@ -203,6 +203,7 @@ void FaceRecogTask::run()
 #if (ENGINE_USE_TWO_CAM == EUTC_2V0_MODE || ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
     int i2ndCheck = 0;
 #endif
+    int iOldUvcSensor = g_xSS.iUvcSensor;
     g_xSS.iTempHighState = 0;
     if(m_iCmd == E_REGISTER)
     {
@@ -237,7 +238,10 @@ void FaceRecogTask::run()
     m_iHasIrError = 0;
 
 #if (UVC_IRLED_ON)
-    camera_clr_stop_aec();
+    // 적외선화상대화에서 적외선레드를 항상 켜는 방식일때
+    // 인증시작에 적외선화상대화방식이면 ISP의 exp조종을 막도록 하였음.
+    if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+        camera_clr_stop_aec();
     fr_InitIRCamera_ExpGain();
     CalcNextExposure();
 #endif // UVC_IRLED_ON
@@ -248,6 +252,16 @@ void FaceRecogTask::run()
 #endif
     while(m_iRunning)
     {
+        if (iOldUvcSensor != g_xSS.iUvcSensor)
+        {
+            iOldUvcSensor = g_xSS.iUvcSensor;
+#if (UVC_IRLED_ON)
+            // 적외선화상대화에서 적외선레드를 항상 켜는 방식일때
+            // 인증도중에 적외선화상대화방식으로 절환하면 ISP의 exp조종을 막도록 하였음.
+            if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
+                camera_clr_stop_aec();
+#endif // UVC_IRLED_ON
+        }
         if(g_xSS.iResetFlag == 1)
             break;
 
