@@ -116,6 +116,7 @@ wnh.bin : 51.91%   (2732440 => 1418292 bytes, wnh.bin.zst)
 #define FN_TESTAUDIO_PCM_PATH           "audiotest.pcm"
 #define FN_FACE_IR_BIN_CHKSUM           0x47866b35
 #define FN_ISP_IR_BIN_PATH              (UVC_IRLED_ON == 0 ? "v1.0.0.1.bin" : "v2.1.6.2.bin")
+#define FN_ISP_IR_BIN_CHKSUM            (UVC_IRLED_ON == 0 ? 0xdcf8b2df : 0xc10749fb)
 
 #define MY_32ALIGNED(a) (((a) + 31) / 32 * 32)
 
