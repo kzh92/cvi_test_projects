@@ -4050,8 +4050,8 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_UVC_IRLED_ON)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.114.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.114.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.114.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.114.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
