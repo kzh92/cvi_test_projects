@@ -237,6 +237,7 @@ void FaceRecogTask::run()
     m_iHasIrError = 0;
 
 #if (UVC_IRLED_ON)
+    camera_clr_stop_aec();
     fr_InitIRCamera_ExpGain();
     CalcNextExposure();
 #endif // UVC_IRLED_ON
@@ -554,6 +555,12 @@ void FaceRecogTask::run()
     g_xSS.rFaceEngineTime = 0;
     g_iFirstCamFlag = 0;
     reset_ir_exp_gain();
+
+
+#if (UVC_IRLED_ON)
+    camera_clr_start_aec();
+#endif
+
 }
 
 
