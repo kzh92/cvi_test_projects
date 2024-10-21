@@ -671,12 +671,21 @@ int PrepareDataForVenc(uint8_t* idstBuf, uint8_t* isrcBuf, int iWidth, int iHeig
 void SwitchCameraWithIspStop(int id, int camid)
 {
     camera_switch(id, camid);
+#if (UVC_IRLED_ON == 0)
+#if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
+    if(camid == MIPI_CAM_S2LEFT)
+        CVI_VI_StopPipe(0);
+    else
+        CVI_VI_StartPipe(0);
+#endif
+#else // !UVC_IRLED_ON
 #if (USE_3M_MODE && DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
     if(camid == MIPI_CAM_S2LEFT && g_xSS.iUvcSensor == DEFAULT_SNR4UVC)
         CVI_VI_StopPipe(0);
     else
         CVI_VI_StartPipe(0);
 #endif
+#endif // !UVC_IRLED_ON
 }
 
 void* ProcessTCMipiCapture(void */*param*/)
@@ -936,7 +945,7 @@ void* ProcessTCMipiCapture(void */*param*/)
             if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC && (UVC_IRLED_ON == 0 || g_xSS.rFaceEngineTime != 0))
                 CVI_VI_StopPipe(0);
 #endif // USE_WHITE_LED
-            if ((UVC_IRLED_ON == 0 && g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC) || g_xSS.rFaceEngineTime != 0)
+            if (UVC_IRLED_ON == 0 || g_xSS.rFaceEngineTime != 0)
                 gpio_irled_on(OFF);
 #if (DEFAULT_CAM_MIPI_TYPE == CAM_MIPI_TY_122)
             if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
