@@ -913,7 +913,9 @@ static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 static CVI_S32 sensor_switch(VI_PIPE ViPipe, CVI_U8 switchCam)
 {
 	int ret = sc201cs_switch(ViPipe, switchCam);
+#if (UVC_IRLED_ON)
 	cmos_update_sns_regs_info();
+#endif
 	return ret;
 }
 

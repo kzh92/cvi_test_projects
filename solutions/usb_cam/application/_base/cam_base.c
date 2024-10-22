@@ -449,7 +449,7 @@ int camera_clr_stop_aec()
 #if (USE_3M_MODE != U3M_SEMI_IR && UVC_IRLED_ON == 0)
     return 0;
 #endif
-#if 0
+#if (UVC_IRLED_ON == 0)
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -467,13 +467,13 @@ int camera_clr_stop_aec()
 
     my_mi_use_unlock();
 #endif // USE_3M_MODE
-#else
+#else // !UVC_IRLED_ON
     ISP_EXPOSURE_ATTR_S stExpAttr;
     memset(&stExpAttr, 0, sizeof(ISP_EXPOSURE_ATTR_S));
     CVI_ISP_GetExposureAttr(0, &stExpAttr);
     stExpAttr.bByPass = 1;
     CVI_ISP_SetExposureAttr(0, &stExpAttr);
-#endif
+#endif // !UVC_IRLED_ON
     return 0;
 }
 
@@ -482,7 +482,7 @@ int camera_clr_start_aec()
 #if (USE_3M_MODE != U3M_SEMI_IR && UVC_IRLED_ON == 0)
     return 0;
 #endif
-#if 0
+#if (UVC_IRLED_ON == 0)
 #if (USE_3M_MODE)
     int vi_pipe = 0;
     ISP_SNS_OBJ_S *pSnsObj = NULL;
@@ -500,13 +500,13 @@ int camera_clr_start_aec()
 
     my_mi_use_unlock();
 #endif // USE_3M_MODE
-#else
+#else // ! UVC_IRLED_ON
     ISP_EXPOSURE_ATTR_S stExpAttr;
     memset(&stExpAttr, 0, sizeof(ISP_EXPOSURE_ATTR_S));
     CVI_ISP_GetExposureAttr(0, &stExpAttr);
     stExpAttr.bByPass = 0;
     CVI_ISP_SetExposureAttr(0, &stExpAttr);
-#endif
+#endif // ! UVC_IRLED_ON
     return 0;
 }
 

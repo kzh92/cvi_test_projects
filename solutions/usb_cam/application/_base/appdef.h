@@ -492,7 +492,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIJIA_UAC                     377
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_YIHE2_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2889,28 +2889,22 @@ enum E_Baud_Rate
 
 // 3.1.6_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.77.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.77.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.77.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.77.3_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 10240}, \
                                             {2, 864, 480, 30, 0, 10240}, \
                                             {3, 800, 480, 30, 0, 10240}, \
                                             {4, 640, 480, 30, 0, 6144},
-#undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_SEMI
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v49
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v62
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
-#undef UVC_DARK_WATCH_COUNTER
-#define UVC_DARK_WATCH_COUNTER              10
-#undef DEFAULT_UVC_DIR
-#define DEFAULT_UVC_DIR                     UVC_ROTATION_270
-#undef ENROLL_FACE_HAND_MODE
-#define ENROLL_FACE_HAND_MODE               ENROLL_FACE_HAND_MIX
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
