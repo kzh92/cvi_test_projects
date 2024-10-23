@@ -492,7 +492,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIJIA_UAC                     377
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LANCENS_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JIGAO_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1320,49 +1320,45 @@ enum E_Baud_Rate
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_JIGAO_UAC)
 
+// 3.61.6.4_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.19.1_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.19.1_D"
+#define DEVICE_FIRMWARE_VERSION             "3.117.0_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.117.0_D"
 
-#undef DEFAULT_CHIP_TYPE
-#define DEFAULT_CHIP_TYPE                   MY_CHIP_D10
-#undef DEFAULT_PROTO_ENC_MODE
-#define DEFAULT_PROTO_ENC_MODE              PROTO_EM_ENCRYPT_XOR_LANHENG
 #undef UVC_RES_DEFINE
-#define UVC_RES_DEFINE                      {1, 1280, 960, 30, 0}, \
-                                            {2, 1280, 720, 30, 0, 10240}, \
-                                            {3, 864, 480, 30, 0, 10240}, \
-                                            {4, 800, 480, 30, 0, 10240}, \
-                                            {5, 640, 480, 30, 0, 6144}, \
-                                            {6, 480, 320, 30, 0, 4096}, \
-                                            {7, 320, 240, 30, 0, 4096},
-#undef ENGINE_USE_TWO_CAM
-#define ENGINE_USE_TWO_CAM                  EUTC_3M_MODE
-#undef USE_3M_MODE
-#define USE_3M_MODE                         U3M_IR_ONLY
-#undef USE_UAC_MODE
-#define USE_UAC_MODE                        1
-#undef DEFAULT_BOARD_TYPE
-#define DEFAULT_BOARD_TYPE                  BD_TY_FMDBSS_1V0J
-#undef DEFAULT_CAM_MIPI_TYPE
-#define DEFAULT_CAM_MIPI_TYPE               CAM_MIPI_TY_122
-#undef USE_VDBTASK
-#define USE_VDBTASK                         1
-#undef USE_SANJIANG3_MODE
-#define USE_SANJIANG3_MODE                  1
-#undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      100
+#define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
+                                            {2, 864, 480, 30, 0, 10240}, \
+                                            {3, 800, 480, 30, 0, 10240}, \
+                                            {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       1
+#define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_301v9
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v65
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
+#undef UVC_USBD_PRINT
+#define UVC_USBD_PRINT                      1
+#undef USE_USB_EP_ERR_FIX_MODE
+#define USE_USB_EP_ERR_FIX_MODE             1
+#undef UAC_SPEAKER_VOL
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
+
+#if (USE_WHITE_LED == 0)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_SEMI
+#define UVC_CLR2IR_THR4ISP                  (-50)
+#undef UVC_DARK_WATCH_COUNTER
+#define UVC_DARK_WATCH_COUNTER              10
+
+#elif (USE_WHITE_LED == 1)
+#undef USE_3M_MODE
+#define USE_3M_MODE                         U3M_DEFAULT
 #define UVC_CLR2IR_THR4ISP                  (-200) //threshold value for turning white led on.
-#undef UVC_MAX_WIDTH
-#define UVC_MAX_WIDTH                       1280
-#undef UVC_MAX_HEIGHT
-#define UVC_MAX_HEIGHT                      960
+#define UVC_CLR2IR_THR4ENGINE               (-30)
+
+#else // USE_WHITE_LED
+#error "USE_WHITE_LED must be 0 or 1."
+#endif // USE_WHITE_LED
 
 //----------------------------------------------------------
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_EKESI)
