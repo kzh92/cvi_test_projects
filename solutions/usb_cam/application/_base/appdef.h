@@ -492,7 +492,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIJIA_UAC                     377
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_JIGAO_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AP7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3414,10 +3414,10 @@ odd version: use_whiteled = 1
 #define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v50
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
-#undef CONFIG_USB_HS
-#define CONFIG_USB_HS                       0
+// #undef CONFIG_USB_HS
+// #define CONFIG_USB_HS                       0
 #undef CONFIG_DWC2_VERSION
-#define CONFIG_DWC2_VERSION                 1
+#define CONFIG_DWC2_VERSION                 2
 #undef UAC_SPK_NR_USE
 #define UAC_SPK_NR_USE                      1
 #undef SPECIFIC_LOG_PRINT
