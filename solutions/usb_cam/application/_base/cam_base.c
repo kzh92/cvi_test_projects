@@ -868,3 +868,14 @@ void camera_set_mono_chrome(int enable)
     }
 #endif
 }
+
+int camera_set_isp_mono(int flag)
+{
+    CVI_S32 s32Ret = CVI_SUCCESS;
+    ISP_MONO_ATTR_S stMonoAttr;
+    memset(&stMonoAttr, 0, sizeof(ISP_MONO_ATTR_S));
+    CVI_ISP_GetMonoAttr(0, &stMonoAttr);
+    stMonoAttr.Enable = flag;
+    s32Ret = CVI_ISP_SetMonoAttr(0, &stMonoAttr);
+    return s32Ret;
+}

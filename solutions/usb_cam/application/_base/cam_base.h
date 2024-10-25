@@ -107,6 +107,7 @@ int camera_sleep(int id);
 int camera_wakeup(int id);
 void camera_set_vi_fps(int pipe, int fps);
 void camera_set_mono_chrome(int enable);
+int camera_set_isp_mono(int flag);
 
 #ifdef __cplusplus
 }

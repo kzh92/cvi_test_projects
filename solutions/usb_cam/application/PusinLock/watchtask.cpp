@@ -290,6 +290,8 @@ void WatchTask::run()
                 if (USE_3M_MODE == U3M_DEFAULT || (g_xSS.bUVCRunning || (g_xSS.rFaceEngineTime != 0 && USE_3M_MODE != U3M_IR_ONLY)))
                 {
                     gpio_whiteled_on(ON);
+                    if (UVC_WLED_940NM)
+                        camera_set_isp_mono(1);
                     //notice that using white led
                     if (USE_3M_MODE != U3M_SEMI)
                         fr_SetColorLed(1);
