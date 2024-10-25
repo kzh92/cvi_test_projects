@@ -11,6 +11,7 @@
 #include "hand/HandRetrival_.h"
 #endif // N_MAX_HAND_NUM
 #include "ComboRetrievalSystem.h"
+#include "FaceRetrievalSystem_base.h"
 
 #include <string.h>
 //#include <malloc.h>

@@ -22,6 +22,7 @@
 #include "common_types.h"
 #include "check_firmware.h"
 #include "functestproc.h"
+#include "FaceRetrievalSystem_base.h"
 
 #include <string.h>
 
