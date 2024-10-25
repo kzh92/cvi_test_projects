@@ -325,6 +325,7 @@ enum E_Baud_Rate
 #define UVC_IR_FRM_TIMEOUT                      60
 #define UVC_DELAY_BEFORE_START                  0
 #define UVC_IRLED_ON                            0 //0: flickering, 1: non-flickering
+#define UVC_WLED_940NM                          0
 
 #define UVC_PIXEL_FMT_NV21                      0
 #define UVC_PIXEL_FMT_YUV422                    1
@@ -492,7 +493,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_JIJIA_UAC                     377
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_AP7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_FANHAI_MODE
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1233,8 +1234,8 @@ enum E_Baud_Rate
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_FANHAI_MODE)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.71.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.71.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.71.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.71.3_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -1242,7 +1243,7 @@ enum E_Baud_Rate
                                             {3, 800, 480, 30, 0, 10240}, \
                                             {4, 640, 480, 30, 0, 6144},
 #undef USE_WHITE_LED
-#define USE_WHITE_LED                       0
+#define USE_WHITE_LED                       1
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
@@ -1250,11 +1251,17 @@ enum E_Baud_Rate
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 // #undef CONFIG_DWC2_VERSION
 // #define CONFIG_DWC2_VERSION                 1
 #undef N_MAX_HAND_NUM
-#define N_MAX_HAND_NUM                      0
+#define N_MAX_HAND_NUM                      100
+#undef USE_RENT_ENGINE
+#define USE_RENT_ENGINE                     1
+#undef USE_DB_UPDATE_MODE
+#define USE_DB_UPDATE_MODE                  1
+#undef UVC_WLED_940NM
+#define UVC_WLED_940NM                      1
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
