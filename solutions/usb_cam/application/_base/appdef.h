@@ -126,6 +126,7 @@ enum E_Baud_Rate
 #define ISP_BIN_VER_21v61           2161
 #define ISP_BIN_VER_21v62           2162
 #define ISP_BIN_VER_21v65           2165
+#define ISP_BIN_VER_21v66           2166
 #define ISP_BIN_VER_211v0           21100 //v2.1.1.0
 #define ISP_BIN_VER_22v0            20
 #define ISP_BIN_VER_301v9           21
@@ -4206,7 +4207,7 @@ odd version: use_whiteled = 1
 #elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v26)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_2
-#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v50 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v57 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v58 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v60)
+#elif (DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v50 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v57 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v58 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v60 || DEFAULT_ISP_BIN_VER == ISP_BIN_VER_21v66)
 #undef ISP_Y_LEVEL
 #define ISP_Y_LEVEL                 ISP_Y_LEVEL_3
 #endif
