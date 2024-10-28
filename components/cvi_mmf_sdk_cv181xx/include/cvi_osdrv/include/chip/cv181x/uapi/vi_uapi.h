@@ -108,6 +108,10 @@ enum VI_SDK_CTRL {
 	VI_SDK_SET_CHN_LDC,
 	VI_SDK_REG_SYNC_TASK,
 	VI_SDK_UNREG_SYNC_TASK,
+	VI_SDK_DISABLE_FRAME_VALID,
+	VI_SDK_ENABLE_FRAME_VALID,
+	VI_SDK_ATTACH_VB_POOL,
+	VI_SDK_DETACH_VB_POOL,
 };
 
 /*
@@ -117,10 +121,13 @@ enum VI_EVENT {
 	VI_EVENT_BASE,
 	VI_EVENT_PRE0_SOF,
 	VI_EVENT_PRE1_SOF,
+	VI_EVENT_PRE2_SOF,
 	VI_EVENT_PRE0_EOF,
 	VI_EVENT_PRE1_EOF,
+	VI_EVENT_PRE2_EOF,
 	VI_EVENT_POST_EOF,
 	VI_EVENT_POST1_EOF,
+	VI_EVENT_POST2_EOF,
 	VI_EVENT_ISP_PROC_READ,
 	VI_EVENT_AWB0_DONE,
 	VI_EVENT_AWB1_DONE,
@@ -168,6 +175,7 @@ struct vi_event {
 	__u32			type;
 	__u32			frame_sequence;
 	struct timespec		timestamp;
+	__u8			lft_frm;
 };
 
 #define MO_TBL_SIZE 256
@@ -202,6 +210,12 @@ struct vi_chn_ldc_cfg {
 	ROTATION_E enRotation;
 	VI_LDC_ATTR_S stLDCAttr;
 	CVI_U64 meshHandle;
+};
+
+struct vi_vb_pool_cfg {
+	VI_PIPE ViPipe;
+	VI_CHN ViChn;
+	__u32 VbPool;
 };
 
 int vi_open(void);

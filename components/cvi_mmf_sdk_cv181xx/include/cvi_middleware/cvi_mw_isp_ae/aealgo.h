@@ -43,7 +43,7 @@ extern "C" {
 #define UNUSED(x) (void)(x)
 #endif
 
-#define AE_SENSOR_NUM 2
+#define AE_SENSOR_NUM 3
 
 #define AE_GAIN_BASE 1024
 #define AE_EVBIAS_BASE 1024
@@ -80,7 +80,7 @@ extern "C" {
 #define SUNSET_LV	(600)
 #define NIGHT_LV	(400)
 
-#define TV_ENTRY_WITH_ISPDGAIN_COMPENSATION		(EVTT_ENTRY_1_960SEC)
+#define TV_ENTRY_WITH_ISPDGAIN_COMPENSATION		(EVTT_ENTRY_1_240SEC)
 
 #define AAA_LIMIT(var, min, max) ((var) = ((var) < (min)) ? (min) : (((var) > (max)) ? (max) : (var)))
 #define AAA_ABS(a) ((a) > 0 ? (a) : -(a))
@@ -426,6 +426,7 @@ typedef struct _SAE_INFO {
 	CVI_U16 u16ROILuma[AE_MAX_WDR_FRAME_NUM];
 	CVI_U16	u16ROIWeightThr;
 	CVI_U8	u8SensorPeriod;
+	CVI_U8	u8SensorUsePeriod;
 	CVI_U8	u8SensorRunInterval;
 	CVI_U8	u8AERunInterval;
 	CVI_U16	u16FramePeriodTime;
@@ -447,6 +448,7 @@ typedef struct _SAE_INFO {
 #define AE_FD_GRID_LUMA_SIZE				64
 typedef struct _SFACE_DETECT_INFO {
 	CVI_BOOL	bMode;
+	CVI_BOOL	bUpdateInfo;
 	CVI_U16 u16FDLuma;
 	CVI_U16 u16FDTargetLuma;
 	CVI_S16 s16FDEVStep;
@@ -471,6 +473,7 @@ typedef struct _SFACE_DETECT_INFO {
 	CVI_U16	u16AEFDGridCount;
 	CVI_S16	s16EnvBvStep;
 	CVI_S16	s16FinalBvStep;
+	CVI_S16 s16CurTargetBv;
 	ISP_SMART_ROI_S	stSmartInfo;
 } SFACE_DETECT_INFO;
 
@@ -707,6 +710,8 @@ CVI_BOOL AE_GetWDRExpLineRange(CVI_U8 sID, CVI_U32 expRatio, CVI_U32 *leExpLine,
 	CVI_BOOL getMaxLine);
 CVI_U8 AE_GetMeterPeriod(CVI_U8 sID);
 CVI_U8 AE_GetSensorPeriod(CVI_U8 sID);
+CVI_U8 AE_SetResponseFrame(CVI_U8 sID, CVI_U8 period);
+CVI_U8 AE_GetSensorExpGainPeriod(CVI_U8 sID);
 CVI_BOOL AE_DumpBootLog(CVI_U8 sID);
 void AE_GetExpGainInfo(CVI_U8 sID, AE_WDR_FRAME wdrFrm, AE_GAIN *expGain);
 void AE_SetAPEXExposure(CVI_U8 sID, AE_WDR_FRAME wdrFrm, const AE_APEX *papex);

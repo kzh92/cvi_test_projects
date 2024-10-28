@@ -21,9 +21,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-#define VI_MAX_ADCHN_NUM (4UL)
+#define VI_MAX_ADCHN_NUM 4
 
-#define VI_COMPMASK_NUM (2UL)
+#define VI_COMPMASK_NUM 2
 #define VI_PRO_MAX_FRAME_NUM (8UL)
 #define VI_SHARPEN_GAIN_NUM 32
 #define VI_AUTO_ISO_STRENGTH_NUM 16
@@ -295,6 +295,16 @@ typedef enum _VI_DATA_TYPE_E {
 	VI_DATA_TYPE_BUTT
 } VI_DATA_TYPE_E;
 
+typedef enum _VI_PATH_MODE_E {
+	VI_PATH_DEFAULT = 0,
+	VI_PATH_FE_DRAM,
+	VI_PATH_FE_BE_DRAM,
+	/*useless below here*/
+	VI_PATH_FE_BE_SLICE_POST,
+	VI_PATH_FE_BE_POST,
+	VI_PATH_MODE_BUTT,
+} VI_PATH_MODE_E;
+
 /* Attribute of wdr */
 typedef struct _VI_WDR_ATTR_S {
 	WDR_MODE_E enWDRMode; /* RW; WDR mode.*/
@@ -350,6 +360,8 @@ typedef struct _VI_DEV_ATTR_S {
 
 	VI_DATA_TYPE_E enInputDataType;
 
+	VI_PATH_MODE_E enPathMode; /* only single sensor is useful, not support multi sensor*/
+
 	SIZE_S stSize; /* RW;Input size */
 
 	VI_WDR_ATTR_S stWDRAttr; /* RW;Attribute of WDR */
@@ -363,6 +375,18 @@ typedef struct _VI_DEV_ATTR_S {
 	CVI_U64 phy_addr; /*if it not equals 0, vi osdrv will use the memory*/
 
 	CVI_U32 phy_size;
+
+	CVI_BOOL isMux; /* multi sensor use same dev*/
+
+	CVI_U8 switchGpioIdx; /* for mipi switch gpio*/
+
+	CVI_U8 switchGpioPin; /* mipi switch gpio number*/
+
+	CVI_U8 switchGPioPol; /* mipi switch init pull/down*/
+
+	CVI_BOOL isFrmCtrl; /* mipi switch frame ctrl by user, if set, must set dstFrm*/
+
+	CVI_U8 dstFrm; /* set dst frm for switch */
 } VI_DEV_ATTR_S;
 
 /* Information of pipe binded to device */
@@ -406,8 +430,8 @@ typedef struct _VI_PIPE_ATTR_S {
 	VI_PIPE_BYPASS_MODE_E enPipeBypassMode;
 	CVI_BOOL bYuvSkip; /* RW;YUV skip enable */
 	CVI_BOOL bIspBypass; /* RW;ISP bypass enable */
-	CVI_U32 u32MaxW; /* RW;Range[VI_PIPE_MIN_WIDTH,VI_PIPE_MAX_WIDTH];Maximum width */
-	CVI_U32 u32MaxH; /* RW;Range[VI_PIPE_MIN_HEIGHT,VI_PIPE_MAX_HEIGHT];Maximum height */
+	CVI_U32 u32MaxW; /* RW;Maximum width */
+	CVI_U32 u32MaxH; /* RW;Range Maximum height */
 	PIXEL_FORMAT_E enPixFmt; /* RW;Pixel format */
 	COMPRESS_MODE_E enCompressMode; /* RW;Compress mode.*/
 	DATA_BITWIDTH_E enBitWidth; /* RW;Bit width*/
@@ -416,6 +440,7 @@ typedef struct _VI_PIPE_ATTR_S {
 	FRAME_RATE_CTRL_S stFrameRate; /* RW;Frame rate */
 	CVI_BOOL bDiscardProPic;
 	CVI_BOOL bYuvBypassPath; /* RW;ISP YUV bypass enable */
+	CVI_BOOL b3dnrBypass; /* RW;ISP 3ndr bypass enable */
 } VI_PIPE_ATTR_S;
 // -------- If you want to change these interfaces, please contact the isp team. --------
 
@@ -674,8 +699,10 @@ typedef struct _VI_CHN_ATTR_S {
 	COMPRESS_MODE_E enCompressMode; /* RW;256B Segment compress or no compress. */
 	CVI_BOOL bMirror; /* RW;Mirror enable */
 	CVI_BOOL bFlip; /* RW;Flip enable */
-	CVI_U32 u32Depth; /* RW;Range [0,8];Depth */
+	CVI_U32 u32Depth; /* RW;Range:[0,8];Depth */
 	FRAME_RATE_CTRL_S stFrameRate; /* RW;Frame rate */
+	CVI_U32 u32BindVbPool; /*chn bind vb*/
+	CVI_BOOL bSingleBuffer; /* RW; single buffer or ping-pong buffer*/
 } VI_CHN_ATTR_S;
 
 /* The status of pipe */
@@ -717,7 +744,7 @@ typedef struct _VI_EXT_CHN_ATTR_S {
 	VI_CHN s32BindChn; /* RW;Range [VI_CHN0, VI_MAX_PHY_CHN_NUM);The channel num which extend channel will bind to*/
 	SIZE_S stSize; /* RW;Channel out put size */
 	PIXEL_FORMAT_E enPixelFormat; /* RW;Pixel format */
-	CVI_U32 u32Depth; /* RW;Range [0,8];Depth */
+	CVI_U32 u32Depth; /* RW;Range:[0,8];Depth */
 	FRAME_RATE_CTRL_S stFrameRate; /* RW;Frame rate */
 } VI_EXT_CHN_ATTR_S;
 
@@ -767,7 +794,7 @@ typedef enum _VI_DUMP_TYPE_E {
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
 typedef struct _VI_DUMP_ATTR_S {
 	CVI_BOOL bEnable; /* RW;Whether dump is enable */
-	CVI_U32 u32Depth; /* RW;Range [0,8];Depth */
+	CVI_U32 u32Depth; /* RW;Range:[0,8];Depth */
 	VI_DUMP_TYPE_E enDumpType;
 } VI_DUMP_ATTR_S;
 // -------- If you want to change these interfaces, please contact the isp team. --------
@@ -826,10 +853,26 @@ typedef struct _VI_SMOOTH_RAW_DUMP_INFO_S {
 	CVI_U8  u8BlkCnt;	// ring buffer number
 	CVI_U64 *phy_addr_list;	// ring buffer addr
 	RECT_S  stCropRect;
+	COMPRESS_MODE_E  enDumpRaw;
 } VI_SMOOTH_RAW_DUMP_INFO_S;
 
+typedef enum _VI_SYNC_EVENT_E {
+	VI_SYNC_EVENT_BASE,
+	VI_SYNC_EVENT_FE_DONE,
+	VI_SYNC_EVENT_BE_DONE,
+	VI_SYNC_EVENT_POST_DONE,
+	VI_SYNC_EVENT_MAX,
+} VI_SYNC_EVENT_E;
+
+typedef struct _VI_SYNC_TASK_DATA_S {
+	VI_PIPE ViPipe;
+	VI_SYNC_EVENT_E sync_event;
+	void *data;
+	int value;
+} VI_SYNC_TASK_DATA_S;
+
 typedef struct _VI_SYNC_TASK_NODE_S {
-	CVI_S32 (*isp_sync_task_call_back)(CVI_U64 data);
+	CVI_S32 (*isp_sync_task_call_back)(VI_SYNC_TASK_DATA_S *data);
 	CVI_U64 data;
 	CVI_CHAR *name;
 	struct dlist_s list;

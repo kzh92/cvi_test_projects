@@ -205,7 +205,11 @@ extern "C" {
 // vpss rgn define
 #define RGN_MAX_LAYER_VPSS        2
 #define RGN_ODEC_LAYER_VPSS       0
+#ifdef __CV181X__
 #define RGN_NORMAL_LAYER_VPSS     1
+#else
+#define RGN_NORMAL_LAYER_VPSS     0
+#endif
 #define RGN_MAX_NUM_VPSS          8
 #define RGN_EX_MAX_NUM_VPSS       16
 #define RGN_EX_MAX_WIDTH          2304
@@ -226,14 +230,16 @@ extern "C" {
  * multiplied by VI_MAX_CHN_NUM, because all VI devices
  * can't work at mode of 4 channels at the same time.
  */
-#define VI_MAX_DEV_NUM            2
+#define VI_MAX_PHY_DEV_NUM        2
+#define VI_MAX_VIR_DEV_NUM        2
+#define VI_MAX_DEV_NUM            (VI_MAX_PHY_DEV_NUM + VI_MAX_VIR_DEV_NUM)
 #define VI_MAX_PHY_PIPE_NUM       4
-#define VI_MAX_VIR_PIPE_NUM       0
+#define VI_MAX_VIR_PIPE_NUM       2
 #define VI_MAX_PIPE_NUM           (VI_MAX_PHY_PIPE_NUM + VI_MAX_VIR_PIPE_NUM)
 #define VI_MAX_WDR_NUM            1
 
 #define VI_MAX_VIR_CHN_NUM          2
-#define VI_MAX_PHY_CHN_NUM          2
+#define VI_MAX_PHY_CHN_NUM          3
 #define VI_MAX_EXT_CHN_NUM          2
 #define VI_MAX_CHN_NUM              (VI_MAX_PHY_CHN_NUM + VI_MAX_VIR_CHN_NUM)
 #define VI_EXT_CHN_START            VI_MAX_CHN_NUM
@@ -329,8 +335,10 @@ extern "C" {
 #define VPSS_DEV_0               0
 #define VPSS_DEV_1               1
 #define VPSS_MAX_GRP_NUM         16
+#define VPSS_ONLINE_NUM          3
 #define VPSS_ONLINE_GRP_0        0
 #define VPSS_ONLINE_GRP_1        1
+#define VPSS_ONLINE_GRP_2        2
 #ifdef __CV181X__
 #define VPSS_MAX_PHY_CHN_NUM     4	/* sc_d, sc_v1, sc_v2, sc_v3 */
 #else
