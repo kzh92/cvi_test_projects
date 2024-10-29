@@ -5,11 +5,13 @@
 #include "cvi_comm_vi.h"
 #include "cvi_comm_sys.h"
 #include "cvi_sns_ctrl.h"
+#include "cvi_bin.h"
 
 //多级别结构 确定使用的多级数组加number作标定 (多级限定场景 串行结构 不允许存在同一级别有多个多级存在) 大结构必须精简尽量使用指针
 //Sensor 能力集
 typedef struct _PARAM_SNS_CFG_S {
     CVI_S32 s32SnsId;
+    CVI_BOOL bSnsInitByUser;
 
     SNS_TYPE_E enSnsType;
     CVI_S32 s32WDRMode;
@@ -35,11 +37,29 @@ typedef struct _PARAM_SNS_CFG_S {
     CVI_U32 u32Rst_pin;
     CVI_U32 u32Rst_pol;
     CVI_U8 u8Rotation;
+
+    ISP_SNS_OBJ_S *pSnsObj;
+    CVI_BOOL bDualSwitch;
 }PARAM_SNS_CFG_S;
+
+typedef struct _PARAM_VI_LDC_CFG_S {
+    CVI_BOOL bLdcEn;           // Whether enable vi ldc
+    CVI_CHAR* pPartitionName;  // flash's partition name which store ldc mesh.bin
+    CVI_U32 u32Offset;         // offset of partition
+    CVI_U32 u32MeshSize;       // size of mesh.bin
+} PARAM_VI_LDC_CFG_S;
 
 typedef struct _PARAM_DEV_CFG_S {
     void * pViDmaBuf;
     CVI_U32 u32ViDmaBufSize;
+    CVI_BOOL isMux;
+    CVI_U8 u8AttachDev; //start [1..dev+1];
+    CVI_U8 switchGpioIdx;
+    CVI_U8 switchGpioPin;
+    CVI_U8 switchGPioPol;
+    CVI_U8 dstFrm;
+    CVI_BOOL isFrmCtrl;
+    PARAM_VI_LDC_CFG_S stViLdcCfg;  // configuration of vi ldc
 } PARAM_DEV_CFG_S;
 
 typedef struct _PARAM_CHN_CFG_S {
@@ -65,6 +85,7 @@ typedef struct _PARAM_SNAP_INFO_S {
 
 typedef struct _PARAM_PQ_BIN_DESC_S
 {
+    enum CVI_BIN_SECTION_ID binID;
     CVI_UCHAR * pIspBinData;
     CVI_U32 u32IspBinDataLen;
 } PARAM_PQ_BIN_DESC_S;
@@ -72,7 +93,7 @@ typedef struct _PARAM_PQ_BIN_DESC_S
 typedef struct _PARAM_ISP_CFG_S {
     CVI_BOOL bMonoSet[VI_MAX_DEV_NUM];
     CVI_BOOL bUseSingleBin;
-    PARAM_PQ_BIN_DESC_S stPQBinDes;
+    PARAM_PQ_BIN_DESC_S astPQBinDes[VI_MAX_DEV_NUM];
 } PARAM_ISP_CFG_S;
 
 typedef struct _PARAM_VI_CFG_S {

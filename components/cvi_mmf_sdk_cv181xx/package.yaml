@@ -69,6 +69,7 @@ build_config:
   libs:
     - cvi_miniz
     - cvi_json_c
+    - cviai
     - cvi_osdrv_vo
     - cvi_osdrv_tpu
     - cvi_osdrv_vcodec
@@ -98,6 +99,9 @@ build_config:
     - cvi_mw_isp_com_raw_replay
     - cvi_mw_vpu
     - cvi_mw_rgn
+    - cvi_math
+    - cvi_runtime
+    - cvi_kernel
   libpath:
     - lib
 source_file:

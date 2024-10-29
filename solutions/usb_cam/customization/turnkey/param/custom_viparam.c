@@ -8,7 +8,7 @@
 #include "custom_param.h"
 
 extern unsigned char rgb_color_mode_param[];
-extern unsigned int rgb_color_len;
+const unsigned int rgb_color_len = 174025;
 extern unsigned char rgb_mono_mode_param[];
 extern unsigned int rgb_mono_len;
 #if 0
@@ -63,9 +63,17 @@ PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
     {
         .bMonoSet = {0},
         .bUseSingleBin = 0,
-        .stPQBinDes =
+        .astPQBinDes[0] =
         {
+            .binID = CVI_BIN_ID_ISP0,
             .pIspBinData = rgb_color_mode_param,
+            .u32IspBinDataLen = rgb_color_len,
+        },
+        .astPQBinDes[1] =
+        {
+            .binID = CVI_BIN_ID_ISP1,
+            .pIspBinData = rgb_color_mode_param,
+            .u32IspBinDataLen = rgb_color_len,
         },
     },
 };
@@ -93,7 +101,7 @@ PARAM_VI_CFG_S * PARAM_GET_VI_CFG(void) {
     g_stViCtx.pstDevInfo[0].pViDmaBuf = g_ViDmaBuf;
     g_stViCtx.pstDevInfo[0].u32ViDmaBufSize = g_ViDmaBufSize;
 #endif
-    g_stViCtx.pstIspCfg[0].stPQBinDes.u32IspBinDataLen = rgb_color_len;
+    // g_stViCtx.pstIspCfg[0].stPQBinDes.u32IspBinDataLen = rgb_color_len;
     return &g_stViCtx;
 }
 

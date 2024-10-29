@@ -492,7 +492,7 @@ int MEDIA_VIDEO_ViInit(PARAM_VI_CFG_S * pstViCfg)
     }
 
     int scene_mode = PARAM_getSceneMode();
-    CVI_BIN_ImportBinData(pstViCfg->pstIspCfg[scene_mode].stPQBinDes.pIspBinData, pstViCfg->pstIspCfg[scene_mode].stPQBinDes.u32IspBinDataLen);
+    CVI_BIN_ImportBinData(pstViCfg->pstIspCfg[scene_mode].astPQBinDes->pIspBinData, pstViCfg->pstIspCfg[scene_mode].astPQBinDes->u32IspBinDataLen);
 
     for (int i = 0; i < devNum; i++) {
         if(pstViCfg->pstIspCfg[scene_mode].bMonoSet[i]) {
