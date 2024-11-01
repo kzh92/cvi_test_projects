@@ -251,6 +251,10 @@ static int _meida_sensor_init(PARAM_VI_CFG_S * pstViCtx,CVI_U8 *devNum)
     InitAttr.enGainMode = SNS_GAIN_MODE_SHARE;
 
     for (CVI_U8  i = 0; i < *devNum; ++i) {
+    	if (!pstViCtx->pstDevInfo) {
+            MEDIABUG_PRINTF("pstViCtx->pstDevInfo is null.\n");
+            return CVI_FAILURE;
+        }
         ViDev = pstViCtx->pstDevInfo[i].u8AttachDev > 0 ?
         VI_MAX_PHY_DEV_NUM + pstViCtx->pstDevInfo[i].u8AttachDev - 1 : i;
 
@@ -1281,7 +1285,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     VENC_H264_ENTROPY_S stH264EntropyEnc = {0};
     VENC_H264_VUI_S stH264Vui = {0};
     VENC_JPEG_PARAM_S stJpegParam = {0};
-#if !(CONFIG_USBD_UVC)
+#if !(CONFIG_USBD_UVC && 0)
     VENC_RECV_PIC_PARAM_S stRecvParam = {0};
 #endif
     VPSS_CHN_ATTR_S stVpssChnAttr = {0};
@@ -1570,7 +1574,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
         MEDIA_CHECK_RET(CVI_SYS_Bind(&stSrcChn, &stDestChn), "CVI_SYS_Bind err");
     }
 
-#if !(CONFIG_USBD_UVC)
+#if !(CONFIG_USBD_UVC && 0)
     stRecvParam.s32RecvPicNum = -1;
     MEDIA_CHECK_RET(CVI_VENC_StartRecvFrame(VencChn, &stRecvParam), "CVI_VENC_StartRecvFrame");
     pstVecncChnCtx->stChnParam.u8InitStatus = 1;

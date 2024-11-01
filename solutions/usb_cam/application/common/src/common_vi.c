@@ -266,6 +266,10 @@ ISP_SNS_OBJ_S *getSnsObj(SNS_TYPE_E enSnsType)
 	case CISTA_C2599_MIPI_1200P_30FPS_10BIT:
 		return &stSnsC2599_Obj;
 #endif
+#if CONFIG_SENSOR_SMS_SC2331_1L
+	case SMS_SC2331_1L_MIPI_2M_30FPS_10BIT:
+		return &stSnsSC2331_1L_Obj;
+#endif
 	default:
 		return CVI_NULL;
 	}
