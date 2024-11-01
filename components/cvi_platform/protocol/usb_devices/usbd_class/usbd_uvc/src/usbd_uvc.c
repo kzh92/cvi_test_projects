@@ -37,17 +37,18 @@ static atomic_t uvc_pause_done  = CVI_FALSE;
 
 static uint8_t enum_speed = USB_SPEED_UNKNOWN;
 
+#if 0
 static struct uvc_frame_info_st yuy2_frame_info[] = {
     {1, 800, 600, 15, 0}, {2, 640, 360, 15, 0}, {3, 400, 300, 15, 0},
     {5, 480, 320, 15, 0}, {6, 480, 360, 15, 0}, {7, 1280, 720, 15, 0},
 };
+#endif
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 800, 480, 15, 0, 10 * 1024},
-    {2, 864, 480, 30, 0, 10 * 1024},
-    {3, 1920, 1080, 30, 0, 20 * 1024},
+	{1, 1280, 720, 	30, 0, 20*1024},
 };
 
+#if 0
 static struct uvc_frame_info_st h264_frame_info[] = {
     {1, 1280, 720, 15, 0, 1 * 1024},
     {2, 1920, 1080, 15, 0, 3 * 512},
@@ -64,13 +65,16 @@ static struct uvc_frame_info_st h265_frame_info[] = {
     {2, 1600, 1200, 15, 0, 1.5 * 1024},
     {3, 1920, 1080, 15, 0, 3 * 1024},
 };
+#endif
 
 static struct uvc_format_info_st uvc_format_info_chna[] = {
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
+#if 0
     {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
     {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
     // {NV21_FORMAT_INDEX, UVC_FORMAT_NV21, 1, ARRAY_SIZE(nv21_frame_info), nv21_frame_info},
     {H265_FORMAT_INDEX, UVC_FORMAT_H265, 1, ARRAY_SIZE(h265_frame_info), h265_frame_info},
+#endif
 };
 
 #if (USBD_UVC_NUM >= 2)
