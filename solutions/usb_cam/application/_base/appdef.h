@@ -4195,8 +4195,8 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_7258_HSM_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.118.0_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.118.0_D"
+#define DEVICE_FIRMWARE_VERSION             "3.118.1_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.118.1_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
@@ -4241,7 +4241,7 @@ odd version: use_whiteled = 1
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
 #undef UVC_CROP_RESIZE
-#define UVC_CROP_RESIZE                     0.9
+#define UVC_CROP_RESIZE                     0.8
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
