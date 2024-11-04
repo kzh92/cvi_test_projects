@@ -499,7 +499,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_7258_HSM_UAC                  378
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS35_LH_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_CS_TUYA_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -3549,8 +3549,8 @@ odd version: use_whiteled = 1
 #elif (FRM_PRODUCT_TYPE == FRM_DBS3M_CS_TUYA_UAC)
 
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.101.2_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.101.2_D"
+#define DEVICE_FIRMWARE_VERSION             "3.101.3_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.101.3_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -3560,7 +3560,7 @@ odd version: use_whiteled = 1
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v70
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
@@ -3572,7 +3572,7 @@ odd version: use_whiteled = 1
 #undef UAC_EP_WMAXPCKT_SIZE
 #define UAC_EP_WMAXPCKT_SIZE                16  //audio ep wMaxPacketSize
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE
