@@ -83,7 +83,7 @@ fi
 
 [ -f yoc.bin ] && cp -arf yoc.bin ${MK_GENERATED_PATH}/data/prim
 [ -f yoc.bin ] && cp -arf yoc.bin ${MK_GENERATED_PATH}/data/prima
-if [ ${MK_SOLUTION_PARTITION_NAME} != "" ]; then
+if [ ! -z "${MK_SOLUTION_PARTITION_NAME}" ]; then
     echo "MK_SOLUTION_PARTITION_NAME is ${MK_SOLUTION_PARTITION_NAME}"
     cp -arf ${MK_BOARD_PATH}/configs/config.${MK_SOLUTION_PARTITION_NAME}.yaml ${MK_GENERATED_PATH}/data/config.yaml
     cp -arf ${MK_BOARD_PATH}/bootimgs/${MK_SOLUTION_PARTITION_NAME}/boot ${MK_GENERATED_PATH}/data/
@@ -101,6 +101,7 @@ else
         cp -arf $MK_PROJECT_PATH/board/bin/*  ${MK_GENERATED_PATH}/data/
     fi
 fi
+cp -arf ${MK_BOARD_PATH}/bootimgs/mesh.bin ${MK_GENERATED_PATH}/data/
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -i ${MK_GENERATED_PATH}/data -l -p
 ${PRODUCT} image ${MK_GENERATED_PATH}/images.zip -e ${MK_GENERATED_PATH} -x
 
