@@ -420,6 +420,17 @@ void WatchTask::run()
 #endif
         }
 
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+        if (g_xSS.iForceUvcClr)
+        {
+            g_xSS.iForceUvcClr = 0;
+            g_xSS.iUvcSensor = DEFAULT_SNR4UVC;
+            camera_set_mono_chrome(0);
+            uvc_set_reinit_flag();
+            g_xSS.rForceUvcClrTime = Now();
+        }
+#endif
+
         for(int i = 0; i < 10; i ++)
         {
             my_usleep(10 * 1000);

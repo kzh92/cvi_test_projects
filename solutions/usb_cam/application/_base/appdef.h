@@ -286,7 +286,8 @@ enum E_Baud_Rate
 #define UVC_CLR2IR_THR4ISP_TH                   (100) //threshold value for returning to color mode
 #define UVC_CLR2IR_THR4ENGINE                   (-100) //threshold value for turning white led on for face engine.
 #undef UVC_CLR2IR_THR4ENGINE
-
+#define UVC_IR2CLR_SWITCH_THR                   0
+#define UVC_IR2CLR_SWITCH_PRD                   500     //period of checking color cam
 #define UVC_RES_720P                            1       //1280x720
 #define UVC_RES_480P                            2       //640x480
 #define UVC_RES_432x240                         4
@@ -501,7 +502,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KFZ_UAC                       379
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2267,7 +2268,9 @@ enum E_Baud_Rate
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
 #undef UAC_SPEAKER_VOL
-#define UAC_SPEAKER_VOL                     6 // 0 ~ 32
+#define UAC_SPEAKER_VOL                     32 // 0 ~ 32
+#undef UVC_IR2CLR_SWITCH_THR
+#define UVC_IR2CLR_SWITCH_THR               20
 
 #if (USE_WHITE_LED == 0)
 #undef USE_3M_MODE

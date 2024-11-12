@@ -137,6 +137,7 @@ extern "C" void uvc_set_reinit_flag();
 
 void genIROffData10bit(void* bufOrg, void* bufDst, int width, int height);
 extern "C" int uvc_media_update();
+int GetBrightnessBayer(unsigned char* pbClrBuf, int nWidth, int nHeight);
 
 void InitCamera(int iMode)
 {
@@ -706,6 +707,9 @@ void* ProcessTCMipiCapture(void */*param*/)
     unsigned int iClrFrameCount = 0;
 #endif
     int reinit_count = 0;
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+    float rLastClrTime = Now();
+#endif
 
     dbug_printf("[%s]\n", __func__);
 
@@ -734,10 +738,19 @@ void* ProcessTCMipiCapture(void */*param*/)
 #if (USE_WHITE_LED != 1)
         if (g_xSS.iUvcSensor != DEFAULT_SNR4UVC && g_xSS.bUVCRunning && g_xSS.rFaceEngineTime == 0 && g_iTwoCamFlag == IR_CAMERA_STEP_IDLE && g_xSS.iUVCIRDataReady == 0)
         {
-            camera_set_irled_on(1);
-            g_iTwoCamFlag = IR_CAMERA_STEP0;
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+            if (Now() - rLastClrTime >= UVC_IR2CLR_SWITCH_PRD)
+            {
+                g_iTwoCamFlag = IR_CAMERA_STEP4;
+            }
+            else
+#endif // UVC_IR2CLR_SWITCH_THR
+            {
+                camera_set_irled_on(1);
+                g_iTwoCamFlag = IR_CAMERA_STEP0;
+            }
         }
-#endif
+#endif // USE_WHITE_LED
         if (g_xSS.iStartOta || g_xSS.iMState == MS_OTA || g_xSS.bCheckFirmware) break;
 
         frm_num = 1;
@@ -777,14 +790,14 @@ void* ProcessTCMipiCapture(void */*param*/)
         }
 #endif
 #if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE || ENGINE_USE_TWO_CAM == EUTC_3M_MODE)
-        if(g_iTwoCamFlag == IR_CAMERA_STEP4 && g_iLedOnStatus == 1)
+        if(g_iTwoCamFlag == IR_CAMERA_STEP4 && (UVC_IR2CLR_SWITCH_THR > 0 || g_iLedOnStatus == 1))
         {
             SwitchCameraWithIspStop(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
             //주의:camera_switch에서 startpipe하는 부분이 있으므로 stoppipe위치는 반드시 여기에 있어야 한다.
             if (g_xSS.bUVCRunning && g_xSS.iUvcSensor != DEFAULT_SNR4UVC)
                 CVI_VI_StopPipe(0);
 #if (USE_3M_MODE == U3M_SEMI_IR)
-            if (g_xSS.iTempHighState == 0)
+            if (g_xSS.iTempHighState == 0 && (UVC_IR2CLR_SWITCH_THR == 0 || g_iLedOnStatus == 1))
             {
                 gpio_irled_on(ON);
                 gpio_whiteled_on(ON);
@@ -1018,7 +1031,7 @@ void* ProcessTCMipiCapture(void */*param*/)
         }
         else if(g_iTwoCamFlag == IR_CAMERA_STEP4)
         {
-#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE)
+#if (ENGINE_USE_TWO_CAM == EUTC_3V4_MODE && UVC_IR2CLR_SWITCH_THR == 0)
             if (g_iLedOnStatus != 0)
             {
                 //irled is still off
@@ -1048,7 +1061,18 @@ void* ProcessTCMipiCapture(void */*param*/)
                 if (test_pos >= IR_CAM_WIDTH * IR_CAM_HEIGHT)
                     break;
             }
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+            rLastClrTime = Now();
+            int br = GetBrightnessBayer(g_irOnData2, IR_CAM_WIDTH, IR_CAM_WIDTH / 16 * 9);
+#endif
             unlockIRBuffer();
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+            my_printf("rLastClrTime = %0.3f, %0.3f, %d\n", rLastClrTime, Now() - rLastClrTime, br);
+            if (UVC_IR2CLR_SWITCH_THR > 0 && br >= UVC_IR2CLR_SWITCH_THR)
+            {
+                g_xSS.iForceUvcClr = 1;
+            }
+#endif
 
 #if (USE_WHITE_LED != 1)
             g_xSS.iUVCIRDataReady = 0;
@@ -1213,48 +1237,27 @@ void ConvertYUYV_toYUV420(unsigned char* data, int width, int height, unsigned c
     }
 }
 
-int GetYAVGValueOfClr(unsigned char* pbClrBuf)
+int GetBrightnessBayer(unsigned char* pbClrBuf, int nWidth, int nHeight)
 {
-    int nY, nX;
-    int nInvaliedPixelCount = 0;
-    int nEntireValue = 0;
-
-    int nEntirePixelCount = 0;
-    int nEntireTotalValue = 0;
-
-    unsigned char* pbSrcPtr = pbClrBuf;
-
-    for (nX = 0; nX < CLR_CAM_HEIGHT; nX += 2)
+    int step = 8;
+    int sum = 0;
+    int cnt = 0;
+    for (int x = 0; x < nWidth - 1; x += step)
     {
-        for (nY = 0; nY < CLR_CAM_WIDTH; nY += 2)
+        for (int y = 0; y < nHeight - 1; y += step)
         {
-            unsigned char bYData = pbSrcPtr[nY * 2];
-            if (nX > 120 && nX < CLR_CAM_HEIGHT - 120 && nY > 216 && nY < CLR_CAM_WIDTH - 216)
-            {
-                nEntirePixelCount++;
-
-                if (bYData < 0)
-                {
-                    nInvaliedPixelCount++;
-                }
-                else
-                {
-                    nEntireTotalValue += bYData;
-                }
-            }
+            int a_dot = 0;
+            a_dot += pbClrBuf[y * nWidth + x];
+            a_dot += pbClrBuf[(y + 1) * nWidth + x];
+            a_dot += pbClrBuf[y * nWidth + x + 1];
+            a_dot += pbClrBuf[(y + 1) * nWidth + x + 1];
+            sum += a_dot/4;
+            cnt ++;
         }
-        pbSrcPtr += CLR_CAM_WIDTH * 2 * 2;
     }
-
-    if (nEntirePixelCount)
-    {
-        nEntireValue = nEntireTotalValue / nEntirePixelCount;
-    }
-    else
-    {
-        nEntireValue = 30;
-    }
-    return nEntireValue;
+    if (cnt > 0)
+        sum = sum / cnt;
+    return sum;
 }
 
 int CalcClrNextExposure(unsigned char* pbClrBuf, int width, int height)

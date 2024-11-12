@@ -476,6 +476,20 @@ void FaceRecogTask::run()
             }
         }//for(nProcessModeIndex
 
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+        dbug_printf("frt: %d,%d\n", g_xSS.iFirstRecogStarted, iLoopCount);
+        if (g_xSS.iFirstRecogStarted != 0)
+        {
+            if (iLoopCount % 3 == 1)
+            {
+                g_iTwoCamFlag = IR_CAMERA_STEP4;
+                WAIT_CAM_FRAME(1000, WaitIRTimeout2);
+            }
+        }
+        if (iLoopCount >= 3)
+            g_xSS.iFirstRecogStarted = 1;
+#endif
+
         if(!m_iRunning)
             break;
 
@@ -575,6 +589,12 @@ void FaceRecogTask::run()
     camera_clr_start_aec();
 #endif
 
+#if (UVC_IR2CLR_SWITCH_THR > 0)
+    if (g_xSS.iFirstRecogStarted == 0)
+    {
+        g_xSS.iFirstRecogStarted = 1;
+    }
+#endif
 }
 
 

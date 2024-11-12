@@ -261,7 +261,10 @@ typedef struct _tagSYSTEM_STATE
     unsigned char               iTempHighState:1;
     unsigned char               iDemoVerifyEnd:1;
     unsigned char               iDemoGotClrFrame:1;
-    unsigned char               bReserved:4;
+    unsigned char               iForceUvcClr:1;
+    unsigned char               iFirstRecogStarted:1;
+    unsigned char               bReserved:2;
+    float                       rForceUvcClrTime;
     int                         iCurClrGain;
     int                         iCapWidth;
     int                         iCapHeight;

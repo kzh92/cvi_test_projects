@@ -446,7 +446,7 @@ int camera_clr_set_gain(int value, int nDigGain, int nFineValue)
 
 int camera_clr_stop_aec()
 {
-#if (USE_3M_MODE != U3M_SEMI_IR && UVC_IRLED_ON == 0)
+#if (USE_3M_MODE != U3M_SEMI_IR && UVC_IRLED_ON == 0 && UVC_IR2CLR_SWITCH_THR == 0)
     return 0;
 #endif
 #if (UVC_IRLED_ON == 0)
@@ -479,7 +479,7 @@ int camera_clr_stop_aec()
 
 int camera_clr_start_aec()
 {
-#if (USE_3M_MODE != U3M_SEMI_IR && UVC_IRLED_ON == 0)
+#if (USE_3M_MODE != U3M_SEMI_IR && UVC_IRLED_ON == 0 && UVC_IR2CLR_SWITCH_THR == 0)
     return 0;
 #endif
 #if (UVC_IRLED_ON == 0)
