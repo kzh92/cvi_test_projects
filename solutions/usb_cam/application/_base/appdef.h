@@ -501,7 +501,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KFZ_UAC                       379
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_DEFAULT
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -1127,8 +1127,8 @@ enum E_Baud_Rate
 
 // 3.14.14_D
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.60.5_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.60.5_D"
+#define DEVICE_FIRMWARE_VERSION             "3.60.6_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.60.6_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0}, \
@@ -1138,7 +1138,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       1
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v70
 #undef SPECIFIC_LOG_PRINT
 #define SPECIFIC_LOG_PRINT                  1
 #undef UVC_USBD_PRINT
