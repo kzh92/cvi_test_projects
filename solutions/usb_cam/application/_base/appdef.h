@@ -501,7 +501,7 @@ enum E_Baud_Rate
 #define FRM_DBS3M_KFZ_UAC                       379
 #define FRM_DBS3M_D10A_UAC                      400
 
-#define FRM_PRODUCT_TYPE                        FRM_DBS3M_SUOFEIWAN_UAC
+#define FRM_PRODUCT_TYPE                        FRM_DBS3M_LS7258_UAC
 
 //----------------------------------------------------------
 #if (FRM_PRODUCT_TYPE == FRM_DBS3M_YIHE_UAC)
@@ -2246,20 +2246,24 @@ enum E_Baud_Rate
 #define UAC_SPK_NR_USE                      1
 #undef USE_SNAPCLR_VENC
 #define USE_SNAPCLR_VENC                    1
-#undef CAPTURE_WIDTH
-#define CAPTURE_WIDTH                       (640)
-#undef CAPTURE_HEIGHT
-#define CAPTURE_HEIGHT                      (360)
-#undef CAPTURE_MAX_WIDTH
-#define CAPTURE_MAX_WIDTH                   (640)
-#undef CAPTURE_MAX_HEIGHT
-#define CAPTURE_MAX_HEIGHT                  (360)
+// #undef CAPTURE_WIDTH
+// #define CAPTURE_WIDTH                       (640)
+// #undef CAPTURE_HEIGHT
+// #define CAPTURE_HEIGHT                      (360)
+// #undef CAPTURE_MAX_WIDTH
+// #define CAPTURE_MAX_WIDTH                   (640)
+// #undef CAPTURE_MAX_HEIGHT
+// #define CAPTURE_MAX_HEIGHT                  (360)
 #undef UVC_MJPEG_BITRATE
-#define UVC_MJPEG_BITRATE                   4096
+#define UVC_MJPEG_BITRATE                   3072
 #undef UVC_MAX_WIDTH
 #define UVC_MAX_WIDTH                       1280
 #undef UVC_MAX_HEIGHT
 #define UVC_MAX_HEIGHT                      720
+#undef UVC_INIT_WIDTH
+#define UVC_INIT_WIDTH                      640
+#undef UVC_INIT_HEIGHT
+#define UVC_INIT_HEIGHT                     360
 #undef UVC_DELAY_BEFORE_START
 #define UVC_DELAY_BEFORE_START              700
 #undef UAC_SPEAKER_VOL

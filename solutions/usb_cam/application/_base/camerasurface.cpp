@@ -2255,8 +2255,8 @@ int uvc_media_update1()
     VPSS_CHN_ATTR_S stVpssChnAttr;
     CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[UVC_VENC_CHN].stChnParam.u8InitStatus;
     int iSensor = g_xSS.iUvcSensor;
-    int uvc_width = ((DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270) ? CAPTURE_WIDTH : CAPTURE_HEIGHT);
-    int uvc_height = ((DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270) ? CAPTURE_HEIGHT : CAPTURE_WIDTH);
+    int uvc_width = ((DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270) ? UVC_INIT_WIDTH : UVC_INIT_HEIGHT);
+    int uvc_height = ((DEFAULT_UVC_DIR == UVC_ROTATION_90 || DEFAULT_UVC_DIR == UVC_ROTATION_270) ? UVC_INIT_HEIGHT : UVC_INIT_WIDTH);
 
     // enPixelFormat = PIXEL_FORMAT_NV21;
     enType = PT_MJPEG;
@@ -2388,17 +2388,17 @@ int saveUvcScene()
     }
     SwitchCameraWithIspStop(TC_MIPI_CAM, MIPI_CAM_S2RIGHT);
     int frame_count = 0;
-    for (i = 0; i < 70; i ++)
+    for (i = 0; i < 10; i ++)
     {
         ret = MEDIA_VIDEO_VencGetStream(UVC_VENC_CHN, pstStream, 2000);
         if(ret == CVI_SUCCESS)
         {
-            if (frame_count++ >= 40)
+            if (frame_count++ >= 5)
                 break;
-            my_usleep(5*1000);
+            my_usleep(60*1000);
         }
         else
-            my_usleep(100*1000);
+            my_usleep(60*1000);
     }
     if(ret != CVI_SUCCESS)
     {
