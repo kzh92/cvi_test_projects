@@ -2218,8 +2218,8 @@ enum E_Baud_Rate
 
 // 3.41.0
 #define DEVICE_MODEL_NUM                    "BIOAT-FM-175"
-#define DEVICE_FIRMWARE_VERSION             "3.75.16_D"
-#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.16_D"
+#define DEVICE_FIRMWARE_VERSION             "3.75.18_D"
+#define DEVICE_FIRMWARE_VERSION_INNER       "3.75.18_D"
 
 #undef UVC_RES_DEFINE
 #define UVC_RES_DEFINE                      {1, 1280, 720, 30, 0, 20480}, \
@@ -2230,7 +2230,7 @@ enum E_Baud_Rate
 #undef USE_WHITE_LED
 #define USE_WHITE_LED                       0
 #undef DEFAULT_ISP_BIN_VER
-#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v60
+#define DEFAULT_ISP_BIN_VER                 ISP_BIN_VER_21v70
 #undef USE_USB_EP_ERR_FIX_MODE
 #define USE_USB_EP_ERR_FIX_MODE             1
 #undef SPECIFIC_LOG_PRINT
@@ -2247,14 +2247,6 @@ enum E_Baud_Rate
 #define UAC_SPK_NR_USE                      1
 #undef USE_SNAPCLR_VENC
 #define USE_SNAPCLR_VENC                    1
-// #undef CAPTURE_WIDTH
-// #define CAPTURE_WIDTH                       (640)
-// #undef CAPTURE_HEIGHT
-// #define CAPTURE_HEIGHT                      (360)
-// #undef CAPTURE_MAX_WIDTH
-// #define CAPTURE_MAX_WIDTH                   (640)
-// #undef CAPTURE_MAX_HEIGHT
-// #define CAPTURE_MAX_HEIGHT                  (360)
 #undef UVC_MJPEG_BITRATE
 #define UVC_MJPEG_BITRATE                   3072
 #undef UVC_MAX_WIDTH
