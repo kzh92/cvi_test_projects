@@ -36,7 +36,7 @@ PARAM_SYS_CFG_S  g_stSysCtx = {
     .stVPSSMode.ViPipe[0] = 0,
     .stVPSSMode.aenInput[0] = VPSS_INPUT_MEM,
     .stVPSSMode.ViPipe[1] = 0,
-    .stVPSSMode.aenInput[1] = VPSS_INPUT_ISP,
+    .stVPSSMode.aenInput[1] = VPSS_INPUT_MEM,
     .pstVbPool = PARAM_CLASS(VBPOOL,CTX,VB),
 };
 
