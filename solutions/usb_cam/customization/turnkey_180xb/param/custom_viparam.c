@@ -51,7 +51,7 @@ PARAM_CLASSDEFINE(PARAM_DEV_CFG_S,VIDEVCFG,CTX,VI)[] = {
         .stViLdcCfg =
             {
                 /* Developer should configure other params when enable vi ldc */
-                .bLdcEn = false,
+                .bLdcEn = true,
                 .pPartitionName = "mesh",  // flash's partition name which store ldc mesh.bin
                 .u32Offset = 0,          // offset of partition
                 .u32MeshSize = 783360,       // size of mesh.bin
