@@ -1,7 +1,7 @@
 ## 第一部分： 基础信息
-name: helloworld                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+name: usb_cam                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: v7.5.1                                     # <必选项> 组件版本号
-description: yoc helloworld                         # <必选项> 建议至少20字以上
+description: yoc usb_cam                         # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 hw_info:
@@ -49,15 +49,15 @@ depends:
   - chip_cv181x: v0.0.1
   - minialsa: v7.5.1
   - drv_snd_cv181x: v7.5.1
-  - lvgl: develop
+#  - lvgl: develop
   - cvi_sensor: develop
-#  - rtsp: develop
+  - rtsp: develop
 #  - cvi_mw_tpu: v0.0.1
   - cherryusb: develop
   - cvi_platform: develop
   - g711: v0.0.1
   - cvi_test: develop
-
+  - drv_usbh_class: develop
   - cvi_mmf_sdk_cv181xx: develop
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -162,14 +162,14 @@ def_config:
   CONFIG_APP_TEST: 1
   CONFIG_SUPPORT_TPU: 1
   CONFIG_KV_ENABLE_CACHE: 1
-  CONFIG_INIT_TASK_STACK_SIZE: 8192
+  CONFIG_INIT_TASK_STACK_SIZE: 262144
 ## Demo APP Func config
-  CONFIG_APP_ETHERNET_SUPPORT: 1
+  CONFIG_APP_ETHERNET_SUPPORT: 0
   CONFIG_APP_WIFI_SUPPORT: 0
   CONFIG_APP_HI3861_WIFI_SUPPORT: 0
   CONFIG_APP_RTL8723DS_WIFI_SUPPORT: 0
   CONFIG_APP_CX_CLOUD_SUPPORT: 0
-  CONFIG_APP_RTSP_SUPPORT: 0
+  CONFIG_APP_RTSP_SUPPORT: 1
   CONFIG_APP_VENC_SUPPORT: 1
   CONFIG_APP_GUI_SUPPORT: 0
   CONFIG_APP_SENSOR_IR_USE: 0
@@ -187,33 +187,30 @@ def_config:
   ULOG_CONFIG_LOG_SIZE: 512
   USE_4K_ERASE_SECTION: 1
   CONFIG_SIMPLE_FONTMOD: 1
-  CONFIG_SENSOR_GCORE_GC2053: 1
-  CONFIG_SENSOR_GCORE_GC2053_1L: 1
-  CONFIG_SENSOR_GCORE_GC2093: 1
-  CONFIG_SENSOR_GCORE_GC4653: 1
-  CONFIG_SENSOR_SMS_SC200AI: 1
-  CONFIG_SENSOR_SMS_SC2336: 1
-  CONFIG_SENSOR_SONY_IMX307: 1
-  CONFIG_SENSOR_SONY_IMX327: 1
+  CONFIG_SENSOR_SMS_SC201CS: 1
   CONFIG_SUPPORT_NORFLASH: 1
   CONFIG_SUPPORT_USB_DC: 1
-  CONFIG_APP_UVC_SUPPORT: 1
+# CONFIG_APP_UVC_SUPPORT: 1
+  CONFIG_APP_AV_COMP_SUPPORT: 0
 
-  CONFIG_SNS0_TYPE: 1
+  CONFIG_SNS0_TYPE: 19
   CONFIG_SNS1_TYPE: 0
 
   CONFIG_PANEL_HX8394: 0
   CONFIG_PANEL_ILI9488: 0
 
   CONFIG_VENC_TEST_CHN: 2
-  CONFIG_PQTOOL_SUPPORT: 0
+  CONFIG_PQTOOL_SUPPORT: 1
   CONFIG_PQBIN_USE_JSON: 0
   CONFIG_ISP_SUPPORT_PROC: 0
   CONFIG_ENABLE_FASTBOOT: 0
   CONFIG_USB_DWC2_PORT: 1
   CONFIG_USB_HS: 0
   CONFIG_AOS_NEWLINE_SUPPORT: 1
-
+#  CONFIG_USB_DWC2_DMA_ENABLE: 1
+  CONFIG_UAC_SAMPLE_RATE: 8000
+  CONFIG_RNDIS_DEVICE_ETH: 1
+  
 ## 第六部分：安装信息
 # install:
 #   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录

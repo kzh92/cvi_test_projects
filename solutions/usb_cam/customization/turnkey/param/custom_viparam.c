@@ -9,10 +9,10 @@
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
-        .s32I2cAddr = -1,
-        .s8I2cDev = 2,
-        .u32Rst_port_idx = 2,//GPIOC_13
-        .u32Rst_pin = 13,
+        .s32I2cAddr = 0x32,
+        .s8I2cDev = 1,
+        .u32Rst_port_idx = 4,
+        .u32Rst_pin = 0,
         .u32Rst_pol = OF_GPIO_ACTIVE_LOW,
     }
 };
@@ -20,7 +20,7 @@ PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
 PARAM_CLASSDEFINE(PARAM_ISP_CFG_S,ISPCFG,CTX,ISP)[] = {
     {
         .bMonoSet = {0},
-        .bUseSingleBin = 0,
+        .bUseSingleBin = 1,
         .stPQBinDes =
         {
             .pIspBinData = NULL,

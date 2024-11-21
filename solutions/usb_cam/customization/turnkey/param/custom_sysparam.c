@@ -12,39 +12,23 @@ PARAM_CLASSDEFINE(PARAM_VB_CFG_S,VBPOOL,CTX,VB)[] = {
     {
         .u16width = 1920,
         .u16height = 1080,
-        .u8VbBlkCnt = 4,
-        .fmt = PIXEL_FORMAT_YUV_PLANAR_420,
-        .enBitWidth = DATA_BITWIDTH_8,
-        .enCmpMode = COMPRESS_MODE_NONE,
-    },
-    {
-        .u16width = PANEL_WIDTH,
-        .u16height = PANEL_HEIGHT,
-        .u8VbBlkCnt = 4,
+        .u8VbBlkCnt = 3,
         .fmt = PIXEL_FORMAT_NV21,
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,
     },
     {
-        .u16width = 608,
-        .u16height = 342,
+        .u16width = 1280,
+        .u16height = 720,
         .u8VbBlkCnt = 5,
         .fmt = PIXEL_FORMAT_NV21,
-        .enBitWidth = DATA_BITWIDTH_8,
-        .enCmpMode = COMPRESS_MODE_NONE,
-    },
-    {
-        .u16width = 608,
-        .u16height = 342,
-        .u8VbBlkCnt = 1,
-        .fmt = PIXEL_FORMAT_RGB_888_PLANAR,
         .enBitWidth = DATA_BITWIDTH_8,
         .enCmpMode = COMPRESS_MODE_NONE,
     },
 };
 
 PARAM_SYS_CFG_S  g_stSysCtx = {
-    .u8VbPoolCnt = 4,
+    .u8VbPoolCnt = 2,
     .u8ViCnt = 2,
     .stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_ONLINE,
     .stVPSSMode.enMode = VPSS_MODE_DUAL,
