@@ -264,5 +264,5 @@ static void sc201cs_linear_1200p30_init(VI_PIPE ViPipe)
 
 	sc201cs_write_register(ViPipe, 0x0100, 0x01);
 
-	printf("ViPipe:%d,===SC201CS 1200P 30fps 10bit LINEAR Init OK!===\n", ViPipe);
+	printf("ViPipe:%d,===SC2331 Init OK!===\n", ViPipe);
 }
