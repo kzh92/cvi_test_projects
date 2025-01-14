@@ -120,9 +120,11 @@ void* test_camera(void* arg)
 
 extern void _GPIOSetValue(u8 gpio_grp, u8 gpio_num, u8 level);
 
+int MEDIA_AV_Init();
+
 int main(int argc, char *argv[])
 {
-    cvi_tempsen_t tps;
+    // cvi_tempsen_t tps;
 	YOC_SYSTEM_Init();
 	//board pinmux init
 	PLATFORM_IoInit();
@@ -137,6 +139,7 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
+    MEDIA_AV_Init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();
@@ -151,29 +154,29 @@ int main(int argc, char *argv[])
 	isp_daemon2_init(5566);
 	#endif
 	//init tpu
-	cvi_tpu_init();
-	printf("init tpu ok.\n");
+	// cvi_tpu_init();
+	// printf("init tpu ok.\n");
 
-	aos_msleep(100);
-	camera_switch(g_iCurCam);
-	aos_msleep(100);
+	// aos_msleep(100);
+	// camera_switch(g_iCurCam);
+	// aos_msleep(100);
 
-    g_iCounter = 0;
-    g_iLedFlag = 1;
+    // g_iCounter = 0;
+    // g_iLedFlag = 1;
 
-	pthread_attr_t a;
-	pthread_t thd;
-    pthread_attr_init(&a);
-    a.stacksize = 8192;
+	// pthread_attr_t a;
+	// pthread_t thd;
+    // pthread_attr_init(&a);
+    // a.stacksize = 8192;
     
-    pthread_create(&thd, &a, test_camera, NULL);
-	cvi_tempsen_init(&tps);
-	unsigned int temp;
+    // pthread_create(&thd, &a, test_camera, NULL);
+	// cvi_tempsen_init(&tps);
+	// unsigned int temp;
 	while (1) {
-		temp = cvi_tempsen_read_temp_mC(&tps, 1000);
-		printf("******* temper(%08d): %u\n", (int)aos_now_ms(), temp);
-        _GPIOSetValue(4, 21, g_iLedFlag | g_iErrorFlag);
-        g_iLedFlag = (g_iLedFlag + 1) % 2;
+		// temp = cvi_tempsen_read_temp_mC(&tps, 1000);
+		// printf("******* temper(%08d): %u\n", (int)aos_now_ms(), temp);
+        // _GPIOSetValue(4, 21, g_iLedFlag | g_iErrorFlag);
+        // g_iLedFlag = (g_iLedFlag + 1) % 2;
 		aos_msleep(200);
 	};
 }

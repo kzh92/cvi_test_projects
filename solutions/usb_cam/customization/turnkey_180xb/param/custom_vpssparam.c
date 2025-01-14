@@ -13,12 +13,12 @@ PARAM_CLASSDEFINE(PARAM_VPSS_CHN_CFG_S,CHNCFG,GRP0,CHN)[] = {
     {
         .u8Rotation = ROTATION_0,
         .stVpssChnAttr = {
-            .u32Width = 1920,
-            .u32Height = 1080,
+            .u32Width = 1280,
+            .u32Height = 720,
             .enVideoFormat = VIDEO_FORMAT_LINEAR,
             .enPixelFormat = PIXEL_FORMAT_NV21,
-            .stFrameRate.s32SrcFrameRate = -1,
-            .stFrameRate.s32DstFrameRate = -1,
+            .stFrameRate.s32SrcFrameRate = 30,
+            .stFrameRate.s32DstFrameRate = 25,
             .bFlip = CVI_FALSE,
             .bMirror = CVI_FALSE,
             .u32Depth  = 0,
@@ -28,24 +28,6 @@ PARAM_CLASSDEFINE(PARAM_VPSS_CHN_CFG_S,CHNCFG,GRP0,CHN)[] = {
             .stNormalize.bEnable         = CVI_FALSE,
         }
     },
-    {
-        .u8Rotation = ROTATION_0,
-        .stVpssChnAttr = {
-            .u32Width = 608,
-            .u32Height = 342,
-            .enVideoFormat = VIDEO_FORMAT_LINEAR,
-            .enPixelFormat = PIXEL_FORMAT_NV21,
-            .stFrameRate.s32SrcFrameRate = -1,
-            .stFrameRate.s32DstFrameRate = -1,
-            .bFlip = CVI_FALSE,
-            .bMirror = CVI_FALSE,
-            .u32Depth  = 0,
-            .stAspectRatio.enMode        = ASPECT_RATIO_AUTO,
-            .stAspectRatio.bEnableBgColor = CVI_TRUE,
-            //.stAspectRatio.u32BgColor    = COLOR_RGB_BLACK,
-            .stNormalize.bEnable         = CVI_FALSE,
-        }
-    }
 };
 
 
