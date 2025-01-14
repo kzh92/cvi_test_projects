@@ -139,7 +139,6 @@ int main(int argc, char *argv[])
 	MEDIA_VIDEO_Init();
 	//media_audio
 	MEDIA_AUDIO_Init();
-    MEDIA_AV_Init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();
@@ -147,6 +146,7 @@ int main(int argc, char *argv[])
 	#if (CONFIG_APP_WIFI_SUPPORT == 1)
 	APP_WifiInit();
 	#endif
+	MEDIA_AV_Init();
 	//cli and ulog init
 	YOC_SYSTEM_ToolInit();
 	#if (CONFIG_PQTOOL_SUPPORT == 1)

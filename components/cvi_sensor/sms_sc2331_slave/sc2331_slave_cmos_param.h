@@ -1,5 +1,5 @@
-#ifndef __SC201CS_CMOS_PARAM_H_
-#define __SC201CS_CMOS_PARAM_H_
+#ifndef __SC2331_SLAVE_CMOS_PARAM_H_
+#define __SC2331_SLAVE_CMOS_PARAM_H_
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -14,11 +14,11 @@ extern "C" {
 #endif
 #include "cvi_type.h"
 #include "cvi_sns_ctrl.h"
-#include "sc201cs_cmos_ex.h"
+#include "sc2331_slave_cmos_ex.h"
 
-static const SC201CS_MODE_S g_astSc201cs_mode[SC201CS_MODE_NUM] = {
-	[SC201CS_MODE_1600X1200P30] = {
-		.name = "1600X1200P30",
+static const SC2331_SLAVE_MODE_S g_astSc2331_slave_mode[SC2331_SLAVE_MODE_NUM] = {
+	[SC2331_SLAVE_MODE_1600X1200P30] = {
+		.name = "1920X1080P30",
 		.astImg[0] = {
 			.stSnsSize = {
 				.u32Width = 1920,
@@ -93,23 +93,19 @@ static ISP_CMOS_BLACK_LEVEL_S g_stIspBlcCalibratio = {
 	},
 };
 
-struct combo_dev_attr_s sc201cs_rx_attr = {
+struct combo_dev_attr_s sc2331_slave_rx_attr = {
 	.input_mode = INPUT_MODE_MIPI,
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
-		.lane_id = {3, 4, -1, -1, -1},
+		.lane_id = {3/*clock*/, 4/*data*/, -1, -1, -1},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
-		.dphy = {
-			.enable = 1,
-			.hs_settle = 8,
-		}
 	},
 	.mclk = {
-		.cam = 0,
+		.cam = 1, //mclk
 		.freq = CAMPLL_FREQ_24M,
 	},
-	.devno = 0,
+	.devno = 1, //sensor1
 };
 
 #ifdef __cplusplus
@@ -119,5 +115,5 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 #endif /* End of #ifdef __cplusplus */
 
 
-#endif /* __SC201CS_CMOS_PARAM_H_ */
+#endif /* __SC2331_SLAVE_CMOS_PARAM_H_ */
 
