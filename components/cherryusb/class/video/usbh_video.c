@@ -25,7 +25,7 @@ static uint32_t g_devinuse = 0;
 
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t g_video_buf[128];
 
-static const char *format_type[] = { "uncompressed", "mjpeg" };
+const char *format_type[] = { "uncompressed", "mjpeg" };
 
 static int __s_r_1370705v[256] = { 0 };
 static int __s_b_1732446u[256] = { 0 };
