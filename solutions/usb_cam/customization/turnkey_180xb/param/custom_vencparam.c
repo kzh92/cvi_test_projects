@@ -17,8 +17,8 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u8DevId = 0,
             .u8DevChnid = 0,
             .u8Profile = 0,
-            .u16Width = 0,
-            .u16Height = 0,
+            .u16Width = UVC_MAX_WIDTH,
+            .u16Height = UVC_MAX_HEIGHT,
             .u8EsBufQueueEn = 0,
             .u16EnType = PT_MJPEG,
             .u32BitStreamBufSize = 1024 * 1024,
@@ -31,7 +31,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u16Gop = 25,
             .u8SrcFrameRate = 25,
             .u8DstFrameRate = 25,
-            .u16BitRate = 2048,
+            .u16BitRate = 20480,
             .u8Qfactor = 60,
             .u32MaxBitRate = CVI_H26X_FRAME_BITS_DEFAULT,
             .u8VariFpsEn = 0,
@@ -53,7 +53,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
         },
         .s8RoiNumber = -1,
     },
-#if 0
+#if (CONFIG_USBD_UVC_NUM > 1)
     {
         .stChnParam = {
             .u8InitStatus = 0,
@@ -62,8 +62,8 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
             .u8DevId = 0,
             .u8DevChnid = 1,
             .u8Profile = 0,
-            .u16Width = 0,
-            .u16Height = 0,
+            .u16Width = 480,
+            .u16Height = 864,
             .u8EsBufQueueEn = 0,
             .u16EnType = PT_H264,
             .u32BitStreamBufSize = 1024 * 1024,
@@ -102,7 +102,7 @@ PARAM_CLASSDEFINE(PARAM_VENC_CHN_CFG_S,VENCCFG,CTX,VENC)[] = {
 };
 
 PARAM_VENC_CFG_S  g_stVencCtx = {
-    .s32VencChnCnt = 1,
+    .s32VencChnCnt = CONFIG_USBD_UVC_NUM > 1 ? 2 : 1,
     .pstVencChnCfg = PARAM_CLASS(VENCCFG,CTX,VENC),
 };
 
