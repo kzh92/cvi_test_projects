@@ -101,7 +101,7 @@ static const struct UVC_HEADER_DESCRIPTOR(1) uvc_control_header = {
     .bLength        = UVC_DT_HEADER_SIZE(1),
     .bDescriptorType    = USB_DT_CS_INTERFACE,
     .bDescriptorSubType    = UVC_VC_HEADER,
-    .bcdUVC            = cpu_to_le16(0x0110),
+    .bcdUVC            = cpu_to_le16(0x0100),
     .wTotalLength        = 0, /* dynamic */
 #if CONFIG_USB_BULK_UVC
     .dwClockFrequency    = cpu_to_le32(60000000),

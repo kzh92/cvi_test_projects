@@ -1087,24 +1087,21 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     }
     stAttr.stGopAttr.enGopMode = pstVecncChnCtx->stGopParam.u16gopMode;
     stAttr.stGopAttr.stNormalP.s32IPQpDelta = pstVecncChnCtx->stGopParam.s8IPQpDelta;
-
-    if (pstVecncChnCtx->stChnParam.u16EnType == PT_MJPEG)
-    {
-        MEDIA_CHECK_RET(CVI_VENC_GetModParam(&stModParam), "CVI_VENC_GetModParam");
-
-        stModParam.enVencModType = MODTYPE_JPEGE;
-        stModParam.stJpegeModParam.enJpegeFormat = JPEGE_FORMAT_CUSTOM;
-        stModParam.stJpegeModParam.JpegMarkerOrder[0] = JPEGE_MARKER_SOI;
-        stModParam.stJpegeModParam.JpegMarkerOrder[1] = JPEGE_MARKER_JFIF;
-        stModParam.stJpegeModParam.JpegMarkerOrder[2] = JPEGE_MARKER_DQT_MERGE;
-        stModParam.stJpegeModParam.JpegMarkerOrder[3] = JPEGE_MARKER_SOF0;
-        stModParam.stJpegeModParam.JpegMarkerOrder[4] = JPEGE_MARKER_DHT_MERGE;
-        stModParam.stJpegeModParam.JpegMarkerOrder[5] = JPEGE_MARKER_DRI;
-        stModParam.stJpegeModParam.JpegMarkerOrder[6] = JPEGE_MARKER_BUTT;
-
-        MEDIA_CHECK_RET(CVI_VENC_SetModParam(&stModParam), "CVI_VENC_SetModParam");
-    }
     MEDIA_CHECK_RET(CVI_VENC_CreateChn(VencChn, &stAttr), "CVI_VENC_CreateChn");
+
+    MEDIA_CHECK_RET(CVI_VENC_GetModParam(&stModParam), "CVI_VENC_GetModParam");
+
+    stModParam.enVencModType = MODTYPE_JPEGE;
+    stModParam.stJpegeModParam.enJpegeFormat = JPEGE_FORMAT_CUSTOM;
+    stModParam.stJpegeModParam.JpegMarkerOrder[0] = JPEGE_MARKER_SOI;
+    stModParam.stJpegeModParam.JpegMarkerOrder[1] = JPEGE_MARKER_JFIF;
+    stModParam.stJpegeModParam.JpegMarkerOrder[2] = JPEGE_MARKER_DQT_MERGE;
+    stModParam.stJpegeModParam.JpegMarkerOrder[3] = JPEGE_MARKER_SOF0;
+    stModParam.stJpegeModParam.JpegMarkerOrder[4] = JPEGE_MARKER_DHT_MERGE;
+    stModParam.stJpegeModParam.JpegMarkerOrder[5] = JPEGE_MARKER_DRI;
+    stModParam.stJpegeModParam.JpegMarkerOrder[6] = JPEGE_MARKER_BUTT;
+
+    MEDIA_CHECK_RET(CVI_VENC_SetModParam(&stModParam), "CVI_VENC_SetModParam");
 
     MEDIA_CHECK_RET(CVI_VENC_GetRcParam(VencChn, &stRcParam), "CVI_VENC_GetRcParam");
     stRcParam.s32FirstFrameStartQp = pstVecncChnCtx->stRcParam.u16FirstFrmstartQp;
@@ -1250,7 +1247,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     return CVI_SUCCESS;
 }
 
-int MEDIA_VIDEO_VencChnDeInit(PARAM_VENC_CFG_S *pstVencCfg, int VencChn)
+int MEDAI_VIDEO_VencChnDeinit(PARAM_VENC_CFG_S *pstVencCfg, int VencChn)
 {
     MMF_CHN_S stSrcChn;
     MMF_CHN_S stDestChn;
@@ -1316,7 +1313,7 @@ int MEDIA_VIDEO_VencDeInit(PARAM_VENC_CFG_S *pstVencCfg)
         return CVI_FAILURE;
     }
     for(int i = 0 ; i < pstVencCfg->s32VencChnCnt; i++) {
-        MEDIA_VIDEO_VencChnDeInit(pstVencCfg,i);
+        MEDAI_VIDEO_VencChnDeinit(pstVencCfg,i);
     }
     g_pstVencCfg = NULL;
     return CVI_SUCCESS;
