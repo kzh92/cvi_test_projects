@@ -340,7 +340,7 @@ int uac_init(void)
    aos_sem_new(&g_audio_write_sem, 0);
    if(0 != aos_task_new_ext(&read_handle,"audio_write"
                     ,audio_write,NULL,6*1024,32)) {
-        aos_debug_printf("create audio_read thread fail\r\n");
+        USB_LOG_ERR("create audio_read thread fail\r\n");
         return -1;
     }
 	return 0;

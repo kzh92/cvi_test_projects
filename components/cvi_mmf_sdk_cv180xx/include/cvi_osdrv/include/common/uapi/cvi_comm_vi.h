@@ -350,6 +350,8 @@ typedef struct _VI_DEV_ATTR_S {
 
 	VI_DATA_TYPE_E enInputDataType;
 
+	//VI_PATH_MODE_E enPathMode; /* only single sensor is useful, not support multi sensor*/
+
 	SIZE_S stSize; /* RW;Input size */
 
 	VI_WDR_ATTR_S stWDRAttr; /* RW;Attribute of WDR */
@@ -363,6 +365,14 @@ typedef struct _VI_DEV_ATTR_S {
 	CVI_U64 phy_addr; /*if it not equals 0, vi osdrv will use the memory*/
 
 	CVI_U32 phy_size;
+
+	CVI_BOOL isMux; /* multi sensor use same dev*/
+
+	CVI_U8 switchGpioIdx; /* for mipi switch gpio*/
+	CVI_U8 switchGpioPin;
+	CVI_U8 switchGPioPol;
+	CVI_BOOL isFrmCtrl; /* mipi switch frame ctrl by user*/
+	CVI_U8 dstFrm; /* set dst frm for switch */
 } VI_DEV_ATTR_S;
 
 /* Information of pipe binded to device */
@@ -416,6 +426,7 @@ typedef struct _VI_PIPE_ATTR_S {
 	FRAME_RATE_CTRL_S stFrameRate; /* RW;Frame rate */
 	CVI_BOOL bDiscardProPic;
 	CVI_BOOL bYuvBypassPath; /* RW;ISP YUV bypass enable */
+	CVI_BOOL b3dnrBypass; /* RW;ISP 3ndr bypass enable */
 } VI_PIPE_ATTR_S;
 // -------- If you want to change these interfaces, please contact the isp team. --------
 
@@ -826,6 +837,7 @@ typedef struct _VI_SMOOTH_RAW_DUMP_INFO_S {
 	CVI_U8  u8BlkCnt;	// ring buffer number
 	CVI_U64 *phy_addr_list;	// ring buffer addr
 	RECT_S  stCropRect;
+	COMPRESS_MODE_E  enDumpRaw;
 } VI_SMOOTH_RAW_DUMP_INFO_S;
 
 typedef struct _VI_SYNC_TASK_NODE_S {

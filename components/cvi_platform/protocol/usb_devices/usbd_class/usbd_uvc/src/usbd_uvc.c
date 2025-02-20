@@ -241,7 +241,7 @@ static void uvc_media_update(struct uvc_device_info *info){
 	}
 
 	if(u8VencInitStatus == 1) {
-		MEDAI_VIDEO_VencChnDeinit(pstVencCfg, info->video.venc_channel);
+		MEDIA_VIDEO_VencChnDeInit(pstVencCfg, info->video.venc_channel);
 		printf("venc chn %d deinit\n", info->video.venc_channel);
 	}
 
@@ -254,7 +254,7 @@ static void uvc_media_update(struct uvc_device_info *info){
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Width = uvc_frame_info.width;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Height = uvc_frame_info.height;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16EnType = enType;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u32BitRate = (enType == PT_MJPEG)?20480:2048;
+	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate = (enType == PT_MJPEG)?20480:2048;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8ModId = CVI_ID_VPSS;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8DevId = info->video.vpss_group;
@@ -386,7 +386,7 @@ static uint32_t uvc_payload_fill(struct uvc_device_info *uvc, uint8_t *input, ui
     }
 
 	if (input_len + size_uvc_header > DEFAULT_FRAME_SIZE) {
-		USB_LOG_ERR("input_len + size_uvc_header (%u) > DEFAULT_FRAME_SIZE (%u)\n",
+		USB_LOG_ERR("input_len + size_uvc_header (%u) > DEFAULT_FRAME_SIZE (%lu)\n",
 			input_len + size_uvc_header, DEFAULT_FRAME_SIZE);
 		return 0;
 	}

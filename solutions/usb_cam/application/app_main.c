@@ -14,15 +14,13 @@
 #include "cvi_param.h"
 #include "wifi_if.h"
 #include "ethernet_init.h"
-
+#include "usbd_comp.h"
 
 #if CONFIG_PQTOOL_SUPPORT == 1
 #include "cvi_ispd2.h"
 #endif
 
 #define TAG "app"
-
-int MEDIA_AV_Init();
 
 int main(int argc, char *argv[])
 {
@@ -41,7 +39,7 @@ int main(int argc, char *argv[])
 	//media_audio
 	MEDIA_AUDIO_Init();
 	printf("****** uac sampling rate: %d\n", CONFIG_UAC_SAMPLE_RATE);
-    MEDIA_AV_Init();
+    usbd_comp_init();
 	//network
 	#if (CONFIG_APP_ETHERNET_SUPPORT == 1)
 	ethernet_init();
