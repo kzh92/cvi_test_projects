@@ -644,11 +644,6 @@ static int usbd_video_stream_request_handler(struct usb_setup_packet *setup, uin
                     //memcpy((uint8_t *)usbd_video_cfg.commit, *data, setup->wLength);
                     struct video_probe_and_commit_controls *commit = (struct video_probe_and_commit_controls *)*data;
                     usbd_video_commit_set_cur(commit);
-#if CONFIG_USB_BULK_UVC
-                    if (uvc_evt_callbacks && uvc_evt_callbacks->uvc_event_stream_on) {
-                        uvc_evt_callbacks->uvc_event_stream_on((uint8_t)setup->wIndex, 1);
-                    }
-#endif
                     break;
                 }
                 case VIDEO_REQUEST_GET_CUR:
@@ -720,38 +715,15 @@ static int video_class_interface_request_handler(struct usb_setup_packet *setup,
         } else {
             return usbd_video_control_unit_terminal_request_handler(setup, data, len); /* Unit and Terminal Requests */
         }
-    } else if (intf_num == 1) { /* Video Stream Inteface */
+    } else if (intf_num == 1) {                                     /* Video Stream Inteface */
         return usbd_video_stream_request_handler(setup, data, len); /* Interface Stream Requests */
     }
     return -1;
 }
 
-static int video_control_interface_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
-{
-    USB_LOG_DBG("Video control request: "
-                "bRequest 0x%02x\r\n",
-                setup->bRequest);
-
-    uint8_t entity_id = (uint8_t)(setup->wIndex >> 8);
-
-    if (entity_id == 0) {
-        return usbd_video_control_request_handler(setup, data, len); /* Interface Control Requests */
-    } else {
-        return usbd_video_control_unit_terminal_request_handler(setup, data, len); /* Unit and Terminal Requests */
-    }
-    return -1;
-}
-
-static int video_streaming_interface_request_handler(struct usb_setup_packet *setup, uint8_t **data, uint32_t *len)
-{
-    USB_LOG_DBG("Video streaming request: "
-                "bRequest 0x%02x\r\n",
-                setup->bRequest);
-    return usbd_video_stream_request_handler(setup, data, len); /* Interface Stream Requests */
-}
-
 static void video_notify_handler(uint8_t event, void *arg)
 {
+    int is_on = 0;
     switch (event) {
         case USBD_EVENT_RESET:
             usbd_video_cfg.error_code = 0;
@@ -759,10 +731,6 @@ static void video_notify_handler(uint8_t event, void *arg)
             break;
 
         case USBD_EVENT_SET_INTERFACE: {
-#if CONFIG_USB_BULK_UVC
-            //move stream_on to set commit
-#else
-            int is_on = 0;
             struct usb_interface_descriptor *intf = (struct usb_interface_descriptor *)arg;
             if (intf->bAlternateSetting == 1) {
                 is_on = 1;
@@ -771,9 +739,8 @@ static void video_notify_handler(uint8_t event, void *arg)
             }
             if (uvc_evt_callbacks
                 && uvc_evt_callbacks->uvc_event_stream_on) {
-                uvc_evt_callbacks->uvc_event_stream_on(intf->bInterfaceNumber, is_on);
+                uvc_evt_callbacks->uvc_event_stream_on(is_on);
             }
-#endif
         }
         break;
 
@@ -835,34 +802,6 @@ struct usbd_interface *usbd_video_init_intf(struct usbd_interface *intf,
     return intf;
 }
 
-struct usbd_interface *usbd_video_control_init_intf(struct usbd_interface *intf,
-                                            uint32_t dwFrameInterval,
-                                            uint32_t dwMaxVideoFrameSize,
-                                            uint32_t dwMaxPayloadTransferSize)
-{
-    intf->class_interface_handler = video_control_interface_request_handler;
-    intf->class_endpoint_handler = NULL;
-    intf->vendor_handler = NULL;
-    intf->notify_handler = video_notify_handler;
-
-    usbd_video_probe_and_commit_controls_init(dwFrameInterval, dwMaxVideoFrameSize, dwMaxPayloadTransferSize);
-    return intf;
-}
-
-struct usbd_interface *usbd_video_stream_init_intf(struct usbd_interface *intf,
-                                            uint32_t dwFrameInterval,
-                                            uint32_t dwMaxVideoFrameSize,
-                                            uint32_t dwMaxPayloadTransferSize)
-{
-    intf->class_interface_handler = video_streaming_interface_request_handler;
-    intf->class_endpoint_handler = NULL;
-    intf->vendor_handler = NULL;
-    intf->notify_handler = video_notify_handler;
-
-    usbd_video_probe_and_commit_controls_init(dwFrameInterval, dwMaxVideoFrameSize, dwMaxPayloadTransferSize);
-    return intf;
-}
-
 static void usbd_endpoint_default_callback(uint8_t ep, uint32_t nbytes)
 {
     if (uvc_evt_callbacks
@@ -892,26 +831,24 @@ uint32_t usbd_video_payload_fill(uint8_t *input, uint32_t input_len, uint8_t *ou
     uint32_t packets;
     uint32_t last_packet_size;
     uint32_t picture_pos = 0;
-    static uint8_t uvc_header[12] = { 0x0c, 0x8d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    static uint8_t uvc_header[12] = { 0x0c, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     uint32_t size_uvc_header = sizeof(uvc_header);
     uint32_t size_per_packet = usbd_video_cfg.probe.dwMaxPayloadTransferSize;
     uint32_t size_payload = size_per_packet - size_uvc_header;
 
-#if CONFIG_USB_BULK_UVC
-    //TODO frame size limit?
-#else
     if (size_payload > 10240) {
         USB_LOG_ERR("the size of payload is too long!!!!\n");
     }
-#endif
 
     // The following equals to packets = roundup(input_len / size_payload)
     packets = (input_len + size_payload - 1) / (size_payload);
     last_packet_size = input_len - ((packets - 1) * size_payload) + size_uvc_header;
 
     for (size_t i = 0; i < packets; i++) {
-        output[size_per_packet* i] = uvc_header[0];
-        output[size_per_packet * i + 1] = uvc_header[1];
+        // output[size_per_packet* i] = uvc_header[0];
+        // output[size_per_packet * i + 1] = uvc_header[1];
+        memcpy(&output[size_per_packet * i],
+                uvc_header, size_uvc_header);
         if (i == (packets - 1)) {
             memcpy(&output[size_uvc_header + size_per_packet * i],
                 &input[picture_pos], last_packet_size - size_uvc_header);
