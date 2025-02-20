@@ -338,7 +338,6 @@ static int rndis_set_cmd_handler(uint8_t *data, uint32_t len)
     rndis_set_msg_t *cmd = (rndis_set_msg_t *)data;
     rndis_set_cmplt_t *resp;
     rndis_config_parameter_t *param;
-    (void)param;
 
     resp = ((rndis_set_cmplt_t *)rndis_encapsulated_resp_buffer);
     resp->RequestId = cmd->RequestId;
