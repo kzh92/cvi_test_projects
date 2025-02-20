@@ -17,7 +17,7 @@
 #define MAX_COMP_STRING_NUMS 8
 #define MAX_COMP_EP_NUMS 6
 
-#define CVITEK_VENDOR_ID        0x3346    /* cvitek vendor id */
+#define CVITEK_VENDOR_ID        0x055a    /* lenovo vendor id */
 #define CVITEK_PRODUCT_ID       0x0001    /* Webcam A/V gadget */
 #define CVITEK_DEVICE_BCD       0x0001    /* 0.01 */
 #define USBD_LANGID_STRING 		1033
@@ -88,17 +88,16 @@ static const struct UVC_STRING_DESCRIPTOR(1) comp_string_descriptor_zero = {
     .wData[0]           = cpu_to_le16(USBD_LANGID_STRING),
 };
 
-DECLARE_UVC_STRING_DESCRIPTOR(6);
-static const struct UVC_STRING_DESCRIPTOR(6) comp_string_descriptor_manufacturer = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(6),
+DECLARE_UVC_STRING_DESCRIPTOR(5);
+static const struct UVC_STRING_DESCRIPTOR(5) comp_string_descriptor_manufacturer = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(5),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
-        cpu_to_le16('C'),
-        cpu_to_le16('V'),
-        cpu_to_le16('I'),
-        cpu_to_le16('T'),
         cpu_to_le16('E'),
-        cpu_to_le16('K'),
+        cpu_to_le16('A'),
+        cpu_to_le16('S'),
+        cpu_to_le16('E'),
+        cpu_to_le16('N'),
     },
 };
 
@@ -120,25 +119,24 @@ static const struct UVC_STRING_DESCRIPTOR(10) comp_string_descriptor_serial = {
     },
 };
 
-DECLARE_UVC_STRING_DESCRIPTOR(13);
+DECLARE_UVC_STRING_DESCRIPTOR(12);
 
-static const struct UVC_STRING_DESCRIPTOR(13) uvc_string_descriptor_product = {
-    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(13),
+static const struct UVC_STRING_DESCRIPTOR(12) uvc_string_descriptor_product = {
+    .bLength            = UVC_STRING_DESCRIPTOR_SIZE(12),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_STRING,
     .wData              = {
-        cpu_to_le16('C'),
-        cpu_to_le16('V'),
-        cpu_to_le16('I'),
-        cpu_to_le16('T'),
         cpu_to_le16('E'),
-        cpu_to_le16('K'),
+        cpu_to_le16('a'),
+        cpu_to_le16('s'),
+        cpu_to_le16('e'),
+        cpu_to_le16('n'),
         cpu_to_le16(' '),
-        cpu_to_le16('U'),
-        cpu_to_le16('S'),
-        cpu_to_le16('B'),
-        cpu_to_le16('D'),
-        cpu_to_le16('E'),
-        cpu_to_le16('V'),
+        cpu_to_le16('C'),
+        cpu_to_le16('a'),
+        cpu_to_le16('m'),
+        cpu_to_le16('e'),
+        cpu_to_le16('r'),
+        cpu_to_le16('a'),
     },
 };
 

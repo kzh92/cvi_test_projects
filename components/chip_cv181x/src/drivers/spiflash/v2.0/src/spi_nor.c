@@ -24,8 +24,6 @@
 
 const struct flash_info spi_flash_ids[] = {
 	/* The CVITEK Support List Of Spi Nor Flash */
-	{ "ZB25VQ32D", INFO(0x5E4016, 0x0, 64 * 1024, 64,
-		RD_FULL | WR_FULL | SECT_4K) },
 	{ "JY25VQ128A", INFO(0x1c4018, 0x0, 64 * 1024, 256,
 			RD_FULL | WR_FULL | SECT_4K) },
 	{ "JY25VQ64A", INFO(0x4a4017, 0x0, 64 * 1024, 128,

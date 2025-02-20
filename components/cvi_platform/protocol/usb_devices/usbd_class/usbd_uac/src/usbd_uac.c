@@ -122,7 +122,7 @@ static void usbd_audio_out_callback(uint8_t ep, uint32_t nbytes)
         aos_sem_signal(&g_audio_write_sem);
     }
 
-    usbd_ep_start_read(uac_info.audio_out_ep.ep_addr, out_buffer, nbytes);
+    usbd_ep_start_read(uac_info.audio_out_ep.ep_addr, out_buffer, AUDIO_OUT_PACKET);
 }
 
 static void usbd_audio_in_callback(uint8_t ep, uint32_t nbytes)
@@ -181,7 +181,7 @@ static void uac_timer_send_data_cb(void *timer, void *arg)
         ret = ring_buffer_get(g_ring_buf[mic_idx], (void *)in_buffer, AUDIO_IN_PACKET);
         if (ret > 0) {
             ep_tx_busy_flag = true;
-            usbd_ep_start_write(uac_info.audio_in_ep.ep_addr, in_buffer, ret);
+            usbd_ep_start_write(uac_info.audio_in_ep.ep_addr, in_buffer, AUDIO_IN_PACKET);
         }
     }
 
@@ -192,13 +192,35 @@ static void uac_timer_send_data_cb(void *timer, void *arg)
 
 #define AUDIO_AEC_LENGTH 160
 
+#ifdef AUDIO_EN
+static uint8_t g_fAudioEnabled = 0;
+#endif
+
 static void audio_write(void *arg)
 {
     int play_len = MEDIA_AUDIO_GetPcmLen(MEDIA_PCM_TYPE_SPEAKER);
+    int ret = 0;
 
     while (1) {
-        aos_sem_wait(&g_audio_write_sem, AOS_WAIT_FOREVER);
-
+        aos_sem_wait(&g_audio_write_sem, 1000);
+        if (ret == 0) {
+#ifdef AUDIO_EN
+            if (g_fAudioEnabled == 0)
+            {
+                GPIO_fast_setvalue(AUDIO_EN, ON);
+                g_fAudioEnabled = 1;
+            }
+#endif // AUDIO_EN
+        } else {
+#ifdef AUDIO_EN
+            if (g_fAudioEnabled == 1)
+            {
+                GPIO_fast_setvalue(AUDIO_EN, OFF);
+                g_fAudioEnabled = 0;
+            }
+#endif // AUDIO_EN
+            continue;            
+        }
         if (ring_buffer_len(g_ring_buf[UAC_SPEAKER_INDEX]) >= play_len) {
             int ret = ring_buffer_get(g_ring_buf[UAC_SPEAKER_INDEX], (void *)write_pcm_buf, play_len);
             if (ret > 0) {
@@ -296,15 +318,18 @@ static void uac_desc_register_cb()
 	uac_destroy_descriptor(uac_descriptor);
 }
 
+#define AUDIO_IN_EP  UAC_SPK_EP
+#define AUDIO_OUT_EP UAC_MIC_EP
+
 int uac_init(void)
 {
     aos_task_t read_handle;
     uint32_t desc_len;
 
     uac_info.audio_out_ep.ep_cb = usbd_audio_out_callback;
-    uac_info.audio_out_ep.ep_addr = comp_get_available_ep(0);
+    uac_info.audio_out_ep.ep_addr = AUDIO_OUT_EP;
     uac_info.audio_in_ep.ep_cb = usbd_audio_in_callback;
-    uac_info.audio_in_ep.ep_addr = comp_get_available_ep(1);
+    uac_info.audio_in_ep.ep_addr = AUDIO_IN_EP;
     uac_info.interface_nums = comp_get_interfaces_num();
     USB_LOG_INFO("uac out ep:%#x\n", uac_info.audio_out_ep.ep_addr);
     USB_LOG_INFO("uac int ep:%#x\n", uac_info.audio_in_ep.ep_addr);
@@ -332,26 +357,25 @@ int uac_init(void)
 	uac_session_init_flag = CVI_TRUE;
 
     if(0 != aos_task_new_ext(&read_handle,"audio_read"
-                    ,audio_read,NULL,6*1024,32)) {
+                    ,audio_read,NULL,16*1024,32)) {
         USB_LOG_ERR("create audio_read thread fail\r\n");
         return -1;
     }
 
-   aos_sem_new(&g_audio_write_sem, 0);
-   if(0 != aos_task_new_ext(&read_handle,"audio_write"
-                    ,audio_write,NULL,6*1024,32)) {
+    aos_sem_new(&g_audio_write_sem, 0);
+    if(0 != aos_task_new_ext(&read_handle,"audio_write"
+                    ,audio_write,NULL,16*1024,32)) {
         aos_debug_printf("create audio_read thread fail\r\n");
         return -1;
     }
-	return 0;
+    return 0;
 }
 
 int uac_deinit(void)
 {
-	// media_audio_deinit();
+    // media_audio_deinit();
     uac_ringfifo_deinit();
     uac_event_sem_deinit();
     uac_timer_deinit();
     return 0;
 }
-

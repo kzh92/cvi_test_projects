@@ -966,9 +966,7 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
     VENC_H264_ENTROPY_S stH264EntropyEnc = {0};
     VENC_H264_VUI_S stH264Vui = {0};
     VENC_JPEG_PARAM_S stJpegParam = {0};
-#if !(CONFIG_USBD_UVC)
     VENC_RECV_PIC_PARAM_S stRecvParam = {0};
-#endif
     VPSS_CHN_ATTR_S stVpssChnAttr = {0};
     MMF_CHN_S stSrcChn;
     MMF_CHN_S stDestChn;
@@ -1246,12 +1244,9 @@ int MEDIA_VIDEO_VencChnInit(PARAM_VENC_CFG_S *pstVencCfg,int VencChn)
         stSrcChn.s32ChnId = pstVecncChnCtx->stChnParam.u8DevChnid;
         MEDIA_CHECK_RET(CVI_SYS_Bind(&stSrcChn, &stDestChn), "CVI_SYS_Bind err");
     }
-
-#if !(CONFIG_USBD_UVC)
     stRecvParam.s32RecvPicNum = -1;
     MEDIA_CHECK_RET(CVI_VENC_StartRecvFrame(VencChn, &stRecvParam), "CVI_VENC_StartRecvFrame");
     pstVecncChnCtx->stChnParam.u8InitStatus = 1;
-#endif
     return CVI_SUCCESS;
 }
 

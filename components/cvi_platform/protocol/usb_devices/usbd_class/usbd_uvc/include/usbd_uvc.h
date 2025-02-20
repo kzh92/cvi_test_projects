@@ -4,7 +4,7 @@
 
 #include "usbd_core.h"
 
-#define USBD_UVC_NUM			2
+#define USBD_UVC_NUM			CONFIG_USBD_UVC_NUM
 
 #if ((CONFIG_USB_BULK_UVC) && (USBD_UVC_NUM > 1))
 // TODO

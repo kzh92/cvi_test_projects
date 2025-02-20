@@ -25,7 +25,7 @@ static uint32_t g_devinuse = 0;
 
 USB_NOCACHE_RAM_SECTION USB_MEM_ALIGNX uint8_t g_video_buf[128];
 
-static const char *format_type[] = { "uncompressed", "mjpeg" };
+const char *format_type[] = { "uncompressed", "mjpeg" };
 
 static int __s_r_1370705v[256] = { 0 };
 static int __s_b_1732446u[256] = { 0 };
@@ -256,7 +256,6 @@ void usbh_video_list_info(struct usbh_video *video_class)
 
     USB_LOG_INFO("bNumFormats:%u\r\n", video_class->num_of_formats);
     for (uint8_t i = 0; i < video_class->num_of_formats; i++) {
-        (void)format_type;
         USB_LOG_INFO("  FormatIndex:%u\r\n", i + 1);
         USB_LOG_INFO("  FormatType:%s\r\n", format_type[video_class->format[i].format_type]);
         USB_LOG_INFO("  bNumFrames:%u\r\n", video_class->format[i].num_of_frames);
