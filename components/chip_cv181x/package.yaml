@@ -64,7 +64,6 @@ hw_info:
   vendor_name: cvitek
   ld_script: gcc_flash.ld
   flash_program: flash.elf
-  # flash_program: flash_emmc.elf
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -93,18 +92,13 @@ build_config:
     - src/sys
     - include
     - include/asm
-    - src/drivers/pin/cvi/include
-    - src/drivers/gpio/cvi/include
-    - src/drivers/gpio/dw/v1.0/
+    # - src/drivers/pin/cvi/include
+    # - src/drivers/gpio/cvi/include
     - src/drivers/dma/cvi/include
-#   - src/drivers/timer/cvi/v1/include ? <CONFIG_KERNEL_NONE>
-#   - src/drivers/timer/cvi/v2/include ? <CONFIG_KERNEL_RHINO>
-    - src/drivers/timer/cvi/v2/include
+    - src/drivers/timer/cvi/v1/include
     - src/drivers/wdt/cvi/include
     - src/drivers/rtc/cvi/include
-#   - src/drivers/uart/dw/v1.0/include ? <CONFIG_KERNEL_NONE>
-#   - src/drivers/uart/dw/v2.0/include ? <CONFIG_KERNEL_RHINO>
-    - src/drivers/uart/dw/v2.0/include
+    - src/drivers/uart/dw/v1.0/include
     - src/drivers/iic/dw/include
     - src/drivers/adc/cvi/include
     - src/drivers/pwm/cvi/v1.0/include
@@ -123,9 +117,9 @@ build_config:
     - src/hal/adc/cvi/include
     - src/drivers/sdif/dw/v1.0
 
-    - src/drivers/codec/cvitek/include
-    - src/drivers/i2s/dw/include
-    - src/drivers/efuse/wj/cvi/
+    # - src/drivers/codec/cvitek/include
+    # - src/drivers/i2s/dw/include
+    # - src/drivers/efuse/wj/cvi/
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
@@ -142,6 +136,7 @@ source_file:
   - src/sys/tick.c
   - src/sys/trap_c.c
   - src/sys/weak.c
+
   - src/sys/startup.S
   - src/sys/vectors.S
 
@@ -149,53 +144,46 @@ source_file:
   - src/sys/devices.c
   - src/drivers/irq/plic/v1.0/irq_port.c
 #  - src/drivers/tick/csitimer/tick.c
-  - src/drivers/uart/dw/v1.0/src/*.c ? <CONFIG_KERNEL_NONE>
-  - src/drivers/uart/dw/v2.0/src/*.c ? <CONFIG_KERNEL_RHINO>
-  - src/drivers/iic/dw/src/*.c
-  - src/drivers/pin/cvi/src/*.c
-  - src/drivers/gpio/cvi/src/*.c
-  - src/drivers/gpio_pin/cvi/src/*.c
-  - src/drivers/adc/cvi/src/*.c
+  - src/drivers/uart/dw/v1.0/src/*.c
+  # - src/drivers/iic/dw/src/*.c
+  # - src/drivers/iic/i2c_tool/*.c
+  # - src/drivers/pin/cvi/src/*.c
+  # - src/drivers/gpio/cvi/src/*.c
+  # - src/drivers/adc/cvi/src/*.c
   - src/drivers/pwm/cvi/v1.0/src/*.c
   - src/drivers/wdt/cvi/src/*.c
   - src/drivers/dma/cvi/src/cvi_dma.c
   - src/drivers/dma/cvi/src/csi_dma.c
   - src/drivers/spiflash/v2.0/src/*.c
   - src/drivers/spi/dw/v2.0/src/*.c
-  - src/drivers/timer/cvi/v1/src/*.c ? <CONFIG_KERNEL_NONE>
-  - src/drivers/timer/cvi/v2/src/*.c ? <CONFIG_KERNEL_RHINO>
+  - src/drivers/timer/cvi/v1/src/*.c
   - src/drivers/rtc/cvi/src/cvi_rtc.c
   - src/drivers/rtc/cvi/src/csi_rtc.c
   - src/drivers/rtc/cvi/src/rtc_lib.c
   - src/drivers/dma/cvi/src/sysdma_remap.c
-  - src/drivers/net/ethernet/dw/src/dw_gmac_mars.c
-  - src/drivers/net/phy/src/phy.c
-  - src/drivers/net/phy/src/cvitek.c
+  # - src/drivers/net/ethernet/dw/src/dw_gmac_mars.c
+  # - src/drivers/net/phy/src/phy.c
+  # - src/drivers/net/phy/src/cvitek.c
 #  - src/drivers/pinmux/wj/sparrow_v1.0/pinmux.c
 #  - src/drivers/timer/dw/v1.0/timer.c
-  - src/hal/pin/cvi/src/*.c
-  - src/hal/gpio/cvi/src/hal_gpio.c
+  # - src/hal/pin/cvi/src/*.c
+  # - src/hal/gpio/cvi/src/hal_gpio.c
   - src/hal/adc/cvi/src/hal_adc.c
   - src/hal/dma/cvi/src/hal_dma.c
   - src/hal/timer/cvi/src/hal_timer.c
   - src/hal/rtc/cvi/src/hal_rtc.c
-  - src/hal/clk/*.c
 
-  - src/drivers/i2s/dw/src/dw_i2s.c
-  - src/drivers/i2s/dw/src/i2s.c
-  - src/drivers/codec/cvitek/src/cv181xadc.c
-  - src/drivers/codec/cvitek/src/cv181xdac.c
-  - src/drivers/codec/cvitek/src/cv181xpdm.c
-  - src/drivers/codec/cvitek/src/codec.c
+  # - src/drivers/i2s/dw/src/dw_i2s.c
+  # - src/drivers/i2s/dw/src/i2s.c
+  # - src/drivers/codec/cvitek/src/cv181xadc.c
+  # - src/drivers/codec/cvitek/src/cv181xdac.c
+  # - src/drivers/codec/cvitek/src/codec.c
   - src/drivers/common/ringbuffer.c
   - src/drivers/sdif/dw/v1.0/*.c
   - src/drivers/sha/cvi/src/*.c
-  - src/drivers/aes/cvi/src/*.c
-  - src/drivers/efuse/wj/cvi/*.c
-  - src/drivers/rng/cvi/src/*.c
-
-  - src/drivers/usb/cvi/hw/dwc2/usb_dc_dwc2.c ? <CONFIG_SUPPORT_USB_DC>
-  - src/drivers/usb/cvi/hw/dwc2/usb_hc_dwc2.c ? <CONFIG_SUPPORT_USB_HC>
+  # - src/drivers/aes/cvi/src/*.c
+  # - src/drivers/efuse/wj/cvi/*.c
+  # - src/drivers/rng/cvi/src/*.c
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

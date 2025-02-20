@@ -5,9 +5,8 @@
 
 #include "usbd_uac.h"
 
-
 /* AUDIO Class Config */
-#define AUDIO_FREQ ((CONFIG_UAC_SAMPLE_RATE == 16000) ? (16000U) : (8000U))
+#define AUDIO_FREQ 8000U
 
 #define AUDIO_SAMPLE_FREQ(frq) (uint8_t)(frq), (uint8_t)((frq >> 8)), (uint8_t)((frq >> 16))
 

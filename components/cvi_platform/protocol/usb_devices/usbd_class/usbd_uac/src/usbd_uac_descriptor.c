@@ -6,6 +6,7 @@
 #include "usbd_comp.h"
 #include "usbd_uac.h"
 
+
 #if CONFIG_USB_HS
 #define EP_INTERVAL 0x04
 #else
@@ -220,20 +221,6 @@ static struct usb_interface_descriptor as_out_interface_alt_1_desc = {
 	.iInterface = 0,
 };
 
-#if (USE_UAC_DESC_ALT4 == 1)
-static struct usb_interface_descriptor as_out_interface_alt_4_desc = {
-	.bLength =		sizeof as_out_interface_alt_4_desc,
-	.bDescriptorType =	USB_DESCRIPTOR_TYPE_INTERFACE,
-	.bInterfaceNumber = 0, /* dynamic */
-	.bAlternateSetting =	4,
-	.bNumEndpoints =	1,
-	.bInterfaceClass =	USB_DEVICE_CLASS_AUDIO,
-	.bInterfaceSubClass =	AUDIO_SUBCLASS_AUDIOSTREAMING,
-	.bInterfaceProtocol	=	0,
-	.iInterface	=	0,
-};
-#endif // USE_UAC_DESC_ALT4
-
 /* B.4.2  Class-Specific AS Interface Descriptor */
 static struct audio_cs_if_as_general_descriptor as_out_general_desc = {
 	.bLength =		sizeof as_out_general_desc,
@@ -283,9 +270,6 @@ static struct audio_cs_ep_ep_general_descriptor cs_as_iso_out_ep_desc = {
 static const struct usb_desc_header * const hs_audio_out_intf[] = {
 	(struct usb_desc_header *)&as_out_interface_alt_0_desc,
 	(struct usb_desc_header *)&as_out_interface_alt_1_desc,
-#if (USE_UAC_DESC_ALT4 == 1)
-	(struct usb_desc_header *)&as_out_interface_alt_4_desc,
-#endif
 	(struct usb_desc_header *)&as_out_general_desc,
 	(struct usb_desc_header *)&as_out_type_i_desc,
 	(struct usb_desc_header *)&as_iso_out_ep_desc,
@@ -319,20 +303,6 @@ static struct usb_interface_descriptor as_in_interface_alt_1_desc = {
 	.bInterfaceProtocol	=	0,
 	.iInterface = 0,
 };
-
-#if (USE_UAC_DESC_ALT4 == 1)
-static struct usb_interface_descriptor as_in_interface_alt_4_desc = {
-	.bLength =		sizeof as_in_interface_alt_4_desc,
-	.bDescriptorType =	USB_DESCRIPTOR_TYPE_INTERFACE,
-	.bInterfaceNumber = 0, /* dynamic */
-	.bAlternateSetting =	4,
-	.bNumEndpoints =	1,
-	.bInterfaceClass =	USB_DEVICE_CLASS_AUDIO,
-	.bInterfaceSubClass =	AUDIO_SUBCLASS_AUDIOSTREAMING,
-	.bInterfaceProtocol	=	0,
-	.iInterface	=	0,
-};
-#endif // USE_UAC_DESC_ALT4
 
 /* B.4.2  Class-Specific AS Interface Descriptor */
 static struct audio_cs_if_as_general_descriptor as_in_general_desc = {
@@ -383,9 +353,6 @@ static struct audio_cs_ep_ep_general_descriptor cs_as_iso_in_ep_desc = {
 static const struct usb_desc_header * const hs_audio_in_intf[] = {
 	(struct usb_desc_header *)&as_in_interface_alt_0_desc,
 	(struct usb_desc_header *)&as_in_interface_alt_1_desc,
-#if (USE_UAC_DESC_ALT4 == 1)
-	(struct usb_desc_header *)&as_in_interface_alt_4_desc,
-#endif
 	(struct usb_desc_header *)&as_in_general_desc,
 	(struct usb_desc_header *)&as_in_type_i_desc,
 	(struct usb_desc_header *)&as_iso_in_ep_desc,
@@ -448,9 +415,6 @@ static uint8_t *__uac_build_descriptor(uint32_t *len, uint8_t in_ep,  uint8_t ou
 	tmp_count = 0;
 	as_out_interface_alt_0_desc.bInterfaceNumber = *interface_total;
 	as_out_interface_alt_1_desc.bInterfaceNumber = *interface_total;
-#if (USE_UAC_DESC_ALT4 == 1)
-	as_out_interface_alt_4_desc.bInterfaceNumber = *interface_total;
-#endif
 	as_iso_out_ep_desc.bEndpointAddress = out_ep;
 	(*interface_total)++;
 	for (uint32_t i = 0; hs_audio_out_intf[i] != NULL; i++) {
@@ -462,9 +426,6 @@ static uint8_t *__uac_build_descriptor(uint32_t *len, uint8_t in_ep,  uint8_t ou
 
 	as_in_interface_alt_0_desc.bInterfaceNumber = *interface_total;
 	as_in_interface_alt_1_desc.bInterfaceNumber = *interface_total;
-#if (USE_UAC_DESC_ALT4 == 1)
-	as_in_interface_alt_4_desc.bInterfaceNumber = *interface_total;
-#endif
 	as_iso_in_ep_desc.bEndpointAddress = in_ep;
 	for (uint32_t i = 0; hs_audio_in_intf[i] != NULL; i++) {
 		tmp_count += hs_audio_in_intf[i]->bLength;
