@@ -68,9 +68,10 @@ static struct uvc_frame_info_st h264_frame_info[] = {
 
 static struct uvc_format_info_st uvc_format_info[] = {
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
+};
+
+static struct uvc_format_info_st uvc_format_info_h264[] = {
     {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
-    // {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
-    // {NV21_FORMAT_INDEX, UVC_FORMAT_NV21, 1, ARRAY_SIZE(nv21_frame_info), nv21_frame_info},
 };
 
 static struct uvc_device_info uvc[USBD_UVC_MAX_NUM] = {
@@ -82,8 +83,8 @@ static struct uvc_device_info uvc[USBD_UVC_MAX_NUM] = {
     },
     {
         // .ep = 0x82,
-        .format_info = uvc_format_info,
-        .formats = ARRAY_SIZE(uvc_format_info),
+        .format_info = uvc_format_info_h264,
+        .formats = ARRAY_SIZE(uvc_format_info_h264),
         .video = {1, 0, 1},
     },
     {
@@ -98,6 +99,7 @@ static uint8_t media_buffer[DEFAULT_FRAME_SIZE] __attribute__((aligned(64)));
 
 
 static CVI_S32 is_media_info_update(struct uvc_device_info *info){
+	aos_debug_printf("[%s] start\n", __func__);
 	PAYLOAD_TYPE_E enType;
 	PIXEL_FORMAT_E enPixelFormat;
 	VENC_CHN_ATTR_S stVencChnAttr,*pstVencChnAttr = &stVencChnAttr;
@@ -165,6 +167,7 @@ static CVI_S32 is_media_info_update(struct uvc_device_info *info){
 
 static void uvc_parse_media_info(uint8_t bFormatIndex, uint8_t bFrameIndex)
 {
+	aos_debug_printf("[%s] start %d,%d\n", __func__, bFormatIndex, bFrameIndex);
     const struct uvc_format_info_st *format_info;
     const int uvcout_format_cnt = ARRAY_SIZE(uvc_format_info);
 
@@ -198,6 +201,7 @@ static void uvc_media_update(struct uvc_device_info *info){
 	VPSS_CHN_ATTR_S stVpssChnAttr;
 	CVI_U8 u8VencInitStatus = pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8InitStatus;
 	VENC_RECV_PIC_PARAM_S stRecvParam = {0};
+	aos_debug_printf("[%s] start\n", __func__);
 
 	struct uvc_format_info_st uvc_format_info;
 	struct uvc_frame_info_st uvc_frame_info;
@@ -233,21 +237,23 @@ static void uvc_media_update(struct uvc_device_info *info){
 		MEDIA_VIDEO_VencChnDeInit(pstVencCfg, info->video.venc_channel);
 		printf("venc chn %d deinit\n", info->video.venc_channel);
 	}
-
 	CVI_VPSS_GetChnAttr(info->video.vpss_group, info->video.vpss_channel, &stVpssChnAttr);
 	stVpssChnAttr.enPixelFormat = enPixelFormat;
-	stVpssChnAttr.u32Width = uvc_frame_info.width;
-	stVpssChnAttr.u32Height = uvc_frame_info.height;
+	// stVpssChnAttr.u32Width = uvc_frame_info.width;
+	// stVpssChnAttr.u32Height = uvc_frame_info.height;
 	CVI_VPSS_SetChnAttr(info->video.vpss_group, info->video.vpss_channel, &stVpssChnAttr);
 
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Width = uvc_frame_info.width;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Height = uvc_frame_info.height;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16EnType = enType;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate = (enType == PT_MJPEG)?20480:2048;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
-	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8ModId = CVI_ID_VPSS;
+	(void)enType;
+	// pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Width = uvc_frame_info.width;
+	// pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16Height = uvc_frame_info.height;
+	// pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u16EnType = enType;
+	// pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16BitRate = (enType == PT_MJPEG)?20480:2048;
+	// pstVencCfg->pstVencChnCfg[info->video.venc_channel].stRcParam.u16RcMode = (enType == PT_MJPEG)?VENC_RC_MODE_MJPEGCBR:VENC_RC_MODE_H264CBR;
+	// pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8ModId = CVI_ID_VPSS;
 	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8DevId = info->video.vpss_group;
    	pstVencCfg->pstVencChnCfg[info->video.venc_channel].stChnParam.u8DevChnid = info->video.vpss_channel;
+
+   	printf("uvc[%d][%dx%d]\n", info->video.venc_channel, uvc_frame_info.width, uvc_frame_info.height);
 
 	if(MJPEG_FORMAT_INDEX == uvc_format_info.format_index || H264_FORMAT_INDEX == uvc_format_info.format_index) {
 		MEDIA_VIDEO_VencChnInit(pstVencCfg, info->video.venc_channel);
