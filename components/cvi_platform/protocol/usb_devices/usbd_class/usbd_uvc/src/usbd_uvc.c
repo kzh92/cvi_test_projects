@@ -14,8 +14,8 @@
 #include "usbd_comp.h"
 #include "usbd_uvc_descriptor.h"
 
-#define WIDTH  (unsigned int)(1920)
-#define HEIGHT (unsigned int)(1080)
+#define WIDTH  (unsigned int)(640)
+#define HEIGHT (unsigned int)(480)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -43,33 +43,24 @@ static aos_work_t uvc_frame_submmit;
 #define FRM_BUFFER_GET_IDX(idx) (idx&(FRM_BUFFER_LEN-1))
 #endif
 
-static struct uvc_frame_info_st yuy2_frame_info[] = {
-    {1, 800, 600, 15, 0},
-    {2, 640, 360, 15, 0},
-    {3, 400, 300, 15, 0},
-    {5, 480, 320, 15, 0},
-    {6, 480, 360, 15, 0},
-    {7, 1280, 720, 15, 0},
-};
+// static struct uvc_frame_info_st yuy2_frame_info[] = {
+//     {1, 800, 600, 15, 0},
+//     {2, 640, 360, 15, 0},
+//     {3, 400, 300, 15, 0},
+//     {5, 480, 320, 15, 0},
+//     {6, 480, 360, 15, 0},
+//     {7, 1280, 720, 15, 0},
+// };
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 240, 320, 30, 0},
-    {2, 320, 240, 30, 0},
-    {3, 480, 320, 30, 0},
-    {4, 800, 480, 30, 0},
-    {5, 864, 480, 30, 0},
-    {6, 1280, 720, 30, 0},
-    {7, 1920, 1080, 30, 0},
-	{8, 1600, 1200, 30, 0},
+    {1, 640, 480, 30, 0},
 };
 
+#if 0
 static struct uvc_frame_info_st h264_frame_info[] = {
-    {1, 800, 600, 30, 0},
-    {2, 1280, 720, 30, 0},
-    {3, 640, 480, 30, 0},
-    {4, 400, 300, 30, 0},
-    {5, 1920, 1080, 30, 0},
+    {1, 320, 240, 30, 0},
 };
+#endif
 
 //  static struct uvc_frame_info_st nv21_frame_info[] = {
 //      {1, 800, 600, 15, 0},
@@ -79,8 +70,8 @@ static struct uvc_frame_info_st h264_frame_info[] = {
 
 static struct uvc_format_info_st uvc_format_info[] = {
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
-    {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
-    {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
+    // {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
+    // {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
     // {NV21_FORMAT_INDEX, UVC_FORMAT_NV21, 1, ARRAY_SIZE(nv21_frame_info), nv21_frame_info},
 };
 
