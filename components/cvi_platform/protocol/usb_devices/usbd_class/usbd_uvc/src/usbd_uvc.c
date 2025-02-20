@@ -14,8 +14,8 @@
 #include "usbd_comp.h"
 #include "usbd_uvc_descriptor.h"
 
-#define WIDTH  (unsigned int)(640)
-#define HEIGHT (unsigned int)(480)
+#define WIDTH  (unsigned int)(1280)
+#define HEIGHT (unsigned int)(720)
 
 #define CAM_FPS        (30)
 #define INTERVAL       (unsigned long)(10000000 / CAM_FPS)
@@ -53,14 +53,12 @@ static aos_work_t uvc_frame_submmit;
 // };
 
 static struct uvc_frame_info_st mjpeg_frame_info[] = {
-    {1, 640, 480, 30, 0},
+    {1, 1280, 720, 30, 0},
 };
 
-#if 0
 static struct uvc_frame_info_st h264_frame_info[] = {
-    {1, 320, 240, 30, 0},
+    {1, 480, 864, 30, 0},
 };
-#endif
 
 //  static struct uvc_frame_info_st nv21_frame_info[] = {
 //      {1, 800, 600, 15, 0},
@@ -70,7 +68,7 @@ static struct uvc_frame_info_st h264_frame_info[] = {
 
 static struct uvc_format_info_st uvc_format_info[] = {
     {MJPEG_FORMAT_INDEX, UVC_FORMAT_MJPEG, 1, ARRAY_SIZE(mjpeg_frame_info), mjpeg_frame_info},
-    // {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
+    {H264_FORMAT_INDEX, UVC_FORMAT_H264, 1, ARRAY_SIZE(h264_frame_info), h264_frame_info},
     // {YUYV_FORMAT_INDEX, UVC_FORMAT_YUY2, 1, ARRAY_SIZE(yuy2_frame_info), yuy2_frame_info},
     // {NV21_FORMAT_INDEX, UVC_FORMAT_NV21, 1, ARRAY_SIZE(nv21_frame_info), nv21_frame_info},
 };
@@ -86,7 +84,7 @@ static struct uvc_device_info uvc[USBD_UVC_MAX_NUM] = {
         // .ep = 0x82,
         .format_info = uvc_format_info,
         .formats = ARRAY_SIZE(uvc_format_info),
-        .video = {1, 1, 0},
+        .video = {1, 0, 1},
     },
     {
         // .ep = 0x83,

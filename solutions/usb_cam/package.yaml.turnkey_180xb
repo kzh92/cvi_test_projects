@@ -249,7 +249,7 @@ def_config:
   CLR_CAM_HEIGHT: 1200
   UVC_MJPEG_BITRATE: 20480
   UVC_H26X_BITRATE: 2048
-  # CONFIG_USBD_UVC_NUM: 2
+  CONFIG_USBD_UVC_NUM: 2
   
 ## 第六部分：安装信息
 # install:
