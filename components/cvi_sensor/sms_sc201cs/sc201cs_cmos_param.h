@@ -98,7 +98,11 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
+#if (CONFIG_CHIP_TYPE == 0)
 		.lane_id = {0, 1, -1, -1, -1},
+#else
+        .lane_id = {3, 4, -1, -1, -1},
+#endif
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 		.dphy = {
 			.enable = CVI_TRUE,
@@ -106,7 +110,11 @@ struct combo_dev_attr_s sc201cs_rx_attr = {
 		}
 	},
 	.mclk = {
+#if (CONFIG_CHIP_TYPE == 0)
 		.cam = 1,
+#else
+		.cam = 0,
+#endif
 		.freq = CAMPLL_FREQ_24M,
 	},
 	.devno = 0,

@@ -210,6 +210,7 @@ def_config:
 #  CONFIG_USB_DWC2_DMA_ENABLE: 1
   CONFIG_UAC_SAMPLE_RATE: 8000
   CONFIG_RNDIS_DEVICE_ETH: 1
+  CONFIG_CHIP_TYPE: 0
   
 ## 第六部分：安装信息
 # install:
