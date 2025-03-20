@@ -166,10 +166,6 @@ void PLATFORM_IoInit(void)
     GPIO_fast_config(CAM_MIPI0_PWDN, OUT);
     GPIO_fast_setvalue(CAM_MIPI1_PWDN, 1);    
     GPIO_fast_setvalue(CAM_MIPI0_PWDN, 1);
-
-    PINMUX_CONFIG(SD1_D0, PWR_GPIO_21); //IR LED pin
-    GPIO_fast_config(IR_LED, OUT);
-    GPIO_fast_setvalue(IR_LED, 1);
 }
 
 void PLATFORM_PowerOff(void)
