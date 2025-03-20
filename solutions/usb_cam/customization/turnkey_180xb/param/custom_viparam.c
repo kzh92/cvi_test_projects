@@ -11,7 +11,7 @@ extern unsigned char rgb_color_mode_param[];
 PARAM_CLASSDEFINE(PARAM_SNS_CFG_S,SENSORCFG,CTX,Sensor)[] = {
     {
         .enSnsType = CONFIG_SNS0_TYPE,
-        .s32I2cAddr = CONFIG_SENSOR_SMS_SC201CS ? 0x32 : 0x36,
+        .s32I2cAddr = CONFIG_SENSOR_SMS_SC201CS ? 0x32 : 0x10,
         .s8I2cDev = 1,
         .u32Rst_port_idx = 2,
         .u32Rst_pin = 8,
